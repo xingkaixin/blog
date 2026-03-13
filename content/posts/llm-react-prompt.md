@@ -18,9 +18,9 @@ coverAlt: llm-react-prompt
 
 ### 实现图
 
-![react](/posts/llm-react-prompt/react.png)
+![react](/posts/images/llm-react-prompt/react.png)
 
-![output](/posts/llm-react-prompt/output.png)
+![output](/posts/images/llm-react-prompt/output.png)
 
 ### Prompt
 
