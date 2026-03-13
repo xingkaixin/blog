@@ -9,7 +9,9 @@
     "build": "tsc -b && build:covers && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "wrangler": "wrangler pages deploy dist --project-name=blog",
+    "deploy": "bun run build && bun run wrangler"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.1.1",
