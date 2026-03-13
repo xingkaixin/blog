@@ -5,15 +5,28 @@ import { PostCover } from "@/components/post-cover";
 import { ReadingProgress } from "@/components/reading-progress";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
-import { formatDisplayDate, getPostBySlug } from "@/lib/content";
+import { formatDisplayDate, getPostBySlug, type PostDetail } from "@/lib/content";
 import { resolveCover } from "@/lib/covers";
 import { siteConfig } from "@/lib/site";
 import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
 export function PostPage() {
   const { slug } = useParams();
-  const post = slug ? getPostBySlug(slug) : undefined;
-  const [activeId, setActiveId] = useState<string | null>(post?.toc[0]?.id ?? null);
+  const [post, setPost] = useState<PostDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+
+    getPostBySlug(slug).then((data) => {
+      setPost(data ?? null);
+      setLoading(false);
+    });
+  }, [slug]);
 
   useEffect(() => {
     setActiveId(post?.toc[0]?.id ?? null);
@@ -53,6 +66,14 @@ export function PostPage() {
       window.removeEventListener('scroll', updateActiveHeading);
     };
   }, [post?.slug, post?.toc]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
   if (!post) {
     return <Navigate to="/404" replace />;

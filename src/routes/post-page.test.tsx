@@ -27,11 +27,23 @@ class IntersectionObserverMock {
   takeRecords = vi.fn(() => []);
 }
 
-let latestObserver: IntersectionObserverMock | null = null;
+let latestObserver: IntersectionObserverMock | undefined = undefined;
+
+function createMockEntry(target: HTMLElement, isIntersecting: boolean): IntersectionObserverEntry {
+  return {
+    target,
+    isIntersecting,
+    boundingClientRect: {} as DOMRectReadOnly,
+    intersectionRatio: 0,
+    intersectionRect: {} as DOMRectReadOnly,
+    rootBounds: null,
+    time: 0,
+  };
+}
 
 describe("PostPage", () => {
   beforeEach(() => {
-    latestObserver = null;
+    latestObserver = undefined;
     vi.stubGlobal(
       "IntersectionObserver",
       vi.fn((callback: ObserverCallback) => {
@@ -78,8 +90,8 @@ describe("PostPage", () => {
     }
 
     act(() => {
-      latestObserver.callback(
-        [{ target: heading21, isIntersecting: true } as IntersectionObserverEntry],
+      latestObserver!.callback(
+        [createMockEntry(heading21, true)],
         latestObserver as unknown as IntersectionObserver
       );
     });
@@ -89,11 +101,8 @@ describe("PostPage", () => {
     expect(hasCurrentLink(/引用的著作/)).toBe(false);
 
     act(() => {
-      latestObserver.callback(
-        [
-          { target: heading21, isIntersecting: true } as IntersectionObserverEntry,
-          { target: heading22, isIntersecting: true } as IntersectionObserverEntry,
-        ],
+      latestObserver!.callback(
+        [createMockEntry(heading21, true), createMockEntry(heading22, true)],
         latestObserver as unknown as IntersectionObserver
       );
     });
@@ -103,8 +112,8 @@ describe("PostPage", () => {
     expect(hasCurrentLink(/引用的著作/)).toBe(false);
 
     act(() => {
-      latestObserver.callback(
-        [{ target: heading21, isIntersecting: false } as IntersectionObserverEntry],
+      latestObserver!.callback(
+        [createMockEntry(heading21, false)],
         latestObserver as unknown as IntersectionObserver
       );
     });
@@ -113,8 +122,8 @@ describe("PostPage", () => {
     expect(hasCurrentLink(/引用的著作/)).toBe(false);
 
     act(() => {
-      latestObserver.callback(
-        [{ target: tailHeading, isIntersecting: false } as IntersectionObserverEntry],
+      latestObserver!.callback(
+        [createMockEntry(tailHeading, false)],
         latestObserver as unknown as IntersectionObserver
       );
     });

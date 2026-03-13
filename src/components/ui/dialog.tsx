@@ -6,12 +6,16 @@ import { cn } from "@/lib/utils";
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
+export const DialogTitle = DialogPrimitive.Title;
+export const DialogDescription = DialogPrimitive.Description;
 
 type DialogContentProps = ComponentProps<typeof DialogPrimitive.Content> & {
   hideClose?: boolean;
+  title?: string;
+  description?: string;
 };
 
-export function DialogContent({ className, children, hideClose, ...props }: DialogContentProps) {
+export function DialogContent({ className, children, hideClose, title, description, ...props }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-ink-800/30 backdrop-blur-sm" />
@@ -22,6 +26,8 @@ export function DialogContent({ className, children, hideClose, ...props }: Dial
         )}
         {...props}
       >
+        {title && <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>}
+        {description && <DialogPrimitive.Description className="sr-only">{description}</DialogPrimitive.Description>}
         {children}
         {!hideClose && (
           <DialogPrimitive.Close

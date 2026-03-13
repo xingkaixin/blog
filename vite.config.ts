@@ -79,6 +79,23 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-markdown": ["react-markdown", "rehype-slug", "remark-gfm"],
+          "radix-ui": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-icons",
+          ],
+          "font-source": [
+            "@fontsource/jetbrains-mono",
+            "@fontsource/outfit",
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",

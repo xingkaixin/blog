@@ -32,10 +32,10 @@ type Frontmatter = {
 };
 
 const postModules = import.meta.glob("/content/posts/*.md", {
-  eager: true,
+  eager: false,
   query: "?raw",
   import: "default",
-}) as Record<string, string>;
+}) as Record<string, () => Promise<string>>;
 
 const slugify = (value: string) =>
   value
@@ -185,23 +185,39 @@ export function parseMarkdownPost(slug: string, source: string): PostDetail | nu
   };
 }
 
-const posts = Object.entries(postModules)
-  .map(([filePath, source]) => {
-    const slug = filePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
-    return parseMarkdownPost(slug, source);
-  })
-  .filter((post): post is PostDetail => Boolean(post))
-  .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+let postsCache: PostDetail[] | null = null;
 
-export function getAllPosts(): PostDetail[] {
-  return posts;
+async function loadPosts(): Promise<PostDetail[]> {
+  if (postsCache) {
+    return postsCache;
+  }
+
+  const entries = await Promise.all(
+    Object.entries(postModules).map(async ([filePath, loader]) => {
+      const source = await loader();
+      const slug = filePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
+      return parseMarkdownPost(slug, source);
+    })
+  );
+
+  postsCache = entries
+    .filter((post): post is PostDetail => Boolean(post))
+    .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+
+  return postsCache;
 }
 
-export function getPostBySlug(slug: string) {
+export async function getAllPosts(): Promise<PostDetail[]> {
+  return loadPosts();
+}
+
+export async function getPostBySlug(slug: string) {
+  const posts = await loadPosts();
   return posts.find((post) => post.slug === slug);
 }
 
-export function getAllTags() {
+export async function getAllTags() {
+  const posts = await loadPosts();
   return [...new Set(posts.flatMap((post) => post.tags))].sort((left, right) =>
     left.localeCompare(right, "zh-CN")
   );

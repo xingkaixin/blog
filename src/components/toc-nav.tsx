@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: string | null }) {
   const activeRef = useRef<HTMLAnchorElement | null>(null);
-  const navRef = useRef<HTMLElement | null>(null);
+  const navRef = useRef<HTMLDivElement | null>(null);
 
   // 当 activeId 变化时，将高亮项滚动到目录容器中心
   useEffect(() => {

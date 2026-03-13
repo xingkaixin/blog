@@ -1,20 +1,15 @@
-import { describe, expect, it } from "vitest";
-import { searchPosts } from "@/lib/search";
-import type { PostDetail } from "@/lib/content";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { loadSearchIndex, resetSearchCache, type SearchIndexItem } from "@/lib/search";
 
-const posts: PostDetail[] = [
+const posts: SearchIndexItem[] = [
   {
     slug: "alpha",
     title: "Vite 内容索引",
     date: "2026-03-11",
     summary: "讲 Markdown 扫描和构建期索引。",
     tags: ["vite", "content"],
-    cover: "/posts/alpha/cover.svg",
+    cover: "alpha.jpg",
     coverAlt: "alpha cover",
-    readingTime: 4,
-    content: "",
-    plainText: "使用 vite 和 markdown 建索引",
-    toc: [],
   },
   {
     slug: "beta",
@@ -22,24 +17,63 @@ const posts: PostDetail[] = [
     date: "2026-03-10",
     summary: "关于长期阅读的笔记。",
     tags: ["reading"],
-    cover: "/posts/beta/cover.svg",
+    cover: "beta.jpg",
     coverAlt: "beta cover",
-    readingTime: 3,
-    content: "",
-    plainText: "日常阅读和做笔记",
-    toc: [],
   },
 ];
 
 describe("search posts", () => {
-  it("matches title and body terms", () => {
-    const results = searchPosts(posts, { query: "vite", activeTag: null });
+  beforeEach(() => {
+    vi.resetAllMocks();
+    resetSearchCache();
+  });
+
+  it("matches title and body terms", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => posts,
+    } as Response);
+
+    const { searchPosts } = await import("@/lib/search");
+    const results = await searchPosts({ query: "vite", activeTag: null });
     expect(results[0]?.slug).toBe("alpha");
   });
 
-  it("filters by tag", () => {
-    const results = searchPosts(posts, { query: "", activeTag: "reading" });
+  it("filters by tag", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => posts,
+    } as Response);
+
+    const { searchPosts } = await import("@/lib/search");
+    const results = await searchPosts({ query: "", activeTag: "reading" });
     expect(results).toHaveLength(1);
     expect(results[0]?.slug).toBe("beta");
+  });
+});
+
+describe("loadSearchIndex", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    resetSearchCache();
+  });
+
+  it("loads search index from JSON file", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => posts,
+    } as Response);
+
+    const result = await loadSearchIndex();
+    expect(result).toEqual(posts);
+  });
+
+  it("returns empty array on fetch failure", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+    } as Response);
+
+    const result = await loadSearchIndex();
+    expect(result).toEqual([]);
   });
 });

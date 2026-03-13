@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build:search": "bun scripts/generate-search-index.ts",
     "build:covers": "bun scripts/generate-covers.ts",
-    "build": "tsc -b && build:covers && vite build",
+    "build": "tsc -b && bun run build:search && bun run build:covers && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

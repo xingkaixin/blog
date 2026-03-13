@@ -1,0 +1,206 @@
+[
+  {
+    "slug": "2025-review",
+    "title": "2025 Review",
+    "date": "Wed Dec 31 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "回顾 2025 年，这是我在持续精进的同时，有意识拓展认知边界的一年。工作重心从上半年偏向数据基础设施与底层建设，逐步过渡到下半年对流程、规范以及复杂项目整体推进能力的打磨。与此同时，我也刻意让个人技术路径不局限于单一纵深，而是在系统性能、数据模型、AI 与跨学科知识之间形成交叉。这一年让我更加确认：长期价值并不来自技能数量的叠加，而来自抽象能力与判断力的积累。",
+    "tags": [
+      "生活",
+      "Review"
+    ],
+    "cover": "/posts/cover/2025-review.webp",
+    "coverAlt": "2025-review"
+  },
+  {
+    "slug": "state-of-ai",
+    "title": "2025年人工智能现状深度研究报告：代理推理、开源格局重塑与智能经济学",
+    "date": "Wed Dec 10 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本报告旨在为行业专家、决策者及技术构建者提供一份详尽的宏观与微观分析。核心发现表明，市场正在摆脱单一维度的军备竞赛，转向结构性的多元化发展。",
+    "tags": [
+      "openrouter",
+      "AI"
+    ],
+    "cover": "/posts/cover/state-of-ai.webp",
+    "coverAlt": "state-of-ai"
+  },
+  {
+    "slug": "the-state-of-enterprise-ai_2025-report",
+    "title": "2025年企业人工智能现状报告：运营成熟度、战略分化与代理化转型",
+    "date": "Tue Dec 09 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "2025年标志着全球企业人工智能（Enterprise AI）发展轨迹中的一个决定性拐点。如果说2023年是“AI大爆炸”的元年，2024年是广泛实验的探索期，那么2025年则正式进入了“第一缕曙光（First Light）”的时代——在这个时代，理论上的技术能力正在结晶为可衡量的、可扩展的，且往往具有颠覆性的经济现实 。随着OpenAI发布其首份《2025年企业AI现状报告》，结合来自主要咨询公司、行业分析师以及竞争对手的佐证数据，一幅清晰的图景正在浮现：人工智能不再仅仅是一个辅助生产力的工具，而是正在成为重构现代企业架构的根本性力量。",
+    "tags": [
+      "OpenAI",
+      "Enterprise",
+      "AI"
+    ],
+    "cover": "/posts/cover/the-state-of-enterprise-ai_2025-report.webp",
+    "coverAlt": "the-state-of-enterprise-ai_2025-report"
+  },
+  {
+    "slug": "the-chicken-or-the-egg",
+    "title": "先有鸡还是先有蛋",
+    "date": "Thu Aug 07 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "哲学上因果循环无解，但进化史与化石-基因证据表明：早在鸡出现前，其祖先已产蛋，因此“蛋”先于“鸡”。",
+    "tags": [
+      "哲学",
+      "科学"
+    ],
+    "cover": "/posts/cover/the-chicken-or-the-egg.webp",
+    "coverAlt": "the-chicken-or-the-egg"
+  },
+  {
+    "slug": "the-newsroom-time-tested-masterpieces",
+    "title": "新闻编辑室：时间考验下的不朽佳作",
+    "date": "Sun Feb 18 2024 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "数年后重新观看《新闻编辑室》，这部精心打造的剧集依然展现出其不减的魅力。通过对新闻行业的理想化描绘、犀利对话以及角色的深度发展，剧集不仅是对新闻职业精神的一次挚烈呼唤，也是对理想主义与现实挣扎的深情书写。尽管当年在美国本土受到了一些批评，但在中国大陆却获得了很高的评价，这反映了中美观众在文化接受度和价值观上的差异。《新闻编辑室》不仅是对新闻工作者的致敬，更是在信息爆炸的时代中，提醒我们追求真相和理想的重要性。这部剧集的价值和影响力，随着时间的推移而愈发显现，成为了一部值得反复观看和深思的不朽佳作。",
+    "tags": [
+      "影视",
+      "新闻"
+    ],
+    "cover": "/posts/cover/the-newsroom-time-tested-masterpieces.webp",
+    "coverAlt": "the-newsroom-time-tested-masterpieces"
+  },
+  {
+    "slug": "llm-react-prompt",
+    "title": "LLM 的 ReAct 模式",
+    "date": "Tue Apr 11 2023 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "大语言模型的 Prompt ，通过加入各类控制，让语言模型可以在碰到问题变相使用外部工具来解决",
+    "tags": [
+      "LLM",
+      "Prompt"
+    ],
+    "cover": "/posts/cover/llm-react-prompt.webp",
+    "coverAlt": "llm-react-prompt"
+  },
+  {
+    "slug": "The-Last-of-Us-review",
+    "title": "最后生还者观后感",
+    "date": "Thu Mar 23 2023 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本文是对HBO电视剧《最后生还者》的观后感。本剧改编自游戏《最后生还者》，故事背景在一个被寄生真菌摧毁的末世世界。剧集涵盖了游戏的故事情节，并加入了许多新的情节，来探索其他幸存者团体的生存。本文认为，该剧集探索了原始叙事，成功地为自己创造了独特的身份认同。本文还谈到了该剧集存在一些弱点，包括对于一些角色的剧情安排有待改进，以及对于Joel和Ellie之间关系成长的探索不够完善。总体而言，本文认为《最后生还者》的HBO电视剧版还是非常出色的。",
+    "tags": [
+      "游戏",
+      "影视"
+    ],
+    "cover": "/posts/cover/The-Last-of-Us-review.webp",
+    "coverAlt": "The-Last-of-Us-review"
+  },
+  {
+    "slug": "Memories-make-people-grow-old",
+    "title": "回忆使人变老",
+    "date": "Wed Feb 02 2022 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本文讲述了作者在整理 Gmail 邮件时发现了过往和旧友的邮件，回忆起十年前的自己和朋友们。当时的自己喜欢集体活动，热爱表达和分享想法，而朋友们的联系方式主要是邮件和电话。十年后，疫情的影响导致与朋友的联系基本上只在线上，线下聚会变少，作者的想法也只停留在工作中。",
+    "tags": [
+      "生活",
+      "青春"
+    ],
+    "cover": "/posts/cover/Memories-make-people-grow-old.webp",
+    "coverAlt": "Memories-make-people-grow-old"
+  },
+  {
+    "slug": "Follow-or-break-the-rules",
+    "title": "遵守还是违反规则",
+    "date": "Sun Dec 19 2021 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本文讲述了规则在我们生活中的重要性，它们让社会更有秩序。以小区单向道控制为例，说明了遵守规则的好处，同时也遇到了一些不遵守规则的人。在遇到一个年长者违反规则不愿意退让的情况下，选择报警，最终警察的到来解决了问题。虽然有些遗憾的是年长者没有意识到自己的错误并道歉，但也从中学到了报警可以解决问题的经验。",
+    "tags": [
+      "社会",
+      "警察",
+      "保安"
+    ],
+    "cover": "/posts/cover/Follow-or-break-the-rules.webp",
+    "coverAlt": "Follow-or-break-the-rules"
+  },
+  {
+    "slug": "Ted-Lasso",
+    "title": "Ted Lasso",
+    "date": "Thu Feb 25 2021 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "NiceTry 播客最近推荐了 Apple TV+ 上的剧集《足球教练》，这是一部节奏快、梗多好笑的剧集，虽然剧情老套，但主角 Ted 的乐观理想主义精神令人感动。该剧订了三季，今年下半年将推出新一季，非常值得期待。",
+    "tags": [
+      "Apple TV",
+      "影视"
+    ],
+    "cover": "/posts/cover/Ted-Lasso.webp",
+    "coverAlt": "Ted-Lasso"
+  },
+  {
+    "slug": "macOS-now-supports-Netflix-Dolby-Vision",
+    "title": "macOS 开始支援 Netflix 的杜比视界",
+    "date": "Tue Mar 24 2020 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "文章讲述的是 macOS 对于 4K 和杜比视界的支持的情况。去年的 WWDC 19 中，人们以为 macOS 将支持 4K，但多个 beta 测试后发现不可能实现。而在最近 10.15.4 beta5 中，发现 Safari 上能够播放 Netflix 并点亮杜比视界标志。经过确认，18 款后的 Mac 型号并升级到了 beta5 的用户就可以享受此功能。",
+    "tags": [
+      "macOS",
+      "Netflix",
+      "杜比视界"
+    ],
+    "cover": "/posts/cover/macOS-now-supports-Netflix-Dolby-Vision.webp",
+    "coverAlt": "macOS-now-supports-Netflix-Dolby-Vision"
+  },
+  {
+    "slug": "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong",
+    "title": "尝试与台湾政治人物进行沟通香港暴力示威",
+    "date": "Sat Oct 05 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "作者写了一封邮件给台北市议员邱威杰，表达了对香港游行示威过程中暴力行为的关注和担忧，并询问议员对此的看法。作者在邮件中提到自己是上海人，喜欢台湾，并关注了许多台湾的 YouTube 频道。作者认为香港游行示威最初是一个正常的表达诉求的游行，但随着时间的推移，出现了越来越多的暴力行为，已经越界。因此，作者选择尝试与议员进行对话。",
+    "tags": [
+      "台湾",
+      "香港"
+    ],
+    "cover": "/posts/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp",
+    "coverAlt": "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong"
+  },
+  {
+    "slug": "The-requirements-and-design-ideas-of-the-strategy-team",
+    "title": "策略组的需求和设计思路分享",
+    "date": "Sun Jun 30 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本文旨在分享关于策略组的需求和设计思路，以适用于不同的科学上网应用，如 Surge、Clash、Quantumult、Quantumult X。首先，我们需要将线路类型分为直连、公网中转、内网中转，再将节点根据地区分组，如香港、日本、新加坡、美国等。最后，我们可以根据具体应用要求来进行选择节点类型。并且，建议每个服务都保留一个直连节点，以便在不同地区时进行适当的调整，从而获得更好的使用体验。",
+    "tags": [
+      "策略组",
+      "科学上网"
+    ],
+    "cover": "/posts/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp",
+    "coverAlt": "The-requirements-and-design-ideas-of-the-strategy-team"
+  },
+  {
+    "slug": "Infuse-subscription-migration",
+    "title": "Infuse 订阅迁移 - Firecore 的超优质服务",
+    "date": "Thu May 23 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "如果你使用Plex作为你的媒体库管理影片、剧集。那么对应的在iPhone和Apple TV上最佳的观看体验则是通过Infuse来实现。为了确认所有功能的开发，且未来的升级依然可以享用，大部分都会采取订阅的方式解锁Infuse的内购功能。我之前也订阅了Infuse，不过当时了解不足，导致在Apple TV上因为中国区无对应TV Store而无法使用Infuse。前2天，我发邮件给Infuse客服，期望他们可以把我的中国区订阅转移到香港账号上，在他们确认了我的订阅订单信息后，他们竟然直接提供了促销码兑换，这样我统一时间就拥有中国区和香港区2份订阅，而且香港区的订阅时间是按照我兑款时间来算且包含附赠的免费体验一个月。",
+    "tags": [
+      "APP",
+      "服务"
+    ],
+    "cover": "/posts/cover/Infuse-subscription-migration.webp",
+    "coverAlt": "Infuse-subscription-migration"
+  },
+  {
+    "slug": "ALS-Ice-Bucket-Challenge-and-Charity",
+    "title": "ALS冰桶挑战与慈善",
+    "date": "Sun Aug 17 2014 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "今天在 Instgram 上看到 LBJ 在游艇上被人倒冰水，说是接受了KD的挑战，挑战前还讲了另外3个人名让他们来接受挑战，Obama 也在其中，看起来很酷啊，不过当时人在外面也就看一下就结束了。",
+    "tags": [
+      "ALS"
+    ],
+    "cover": "/posts/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp",
+    "coverAlt": "ALS-Ice-Bucket-Challenge-and-Charity"
+  },
+  {
+    "slug": "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers",
+    "title": "ALS冰桶挑战与慈善",
+    "date": "Thu Feb 20 2014 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "作为上海土著，不排外，身边有大量非上海朋友来回答下这个问题。",
+    "tags": [
+      "生活"
+    ],
+    "cover": "/posts/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp",
+    "coverAlt": "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers"
+  },
+  {
+    "slug": "why-i-pay",
+    "title": "我为什么要付费",
+    "date": "Fri Jul 12 2013 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "在weibo上看到有批评使用优酷视频的广告屏蔽助手的用户，认为这是非常错误的行为且这个行为可能还对自己的隐私带来潜在的风险。",
+    "tags": [
+      "付费服务"
+    ],
+    "cover": "/posts/cover/why-i-pay.webp",
+    "coverAlt": "why-i-pay"
+  }
+]
