@@ -1,20 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
-import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import matter from "gray-matter";
+import type { Plugin } from "vite";
 import { imagetools } from "vite-imagetools";
 import { defineConfig } from "vitest/config";
-import type { Plugin } from "vite";
 
-const requiredFrontmatter = [
-  "title",
-  "date",
-  "summary",
-  "tags",
-  "cover",
-  "coverAlt",
-] as const;
+const requiredFrontmatter = ["title", "date", "summary", "tags", "cover", "coverAlt"] as const;
 
 function validateBlogContent(): Plugin {
   const root = process.cwd();
@@ -72,6 +65,22 @@ function validateBlogContent(): Plugin {
   };
 }
 
+function resolveManualChunk(id: string) {
+  if (id.includes("react-markdown") || id.includes("rehype-slug") || id.includes("remark-gfm")) {
+    return "react-markdown";
+  }
+
+  if (id.includes("@radix-ui/react-dialog") || id.includes("@radix-ui/react-icons")) {
+    return "radix-ui";
+  }
+
+  if (id.includes("@fontsource/jetbrains-mono") || id.includes("@fontsource/outfit")) {
+    return "font-source";
+  }
+
+  return undefined;
+}
+
 export default defineConfig({
   plugins: [imagetools(), react(), tailwindcss(), validateBlogContent()],
   resolve: {
@@ -82,17 +91,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          "react-markdown": ["react-markdown", "rehype-slug", "remark-gfm"],
-          "radix-ui": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-icons",
-          ],
-          "font-source": [
-            "@fontsource/jetbrains-mono",
-            "@fontsource/outfit",
-          ],
-        },
+        manualChunks: resolveManualChunk,
       },
     },
   },
