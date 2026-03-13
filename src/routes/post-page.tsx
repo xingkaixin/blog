@@ -22,6 +22,7 @@ export function PostPage() {
       return;
     }
 
+    const tocIds = post.toc.map((item) => item.id);
     const headings = post.toc
       .map((item) => document.getElementById(item.id))
       .filter((heading): heading is HTMLElement => Boolean(heading));
@@ -30,32 +31,35 @@ export function PostPage() {
       return;
     }
 
-    const updateActiveId = () => {
-      const nextActiveId = resolveActiveTocId(headings, TOC_ACTIVE_OFFSET);
-      if (!nextActiveId) {
-        return;
+    const visibleIds = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const headingId = (entry.target as HTMLElement).id;
+          if (entry.isIntersecting) {
+            visibleIds.add(headingId);
+          } else {
+            visibleIds.delete(headingId);
+          }
+        }
+
+        setActiveId((currentId) => {
+          const nextActiveId = resolveActiveTocId(tocIds, visibleIds, currentId);
+          return currentId === nextActiveId ? currentId : nextActiveId;
+        });
+      },
+      {
+        rootMargin: `-${TOC_ACTIVE_OFFSET}px 0px -70% 0px`,
+        threshold: 0,
       }
-
-      setActiveId((currentId) => (currentId === nextActiveId ? currentId : nextActiveId));
-    };
-
-    updateActiveId();
-
-    const observer = new IntersectionObserver(updateActiveId, {
-      rootMargin: `-${TOC_ACTIVE_OFFSET}px 0px -65% 0px`,
-      threshold: [0, 1],
-    });
+    );
 
     headings.forEach((heading) => observer.observe(heading));
-    window.addEventListener("hashchange", updateActiveId);
-    window.addEventListener("resize", updateActiveId);
 
     return () => {
       observer.disconnect();
-      window.removeEventListener("hashchange", updateActiveId);
-      window.removeEventListener("resize", updateActiveId);
     };
-  }, [post?.toc]);
+  }, [post?.slug, post?.toc]);
 
   if (!post) {
     return <Navigate to="/404" replace />;
