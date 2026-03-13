@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --color-ink-50: #f8f5ef;
+  --color-ink-100: #efe7db;
+  --color-ink-200: #ded1bf;
+  --color-ink-300: #bea98d;
+  --color-ink-400: #8c7253;
+  --color-ink-500: #654f36;
+  --color-ink-600: #473725;
+  --color-ink-700: #31251a;
+  --color-ink-800: #1f1812;
+  --color-paper: #f4efe6;
+  --color-surface: #faf6ef;
+  --color-accent: #7b6244;
+  --color-accent-soft: #e4d9cb;
+  --color-grid: rgba(101, 79, 54, 0.06);
+}
+
+:root {
+  color: var(--color-ink-800);
+  background:
+    radial-gradient(circle at top left, rgba(228, 217, 203, 0.42), transparent 34%),
+    radial-gradient(circle at 85% 12%, rgba(223, 212, 196, 0.2), transparent 26%),
+    linear-gradient(180deg, #faf6ef 0%, #f4efe6 100%);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(123, 98, 68, 0.14);
+  background:
+    linear-gradient(to right, transparent 0, transparent calc(100% - 1px), var(--color-grid) calc(100% - 1px)),
+    linear-gradient(to bottom, transparent 0, transparent calc(100% - 1px), var(--color-grid) calc(100% - 1px));
+  background-size: 24px 24px;
+  color: var(--color-ink-800);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image:
+    radial-gradient(circle at 18% 16%, rgba(214, 200, 182, 0.22), transparent 24%),
+    radial-gradient(circle at 80% 0%, rgba(168, 148, 123, 0.08), transparent 20%),
+    radial-gradient(circle at bottom left, rgba(236, 229, 218, 0.38), transparent 28%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+a,
+input {
+  font: inherit;
+}
+
+#root {
+  isolation: isolate;
+}
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%2331251a' fill-opacity='.08'%3E%3Ccircle cx='12' cy='12' r='1'/%3E%3Ccircle cx='42' cy='28' r='1'/%3E%3Ccircle cx='118' cy='14' r='1'/%3E%3Ccircle cx='78' cy='58' r='1'/%3E%3Ccircle cx='134' cy='48' r='1'/%3E%3Ccircle cx='22' cy='92' r='1'/%3E%3Ccircle cx='98' cy='102' r='1'/%3E%3Ccircle cx='146' cy='126' r='1'/%3E%3Ccircle cx='54' cy='132' r='1'/%3E%3Ccircle cx='86' cy='148' r='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.article-prose {
+  @apply prose prose-zinc max-w-none prose-headings:font-sans prose-headings:tracking-tight prose-headings:text-ink-800 prose-h2:mt-12 prose-h2:border-t prose-h2:border-ink-800/10 prose-h2:pt-8 prose-h3:mt-8 prose-p:text-[1.02rem] prose-p:leading-8 prose-p:text-ink-600 prose-a:text-accent prose-a:no-underline hover:prose-a:text-ink-800 prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:bg-accent/5 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-ink-700 prose-strong:text-ink-800 prose-code:rounded prose-code:bg-ink-800/5 prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-pre:overflow-x-auto prose-pre:rounded-[1.75rem] prose-pre:border prose-pre:border-white/35 prose-pre:bg-ink-800 prose-pre:px-5 prose-pre:py-5 prose-pre:text-ink-50 prose-img:rounded-[1.75rem] prose-img:border prose-img:border-white/40 prose-img:shadow-[0_24px_60px_-40px_rgba(31,24,18,0.5)] prose-hr:border-ink-800/10 prose-th:text-ink-800 prose-td:text-ink-600;
+}
+
+.article-prose :where(h2, h3) {
+  scroll-margin-top: 7rem;
+}
+
+.article-prose :where(code):not(:where(pre code))::before,
+.article-prose :where(code):not(:where(pre code))::after {
+  content: "";
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.soft-shimmer {
+  background: linear-gradient(90deg, rgba(239, 231, 219, 0.45) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(239, 231, 219, 0.45) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.marquee-track {
+  animation: marquee 28s linear infinite;
+}
+
+.hover-lift {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+}
+
+.hover-lift:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
