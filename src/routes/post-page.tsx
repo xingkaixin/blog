@@ -26,7 +26,7 @@ export function PostPage() {
                   src={post.cover}
                   alt={post.coverAlt}
                   priority
-                  className="rounded-[2rem] border-white/60 bg-[#fffaf3] p-3 sm:p-4"
+                  className="rounded-[2rem] border-white/60"
                 />
               </figure>
 

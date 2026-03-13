@@ -11,7 +11,7 @@ export function PostCard({ post, index }: { post: PostMeta; index: number }) {
         <PostCover
           src={post.cover}
           alt={post.coverAlt}
-          className="rounded-[1.7rem] border-[#e4dbcf] bg-[#fffdf9] p-2.5 sm:p-3"
+          className="rounded-[1.7rem] border-[#e4dbcf]"
           imageClassName="transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
         />
         <div className="flex flex-1 flex-col justify-between pt-5">

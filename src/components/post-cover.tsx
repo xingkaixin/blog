@@ -18,7 +18,7 @@ export function PostCover({
   return (
     <div
       className={cn(
-        "rounded-[1.6rem] border border-ink-800/10 bg-[#fffdf9] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.88)]",
+        "overflow-hidden rounded-[1.6rem] border border-ink-800/10",
         className
       )}
     >
@@ -29,7 +29,7 @@ export function PostCover({
         height={1143}
         loading={priority ? undefined : "lazy"}
         fetchPriority={priority ? "high" : undefined}
-        className={cn("aspect-[16/9] w-full rounded-[1rem] object-contain", imageClassName)}
+        className={cn("block aspect-[16/9] w-full object-contain", imageClassName)}
       />
     </div>
   );
