@@ -1,7 +1,32 @@
 import type { TocItem } from "@/lib/content";
 import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 
 export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: string | null }) {
+  const activeRef = useRef<HTMLAnchorElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+
+  // 当 activeId 变化时，将高亮项滚动到目录容器中心
+  useEffect(() => {
+    if (activeRef.current && navRef.current) {
+      const nav = navRef.current;
+      const activeItem = activeRef.current;
+
+      // 计算需要将高亮项置于容器中心所需的滚动偏移
+      const navHeight = nav.clientHeight;
+      const itemTop = activeItem.offsetTop;
+      const itemHeight = activeItem.clientHeight;
+
+      // 目标位置：让高亮项位于容器垂直中心
+      const targetScrollTop = itemTop - navHeight / 2 + itemHeight / 2;
+
+      nav.scrollTo({
+        top: targetScrollTop,
+        behavior: "smooth",
+      });
+    }
+  }, [activeId]);
+
   if (!items.length) {
     return (
       <div className="rounded-[1.7rem] border border-ink-800/10 bg-white/60 p-5 text-sm leading-7 text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
@@ -12,7 +37,7 @@ export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: strin
 
   return (
     <>
-      <div className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+      <div ref={navRef} className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
         <p className="mb-4 text-xs uppercase tracking-[0.28em] text-ink-400">文章目录</p>
         <nav className="space-y-2">
           {items.map((item) => {
@@ -21,6 +46,7 @@ export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: strin
             return (
               <a
                 key={item.id}
+                ref={isActive ? activeRef : undefined}
                 href={`#${item.id}`}
                 aria-current={isActive ? "location" : undefined}
                 className={cn(
