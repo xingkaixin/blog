@@ -161,7 +161,7 @@ function estimateReadingTime(text: string) {
 
 export function parseMarkdownPost(slug: string, source: string): PostDetail | null {
   const { data, content } = splitFrontmatter(source);
-  const frontmatter = data as Partial<Frontmatter>;
+  const frontmatter = data;
 
   if (frontmatter.draft) {
     return null;
@@ -197,12 +197,12 @@ async function loadPosts(): Promise<PostDetail[]> {
       const source = await loader();
       const slug = filePath.split("/").pop()?.replace(/\.md$/, "") ?? "";
       return parseMarkdownPost(slug, source);
-    })
+    }),
   );
 
   postsCache = entries
     .filter((post): post is PostDetail => Boolean(post))
-    .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+    .toSorted((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 
   return postsCache;
 }
@@ -218,7 +218,7 @@ export async function getPostBySlug(slug: string) {
 
 export async function getAllTags() {
   const posts = await loadPosts();
-  return [...new Set(posts.flatMap((post) => post.tags))].sort((left, right) =>
-    left.localeCompare(right, "zh-CN")
+  return [...new Set(posts.flatMap((post) => post.tags))].toSorted((left, right) =>
+    left.localeCompare(right, "zh-CN"),
   );
 }

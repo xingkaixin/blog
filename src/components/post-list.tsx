@@ -1,5 +1,5 @@
-import type { PostMeta } from "@/lib/content";
 import { PostCard } from "@/components/post-card";
+import type { PostMeta } from "@/lib/content";
 
 export function PostList({ posts }: { posts: PostMeta[] }) {
   return (

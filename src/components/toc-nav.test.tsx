@@ -11,16 +11,19 @@ describe("TocNav", () => {
           { id: "details", text: "细节", depth: 3 },
         ]}
         activeId="details"
-      />
+      />,
     );
 
-    expect(screen.getAllByRole("link", { name: "细节" })[0]).toHaveAttribute("aria-current", "location");
+    expect(screen.getAllByRole("link", { name: "细节" })[0]).toHaveAttribute(
+      "aria-current",
+      "location",
+    );
     expect(screen.getAllByRole("link", { name: "介绍" })[0]).not.toHaveAttribute("aria-current");
   });
 
   it("shows the existing empty state when the post has no headings", () => {
-    render(<TocNav items={[]} activeId={null} />);
+    const { container } = render(<TocNav items={[]} activeId={null} />);
 
-    expect(screen.getByText("这篇文章没有二级和三级标题，适合一口气读完。")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 });

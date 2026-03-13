@@ -1,9 +1,11 @@
 export function PostSkeleton() {
+  const skeletonItems = ["cover-primary", "cover-secondary"];
+
   return (
     <div className="grid gap-6" aria-hidden="true">
-      {Array.from({ length: 2 }).map((_, index) => (
+      {skeletonItems.map((itemId) => (
         <div
-          key={index}
+          key={itemId}
           className="overflow-hidden rounded-[2rem] border border-white/25 bg-white/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
         >
           <div className="grid gap-0 lg:grid-cols-[1.2fr_0.8fr]">

@@ -3,7 +3,7 @@ export const TOC_ACTIVE_OFFSET = 112;
 export function resolveActiveTocId(
   tocIds: string[],
   visibleIds: Iterable<string>,
-  previousActiveId: string | null = null
+  previousActiveId: string | null = null,
 ) {
   if (!tocIds.length) {
     return null;

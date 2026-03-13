@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { ResponsiveCover } from "@/lib/covers";
+import { cn } from "@/lib/utils";
 
 type PostCoverProps = {
   src: string;
@@ -47,12 +47,7 @@ export function PostCover({
   );
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-[1.6rem] border border-ink-800/10",
-        className
-      )}
-    >
+    <div className={cn("overflow-hidden rounded-[1.6rem] border border-ink-800/10", className)}>
       {img}
     </div>
   );

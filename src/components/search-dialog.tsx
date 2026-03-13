@@ -1,10 +1,10 @@
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { resolveCover } from "@/lib/covers";
-import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { resolveCover } from "@/lib/covers";
+import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 
 type SearchDialogProps = {
   trigger: ReactNode;
@@ -42,10 +42,13 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
 
   useEffect(() => {
     if (open && loading) {
-      loadSearchIndex().then((index) => {
-        setPosts(index);
-        setLoading(false);
-      });
+      void loadSearchIndex()
+        .then((index) => {
+          setPosts(index);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [open, loading]);
 
@@ -72,7 +75,9 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
   }, []);
 
   const results = useMemo(() => {
-    if (!query.trim()) return [];
+    if (!query.trim()) {
+      return [];
+    }
     const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
     return posts
       .map((post) => {
@@ -87,7 +92,9 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
         return { post, score };
       })
       .filter(({ score }) => score > 0)
-      .sort((left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date))
+      .toSorted(
+        (left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date),
+      )
       .map(({ post }) => post);
   }, [query, posts]);
 

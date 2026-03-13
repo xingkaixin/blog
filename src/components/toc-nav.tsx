@@ -1,6 +1,6 @@
+import { useEffect, useRef } from "react";
 import type { TocItem } from "@/lib/content";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
 
 export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: string | null }) {
   const activeRef = useRef<HTMLAnchorElement | null>(null);
@@ -33,7 +33,10 @@ export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: strin
 
   return (
     <>
-      <div ref={navRef} className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+      <div
+        ref={navRef}
+        className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
+      >
         <p className="mb-4 text-xs uppercase tracking-[0.28em] text-ink-400">导览</p>
         <nav className="space-y-2">
           {items.map((item) => {
@@ -48,7 +51,8 @@ export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: strin
                 className={cn(
                   "block rounded-xl border border-transparent px-3 py-2 text-sm text-ink-500 transition-all hover:bg-accent/8 hover:text-ink-800",
                   item.depth === 3 && "ml-4",
-                  isActive && "border-accent/12 bg-accent/10 font-semibold text-ink-800 shadow-[inset_3px_0_0_rgba(123,98,68,0.7)]"
+                  isActive &&
+                    "border-accent/12 bg-accent/10 font-semibold text-ink-800 shadow-[inset_3px_0_0_rgba(123,98,68,0.7)]",
                 )}
               >
                 {item.text}
@@ -58,7 +62,9 @@ export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: strin
         </nav>
       </div>
       <details className="rounded-[1.5rem] border border-ink-800/10 bg-white/70 p-5 lg:hidden">
-        <summary className="cursor-pointer list-none text-sm font-medium text-ink-700">展开导览</summary>
+        <summary className="cursor-pointer list-none text-sm font-medium text-ink-700">
+          展开导览
+        </summary>
         <nav className="mt-4 space-y-2">
           {items.map((item) => (
             <a

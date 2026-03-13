@@ -62,6 +62,8 @@ export async function searchPosts({ query, activeTag }: SearchParams) {
       }
       return score > 0;
     })
-    .sort((left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date))
+    .toSorted(
+      (left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date),
+    )
     .map(({ post }) => post);
 }

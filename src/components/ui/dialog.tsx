@@ -15,19 +15,30 @@ type DialogContentProps = ComponentProps<typeof DialogPrimitive.Content> & {
   description?: string;
 };
 
-export function DialogContent({ className, children, hideClose, title, description, ...props }: DialogContentProps) {
+export function DialogContent({
+  className,
+  children,
+  hideClose,
+  title,
+  description,
+  ...props
+}: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-ink-800/30 backdrop-blur-sm" />
       <DialogPrimitive.Content
         className={cn(
           "fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[2rem] border border-white/20 bg-surface/90 p-5 shadow-[0_30px_80px_-42px_rgba(31,24,18,0.7),inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-xl",
-          className
+          className,
         )}
         {...props}
       >
         {title && <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>}
-        {description && <DialogPrimitive.Description className="sr-only">{description}</DialogPrimitive.Description>}
+        {description && (
+          <DialogPrimitive.Description className="sr-only">
+            {description}
+          </DialogPrimitive.Description>
+        )}
         {children}
         {!hideClose && (
           <DialogPrimitive.Close

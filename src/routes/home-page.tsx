@@ -8,10 +8,13 @@ export function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAllPosts().then((data) => {
-      setPosts(data);
-      setLoading(false);
-    });
+    void getAllPosts()
+      .then((data) => {
+        setPosts(data);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {

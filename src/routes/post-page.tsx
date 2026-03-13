@@ -22,10 +22,13 @@ export function PostPage() {
       return;
     }
 
-    getPostBySlug(slug).then((data) => {
-      setPost(data ?? null);
-      setLoading(false);
-    });
+    void getPostBySlug(slug)
+      .then((data) => {
+        setPost(data ?? null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
   useEffect(() => {
@@ -45,7 +48,9 @@ export function PostPage() {
         .map((id) => document.getElementById(id))
         .filter((el): el is HTMLElement => Boolean(el));
 
-      if (!headings.length) return;
+      if (!headings.length) {
+        return;
+      }
 
       // 从后往前找第一个已过线的标题
       for (let i = headings.length - 1; i >= 0; i--) {
@@ -61,9 +66,9 @@ export function PostPage() {
 
     updateActiveHeading();
 
-    window.addEventListener('scroll', updateActiveHeading, { passive: true });
+    window.addEventListener("scroll", updateActiveHeading, { passive: true });
     return () => {
-      window.removeEventListener('scroll', updateActiveHeading);
+      window.removeEventListener("scroll", updateActiveHeading);
     };
   }, [post?.slug, post?.toc]);
 
@@ -84,7 +89,9 @@ export function PostPage() {
       <ReadingProgress />
       <section className="px-4 pt-10 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-[1400px]">
-          <div className={`grid gap-10 lg:items-start ${post.toc.length ? "lg:grid-cols-[minmax(0,1fr)_300px]" : ""}`}>
+          <div
+            className={`grid gap-10 lg:items-start ${post.toc.length ? "lg:grid-cols-[minmax(0,1fr)_300px]" : ""}`}
+          >
             <article className="space-y-8">
               <figure className="overflow-hidden rounded-[2.4rem] border border-white/20 bg-white/70 p-4 shadow-[0_30px_80px_-50px_rgba(31,24,18,0.62),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-5">
                 <PostCover
@@ -101,7 +108,9 @@ export function PostPage() {
                   {post.title}
                 </h1>
                 <div className="flex flex-col gap-4 border-y border-ink-800/8 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm uppercase tracking-[0.2em] text-ink-400">{formatDisplayDate(post.date)}</span>
+                  <span className="text-sm uppercase tracking-[0.2em] text-ink-400">
+                    {formatDisplayDate(post.date)}
+                  </span>
                   <div className="flex flex-wrap gap-2 sm:justify-end">
                     {post.tags.map((tag) => (
                       <Badge key={tag}>{tag}</Badge>
@@ -115,11 +124,31 @@ export function PostPage() {
               </div>
 
               <div className="relative rounded-[2rem] border border-ink-800/10 bg-white/50 px-6 py-8 sm:px-10">
-                <svg aria-hidden="true" className="absolute right-6 top-6 h-8 w-8 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <svg
+                  aria-hidden="true"
+                  className="absolute right-6 top-6 h-8 w-8 text-ink-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
                   <circle cx="12" cy="12" r="10" />
-                  <text x="12" y="16" textAnchor="middle" fill="currentColor" stroke="none" fontSize="13" fontWeight="500" fontFamily="system-ui, sans-serif">C</text>
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fill="currentColor"
+                    stroke="none"
+                    fontSize="13"
+                    fontWeight="500"
+                    fontFamily="system-ui, sans-serif"
+                  >
+                    C
+                  </text>
                 </svg>
-                <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">版权声明</h2>
+                <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+                  版权声明
+                </h2>
                 <dl className="mt-5 grid gap-3 text-sm text-ink-600">
                   <div className="flex gap-3">
                     <dt className="shrink-0 font-medium text-ink-500">作者</dt>
@@ -136,7 +165,12 @@ export function PostPage() {
                   <div className="flex gap-3">
                     <dt className="shrink-0 font-medium text-ink-500">文章链接</dt>
                     <dd>
-                      <a href={`${siteConfig.url}/posts/${post.slug}`} className="text-ink-800 underline underline-offset-2 hover:text-ink-500" target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={`${siteConfig.url}/posts/${post.slug}`}
+                        className="text-ink-800 underline underline-offset-2 hover:text-ink-500"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {siteConfig.url}/posts/{post.slug}
                       </a>
                     </dd>
@@ -144,7 +178,14 @@ export function PostPage() {
                 </dl>
                 <p className="mt-6 text-sm text-ink-500">
                   本作品采用
-                  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans" className="text-ink-800 underline underline-offset-2 hover:text-ink-500" target="_blank" rel="noopener noreferrer">CC BY-NC-ND 4.0 DEED</a>
+                  <a
+                    href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans"
+                    className="text-ink-800 underline underline-offset-2 hover:text-ink-500"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    CC BY-NC-ND 4.0 DEED
+                  </a>
                   许可。
                 </p>
               </div>
