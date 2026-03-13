@@ -31,7 +31,7 @@ export function PostPage() {
               </figure>
 
               <div className="space-y-5">
-                <h1 className="max-w-[14ch] text-balance text-4xl tracking-[-0.05em] text-ink-800 sm:text-5xl lg:text-6xl">
+                <h1 className="max-w-[24ch] text-4xl tracking-[-0.05em] text-ink-800 sm:max-w-[28ch] sm:text-5xl lg:max-w-[32ch] lg:text-6xl">
                   {post.title}
                 </h1>
                 <div className="flex flex-col gap-4 border-y border-ink-800/8 py-4 sm:flex-row sm:items-center sm:justify-between">
