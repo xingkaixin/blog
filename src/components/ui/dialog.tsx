@@ -7,7 +7,11 @@ export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 
-export function DialogContent({ className, children, ...props }: ComponentProps<typeof DialogPrimitive.Content>) {
+type DialogContentProps = ComponentProps<typeof DialogPrimitive.Content> & {
+  hideClose?: boolean;
+};
+
+export function DialogContent({ className, children, hideClose, ...props }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-ink-800/30 backdrop-blur-sm" />
@@ -19,13 +23,15 @@ export function DialogContent({ className, children, ...props }: ComponentProps<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close
-          aria-label="关闭搜索面板"
-          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink-800/10 bg-white/75 text-ink-500 transition-colors hover:text-ink-800"
-        >
-          <Cross2Icon aria-hidden="true" className="h-4 w-4" />
-          <span className="sr-only">关闭</span>
-        </DialogPrimitive.Close>
+        {!hideClose && (
+          <DialogPrimitive.Close
+            aria-label="关闭搜索面板"
+            className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink-800/10 bg-white/75 text-ink-500 transition-colors hover:text-ink-800"
+          >
+            <Cross2Icon aria-hidden="true" className="h-4 w-4" />
+            <span className="sr-only">关闭</span>
+          </DialogPrimitive.Close>
+        )}
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   );
