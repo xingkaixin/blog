@@ -61,7 +61,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <footer className="border-t border-[#d8d0c4] px-4 py-8 sm:px-6 lg:px-10">
         <div className="mx-auto flex max-w-[1400px] flex-col gap-3 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
           <p>人生不该只有一种体验，不应该每个人的生活都像钉子一样专注。做个兴趣广泛、体验丰富的人，同样幸福</p>
-          <p className="font-mono text-xs uppercase tracking-[0.24em]">XingKaiXin</p>
+          <p className="font-mono text-xs uppercase tracking-[0.24em]">&copy; {new Date().getFullYear()} XingKaiXin</p>
         </div>
       </footer>
     </div>

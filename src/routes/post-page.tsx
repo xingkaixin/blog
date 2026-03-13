@@ -6,6 +6,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug } from "@/lib/content";
+import { siteConfig } from "@/lib/site";
 import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
 export function PostPage() {
@@ -88,6 +89,41 @@ export function PostPage() {
 
               <div className="rounded-[2.3rem] border border-white/20 bg-white/72 px-6 py-8 shadow-[0_24px_70px_-50px_rgba(31,24,18,0.55),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:px-10">
                 <MarkdownRenderer content={post.content} />
+              </div>
+
+              <div className="relative rounded-[2rem] border border-ink-800/10 bg-white/50 px-6 py-8 sm:px-10">
+                <svg aria-hidden="true" className="absolute right-6 top-6 h-8 w-8 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                  <circle cx="12" cy="12" r="10" />
+                  <text x="12" y="16" textAnchor="middle" fill="currentColor" stroke="none" fontSize="13" fontWeight="500" fontFamily="system-ui, sans-serif">C</text>
+                </svg>
+                <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">版权声明</h2>
+                <dl className="mt-5 grid gap-3 text-sm text-ink-600">
+                  <div className="flex gap-3">
+                    <dt className="shrink-0 font-medium text-ink-500">作者</dt>
+                    <dd>{siteConfig.author}</dd>
+                  </div>
+                  <div className="flex gap-3">
+                    <dt className="shrink-0 font-medium text-ink-500">标题</dt>
+                    <dd>{post.title}</dd>
+                  </div>
+                  <div className="flex gap-3">
+                    <dt className="shrink-0 font-medium text-ink-500">发布时间</dt>
+                    <dd>{formatDisplayDate(post.date)}</dd>
+                  </div>
+                  <div className="flex gap-3">
+                    <dt className="shrink-0 font-medium text-ink-500">文章链接</dt>
+                    <dd>
+                      <a href={`${siteConfig.url}/posts/${post.slug}`} className="text-ink-800 underline underline-offset-2 hover:text-ink-500" target="_blank" rel="noopener noreferrer">
+                        {siteConfig.url}/posts/{post.slug}
+                      </a>
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-6 text-sm text-ink-500">
+                  本作品采用
+                  <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans" className="text-ink-800 underline underline-offset-2 hover:text-ink-500" target="_blank" rel="noopener noreferrer">CC BY-NC-ND 4.0 DEED</a>
+                  许可。
+                </p>
               </div>
             </article>
 
