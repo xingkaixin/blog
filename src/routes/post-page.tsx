@@ -62,7 +62,7 @@ export function PostPage() {
       <ReadingProgress />
       <section className="px-4 pt-10 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-[1400px]">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div className={`grid gap-10 lg:items-start ${post.toc.length ? "lg:grid-cols-[minmax(0,1fr)_300px]" : ""}`}>
             <article className="space-y-8">
               <figure className="overflow-hidden rounded-[2.4rem] border border-white/20 bg-white/70 p-4 shadow-[0_30px_80px_-50px_rgba(31,24,18,0.62),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-5">
                 <PostCover
@@ -127,11 +127,13 @@ export function PostPage() {
               </div>
             </article>
 
-            <aside className="lg:sticky lg:top-28 lg:self-start lg:pt-2 lg:z-10">
-              <div>
-                <TocNav items={post.toc} activeId={activeId} />
-              </div>
-            </aside>
+            {post.toc.length > 0 && (
+              <aside className="lg:sticky lg:top-28 lg:self-start lg:pt-2 lg:z-10">
+                <div>
+                  <TocNav items={post.toc} activeId={activeId} />
+                </div>
+              </aside>
+            )}
           </div>
         </div>
       </section>
