@@ -6,7 +6,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug } from "@/lib/content";
-import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
+import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
 export function PostPage() {
   const { slug } = useParams();
@@ -23,41 +23,32 @@ export function PostPage() {
     }
 
     const tocIds = post.toc.map((item) => item.id);
-    const headings = post.toc
-      .map((item) => document.getElementById(item.id))
-      .filter((heading): heading is HTMLElement => Boolean(heading));
 
-    if (!headings.length) {
-      return;
+    function updateActiveHeading() {
+      // 每次滚动时重新查询 DOM，避免过期引用
+      const headings = tocIds
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => Boolean(el));
+
+      if (!headings.length) return;
+
+      // 从后往前找第一个已过线的标题
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const rect = headings[i].getBoundingClientRect();
+        if (rect.top <= TOC_ACTIVE_OFFSET) {
+          setActiveId(headings[i].id);
+          return;
+        }
+      }
+      // 所有标题都在 offset 下方，高亮第一个
+      setActiveId(headings[0].id);
     }
 
-    const visibleIds = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const headingId = (entry.target as HTMLElement).id;
-          if (entry.isIntersecting) {
-            visibleIds.add(headingId);
-          } else {
-            visibleIds.delete(headingId);
-          }
-        }
+    updateActiveHeading();
 
-        setActiveId((currentId) => {
-          const nextActiveId = resolveActiveTocId(tocIds, visibleIds, currentId);
-          return currentId === nextActiveId ? currentId : nextActiveId;
-        });
-      },
-      {
-        rootMargin: `-${TOC_ACTIVE_OFFSET}px 0px -70% 0px`,
-        threshold: 0,
-      }
-    );
-
-    headings.forEach((heading) => observer.observe(heading));
-
+    window.addEventListener('scroll', updateActiveHeading, { passive: true });
     return () => {
-      observer.disconnect();
+      window.removeEventListener('scroll', updateActiveHeading);
     };
   }, [post?.slug, post?.toc]);
 
