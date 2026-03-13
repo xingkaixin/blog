@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 /**
  * 自动生成 src/lib/covers.ts 文件
- * 扫描 public/posts/cover/ 目录中的所有图片文件
+ * 扫描 src/assets/cover/ 目录中的所有图片文件
  */
 
 import fs from "node:fs";
 import path from "node:path";
 
-const COVER_DIR = path.join(process.cwd(), "public", "posts", "cover");
+const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
 const OUTPUT_FILE = path.join(process.cwd(), "src", "lib", "covers.ts");
 
 // 支持的图片格式
@@ -72,13 +72,13 @@ function generateCoversFile(): void {
     const varName = filenameToVariableName(file);
 
     // 添加 import 语句 (400px, 800px, full)
-    // 使用相对于项目根目录的路径，以便 vite-imagetools 能正确处理
+    // 使用 @/assets/cover/ 路径，vite-imagetools 能正确处理
     imports.push(
       `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}400 from "public/posts/cover/${file}?w=400&as=webp";`,
+      `import ${varName}400 from "@/assets/cover/${file}?w=400&as=webp";`,
       `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}800 from "public/posts/cover/${file}?w=800&as=webp";`,
-      `import ${varName}Full from "public/posts/cover/${file}?url";`
+      `import ${varName}800 from "@/assets/cover/${file}?w=800&as=webp";`,
+      `import ${varName}Full from "@/assets/cover/${file}?url";`
     );
 
     // 添加映射条目

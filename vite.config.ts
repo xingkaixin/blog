@@ -54,7 +54,7 @@ function validateBlogContent(): Plugin {
         throw new Error(`Frontmatter "cover" must be a string in ${file}`);
       }
 
-      const coverPath = path.join(root, "public", "posts", "cover", path.basename(data.cover));
+      const coverPath = path.join(root, "src", "assets", "cover", path.basename(data.cover));
       if (!fs.existsSync(coverPath)) {
         throw new Error(`Cover image not found for ${file}: ${data.cover}`);
       }
