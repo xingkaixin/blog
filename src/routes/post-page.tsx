@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { PostCover } from "@/components/post-cover";
@@ -5,10 +6,56 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug } from "@/lib/content";
+import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
 export function PostPage() {
   const { slug } = useParams();
   const post = slug ? getPostBySlug(slug) : undefined;
+  const [activeId, setActiveId] = useState<string | null>(post?.toc[0]?.id ?? null);
+
+  useEffect(() => {
+    setActiveId(post?.toc[0]?.id ?? null);
+  }, [post?.slug, post?.toc]);
+
+  useEffect(() => {
+    if (!post?.toc.length) {
+      return;
+    }
+
+    const headings = post.toc
+      .map((item) => document.getElementById(item.id))
+      .filter((heading): heading is HTMLElement => Boolean(heading));
+
+    if (!headings.length) {
+      return;
+    }
+
+    const updateActiveId = () => {
+      const nextActiveId = resolveActiveTocId(headings, TOC_ACTIVE_OFFSET);
+      if (!nextActiveId) {
+        return;
+      }
+
+      setActiveId((currentId) => (currentId === nextActiveId ? currentId : nextActiveId));
+    };
+
+    updateActiveId();
+
+    const observer = new IntersectionObserver(updateActiveId, {
+      rootMargin: `-${TOC_ACTIVE_OFFSET}px 0px -65% 0px`,
+      threshold: [0, 1],
+    });
+
+    headings.forEach((heading) => observer.observe(heading));
+    window.addEventListener("hashchange", updateActiveId);
+    window.addEventListener("resize", updateActiveId);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("hashchange", updateActiveId);
+      window.removeEventListener("resize", updateActiveId);
+    };
+  }, [post?.toc]);
 
   if (!post) {
     return <Navigate to="/404" replace />;
@@ -49,9 +96,9 @@ export function PostPage() {
               </div>
             </article>
 
-            <aside className="lg:pt-2">
-              <div className="lg:sticky lg:top-28">
-                <TocNav items={post.toc} />
+            <aside className="lg:sticky lg:top-28 lg:self-start lg:pt-2 lg:z-10">
+              <div>
+                <TocNav items={post.toc} activeId={activeId} />
               </div>
             </aside>
           </div>

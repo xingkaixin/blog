@@ -1,7 +1,7 @@
 import type { TocItem } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function TocNav({ items }: { items: TocItem[] }) {
+export function TocNav({ items, activeId }: { items: TocItem[]; activeId?: string | null }) {
   if (!items.length) {
     return (
       <div className="rounded-[1.7rem] border border-ink-800/10 bg-white/60 p-5 text-sm leading-7 text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
@@ -12,21 +12,27 @@ export function TocNav({ items }: { items: TocItem[] }) {
 
   return (
     <>
-      <div className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block">
+      <div className="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
         <p className="mb-4 text-xs uppercase tracking-[0.28em] text-ink-400">文章目录</p>
         <nav className="space-y-2">
-          {items.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className={cn(
-                "block rounded-xl px-3 py-2 text-sm text-ink-500 transition-colors hover:bg-accent/8 hover:text-ink-800",
-                item.depth === 3 && "ml-4"
-              )}
-            >
-              {item.text}
-            </a>
-          ))}
+          {items.map((item) => {
+            const isActive = item.id === activeId;
+
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                aria-current={isActive ? "location" : undefined}
+                className={cn(
+                  "block rounded-xl border border-transparent px-3 py-2 text-sm text-ink-500 transition-all hover:bg-accent/8 hover:text-ink-800",
+                  item.depth === 3 && "ml-4",
+                  isActive && "border-accent/12 bg-accent/10 font-semibold text-ink-800 shadow-[inset_3px_0_0_rgba(123,98,68,0.7)]"
+                )}
+              >
+                {item.text}
+              </a>
+            );
+          })}
         </nav>
       </div>
       <details className="rounded-[1.5rem] border border-ink-800/10 bg-white/70 p-5 lg:hidden">
@@ -36,6 +42,7 @@ export function TocNav({ items }: { items: TocItem[] }) {
             <a
               key={item.id}
               href={`#${item.id}`}
+              aria-current={item.id === activeId ? "location" : undefined}
               className={cn("block text-sm text-ink-500", item.depth === 3 && "ml-4")}
             >
               {item.text}
