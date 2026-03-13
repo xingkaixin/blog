@@ -65,9 +65,7 @@ function generateSearchIndex(): void {
   }
 
   // 按日期排序，最新的在前
-  searchIndex.sort(
-    (left, right) => new Date(right.date).getTime() - new Date(left.date).getTime()
-  );
+  searchIndex.sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 
   // 写入 JSON 文件
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(searchIndex, null, 2), "utf8");

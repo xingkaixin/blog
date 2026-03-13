@@ -29,7 +29,9 @@ function filenameToVariableName(filename: string): string {
   // 首字母大写，其余小写，然后连接
   const camelCase = parts
     .map((part, index) => {
-      if (part.length === 0) return "";
+      if (part.length === 0) {
+        return "";
+      }
       // 如果第一部分以数字开头，保持原样
       if (index === 0 && /^\d/.test(part)) {
         return part;
@@ -52,13 +54,13 @@ function generateCoversFile(): void {
   // 获取所有支持的图片文件
   const files = fs
     .readdirSync(COVER_DIR)
-    .filter((file) =>
-      SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext))
-    )
-    .sort();
+    .filter((file) => SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)))
+    .toSorted();
 
   if (files.length === 0) {
-    console.error(`❌ 在 ${COVER_DIR} 中没有找到图片文件 (支持: ${SUPPORTED_EXTENSIONS.join(", ")})`);
+    console.error(
+      `❌ 在 ${COVER_DIR} 中没有找到图片文件 (支持: ${SUPPORTED_EXTENSIONS.join(", ")})`,
+    );
     process.exit(1);
   }
 
@@ -78,12 +80,12 @@ function generateCoversFile(): void {
       `import ${varName}400 from "@/assets/cover/${file}?w=400&as=webp";`,
       `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
       `import ${varName}800 from "@/assets/cover/${file}?w=800&as=webp";`,
-      `import ${varName}Full from "@/assets/cover/${file}?url";`
+      `import ${varName}Full from "@/assets/cover/${file}?url";`,
     );
 
     // 添加映射条目
     mappings.push(
-      `  "${file}": { full: ${varName}Full, desktop: ${varName}800, mobile: ${varName}400 }`
+      `  "${file}": { full: ${varName}Full, desktop: ${varName}800, mobile: ${varName}400 }`,
     );
   }
 
