@@ -6,3 +6,7 @@ node_modules
 
 # cloudfloare
 .wrangle
+
+
+# agent local setting
+.claude/settings.local.json

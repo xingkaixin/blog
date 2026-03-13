@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build:covers": "bun scripts/generate-covers.ts",
+    "build": "tsc -b && build:covers && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run"
@@ -45,6 +46,7 @@
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.41.0",
     "vite": "^7.1.3",
+    "vite-imagetools": "^10.0.0",
     "vitest": "^3.2.2"
   }
 }

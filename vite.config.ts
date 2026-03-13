@@ -3,6 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { imagetools } from "vite-imagetools";
 import { defineConfig } from "vitest/config";
 import type { Plugin } from "vite";
 
@@ -53,7 +54,7 @@ function validateBlogContent(): Plugin {
         throw new Error(`Frontmatter "cover" must be a string in ${file}`);
       }
 
-      const coverPath = path.join(root, "public", data.cover.replace(/^\//, ""));
+      const coverPath = path.join(root, "public", "posts", "cover", path.basename(data.cover));
       if (!fs.existsSync(coverPath)) {
         throw new Error(`Cover image not found for ${file}: ${data.cover}`);
       }
@@ -72,7 +73,7 @@ function validateBlogContent(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), validateBlogContent()],
+  plugins: [imagetools(), react(), tailwindcss(), validateBlogContent()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

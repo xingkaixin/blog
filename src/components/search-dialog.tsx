@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { getAllPosts } from "@/lib/content";
+import { resolveCover } from "@/lib/covers";
 import { searchPosts } from "@/lib/search";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ function PostItem({ post, onClose }: { post: (typeof posts)[number]; onClose: ()
     >
       {post.cover && (
         <img
-          src={post.cover}
+          src={resolveCover(post.cover)?.mobile ?? post.cover}
           alt={post.coverAlt}
           className="h-16 w-20 shrink-0 rounded-lg object-cover"
         />

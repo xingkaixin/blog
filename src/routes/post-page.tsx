@@ -6,6 +6,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug } from "@/lib/content";
+import { resolveCover } from "@/lib/covers";
 import { siteConfig } from "@/lib/site";
 import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
@@ -69,6 +70,7 @@ export function PostPage() {
                   src={post.cover}
                   alt={post.coverAlt}
                   priority
+                  responsive={resolveCover(post.cover)}
                   className="rounded-[2rem] border-white/60"
                 />
               </figure>

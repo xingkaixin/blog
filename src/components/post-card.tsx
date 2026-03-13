@@ -1,6 +1,7 @@
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { Link } from "react-router-dom";
 import { formatDisplayDate, type PostMeta } from "@/lib/content";
+import { resolveCover } from "@/lib/covers";
 import { PostCover } from "@/components/post-cover";
 import { Badge } from "@/components/ui/badge";
 
@@ -11,6 +12,7 @@ export function PostCard({ post, index }: { post: PostMeta; index: number }) {
         <PostCover
           src={post.cover}
           alt={post.coverAlt}
+          responsive={resolveCover(post.cover)}
           className="rounded-[1.7rem] border-[#e4dbcf]"
           imageClassName="transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
         />
