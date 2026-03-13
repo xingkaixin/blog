@@ -10,7 +10,6 @@ cover: /posts/cover/Follow-or-break-the-rules.webp
 coverAlt: Follow-or-break-the-rules
 ---
 
-
 我们的身边充满了规则，一些规则我们熟知因而我们遵守，一些规则不清楚，于是在被处罚、指责之前，我们不时的唯饭。
 
 我的看法是，这些规则的出现，让我们社会更有秩序的存续下去。

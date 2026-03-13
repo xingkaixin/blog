@@ -9,7 +9,6 @@ cover: /posts/cover/the-newsroom-time-tested-masterpieces.webp
 coverAlt: the-newsroom-time-tested-masterpieces
 ---
 
-
 在距离《新闻编辑室》（The Newsroom）第一次观看数年之后，新2024新春B站购买了版权并上线。重新观看这部剧集，我依然被其深刻的主题、犀利的对话以及对新闻职业精神的挚烈呼唤所打动。由 Sorkin 精心打造的这部作品，不仅是对新闻行业的一次深刻探讨，更是对理想主义与现实挣扎的一次深情书写。
 
 ### **对新闻业的理想化描绘**

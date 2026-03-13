@@ -9,7 +9,6 @@ cover: /posts/cover/Memories-make-people-grow-old.webp
 coverAlt: Memories-make-people-grow-old
 ---
 
-
 假期最后一天，整理 Gmail 邮件。清理了一堆无用的标签，找到了一些过往和旧友闲聊的邮件。一一看完，感慨万千。
 
 十年前的自己，看起来非常喜欢集体活动，十分喜欢在朋友面前进行表达。生活工作没有边界，经常熬夜写东西，并对第二天的工作万分的期待。一直的思考，并把不成熟的想法即刻的分享给大家，并从中获得快乐。
