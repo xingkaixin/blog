@@ -55,6 +55,11 @@ import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStranger
 import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800 from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?w=800&as=webp";
 import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?url";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=400&as=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=800&as=webp";
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?url";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cLlmReactPrompt400 from "@/assets/cover/llm-react-prompt.webp?w=400&as=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cLlmReactPrompt800 from "@/assets/cover/llm-react-prompt.webp?w=800&as=webp";
@@ -101,6 +106,7 @@ export const covers = {
   "The-Last-of-Us-review.webp": { full: cTheLastOfUsReviewFull, desktop: cTheLastOfUsReview800, mobile: cTheLastOfUsReview400 },
   "The-requirements-and-design-ideas-of-the-strategy-team.webp": { full: cTheRequirementsAndDesignIdeasOfTheStrategyTeamFull, desktop: cTheRequirementsAndDesignIdeasOfTheStrategyTeam800, mobile: cTheRequirementsAndDesignIdeasOfTheStrategyTeam400 },
   "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp": { full: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull, desktop: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800, mobile: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers400 },
+  "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png": { full: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull, desktop: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800, mobile: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 },
   "llm-react-prompt.webp": { full: cLlmReactPromptFull, desktop: cLlmReactPrompt800, mobile: cLlmReactPrompt400 },
   "macOS-now-supports-Netflix-Dolby-Vision.webp": { full: cMacosNowSupportsNetflixDolbyVisionFull, desktop: cMacosNowSupportsNetflixDolbyVision800, mobile: cMacosNowSupportsNetflixDolbyVision400 },
   "state-of-ai.webp": { full: cStateOfAiFull, desktop: cStateOfAi800, mobile: cStateOfAi400 },

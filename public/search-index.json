@@ -1,5 +1,16 @@
 [
   {
+    "slug": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution",
+    "title": "AI 记忆系统构建:从日志检索到知识演化",
+    "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "本文讨论 AI 长期记忆系统的构建问题，并指出当前主流的向量数据库方案本质上只是日志检索机制，而不是真正意义上的记忆。文章从三个关键挑战展开分析：记忆压缩、记忆演化以及记忆冲突。记忆压缩关注如何将大量原始对话交互转化为更高层次的知识表示，避免信息无限增长；记忆演化强调系统需要理解事实随时间变化并更新状态；记忆冲突则涉及当不同记忆相互矛盾时如何进行判断与版本管理。",
+    "tags": [
+      "AI Memory"
+    ],
+    "cover": "/posts/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png",
+    "coverAlt": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution"
+  },
+  {
     "slug": "2025-review",
     "title": "2025 Review",
     "date": "Wed Dec 31 2025 08:00:00 GMT+0800 (China Standard Time)",
