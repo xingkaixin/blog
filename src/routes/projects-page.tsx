@@ -5,7 +5,7 @@ import { projects } from "@/lib/projects";
 export function ProjectsPage() {
   return (
     <section className="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
-      <div className="mx-auto max-w-[1400px] space-y-8">
+      <div className="mx-auto max-w-350 space-y-8">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Projects</p>
           <h1 className="mt-3 text-4xl tracking-[-0.05em] text-ink-800">工具箱</h1>
@@ -36,7 +36,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
       className={`group block fade-in ${project.url ? "cursor-pointer" : ""}`}
       style={{ animationDelay: `${index * 90}ms` }}
     >
-      <div className="hover-lift flex h-full flex-col overflow-hidden rounded-[2rem] border border-[#d7cfc2] bg-[#faf7f1]/96 p-5 shadow-[0_24px_60px_-52px_rgba(31,24,18,0.3),inset_0_1px_0_rgba(255,255,255,0.88)]">
+      <div className="hover-lift flex h-full flex-col overflow-hidden rounded-4xl border border-[#d7cfc2] bg-[#faf7f1]/96 p-5 shadow-[0_24px_60px_-52px_rgba(31,24,18,0.3),inset_0_1px_0_rgba(255,255,255,0.88)]">
         <div className="flex items-start gap-4">
           <img
             src={project.logo}

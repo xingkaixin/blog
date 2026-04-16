@@ -20,7 +20,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         跳到正文
       </a>
       <header className="sticky top-0 z-20 border-b border-[#d8d0c4] bg-[#f7f3eb]/92 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
+        <div className="mx-auto flex max-w-350 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
           <Link to="/" className="group inline-flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center overflow-hidden">
               <img
@@ -68,7 +68,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       </header>
       <main id="main-content">{children}</main>
       <footer className="border-t border-[#d8d0c4] px-4 py-8 sm:px-6 lg:px-10">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-3 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-350 flex-col gap-3 text-sm text-ink-500 sm:flex-row sm:items-center sm:justify-between">
           <p>
             人生不该只有一种体验，不应该每个人的生活都像钉子一样专注。做个兴趣广泛、体验丰富的人，同样幸福
           </p>
