@@ -4,6 +4,9 @@ import { SiteLayout } from "@/components/site-layout";
 
 const HomePage = lazy(() => import("@/routes/home-page").then((m) => ({ default: m.HomePage })));
 const PostPage = lazy(() => import("@/routes/post-page").then((m) => ({ default: m.PostPage })));
+const ProjectsPage = lazy(() =>
+  import("@/routes/projects-page").then((m) => ({ default: m.ProjectsPage })),
+);
 const NotFoundPage = lazy(() =>
   import("@/routes/not-found-page").then((m) => ({ default: m.NotFoundPage })),
 );
@@ -22,6 +25,7 @@ export default function App() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/posts/:slug" element={<PostPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

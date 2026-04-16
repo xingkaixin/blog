@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon, ReaderIcon } from "@radix-ui/react-icons";
+import { MagnifyingGlassIcon, ReaderIcon, RocketIcon } from "@radix-ui/react-icons";
 import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SearchDialog } from "@/components/search-dialog";
@@ -8,6 +8,7 @@ import { siteConfig } from "@/lib/site";
 export function SiteLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isProjects = location.pathname === "/projects";
 
   return (
     <div className="relative min-h-screen">
@@ -40,6 +41,14 @@ export function SiteLayout({ children }: { children: ReactNode }) {
                 <Button variant="ghost" size="sm">
                   <ReaderIcon aria-hidden="true" className="h-4 w-4" />
                   返回文章列表
+                </Button>
+              </Link>
+            )}
+            {!isProjects && (
+              <Link to="/projects" className="hidden sm:block">
+                <Button variant="ghost" size="sm">
+                  <RocketIcon aria-hidden="true" className="h-4 w-4" />
+                  工具箱
                 </Button>
               </Link>
             )}
