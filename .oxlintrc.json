@@ -23,5 +23,13 @@
     "unicorn/require-post-message-target-origin": "off",
     "react/react-in-jsx-scope": "off"
   },
-  "ignorePatterns": ["dist/", "node_modules/", "public/", "data/", "bun.lock"]
+  "ignorePatterns": [
+    "dist/",
+    "node_modules/",
+    "public/",
+    "data/",
+    "bun.lock",
+    "content/",
+    ".claude/"
+  ]
 }

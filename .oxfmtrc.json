@@ -8,5 +8,13 @@
   },
   "tabWidth": 2,
   "useTabs": false,
-  "ignorePatterns": ["dist/", "node_modules/", "public/", "data/", "bun.lock"]
+  "ignorePatterns": [
+    "dist/",
+    "node_modules/",
+    "public/",
+    "data/",
+    "bun.lock",
+    "content/",
+    ".claude/"
+  ]
 }

@@ -5,8 +5,9 @@ dist
 node_modules
 
 # cloudfloare
-.wrangle
+.wrangler
 
 
-# agent local setting
-.claude/settings.local.json
+# agent
+.claude
+.agents
