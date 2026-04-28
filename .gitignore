@@ -1,5 +1,6 @@
 # artifact
 dist
+public/og
 
 # dev
 node_modules
