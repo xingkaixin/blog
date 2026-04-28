@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun run build:search && bun run build:covers && bun run build:post-images && bun run build:og && vite build && bun run build:static-meta",
+    "build": "bun run build:search && bun run build:covers && bun run build:post-images && bun run build:og && vite build && bun run build:static-meta && bun run build:sitemap",
+    "build:sitemap": "bun scripts/generate-sitemap.ts",
     "build:covers": "bun scripts/generate-covers.ts",
     "build:og": "bun scripts/generate-og-images.ts",
     "build:post-images": "bun scripts/generate-post-images.ts",

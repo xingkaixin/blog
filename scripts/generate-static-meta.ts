@@ -22,6 +22,16 @@ type PageMeta = {
   tags?: string[];
 };
 
+type PostEntry = {
+  slug: string;
+  title: string;
+  date: string;
+  summary: string;
+  tags: string[];
+  content: string;
+  draft: boolean;
+};
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -42,13 +52,13 @@ function frontmatterString(value: unknown) {
   return "";
 }
 
-function readPosts() {
+function readPosts(): PostEntry[] {
   return fs
     .readdirSync(POSTS_DIR)
     .filter((file) => file.endsWith(".md"))
     .map((file) => {
       const source = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
-      const { data } = matter(source);
+      const { data, content } = matter(source);
 
       return {
         slug: file.replace(/\.md$/, ""),
@@ -56,10 +66,126 @@ function readPosts() {
         date: frontmatterString(data.date),
         summary: frontmatterString(data.summary),
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
+        content,
         draft: Boolean(data.draft),
       };
     })
     .filter((post) => !post.draft);
+}
+
+// 去掉 Markdown 内联语法，保留纯文本
+function stripInlineMarkdown(text: string): string {
+  return text
+    .replace(/!\[[^\]]*]\([^)]*\)/g, "")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .trim();
+}
+
+// 把 Markdown 正文转成简化的语义 HTML，供爬虫读取
+function markdownToStaticHtml(markdown: string): string {
+  const lines = markdown.split("\n");
+  const parts: string[] = [];
+  let inCodeBlock = false;
+  let paragraphBuffer: string[] = [];
+
+  const flushParagraph = () => {
+    if (!paragraphBuffer.length) return;
+    const text = stripInlineMarkdown(paragraphBuffer.join(" ").trim());
+    if (text) parts.push(`<p>${escapeHtml(text)}</p>`);
+    paragraphBuffer = [];
+  };
+
+  for (const line of lines) {
+    if (/^```/.test(line)) {
+      inCodeBlock = !inCodeBlock;
+      if (inCodeBlock) flushParagraph();
+      continue;
+    }
+    if (inCodeBlock) continue;
+
+    const headingMatch = /^(#{1,3})\s+(.+)$/.exec(line);
+    if (headingMatch) {
+      flushParagraph();
+      const level = headingMatch[1].length;
+      parts.push(`<h${level}>${escapeHtml(stripInlineMarkdown(headingMatch[2]))}</h${level}>`);
+      continue;
+    }
+
+    const listMatch = /^[-*+\d.]\s+(.+)$/.exec(line);
+    if (listMatch) {
+      paragraphBuffer.push(listMatch[1]);
+      continue;
+    }
+
+    const blockquoteMatch = /^>\s?(.*)$/.exec(line);
+    if (blockquoteMatch) {
+      if (blockquoteMatch[1].trim()) paragraphBuffer.push(blockquoteMatch[1]);
+      continue;
+    }
+
+    if (!line.trim() || /^(-{3,}|_{3,}|\*{3,})$/.test(line.trim())) {
+      flushParagraph();
+      continue;
+    }
+
+    if (line.trim().startsWith("<")) continue;
+
+    paragraphBuffer.push(line);
+  }
+
+  flushParagraph();
+  return parts.join("\n");
+}
+
+function buildStaticBody(
+  post: Pick<PostEntry, "title" | "date" | "summary" | "content">,
+): string {
+  const bodyHtml = markdownToStaticHtml(post.content);
+  return [
+    "<main>",
+    `<h1>${escapeHtml(post.title)}</h1>`,
+    `<time datetime="${escapeHtml(post.date)}">${escapeHtml(post.date)}</time>`,
+    `<p>${escapeHtml(post.summary)}</p>`,
+    "<article>",
+    bodyHtml,
+    "</article>",
+    "</main>",
+  ].join("");
+}
+
+function buildJsonLd(meta: PageMeta): string {
+  let schema: object;
+
+  if (meta.type === "website") {
+    schema = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: siteConfig.title,
+      url: siteConfig.url,
+      description: siteConfig.description,
+      author: { "@type": "Person", name: siteConfig.author },
+    };
+  } else {
+    schema = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: meta.title,
+      description: meta.description,
+      datePublished: meta.publishedTime ?? "",
+      author: { "@type": "Person", name: siteConfig.author },
+      image: meta.image,
+      mainEntityOfPage: { "@type": "WebPage", "@id": meta.url },
+      keywords: (meta.tags ?? []).join(", "),
+      publisher: { "@type": "Person", name: siteConfig.author },
+    };
+  }
+
+  return `    <script type="application/ld+json">${JSON.stringify(schema)}</script>`;
 }
 
 function metaTags(meta: PageMeta) {
@@ -105,24 +231,38 @@ function removeExistingMeta(head: string) {
     .replace(/\n\s*<meta name="theme-color"[^>]*>/g, "")
     .replace(/\n\s*<meta (?:property|name)="(?:og|twitter|article):[^"]+"[^>]*>/g, "")
     .replace(/\n\s*<meta property="og:[^"]+"[^>]*>/g, "")
-    .replace(/\n\s*<link rel="canonical"[^>]*>/g, "");
+    .replace(/\n\s*<link rel="canonical"[^>]*>/g, "")
+    .replace(/\n\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/g, "");
 }
 
-function applyMeta(html: string, meta: PageMeta) {
+function applyMeta(html: string, meta: PageMeta, staticBody?: string) {
   const headMatch = /<head>([\s\S]*?)<\/head>/.exec(html);
   if (!headMatch) {
     throw new Error("Missing <head> in dist/index.html");
   }
 
   const cleanHead = removeExistingMeta(headMatch[1]);
-  const nextHead = cleanHead.replace(/(\n\s*<meta name="viewport"[^>]*>)/, `$1\n${metaTags(meta)}`);
+  const jsonLd = buildJsonLd(meta);
+  const nextHead = cleanHead.replace(
+    /(\n\s*<meta name="viewport"[^>]*>)/,
+    `$1\n${metaTags(meta)}`,
+  );
 
-  return html.replace(headMatch[0], `<head>${nextHead}</head>`);
+  let result = html.replace(headMatch[0], `<head>${nextHead}\n${jsonLd}\n  </head>`);
+
+  if (staticBody) {
+    result = result.replace(
+      /<div id="root"><\/div>/,
+      `<div id="root">${staticBody}</div>`,
+    );
+  }
+
+  return result;
 }
 
-function writePage(filePath: string, html: string, meta: PageMeta) {
+function writePage(filePath: string, html: string, meta: PageMeta, staticBody?: string) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, applyMeta(html, meta), "utf8");
+  fs.writeFileSync(filePath, applyMeta(html, meta, staticBody), "utf8");
 }
 
 function main() {
@@ -142,7 +282,7 @@ function main() {
   writePage(INDEX_FILE, baseHtml, siteMeta);
 
   for (const post of readPosts()) {
-    writePage(path.join(DIST_DIR, "posts", post.slug, "index.html"), baseHtml, {
+    const meta: PageMeta = {
       title: post.title,
       description: post.summary,
       url: `${siteConfig.url}/posts/${post.slug}`,
@@ -150,10 +290,16 @@ function main() {
       type: "article",
       publishedTime: post.date,
       tags: post.tags,
-    });
+    };
+    writePage(
+      path.join(DIST_DIR, "posts", post.slug, "index.html"),
+      baseHtml,
+      meta,
+      buildStaticBody(post),
+    );
   }
 
-  console.log("✅ 成功写入站点与文章页静态 OG meta");
+  console.log("✅ 成功写入站点与文章页静态 OG meta、JSON-LD、静态正文");
 }
 
 main();
