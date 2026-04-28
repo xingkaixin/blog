@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { buildHeadingId, normalizeHeadingText } from "@/lib/content";
+import { postImages } from "@/lib/post-images";
 
 function flattenNodeText(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") {
@@ -34,6 +35,25 @@ export function MarkdownRenderer({ content }: { content: string }) {
               rel={props.href?.startsWith("http") ? "noreferrer" : undefined}
             />
           ),
+          img: ({ src, alt, title }) => {
+            const responsive = src ? postImages[src] : undefined;
+            if (responsive) {
+              return (
+                <picture>
+                  <source srcSet={responsive.mobile} media="(max-width: 767px)" type="image/webp" />
+                  <source srcSet={responsive.desktop} media="(min-width: 768px)" type="image/webp" />
+                  <img
+                    src={responsive.webp}
+                    alt={alt}
+                    title={title}
+                    loading="lazy"
+                    className="block w-full rounded-2xl"
+                  />
+                </picture>
+              );
+            }
+            return <img src={src} alt={alt} title={title} loading="lazy" className="block w-full rounded-2xl" />;
+          },
           h2: ({ children, ...props }) => {
             const text = normalizeHeadingText(flattenNodeText(children));
             return (

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun run build:search && bun run build:covers && vite build",
+    "build": "bun run build:search && bun run build:covers && bun run build:post-images && vite build",
+    "build:post-images": "bun scripts/generate-post-images.ts",
     "build:covers": "bun scripts/generate-covers.ts",
     "build:search": "bun scripts/generate-search-index.ts",
     "deploy": "bun run build && bun run wrangler",
