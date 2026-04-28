@@ -10,6 +10,11 @@ import c2025Review400 from "@/assets/cover/2025-review.webp?w=400&as=webp";
 import c2025Review800 from "@/assets/cover/2025-review.webp?w=800&as=webp";
 import c2025ReviewFull from "@/assets/cover/2025-review.webp?url";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import c2026ChiangmaiTrip400 from "@/assets/cover/2026-chiangmai-trip.png?w=400&as=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import c2026ChiangmaiTrip800 from "@/assets/cover/2026-chiangmai-trip.png?w=800&as=webp";
+import c2026ChiangmaiTripFull from "@/assets/cover/2026-chiangmai-trip.png?url";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAlsIceBucketChallengeAndCharity400 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=400&as=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAlsIceBucketChallengeAndCharity800 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=800&as=webp";
@@ -97,6 +102,7 @@ import cWhyIPayFull from "@/assets/cover/why-i-pay.webp?url";
 
 export const covers = {
   "2025-review.webp": { full: c2025ReviewFull, desktop: c2025Review800, mobile: c2025Review400 },
+  "2026-chiangmai-trip.png": { full: c2026ChiangmaiTripFull, desktop: c2026ChiangmaiTrip800, mobile: c2026ChiangmaiTrip400 },
   "ALS-Ice-Bucket-Challenge-and-Charity.webp": { full: cAlsIceBucketChallengeAndCharityFull, desktop: cAlsIceBucketChallengeAndCharity800, mobile: cAlsIceBucketChallengeAndCharity400 },
   "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp": { full: cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKongFull, desktop: cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong800, mobile: cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong400 },
   "Follow-or-break-the-rules.webp": { full: cFollowOrBreakTheRulesFull, desktop: cFollowOrBreakTheRules800, mobile: cFollowOrBreakTheRules400 },

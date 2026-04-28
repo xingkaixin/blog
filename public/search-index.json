@@ -1,5 +1,18 @@
 [
   {
+    "slug": "2026-chiangmai-trip",
+    "title": "2026 清迈之旅：在有风的地方慢慢走",
+    "date": "Tue Apr 28 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "四月的清迈，阳光不燥，微风正好。在这座泰北小城里，我放慢了脚步，逛古城、喂鸽子、喝咖啡、看日落，把日子过成诗。",
+    "tags": [
+      "旅行",
+      "清迈",
+      "生活"
+    ],
+    "cover": "/posts/cover/2026-chiangmai-trip.png",
+    "coverAlt": "2026-chiangmai-trip"
+  },
+  {
     "slug": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution",
     "title": "AI 记忆系统构建:从日志检索到知识演化",
     "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
