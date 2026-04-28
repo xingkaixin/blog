@@ -11,3 +11,5 @@ node_modules
 # agent
 .claude
 .agents
+skills-lock.json
+EXTEND.md
