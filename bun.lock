@@ -19,6 +19,7 @@
         "rehype-slug": "^6.0.0",
         "remark-gfm": "^4.0.1",
         "tailwind-merge": "^3.3.1",
+        "tegaki": "^0.15.0",
       },
       "devDependencies": {
         "@tailwindcss/typography": "^0.5.16",
@@ -959,6 +960,8 @@
     "tailwindcss": ["tailwindcss@4.2.1", "", {}, "sha512-/tBrSQ36vCleJkAOsy9kbNTgaxvGbyOamC30PRePTQe/o1MFwEKHQk4Cn7BNGaPtjp+PuUrByJehM1hgxfq4sw=="],
 
     "tapable": ["tapable@2.3.0", "", {}, "sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg=="],
+
+    "tegaki": ["tegaki@0.15.0", "", { "peerDependencies": { "@nuxt/kit": "^3.0.0 || ^4.0.0", "react": ">=18", "solid-js": ">=1", "svelte": ">=5", "vue": ">=3" }, "optionalPeers": ["@nuxt/kit", "react", "solid-js", "svelte", "vue"] }, "sha512-49iGyhUTM8Zh49GR+UD6tyV3yUHKU8hyOWaR55s7mJl6OrTKU4xI0Zk0bIjR55aJXDEDWDKLYncmtE70NX4YKQ=="],
 
     "tinybench": ["tinybench@2.9.0", "", {}, "sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg=="],
 

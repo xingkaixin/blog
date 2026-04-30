@@ -7,6 +7,7 @@ import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug, type PostDetail } from "@/lib/content";
 import { resolveCover } from "@/lib/covers";
+import { SignatureAnimation } from "@/components/signature-animation";
 import { siteConfig } from "@/lib/site";
 import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
@@ -188,6 +189,7 @@ export function PostPage() {
                   </a>
                   许可。
                 </p>
+                <SignatureAnimation />
               </div>
             </article>
 
