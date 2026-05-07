@@ -41,7 +41,11 @@ export function MarkdownRenderer({ content }: { content: string }) {
               return (
                 <picture>
                   <source srcSet={responsive.mobile} media="(max-width: 767px)" type="image/webp" />
-                  <source srcSet={responsive.desktop} media="(min-width: 768px)" type="image/webp" />
+                  <source
+                    srcSet={responsive.desktop}
+                    media="(min-width: 768px)"
+                    type="image/webp"
+                  />
                   <img
                     src={responsive.webp}
                     alt={alt}
@@ -52,7 +56,23 @@ export function MarkdownRenderer({ content }: { content: string }) {
                 </picture>
               );
             }
-            return <img src={src} alt={alt} title={title} loading="lazy" className="block w-full rounded-2xl" />;
+            return (
+              <img
+                src={src}
+                alt={alt}
+                title={title}
+                loading="lazy"
+                className="block w-full rounded-2xl"
+              />
+            );
+          },
+          h1: ({ children, ...props }) => {
+            const text = normalizeHeadingText(flattenNodeText(children));
+            return (
+              <h2 id={buildHeadingId(text)} {...props}>
+                {children}
+              </h2>
+            );
           },
           h2: ({ children, ...props }) => {
             const text = normalizeHeadingText(flattenNodeText(children));

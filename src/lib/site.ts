@@ -3,4 +3,5 @@ export const siteConfig = {
   description: "记录阅读、技术、产品与生活观察的个人博客。",
   url: "https://xingkaixin.me",
   author: "XingKaiXin",
+  language: "zh-CN",
 };

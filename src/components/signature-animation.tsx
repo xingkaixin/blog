@@ -36,7 +36,9 @@ export function SignatureAnimation() {
 
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {

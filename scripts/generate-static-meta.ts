@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { projects } from "../src/lib/projects";
 import { siteConfig } from "../src/lib/site";
 
 const ROOT = process.cwd();
@@ -17,7 +18,7 @@ type PageMeta = {
   description: string;
   url: string;
   image: string;
-  type: "website" | "article";
+  type: "website" | "webpage" | "article";
   publishedTime?: string;
   tags?: string[];
 };
@@ -94,25 +95,36 @@ function markdownToStaticHtml(markdown: string): string {
   let paragraphBuffer: string[] = [];
 
   const flushParagraph = () => {
-    if (!paragraphBuffer.length) return;
+    if (!paragraphBuffer.length) {
+      return;
+    }
     const text = stripInlineMarkdown(paragraphBuffer.join(" ").trim());
-    if (text) parts.push(`<p>${escapeHtml(text)}</p>`);
+    if (text) {
+      parts.push(`<p>${escapeHtml(text)}</p>`);
+    }
     paragraphBuffer = [];
   };
 
   for (const line of lines) {
-    if (/^```/.test(line)) {
+    if (line.startsWith("```")) {
       inCodeBlock = !inCodeBlock;
-      if (inCodeBlock) flushParagraph();
+      if (inCodeBlock) {
+        flushParagraph();
+      }
       continue;
     }
-    if (inCodeBlock) continue;
+    if (inCodeBlock) {
+      continue;
+    }
 
     const headingMatch = /^(#{1,3})\s+(.+)$/.exec(line);
     if (headingMatch) {
       flushParagraph();
       const level = headingMatch[1].length;
-      parts.push(`<h${level}>${escapeHtml(stripInlineMarkdown(headingMatch[2]))}</h${level}>`);
+      const staticLevel = level === 1 ? 2 : level;
+      parts.push(
+        `<h${staticLevel}>${escapeHtml(stripInlineMarkdown(headingMatch[2]))}</h${staticLevel}>`,
+      );
       continue;
     }
 
@@ -124,7 +136,9 @@ function markdownToStaticHtml(markdown: string): string {
 
     const blockquoteMatch = /^>\s?(.*)$/.exec(line);
     if (blockquoteMatch) {
-      if (blockquoteMatch[1].trim()) paragraphBuffer.push(blockquoteMatch[1]);
+      if (blockquoteMatch[1].trim()) {
+        paragraphBuffer.push(blockquoteMatch[1]);
+      }
       continue;
     }
 
@@ -133,7 +147,9 @@ function markdownToStaticHtml(markdown: string): string {
       continue;
     }
 
-    if (line.trim().startsWith("<")) continue;
+    if (line.trim().startsWith("<")) {
+      continue;
+    }
 
     paragraphBuffer.push(line);
   }
@@ -142,9 +158,28 @@ function markdownToStaticHtml(markdown: string): string {
   return parts.join("\n");
 }
 
-function buildStaticBody(
-  post: Pick<PostEntry, "title" | "date" | "summary" | "content">,
-): string {
+function buildHomeStaticBody(posts: Pick<PostEntry, "slug" | "title" | "summary" | "date">[]) {
+  return [
+    "<main>",
+    `<h1>${escapeHtml(siteConfig.title)}</h1>`,
+    `<p>${escapeHtml(siteConfig.description)}</p>`,
+    "<section>",
+    "<h2>最新文章</h2>",
+    ...posts.map((post) =>
+      [
+        "<article>",
+        `<h3><a href="/posts/${escapeHtml(post.slug)}">${escapeHtml(post.title)}</a></h3>`,
+        `<time datetime="${escapeHtml(post.date)}">${escapeHtml(post.date)}</time>`,
+        `<p>${escapeHtml(post.summary)}</p>`,
+        "</article>",
+      ].join(""),
+    ),
+    "</section>",
+    "</main>",
+  ].join("");
+}
+
+function buildStaticBody(post: Pick<PostEntry, "title" | "date" | "summary" | "content">): string {
   const bodyHtml = markdownToStaticHtml(post.content);
   return [
     "<main>",
@@ -158,38 +193,107 @@ function buildStaticBody(
   ].join("");
 }
 
+function buildProjectsStaticBody() {
+  return [
+    "<main>",
+    "<h1>工具箱</h1>",
+    "<p>Kevin 发布和维护的 AI、CLI、数据库与开发者工具。</p>",
+    "<section>",
+    ...projects.map((project) =>
+      [
+        "<article>",
+        project.url
+          ? `<h2><a href="${escapeHtml(project.url)}">${escapeHtml(project.name)}</a></h2>`
+          : `<h2>${escapeHtml(project.name)}</h2>`,
+        `<p>${escapeHtml(project.description)}</p>`,
+        "</article>",
+      ].join(""),
+    ),
+    "</section>",
+    "</main>",
+  ].join("");
+}
+
+function personSchema() {
+  return {
+    "@type": "Person",
+    "@id": `${siteConfig.url}/#person`,
+    name: siteConfig.author,
+    url: siteConfig.url,
+  };
+}
+
+function websiteSchema() {
+  return {
+    "@type": "WebSite",
+    "@id": `${siteConfig.url}/#website`,
+    name: siteConfig.title,
+    url: siteConfig.url,
+    description: siteConfig.description,
+    inLanguage: siteConfig.language,
+    author: { "@id": `${siteConfig.url}/#person` },
+    publisher: { "@id": `${siteConfig.url}/#person` },
+  };
+}
+
 function buildJsonLd(meta: PageMeta): string {
-  let schema: object;
+  let graph: object[];
 
   if (meta.type === "website") {
-    schema = {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: siteConfig.title,
-      url: siteConfig.url,
-      description: siteConfig.description,
-      author: { "@type": "Person", name: siteConfig.author },
-    };
+    graph = [personSchema(), websiteSchema()];
+  } else if (meta.type === "webpage") {
+    graph = [
+      personSchema(),
+      websiteSchema(),
+      {
+        "@type": "WebPage",
+        "@id": meta.url,
+        url: meta.url,
+        name: meta.title,
+        description: meta.description,
+        inLanguage: siteConfig.language,
+        isPartOf: { "@id": `${siteConfig.url}/#website` },
+        author: { "@id": `${siteConfig.url}/#person` },
+      },
+    ];
   } else {
-    schema = {
-      "@context": "https://schema.org",
-      "@type": "BlogPosting",
-      headline: meta.title,
-      description: meta.description,
-      datePublished: meta.publishedTime ?? "",
-      author: { "@type": "Person", name: siteConfig.author },
-      image: meta.image,
-      mainEntityOfPage: { "@type": "WebPage", "@id": meta.url },
-      keywords: (meta.tags ?? []).join(", "),
-      publisher: { "@type": "Person", name: siteConfig.author },
-    };
+    graph = [
+      personSchema(),
+      websiteSchema(),
+      {
+        "@type": "BlogPosting",
+        "@id": `${meta.url}#article`,
+        headline: meta.title,
+        description: meta.description,
+        inLanguage: siteConfig.language,
+        datePublished: meta.publishedTime,
+        dateModified: meta.publishedTime,
+        author: { "@id": `${siteConfig.url}/#person` },
+        publisher: { "@id": `${siteConfig.url}/#person` },
+        image: {
+          "@type": "ImageObject",
+          url: meta.image,
+          width: OG_WIDTH,
+          height: OG_HEIGHT,
+        },
+        mainEntityOfPage: { "@type": "WebPage", "@id": meta.url },
+        isPartOf: { "@id": `${siteConfig.url}/#website` },
+        keywords: meta.tags ?? [],
+      },
+    ];
   }
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": graph,
+  };
 
   return `    <script type="application/ld+json">${JSON.stringify(schema)}</script>`;
 }
 
 function metaTags(meta: PageMeta) {
   const title = meta.type === "website" ? meta.title : `${meta.title} | ${siteConfig.title}`;
+  const ogType = meta.type === "article" ? "article" : "website";
   const articleTags =
     meta.type === "article"
       ? [
@@ -207,7 +311,7 @@ function metaTags(meta: PageMeta) {
     `    <meta name="description" content="${escapeHtml(meta.description)}" />`,
     `    <link rel="canonical" href="${escapeHtml(meta.url)}" />`,
     `    <meta name="theme-color" content="#f4efe6" />`,
-    `    <meta property="og:type" content="${meta.type}" />`,
+    `    <meta property="og:type" content="${ogType}" />`,
     `    <meta property="og:site_name" content="${escapeHtml(siteConfig.title)}" />`,
     `    <meta property="og:title" content="${escapeHtml(meta.title)}" />`,
     `    <meta property="og:description" content="${escapeHtml(meta.description)}" />`,
@@ -243,18 +347,12 @@ function applyMeta(html: string, meta: PageMeta, staticBody?: string) {
 
   const cleanHead = removeExistingMeta(headMatch[1]);
   const jsonLd = buildJsonLd(meta);
-  const nextHead = cleanHead.replace(
-    /(\n\s*<meta name="viewport"[^>]*>)/,
-    `$1\n${metaTags(meta)}`,
-  );
+  const nextHead = cleanHead.replace(/(\n\s*<meta name="viewport"[^>]*>)/, `$1\n${metaTags(meta)}`);
 
   let result = html.replace(headMatch[0], `<head>${nextHead}\n${jsonLd}\n  </head>`);
 
   if (staticBody) {
-    result = result.replace(
-      /<div id="root"><\/div>/,
-      `<div id="root">${staticBody}</div>`,
-    );
+    result = result.replace(/<div id="root"><\/div>/, `<div id="root">${staticBody}</div>`);
   }
 
   return result;
@@ -278,10 +376,26 @@ function main() {
     image: `${siteConfig.url}/og/site.png`,
     type: "website",
   };
+  const posts = readPosts();
 
-  writePage(INDEX_FILE, baseHtml, siteMeta);
+  writePage(INDEX_FILE, baseHtml, siteMeta, buildHomeStaticBody(posts));
 
-  for (const post of readPosts()) {
+  const projectsMeta: PageMeta = {
+    title: "工具箱",
+    description: "Kevin 发布和维护的 AI、CLI、数据库与开发者工具。",
+    url: `${siteConfig.url}/projects`,
+    image: `${siteConfig.url}/og/site.png`,
+    type: "webpage",
+  };
+
+  writePage(
+    path.join(DIST_DIR, "projects", "index.html"),
+    baseHtml,
+    projectsMeta,
+    buildProjectsStaticBody(),
+  );
+
+  for (const post of posts) {
     const meta: PageMeta = {
       title: post.title,
       description: post.summary,

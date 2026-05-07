@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { PostList } from "@/components/post-list";
 import { PostSkeleton } from "@/components/post-skeleton";
 import { getAllPosts, type PostDetail } from "@/lib/content";
+import { siteConfig } from "@/lib/site";
 
 export function HomePage() {
   const [posts, setPosts] = useState<PostDetail[]>([]);
@@ -49,6 +50,12 @@ export function HomePage() {
       <div className="mx-auto max-w-[1400px] space-y-8">
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-ink-400">Articles</p>
+          <h1 className="mt-3 text-4xl tracking-[-0.05em] text-ink-800 sm:text-5xl">
+            {siteConfig.title}
+          </h1>
+          <p className="mt-3 max-w-[44ch] text-base leading-8 text-ink-600">
+            {siteConfig.description}
+          </p>
         </div>
         <PostList posts={posts} />
       </div>

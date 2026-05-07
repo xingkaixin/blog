@@ -17,13 +17,11 @@ function readPosts() {
       const source = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
       const { data } = matter(source);
       const date =
-        data.date instanceof Date
-          ? data.date.toISOString().slice(0, 10)
-          : String(data.date ?? "");
+        data.date instanceof Date ? data.date.toISOString().slice(0, 10) : String(data.date ?? "");
       return { slug: file.replace(/\.md$/, ""), date, draft: Boolean(data.draft) };
     })
     .filter((p) => !p.draft)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 function buildSitemap(posts: Array<{ slug: string; date: string }>) {
@@ -34,9 +32,8 @@ function buildSitemap(posts: Array<{ slug: string; date: string }>) {
 
   const entries = [
     urlEntry(`${siteConfig.url}/`, today, "weekly", "1.0"),
-    ...posts.map((p) =>
-      urlEntry(`${siteConfig.url}/posts/${p.slug}`, p.date, "monthly", "0.8"),
-    ),
+    urlEntry(`${siteConfig.url}/projects`, today, "monthly", "0.7"),
+    ...posts.map((p) => urlEntry(`${siteConfig.url}/posts/${p.slug}`, p.date, "monthly", "0.8")),
   ];
 
   return [
