@@ -257,12 +257,25 @@ function buildJsonLd(meta: PageMeta): string {
       },
     ];
   } else {
+    const articleId = `${meta.url}#article`;
     graph = [
       personSchema(),
       websiteSchema(),
       {
+        "@type": "WebPage",
+        "@id": meta.url,
+        url: meta.url,
+        name: meta.title,
+        description: meta.description,
+        inLanguage: siteConfig.language,
+        isPartOf: { "@id": `${siteConfig.url}/#website` },
+        author: { "@id": `${siteConfig.url}/#person` },
+        primaryEntity: { "@id": articleId },
+      },
+      {
         "@type": "BlogPosting",
-        "@id": `${meta.url}#article`,
+        "@id": articleId,
+        name: meta.title,
         headline: meta.title,
         description: meta.description,
         inLanguage: siteConfig.language,

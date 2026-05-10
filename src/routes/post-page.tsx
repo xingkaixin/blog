@@ -3,11 +3,12 @@ import { Navigate, useParams } from "react-router-dom";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { PostCover } from "@/components/post-cover";
 import { ReadingProgress } from "@/components/reading-progress";
+import { SignatureAnimation } from "@/components/signature-animation";
 import { TocNav } from "@/components/toc-nav";
 import { Badge } from "@/components/ui/badge";
 import { formatDisplayDate, getPostBySlug, type PostDetail } from "@/lib/content";
 import { resolveCover } from "@/lib/covers";
-import { SignatureAnimation } from "@/components/signature-animation";
+import { usePageMeta } from "@/lib/page-meta";
 import { siteConfig } from "@/lib/site";
 import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
@@ -16,6 +17,19 @@ export function PostPage() {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
+  usePageMeta(
+    post
+      ? {
+          title: post.title,
+          description: post.summary,
+          url: `${siteConfig.url}/posts/${post.slug}`,
+          image: `${siteConfig.url}/og/${post.slug}.png`,
+          type: "article",
+          publishedTime: post.date,
+          tags: post.tags,
+        }
+      : null,
+  );
 
   useEffect(() => {
     if (!slug) {

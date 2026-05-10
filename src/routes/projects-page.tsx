@@ -1,8 +1,17 @@
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import { Badge } from "@/components/ui/badge";
+import { usePageMeta } from "@/lib/page-meta";
 import { projects } from "@/lib/projects";
+import { siteConfig } from "@/lib/site";
 
 export function ProjectsPage() {
+  usePageMeta({
+    title: "工具箱",
+    description: "Kevin 发布和维护的 AI、CLI、数据库与开发者工具。",
+    url: `${siteConfig.url}/projects`,
+    type: "webpage",
+  });
+
   return (
     <section className="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
       <div className="mx-auto max-w-350 space-y-8">

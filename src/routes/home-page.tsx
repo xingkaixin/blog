@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { PostList } from "@/components/post-list";
 import { PostSkeleton } from "@/components/post-skeleton";
 import { getAllPosts, type PostDetail } from "@/lib/content";
+import { usePageMeta } from "@/lib/page-meta";
 import { siteConfig } from "@/lib/site";
 
 export function HomePage() {
   const [posts, setPosts] = useState<PostDetail[]>([]);
   const [loading, setLoading] = useState(true);
+  usePageMeta({
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    type: "website",
+  });
 
   useEffect(() => {
     void getAllPosts()

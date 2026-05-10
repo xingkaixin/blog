@@ -19,7 +19,28 @@ describe("PostPage", () => {
       </MemoryRouter>,
     );
 
+    const title = "2025年人工智能现状深度研究报告：代理推理、开源格局重塑与智能经济学";
+
     await screen.findByRole("heading", { name: /2025年人工智能现状深度研究报告/ });
+    await waitFor(() => {
+      expect(document.title).toBe(`${title} | 行开心的颠倒世界`);
+    });
+    expect(document.querySelector('meta[property="og:title"]')?.getAttribute("content")).toBe(
+      title,
+    );
+    expect(document.querySelector('meta[name="twitter:title"]')?.getAttribute("content")).toBe(
+      title,
+    );
+    expect(
+      JSON.parse(
+        document.querySelector<HTMLScriptElement>('script[type="application/ld+json"]')
+          ?.textContent ?? "{}",
+      )["@graph"].some(
+        (item: { "@type"?: string; name?: string }) =>
+          item["@type"] === "BlogPosting" && item.name === title,
+      ),
+    ).toBe(true);
+
     const tocLinks = await screen.findAllByRole("link", { name: /2\.1/ });
 
     expect(tocLinks.length).toBeGreaterThan(0);

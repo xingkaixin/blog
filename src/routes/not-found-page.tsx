@@ -1,7 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePageMeta } from "@/lib/page-meta";
+import { siteConfig } from "@/lib/site";
 
 export function NotFoundPage() {
+  usePageMeta({
+    title: "404 - 页面未找到",
+    description: "页面未找到。",
+    url: `${siteConfig.url}/404`,
+    type: "webpage",
+  });
+
   return (
     <section className="px-4 py-24 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-4xl rounded-[2.6rem] border border-white/20 bg-white/70 p-8 text-center shadow-[0_28px_80px_-48px_rgba(31,24,18,0.6),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-14">
