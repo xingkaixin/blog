@@ -93,9 +93,9 @@ async function generatePostImages(): Promise<void> {
     }
 
     const articleDir = path.join(IMAGES_DIR, entry.name);
-    const files = fs.readdirSync(articleDir).filter((file) =>
-      SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)),
-    );
+    const files = fs
+      .readdirSync(articleDir)
+      .filter((file) => SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)));
 
     for (const file of files) {
       const srcPath = path.join(articleDir, file);

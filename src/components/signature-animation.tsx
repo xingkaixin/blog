@@ -19,7 +19,10 @@ export function SignatureAnimation() {
   // 在缺少浏览器 API 的环境（如测试）中优雅降级
   if (typeof window === "undefined" || typeof ResizeObserver === "undefined") {
     return (
-      <div className="mt-6 flex justify-end text-ink-400" style={{ fontSize: "36px", fontFamily: "cursive" }}>
+      <div
+        className="mt-6 flex justify-end text-ink-400"
+        style={{ fontSize: "36px", fontFamily: "cursive" }}
+      >
         {siteConfig.author}
       </div>
     );

@@ -6,20 +6,106 @@ export type ResponsivePostImage = {
 };
 
 export const postImages: Record<string, ResponsivePostImage> = {
-  "/posts/images/2026-chiangmai-trip/ancient-pagoda.png": { src: "/posts/images/2026-chiangmai-trip/ancient-pagoda.png", webp: "/posts/images/2026-chiangmai-trip/ancient-pagoda.webp", mobile: "/posts/images/2026-chiangmai-trip/ancient-pagoda-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/ancient-pagoda-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png": { src: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png", webp: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.webp", mobile: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png": { src: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png", webp: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.webp", mobile: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/cozy-cafe.png": { src: "/posts/images/2026-chiangmai-trip/cozy-cafe.png", webp: "/posts/images/2026-chiangmai-trip/cozy-cafe.webp", mobile: "/posts/images/2026-chiangmai-trip/cozy-cafe-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cozy-cafe-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/feeding-pigeons.png": { src: "/posts/images/2026-chiangmai-trip/feeding-pigeons.png", webp: "/posts/images/2026-chiangmai-trip/feeding-pigeons.webp", mobile: "/posts/images/2026-chiangmai-trip/feeding-pigeons-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/feeding-pigeons-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/flame-tree-street.png": { src: "/posts/images/2026-chiangmai-trip/flame-tree-street.png", webp: "/posts/images/2026-chiangmai-trip/flame-tree-street.webp", mobile: "/posts/images/2026-chiangmai-trip/flame-tree-street-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/flame-tree-street-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/mango-tree.png": { src: "/posts/images/2026-chiangmai-trip/mango-tree.png", webp: "/posts/images/2026-chiangmai-trip/mango-tree.webp", mobile: "/posts/images/2026-chiangmai-trip/mango-tree-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/mango-tree-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/nimman-live-music.png": { src: "/posts/images/2026-chiangmai-trip/nimman-live-music.png", webp: "/posts/images/2026-chiangmai-trip/nimman-live-music.webp", mobile: "/posts/images/2026-chiangmai-trip/nimman-live-music-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/nimman-live-music-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/street-life.png": { src: "/posts/images/2026-chiangmai-trip/street-life.png", webp: "/posts/images/2026-chiangmai-trip/street-life.webp", mobile: "/posts/images/2026-chiangmai-trip/street-life-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/street-life-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/sunset-pool.png": { src: "/posts/images/2026-chiangmai-trip/sunset-pool.png", webp: "/posts/images/2026-chiangmai-trip/sunset-pool.webp", mobile: "/posts/images/2026-chiangmai-trip/sunset-pool-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/sunset-pool-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/temple-greenery.png": { src: "/posts/images/2026-chiangmai-trip/temple-greenery.png", webp: "/posts/images/2026-chiangmai-trip/temple-greenery.webp", mobile: "/posts/images/2026-chiangmai-trip/temple-greenery-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/temple-greenery-1200w.webp" },
-  "/posts/images/2026-chiangmai-trip/white-pagoda.png": { src: "/posts/images/2026-chiangmai-trip/white-pagoda.png", webp: "/posts/images/2026-chiangmai-trip/white-pagoda.webp", mobile: "/posts/images/2026-chiangmai-trip/white-pagoda-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/white-pagoda-1200w.webp" },
-  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png": { src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png", webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.webp", mobile: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-800w.webp", desktop: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-1200w.webp" },
-  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png": { src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png", webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.webp", mobile: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-800w.webp", desktop: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-1200w.webp" },
-  "/posts/images/llm-react-prompt/output.png": { src: "/posts/images/llm-react-prompt/output.png", webp: "/posts/images/llm-react-prompt/output.webp", mobile: "/posts/images/llm-react-prompt/output-800w.webp", desktop: "/posts/images/llm-react-prompt/output-1200w.webp" },
-  "/posts/images/llm-react-prompt/react.png": { src: "/posts/images/llm-react-prompt/react.png", webp: "/posts/images/llm-react-prompt/react.webp", mobile: "/posts/images/llm-react-prompt/react-800w.webp", desktop: "/posts/images/llm-react-prompt/react-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/ancient-pagoda.png": {
+    src: "/posts/images/2026-chiangmai-trip/ancient-pagoda.png",
+    webp: "/posts/images/2026-chiangmai-trip/ancient-pagoda.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/ancient-pagoda-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/ancient-pagoda-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png": {
+    src: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png",
+    webp: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png": {
+    src: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png",
+    webp: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/cozy-cafe.png": {
+    src: "/posts/images/2026-chiangmai-trip/cozy-cafe.png",
+    webp: "/posts/images/2026-chiangmai-trip/cozy-cafe.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/cozy-cafe-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/cozy-cafe-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/feeding-pigeons.png": {
+    src: "/posts/images/2026-chiangmai-trip/feeding-pigeons.png",
+    webp: "/posts/images/2026-chiangmai-trip/feeding-pigeons.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/feeding-pigeons-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/feeding-pigeons-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/flame-tree-street.png": {
+    src: "/posts/images/2026-chiangmai-trip/flame-tree-street.png",
+    webp: "/posts/images/2026-chiangmai-trip/flame-tree-street.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/flame-tree-street-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/flame-tree-street-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/mango-tree.png": {
+    src: "/posts/images/2026-chiangmai-trip/mango-tree.png",
+    webp: "/posts/images/2026-chiangmai-trip/mango-tree.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/mango-tree-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/mango-tree-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/nimman-live-music.png": {
+    src: "/posts/images/2026-chiangmai-trip/nimman-live-music.png",
+    webp: "/posts/images/2026-chiangmai-trip/nimman-live-music.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/nimman-live-music-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/nimman-live-music-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/street-life.png": {
+    src: "/posts/images/2026-chiangmai-trip/street-life.png",
+    webp: "/posts/images/2026-chiangmai-trip/street-life.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/street-life-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/street-life-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/sunset-pool.png": {
+    src: "/posts/images/2026-chiangmai-trip/sunset-pool.png",
+    webp: "/posts/images/2026-chiangmai-trip/sunset-pool.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/sunset-pool-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/sunset-pool-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/temple-greenery.png": {
+    src: "/posts/images/2026-chiangmai-trip/temple-greenery.png",
+    webp: "/posts/images/2026-chiangmai-trip/temple-greenery.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/temple-greenery-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/temple-greenery-1200w.webp",
+  },
+  "/posts/images/2026-chiangmai-trip/white-pagoda.png": {
+    src: "/posts/images/2026-chiangmai-trip/white-pagoda.png",
+    webp: "/posts/images/2026-chiangmai-trip/white-pagoda.webp",
+    mobile: "/posts/images/2026-chiangmai-trip/white-pagoda-800w.webp",
+    desktop: "/posts/images/2026-chiangmai-trip/white-pagoda-1200w.webp",
+  },
+  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png":
+    {
+      src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png",
+      webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.webp",
+      mobile:
+        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-800w.webp",
+      desktop:
+        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-1200w.webp",
+    },
+  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png":
+    {
+      src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png",
+      webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.webp",
+      mobile:
+        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-800w.webp",
+      desktop:
+        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-1200w.webp",
+    },
+  "/posts/images/llm-react-prompt/output.png": {
+    src: "/posts/images/llm-react-prompt/output.png",
+    webp: "/posts/images/llm-react-prompt/output.webp",
+    mobile: "/posts/images/llm-react-prompt/output-800w.webp",
+    desktop: "/posts/images/llm-react-prompt/output-1200w.webp",
+  },
+  "/posts/images/llm-react-prompt/react.png": {
+    src: "/posts/images/llm-react-prompt/react.png",
+    webp: "/posts/images/llm-react-prompt/react.webp",
+    mobile: "/posts/images/llm-react-prompt/react-800w.webp",
+    desktop: "/posts/images/llm-react-prompt/react-1200w.webp",
+  },
 };

@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "build": "bun run build:search && bun run build:covers && bun run build:post-images && bun run build:og && vite build && bun run build:static-meta && bun run build:sitemap",
-    "build:sitemap": "bun scripts/generate-sitemap.ts",
     "build:covers": "bun scripts/generate-covers.ts",
     "build:og": "bun scripts/generate-og-images.ts",
     "build:post-images": "bun scripts/generate-post-images.ts",
     "build:search": "bun scripts/generate-search-index.ts",
+    "build:sitemap": "bun scripts/generate-sitemap.ts",
     "build:static-meta": "bun scripts/generate-static-meta.ts",
     "deploy": "bun run build && bun run wrangler",
     "dev": "vite",
