@@ -44,9 +44,9 @@ const meta = {
     <ReadingProgress />
     <section class="px-4 pt-10 sm:px-6 lg:px-10">
       <div class="mx-auto max-w-[1400px]">
-        <div class:list={["grid gap-10 lg:items-start", postMeta.toc.length && "lg:grid-cols-[minmax(0,1fr)_300px]"]}>
-          <article class="space-y-8">
-            <figure class="overflow-hidden rounded-[2.4rem] border border-white/20 bg-white/70 p-4 shadow-[0_30px_80px_-50px_rgba(31,24,18,0.62),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-5">
+        <div class:list={["grid min-w-0 gap-10 lg:items-start", postMeta.toc.length && "lg:grid-cols-[minmax(0,1fr)_300px]"]}>
+          <article class="min-w-0 space-y-8">
+            <figure class="w-full max-w-full overflow-hidden rounded-[2.4rem] border border-white/20 bg-white/70 p-4 shadow-[0_30px_80px_-50px_rgba(31,24,18,0.62),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-5">
               <PostCover
                 src={postMeta.cover}
                 alt={postMeta.coverAlt}
@@ -56,7 +56,7 @@ const meta = {
             </figure>
 
             <div class="space-y-5">
-              <h1 class="max-w-[24ch] text-4xl text-ink-800 sm:max-w-[28ch] sm:text-5xl lg:max-w-[32ch] lg:text-6xl">
+              <h1 class="max-w-full text-4xl text-ink-800 [overflow-wrap:anywhere] sm:max-w-[28ch] sm:text-5xl lg:max-w-[32ch] lg:text-6xl">
                 {postMeta.title}
               </h1>
               <div class="flex flex-col gap-4 border-y border-ink-800/8 py-4 sm:flex-row sm:items-center sm:justify-between">

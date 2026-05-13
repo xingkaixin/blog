@@ -108,6 +108,16 @@ input {
   scroll-margin-top: 7rem;
 }
 
+.article-prose :where(a) {
+  overflow-wrap: anywhere;
+}
+
+.article-prose :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .article-prose :where(code):not(:where(pre code))::before,
 .article-prose :where(code):not(:where(pre code))::after {
   content: "";

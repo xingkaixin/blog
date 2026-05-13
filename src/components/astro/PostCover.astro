@@ -18,10 +18,12 @@ const {
   imageClass,
   responsive = resolveCover(src),
 } = Astro.props;
-const imageClassName = ["block aspect-[16/9] w-full object-contain", imageClass].filter(Boolean).join(" ");
+const imageClassName = ["block aspect-[16/9] w-full max-w-full object-contain", imageClass]
+  .filter(Boolean)
+  .join(" ");
 ---
 
-<div class:list={["overflow-hidden rounded-[1.6rem] border border-ink-800/10", className]}>
+<div class:list={["w-full max-w-full overflow-hidden rounded-[1.6rem] border border-ink-800/10", className]}>
   {
     responsive ? (
       <picture>
