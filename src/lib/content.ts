@@ -1,8 +1,18 @@
-export type TocItem = {
-  depth: number;
-  text: string;
-  id: string;
-};
+import {
+  estimateReadingTime,
+  extractPlainText as extractPlainTextFromMarkdown,
+  extractToc as extractTocFromMarkdown,
+  type TocItem,
+} from "@/lib/markdown";
+
+export {
+  buildHeadingId,
+  extractPlainText,
+  extractToc,
+  formatDisplayDate,
+  normalizeHeadingText,
+} from "@/lib/markdown";
+export type { TocItem } from "@/lib/markdown";
 
 export type PostMeta = {
   slug: string;
@@ -36,25 +46,6 @@ const postModules = import.meta.glob("/content/posts/*.md", {
   query: "?raw",
   import: "default",
 }) as Record<string, () => Promise<string>>;
-
-const slugify = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s-]/gu, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
-export function normalizeHeadingText(value: string) {
-  return value
-    .replace(/[*_`]/g, "")
-    .replace(/^[^\p{L}\p{N}]+/gu, "")
-    .trim();
-}
-
-export function buildHeadingId(value: string) {
-  return slugify(normalizeHeadingText(value));
-}
 
 type ParsedFrontmatter = {
   data: Partial<Frontmatter>;
@@ -111,54 +102,6 @@ function splitFrontmatter(source: string): ParsedFrontmatter {
   return { data, content };
 }
 
-const removeFrontmatter = (source: string) => splitFrontmatter(source).content;
-
-export function formatDisplayDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(value));
-}
-
-export function extractPlainText(markdown: string) {
-  return removeFrontmatter(markdown)
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-    .replace(/^>\s?/gm, "")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_~>-]/g, " ")
-    .replace(/\n+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-export function extractToc(markdown: string): TocItem[] {
-  return removeFrontmatter(markdown)
-    .split("\n")
-    .flatMap((line) => {
-      const match = /^(#{2,3})\s+(.+)$/.exec(line.trim());
-      if (!match) {
-        return [];
-      }
-
-      const text = normalizeHeadingText(match[2]);
-      return [
-        {
-          depth: match[1].length,
-          text,
-          id: buildHeadingId(text),
-        },
-      ];
-    });
-}
-
-function estimateReadingTime(text: string) {
-  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 220));
-}
-
 export function parseMarkdownPost(slug: string, source: string): PostDetail | null {
   const { data, content } = splitFrontmatter(source);
   const frontmatter = data;
@@ -167,8 +110,8 @@ export function parseMarkdownPost(slug: string, source: string): PostDetail | nu
     return null;
   }
 
-  const plainText = extractPlainText(content);
-  const toc = extractToc(content);
+  const plainText = extractPlainTextFromMarkdown(content);
+  const toc = extractTocFromMarkdown(content);
 
   return {
     slug,

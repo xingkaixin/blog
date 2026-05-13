@@ -1,0 +1,60 @@
+---
+import PostCover from "@/components/astro/PostCover.astro";
+import { formatDisplayDate } from "@/lib/markdown";
+import type { BlogPostMeta } from "@/lib/astro-posts";
+
+type Props = {
+  post: BlogPostMeta;
+  index: number;
+};
+
+const { post, index } = Astro.props;
+---
+
+<a
+  href={`/posts/${post.slug}`}
+  class="group block fade-in"
+  style={`animation-delay: ${index * 90}ms`}
+>
+  <article class="hover-lift flex h-full flex-col overflow-hidden rounded-[2rem] border border-[#d7cfc2] bg-[#faf7f1]/96 p-4 shadow-[0_24px_60px_-52px_rgba(31,24,18,0.3),inset_0_1px_0_rgba(255,255,255,0.88)] sm:p-5">
+    <PostCover
+      src={post.cover}
+      alt={post.coverAlt}
+      class="rounded-[1.7rem] border-[#e4dbcf]"
+      imageClass="transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
+    />
+    <div class="flex flex-1 flex-col justify-between pt-5">
+      <div>
+        <div class="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.22em] text-ink-400">
+          <span>{formatDisplayDate(post.date)}</span>
+        </div>
+        <h3 class="mt-4 text-2xl text-balance text-ink-800">
+          {post.title}
+        </h3>
+        <p class="mt-4 text-sm leading-7 text-ink-600">{post.summary}</p>
+      </div>
+      <div class="mt-6 flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-wrap gap-2">
+          {
+            post.tags.map((tag) => (
+              <span class="inline-flex items-center rounded-full border border-[#d9d1c4] bg-white/88 px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-sm">
+                {tag}
+              </span>
+            ))
+          }
+        </div>
+        <span class="inline-flex items-center gap-2 text-sm font-medium text-ink-700">
+          阅读全文
+          <svg
+            aria-hidden="true"
+            class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+            viewBox="0 0 15 15"
+            fill="none"
+          >
+            <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </article>
+</a>

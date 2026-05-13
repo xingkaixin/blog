@@ -1,0 +1,111 @@
+---
+import type { TocItem } from "@/lib/markdown";
+import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
+
+type Props = {
+  items: TocItem[];
+};
+
+const { items } = Astro.props;
+const tocIds = items.map((item) => item.id);
+---
+
+{
+  items.length > 0 && (
+    <>
+      <div
+        data-toc-scroll
+        class="hidden rounded-[1.9rem] border border-white/20 bg-white/70 p-5 shadow-[0_18px_40px_-35px_rgba(31,24,18,0.4),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto"
+      >
+        <p class="mb-4 text-xs uppercase tracking-[0.28em] text-ink-400">导览</p>
+        <nav class="space-y-2">
+          {items.map((item) => (
+            <a
+              data-toc-link={item.id}
+              href={`#${item.id}`}
+              class:list={[
+                "block rounded-xl border border-transparent px-3 py-2 text-sm text-ink-500 transition-all hover:bg-accent/8 hover:text-ink-800",
+                item.depth === 3 && "ml-4",
+              ]}
+            >
+              {item.text}
+            </a>
+          ))}
+        </nav>
+      </div>
+      <details class="rounded-[1.5rem] border border-ink-800/10 bg-white/70 p-5 lg:hidden">
+        <summary class="cursor-pointer list-none text-sm font-medium text-ink-700">
+          展开导览
+        </summary>
+        <nav class="mt-4 space-y-2">
+          {items.map((item) => (
+            <a
+              data-toc-link={item.id}
+              href={`#${item.id}`}
+              class:list={["block text-sm text-ink-500", item.depth === 3 && "ml-4"]}
+            >
+              {item.text}
+            </a>
+          ))}
+        </nav>
+      </details>
+      <script define:vars={{ tocIds, offset: TOC_ACTIVE_OFFSET }}>
+        const activeClasses = [
+          "border-accent/12",
+          "bg-accent/10",
+          "font-semibold",
+          "text-ink-800",
+          "shadow-[inset_3px_0_0_rgba(123,98,68,0.7)]",
+        ];
+        const inactiveClasses = ["border-transparent", "text-ink-500"];
+        const links = Array.from(document.querySelectorAll("[data-toc-link]"));
+        const desktopNav = document.querySelector("[data-toc-scroll]");
+
+        function setActive(id) {
+          for (const link of links) {
+            const isActive = link.getAttribute("data-toc-link") === id;
+            link.setAttribute("aria-current", isActive ? "location" : "false");
+            link.classList.toggle("border-transparent", !isActive);
+            link.classList.toggle("text-ink-500", !isActive);
+            for (const className of activeClasses) {
+              link.classList.toggle(className, isActive);
+            }
+            for (const className of inactiveClasses) {
+              link.classList.toggle(className, !isActive);
+            }
+          }
+
+          const activeLink = links.find((link) => link.getAttribute("data-toc-link") === id);
+          if (desktopNav && activeLink && desktopNav.contains(activeLink)) {
+            desktopNav.scrollTo({
+              top: activeLink.offsetTop - desktopNav.clientHeight / 2 + activeLink.clientHeight / 2,
+              behavior: "smooth",
+            });
+          }
+        }
+
+        function updateActiveHeading() {
+          const headings = tocIds
+            .map((id) => document.getElementById(id))
+            .filter((heading) => Boolean(heading));
+
+          if (!headings.length) {
+            return;
+          }
+
+          for (let index = headings.length - 1; index >= 0; index -= 1) {
+            if (headings[index].getBoundingClientRect().top <= offset) {
+              setActive(headings[index].id);
+              return;
+            }
+          }
+
+          setActive(headings[0].id);
+        }
+
+        updateActiveHeading();
+        window.addEventListener("scroll", updateActiveHeading, { passive: true });
+      </script>
+    </>
+  )
+}

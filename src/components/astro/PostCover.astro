@@ -1,0 +1,52 @@
+---
+import { resolveCover, type ResponsiveCover } from "@/lib/covers";
+
+type Props = {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  class?: string;
+  imageClass?: string;
+  responsive?: ResponsiveCover | null;
+};
+
+const {
+  src,
+  alt,
+  priority = false,
+  class: className,
+  imageClass,
+  responsive = resolveCover(src),
+} = Astro.props;
+const imageClassName = ["block aspect-[16/9] w-full object-contain", imageClass].filter(Boolean).join(" ");
+---
+
+<div class:list={["overflow-hidden rounded-[1.6rem] border border-ink-800/10", className]}>
+  {
+    responsive ? (
+      <picture>
+        <source srcset={responsive.mobile} media="(max-width: 639px)" />
+        <source srcset={responsive.desktop} media="(max-width: 1023px)" />
+        <img
+          src={responsive.full}
+          alt={alt}
+          width="2048"
+          height="1143"
+          loading={priority ? "eager" : "lazy"}
+          fetchpriority={priority ? "high" : undefined}
+          class={imageClassName}
+        />
+      </picture>
+    ) : (
+      <img
+        src={src}
+        alt={alt}
+        width="2048"
+        height="1143"
+        loading={priority ? "eager" : "lazy"}
+        fetchpriority={priority ? "high" : undefined}
+        class={imageClassName}
+      />
+    )
+  }
+</div>

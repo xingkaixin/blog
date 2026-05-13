@@ -1,0 +1,85 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { projects } from "@/lib/projects";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "工具箱",
+  description: "Kevin 发布和维护的 AI、CLI、数据库与开发者工具。",
+  url: `${siteConfig.url}/projects`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta}>
+  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
+    <div class="mx-auto max-w-350 space-y-8">
+      <div>
+        <p class="text-xs uppercase tracking-[0.28em] text-ink-400">Projects</p>
+        <h1 class="mt-3 text-4xl text-ink-800">工具箱</h1>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {
+          projects.map((project, index) => {
+            const Wrapper = project.url ? "a" : "div";
+            const wrapperProps = project.url
+              ? {
+                  href: project.url,
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                }
+              : {};
+
+            return (
+              <Wrapper
+                {...wrapperProps}
+                class:list={["group block fade-in", project.url && "cursor-pointer"]}
+                style={`animation-delay: ${index * 90}ms`}
+              >
+                <div class="hover-lift flex h-full flex-col overflow-hidden rounded-4xl border border-[#d7cfc2] bg-[#faf7f1]/96 p-5 shadow-[0_24px_60px_-52px_rgba(31,24,18,0.3),inset_0_1px_0_rgba(255,255,255,0.88)]">
+                  <div class="flex items-start gap-4">
+                    <img
+                      src={project.logo}
+                      alt={`${project.name} logo`}
+                      width="48"
+                      height="48"
+                      class="h-12 w-12 shrink-0 rounded-xl border border-[#e4dbcf] bg-white/88 object-contain p-1.5"
+                    />
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-xl text-ink-800">{project.name}</h3>
+                      <p class="mt-2 text-sm leading-7 text-ink-600">{project.description}</p>
+                    </div>
+                  </div>
+                  <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
+                    {project.tags && (
+                      <div class="flex flex-wrap gap-2">
+                        {project.tags.map((tag) => (
+                          <span class="inline-flex items-center rounded-full border border-[#d9d1c4] bg-white/88 px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-sm">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {project.url && (
+                      <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-700">
+                        访问
+                        <svg
+                          aria-hidden="true"
+                          class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                        >
+                          <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Wrapper>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+</SiteLayout>

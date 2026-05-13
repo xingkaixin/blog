@@ -2,15 +2,15 @@
 
 ## 项目简介
 
-这是一个基于 React + TypeScript + Vite 的个人技术博客，使用 Markdown 文件作为文章存储格式。
+这是一个基于 Astro + TypeScript 的个人技术博客，使用 Markdown 文件作为文章存储格式。
 
 ## 技术栈
 
-- **React 19** + **TypeScript** - 前端框架
-- **Vite 7** - 构建工具
+- **Astro 6** + **TypeScript** - 站点框架与静态生成
+- **React 19** - 交互组件 islands
 - **Tailwind CSS 4** - 样式方案
-- **React Router DOM 7** - 路由管理
-- **react-markdown** - Markdown 渲染
+- **Astro Content Collections** - Markdown 内容管理
+- **remark-gfm** + 自定义 rehype 插件 - Markdown 渲染增强
 - **Radix UI** - UI 组件库
 - **Vitest** - 测试框架
 
@@ -20,31 +20,35 @@
 src/
 ├── assets/cover/           # 博客封面图片
 ├── components/
+│   ├── astro/              # 静态展示组件
 │   ├── ui/                 # 基础 UI 组件 (button, input, dialog 等)
-│   ├── markdown-renderer.tsx   # Markdown 渲染器
-│   ├── post-card.tsx           # 文章卡片组件
-│   ├── post-list.tsx           # 文章列表
 │   ├── search-dialog.tsx       # 搜索对话框
-│   ├── site-layout.tsx         # 站点布局
-│   ├── tag-filter.tsx          # 标签过滤
-│   └── toc-nav.tsx             # 目录导航
+│   └── signature-animation.tsx # 签名动画 island
+├── layouts/
+│   └── SiteLayout.astro    # 站点布局与 SEO meta
 ├── lib/
+│   ├── astro-posts.ts      # Astro 文章查询与派生数据
 │   ├── content.ts          # 文章加载与处理
+│   ├── markdown.ts         # Markdown 纯函数
+│   ├── seo.ts              # SEO meta 与 JSON-LD
 │   ├── search.ts           # 搜索功能
 │   ├── site.ts             # 站点配置
 │   ├── toc-active.ts       # 目录高亮逻辑
 │   └── utils.ts            # 工具函数
-├── routes/
-│   └── post-page.tsx       # 文章详情页
-├── test/                   # 测试配置
-└── App.tsx                 # 应用入口
+├── pages/
+│   ├── index.astro         # 首页
+│   ├── projects.astro      # 工具箱
+│   └── posts/[slug].astro  # 文章详情页
+└── content.config.ts       # 内容集合配置
 ```
 
 ## 关键文件
 
 - `src/lib/site.ts` - 站点配置 (标题、描述、作者)
-- `src/lib/content.ts` - 文章加载逻辑，使用 gray-matter 解析 Markdown
-- `vite.config.ts` - Vite 配置，包含博客内容验证插件
+- `src/content.config.ts` - 文章 frontmatter schema 与封面校验
+- `src/pages/posts/[slug].astro` - 文章页静态生成
+- `src/lib/seo.ts` - 页面 meta 与 JSON-LD
+- `astro.config.ts` - Astro、React island、Tailwind 与 Markdown 插件配置
 - `content/posts/` - 博客文章目录，每篇文章为独立 .md 文件
 
 ## 开发注意事项

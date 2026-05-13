@@ -4,6 +4,7 @@ public/og
 
 # dev
 node_modules
+.astro
 
 # cloudfloare
 .wrangler

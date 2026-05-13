@@ -51,7 +51,7 @@ function buildRobotsTxt() {
 
 function main() {
   if (!fs.existsSync(DIST_DIR)) {
-    throw new Error("dist/ not found. Run vite build first.");
+    throw new Error("dist/ not found. Run astro build first.");
   }
 
   const posts = readPosts();

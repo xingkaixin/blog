@@ -1,0 +1,21 @@
+<div class="sticky top-[73px] z-10 h-[2px] w-full bg-transparent">
+  <div data-reading-progress class="h-full bg-accent transition-[width] duration-200" style="width: 0%"></div>
+</div>
+
+<script>
+  const progressBar = document.querySelector<HTMLElement>("[data-reading-progress]");
+
+  function updateProgress() {
+    if (!progressBar) {
+      return;
+    }
+
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    const maxScrollable = scrollHeight - clientHeight;
+    const value = maxScrollable > 0 ? (scrollTop / maxScrollable) * 100 : 0;
+    progressBar.style.width = `${Math.min(value, 100)}%`;
+  }
+
+  updateProgress();
+  window.addEventListener("scroll", updateProgress, { passive: true });
+</script>

@@ -1,0 +1,166 @@
+---
+import { render } from "astro:content";
+import PostCover from "@/components/astro/PostCover.astro";
+import ReadingProgress from "@/components/astro/ReadingProgress.astro";
+import TocNav from "@/components/astro/TocNav.astro";
+import { SignatureAnimation } from "@/components/signature-animation";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import {
+  getPublishedPosts,
+  toPostMeta,
+  type BlogPostEntry,
+} from "@/lib/astro-posts";
+import { formatDisplayDate } from "@/lib/markdown";
+import { siteConfig } from "@/lib/site";
+
+type Props = {
+  post: BlogPostEntry;
+};
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as Props;
+const postMeta = toPostMeta(post);
+const { Content } = await render(post);
+const meta = {
+  title: postMeta.title,
+  description: postMeta.summary,
+  url: `${siteConfig.url}/posts/${postMeta.slug}`,
+  image: `${siteConfig.url}/og/${postMeta.slug}.png`,
+  type: "article" as const,
+  publishedTime: postMeta.date,
+  tags: postMeta.tags,
+};
+---
+
+<SiteLayout meta={meta}>
+  <div class="pb-20">
+    <ReadingProgress />
+    <section class="px-4 pt-10 sm:px-6 lg:px-10">
+      <div class="mx-auto max-w-[1400px]">
+        <div class:list={["grid gap-10 lg:items-start", postMeta.toc.length && "lg:grid-cols-[minmax(0,1fr)_300px]"]}>
+          <article class="space-y-8">
+            <figure class="overflow-hidden rounded-[2.4rem] border border-white/20 bg-white/70 p-4 shadow-[0_30px_80px_-50px_rgba(31,24,18,0.62),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:p-5">
+              <PostCover
+                src={postMeta.cover}
+                alt={postMeta.coverAlt}
+                priority
+                class="rounded-[2rem] border-white/60"
+              />
+            </figure>
+
+            <div class="space-y-5">
+              <h1 class="max-w-[24ch] text-4xl text-ink-800 sm:max-w-[28ch] sm:text-5xl lg:max-w-[32ch] lg:text-6xl">
+                {postMeta.title}
+              </h1>
+              <div class="flex flex-col gap-4 border-y border-ink-800/8 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <span class="text-sm uppercase tracking-[0.2em] text-ink-400">
+                  {formatDisplayDate(postMeta.date)}
+                </span>
+                <div class="flex flex-wrap gap-2 sm:justify-end">
+                  {
+                    postMeta.tags.map((tag) => (
+                      <span class="inline-flex items-center rounded-full border border-ink-800/10 bg-white/70 px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-sm">
+                        {tag}
+                      </span>
+                    ))
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[2.3rem] border border-white/20 bg-white/72 px-6 py-8 shadow-[0_24px_70px_-50px_rgba(31,24,18,0.55),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:px-10">
+              <div class="article-prose">
+                <Content />
+              </div>
+            </div>
+
+            <div class="relative rounded-[2rem] border border-ink-800/10 bg-white/50 px-6 py-8 sm:px-10">
+              <svg
+                aria-hidden="true"
+                class="absolute right-6 top-6 h-8 w-8 text-ink-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <text
+                  x="12"
+                  y="16"
+                  text-anchor="middle"
+                  fill="currentColor"
+                  stroke="none"
+                  font-size="13"
+                  font-weight="500"
+                  font-family="system-ui, sans-serif"
+                >
+                  C
+                </text>
+              </svg>
+              <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">
+                版权声明
+              </h2>
+              <dl class="mt-5 grid gap-3 text-sm text-ink-600">
+                <div class="flex gap-3">
+                  <dt class="shrink-0 font-medium text-ink-500">作者</dt>
+                  <dd>{siteConfig.author}</dd>
+                </div>
+                <div class="flex gap-3">
+                  <dt class="shrink-0 font-medium text-ink-500">标题</dt>
+                  <dd>{postMeta.title}</dd>
+                </div>
+                <div class="flex gap-3">
+                  <dt class="shrink-0 font-medium text-ink-500">发布时间</dt>
+                  <dd>{formatDisplayDate(postMeta.date)}</dd>
+                </div>
+                <div class="flex gap-3">
+                  <dt class="shrink-0 font-medium text-ink-500">文章链接</dt>
+                  <dd>
+                    <a
+                      href={`${siteConfig.url}/posts/${postMeta.slug}`}
+                      class="text-ink-800 underline underline-offset-2 hover:text-ink-500"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {siteConfig.url}/posts/{postMeta.slug}
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+              <p class="mt-6 text-sm text-ink-500">
+                本作品采用
+                <a
+                  href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans"
+                  class="text-ink-800 underline underline-offset-2 hover:text-ink-500"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  CC BY-NC-ND 4.0 DEED
+                </a>
+                许可。
+              </p>
+              <SignatureAnimation client:visible />
+            </div>
+          </article>
+
+          {
+            postMeta.toc.length > 0 && (
+              <aside class="lg:sticky lg:top-28 lg:self-start lg:pt-2 lg:z-10">
+                <div>
+                  <TocNav items={postMeta.toc} />
+                </div>
+              </aside>
+            )
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</SiteLayout>

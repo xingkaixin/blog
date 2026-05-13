@@ -1,16 +1,16 @@
 # 行开心的颠倒世界
 
-个人技术博客，基于 React + TypeScript + Vite 构建。
+个人技术博客，基于 Astro + TypeScript 构建，使用 Markdown 文件作为文章存储格式。
 
 ## 技术栈
 
-- **前端框架**: React 19 + TypeScript
-- **构建工具**: Vite 7
+- **站点框架**: Astro 6 + TypeScript
+- **交互组件**: React 19 islands
 - **样式方案**: Tailwind CSS 4
-- **路由**: React Router DOM 7
-- **Markdown**: react-markdown + remark-gfm + rehype-slug
+- **内容管理**: Astro Content Collections + Markdown
+- **Markdown**: remark-gfm + 自定义 rehype 插件
 - **UI 组件**: Radix UI
-- **测试**: Vitest + React Testing Library
+- **测试**: Vitest
 - **包管理**: Bun
 
 ## 目录结构
@@ -21,15 +21,14 @@
 ├── scripts/                # 构建脚本
 ├── src/
 │   ├── assets/            # 图片资源 (封面图)
-│   ├── components/         # React 组件
-│   │   └── ui/             # UI 基础组件
+│   ├── components/         # Astro 组件与 React islands
+│   │   ├── astro/          # 静态展示组件
+│   │   └── ui/             # React UI 基础组件
+│   ├── layouts/            # Astro 布局
 │   ├── lib/                # 工具函数和业务逻辑
-│   ├── routes/             # 页面路由组件
-│   ├── test/               # 测试配置
-│   ├── App.tsx             # 应用入口
-│   └── main.tsx            # 渲染入口
-├── index.html              # HTML 模板
-├── vite.config.ts          # Vite 配置
+│   └── pages/              # Astro 文件路由
+├── astro.config.ts         # Astro 配置
+├── src/content.config.ts   # 内容集合配置
 └── package.json             # 项目依赖
 ```
 
@@ -37,10 +36,10 @@
 
 - Markdown 博客文章渲染，支持 GFM 语法
 - 响应式封面图片生成
-- 文章标签过滤与搜索
+- 文章搜索
 - 目录自动提取与导航
 - 阅读进度指示器
-- 深色/浅色主题支持
+- SEO meta、OG 与 JSON-LD 静态生成
 
 ## 快速开始
 

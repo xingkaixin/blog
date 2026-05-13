@@ -28,6 +28,7 @@
     "node_modules/",
     "public/",
     "data/",
+    ".astro/",
     "bun.lock",
     "content/",
     ".claude/"

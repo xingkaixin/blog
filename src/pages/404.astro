@@ -1,0 +1,27 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "页面未找到",
+  description: "这篇内容可能已经删除、移动，或者链接已经过期。",
+  url: `${siteConfig.url}/404`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta} noindex>
+  <section class="px-4 py-24 sm:px-6 lg:px-10">
+    <div class="mx-auto max-w-xl rounded-[2.6rem] border border-white/20 bg-white/72 px-8 py-12 text-center shadow-[0_28px_80px_-48px_rgba(31,24,18,0.6),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl">
+      <p class="text-xs uppercase tracking-[0.32em] text-ink-400">404</p>
+      <h1 class="mt-4 text-4xl font-bold text-ink-800">页面未找到</h1>
+      <p class="mt-4 leading-8 text-ink-600">这篇内容可能已经删除、移动，或者链接已经过期。</p>
+      <a
+        href="/"
+        class="mt-8 inline-flex h-11 items-center justify-center rounded-full border border-accent bg-accent px-6 text-sm font-medium text-white transition-colors hover:bg-ink-800 hover:text-paper"
+      >
+        返回首页
+      </a>
+    </div>
+  </section>
+</SiteLayout>

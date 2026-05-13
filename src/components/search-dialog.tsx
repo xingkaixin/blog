@@ -1,21 +1,21 @@
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { resolveCover } from "@/lib/covers";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 
 type SearchDialogProps = {
-  trigger: ReactNode;
+  trigger?: ReactNode;
 };
 
 function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => void }) {
   const cover = resolveCover(post.cover);
 
   return (
-    <Link
-      to={`/posts/${post.slug}`}
+    <a
+      href={`/posts/${post.slug}`}
       onClick={onClose}
       className="flex gap-3 rounded-[1.4rem] border border-ink-800/10 bg-white/70 p-3 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[2px] hover:border-accent/30"
     >
@@ -27,10 +27,10 @@ function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => voi
         />
       )}
       <div className="min-w-0 flex-1">
-        <p className="text-lg tracking-tight text-ink-800">{post.title}</p>
+        <p className="text-lg text-ink-800">{post.title}</p>
         <p className="mt-1 line-clamp-2 text-sm leading-7 text-ink-600">{post.summary}</p>
       </div>
-    </Link>
+    </a>
   );
 }
 
@@ -102,7 +102,17 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button variant="secondary" size="sm">
+            <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4" />
+            搜索文章
+            <span className="hidden rounded-full bg-ink-800/5 px-2 py-0.5 font-mono text-[0.7rem] text-ink-500 sm:inline-flex">
+              /
+            </span>
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent hideClose title="搜索文章" description="输入关键词搜索博客文章">
         <div className="space-y-4">
           <div className="relative">
@@ -129,7 +139,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
             </div>
           ) : (
             <div className="rounded-[1.6rem] border border-dashed border-ink-800/15 bg-white/60 px-5 py-8 text-center">
-              <p className="text-lg tracking-tight text-ink-800">没有命中结果</p>
+              <p className="text-lg text-ink-800">没有命中结果</p>
               <p className="mt-2 text-sm leading-7 text-ink-600">
                 试试更短的词，或者改搜标签与概念名。
               </p>
