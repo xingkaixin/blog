@@ -65,6 +65,11 @@ import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 from "@/assets/co
 import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=800&as=webp";
 import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?url";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cCodeseshAiCodingSessionsDisappearing400 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=400&as=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cCodeseshAiCodingSessionsDisappearing800 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=800&as=webp";
+import cCodeseshAiCodingSessionsDisappearingFull from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?url";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cLlmReactPrompt400 from "@/assets/cover/llm-react-prompt.webp?w=400&as=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cLlmReactPrompt800 from "@/assets/cover/llm-react-prompt.webp?w=800&as=webp";
@@ -113,6 +118,7 @@ export const covers = {
   "The-requirements-and-design-ideas-of-the-strategy-team.webp": { full: cTheRequirementsAndDesignIdeasOfTheStrategyTeamFull, desktop: cTheRequirementsAndDesignIdeasOfTheStrategyTeam800, mobile: cTheRequirementsAndDesignIdeasOfTheStrategyTeam400 },
   "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp": { full: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull, desktop: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800, mobile: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers400 },
   "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png": { full: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull, desktop: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800, mobile: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 },
+  "codesesh-ai-coding-sessions-disappearing.webp": { full: cCodeseshAiCodingSessionsDisappearingFull, desktop: cCodeseshAiCodingSessionsDisappearing800, mobile: cCodeseshAiCodingSessionsDisappearing400 },
   "llm-react-prompt.webp": { full: cLlmReactPromptFull, desktop: cLlmReactPrompt800, mobile: cLlmReactPrompt400 },
   "macOS-now-supports-Netflix-Dolby-Vision.webp": { full: cMacosNowSupportsNetflixDolbyVisionFull, desktop: cMacosNowSupportsNetflixDolbyVision800, mobile: cMacosNowSupportsNetflixDolbyVision400 },
   "state-of-ai.webp": { full: cStateOfAiFull, desktop: cStateOfAi800, mobile: cStateOfAi400 },
