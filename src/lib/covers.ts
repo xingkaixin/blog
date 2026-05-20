@@ -104,6 +104,11 @@ import cWhyIPay400 from "@/assets/cover/why-i-pay.webp?w=400&as=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cWhyIPay800 from "@/assets/cover/why-i-pay.webp?w=800&as=webp";
 import cWhyIPayFull from "@/assets/cover/why-i-pay.webp?url";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cYomitomoAiReadingCompanion400 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=400&as=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cYomitomoAiReadingCompanion800 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=800&as=webp";
+import cYomitomoAiReadingCompanionFull from "@/assets/cover/yomitomo-ai-reading-companion.webp?url";
 
 export const covers = {
   "2025-review.webp": { full: c2025ReviewFull, desktop: c2025Review800, mobile: c2025Review400 },
@@ -126,6 +131,7 @@ export const covers = {
   "the-newsroom-time-tested-masterpieces.webp": { full: cTheNewsroomTimeTestedMasterpiecesFull, desktop: cTheNewsroomTimeTestedMasterpieces800, mobile: cTheNewsroomTimeTestedMasterpieces400 },
   "the-state-of-enterprise-ai_2025-report.webp": { full: cTheStateOfEnterpriseAi2025ReportFull, desktop: cTheStateOfEnterpriseAi2025Report800, mobile: cTheStateOfEnterpriseAi2025Report400 },
   "why-i-pay.webp": { full: cWhyIPayFull, desktop: cWhyIPay800, mobile: cWhyIPay400 },
+  "yomitomo-ai-reading-companion.webp": { full: cYomitomoAiReadingCompanionFull, desktop: cYomitomoAiReadingCompanion800, mobile: cYomitomoAiReadingCompanion400 },
 } as const;
 
 export function resolveCover(path: string): ResponsiveCover | null {

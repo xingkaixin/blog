@@ -1,5 +1,19 @@
 [
   {
+    "slug": "yomitomo-ai-reading-companion",
+    "title": "我做了一个 AI 伴读，因为 AI 摘要正在杀死阅读",
+    "date": "Thu May 21 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "四月想清楚一件事：市面上所有 AI 阅读工具都在帮你「不用读」，没人在解决「陪你读」。五月开始写 Yomitomo，一个本地优先的 AI 伴读桌面应用，把阅读的最小单位从文章变成判断。",
+    "tags": [
+      "AI",
+      "阅读",
+      "开源",
+      "独立开发"
+    ],
+    "cover": "/posts/cover/yomitomo-ai-reading-companion.webp",
+    "coverAlt": "Yomitomo 阅读界面"
+  },
+  {
     "slug": "codesesh-ai-coding-sessions-disappearing",
     "title": "你跟 AI 的每一次编码对话，都在悄悄消失",
     "date": "Sat May 16 2026 08:00:00 GMT+0800 (China Standard Time)",
