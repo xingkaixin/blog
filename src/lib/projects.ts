@@ -16,6 +16,14 @@ export const projects: Project[] = [
     tags: ["AI", "阅读工具"],
   },
   {
+    name: "Voicen",
+    description:
+      "一款 iOS 原生语音笔记应用。点击即可开始录音，后台自动完成语音转写和大语言模型润色，保存为包含原始音频与整理文本的笔记。",
+    logo: "/projects/voicen.png",
+    url: "https://voicen.xingkaixin.me/",
+    tags: ["AI", "iOS", "语音笔记"],
+  },
+  {
     name: "CodeSesh",
     description:
       "一个地方看遍所有 AI 编程会话。自动扫描本地文件系统，在统一 Web UI 中呈现 Claude Code、Cursor、Kimi 等多工具的对话历史，支持回放、成本统计与全文搜索。",
