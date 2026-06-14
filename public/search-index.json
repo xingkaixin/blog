@@ -1,5 +1,75 @@
 [
   {
+    "slug": "stay-in-the-loop",
+    "title": "Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键",
+    "date": "Thu Jun 18 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Agent 写的代码逻辑通、测试也过，用户的手却按不对地方：OpenCode 作者让 agent 处理焦点切换，它选了 f 键，而所有人的手指记得 Tab。agent 生成的是 plausible，不是 right；执行可以外包，品味判断不行。",
+    "tags": [
+      "AI编程",
+      "工程实践",
+      "用户体验",
+      "Agentic"
+    ],
+    "cover": "/posts/cover/stay-in-the-loop.png",
+    "coverAlt": "Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键"
+  },
+  {
+    "slug": "ai-code-5-checkpoints",
+    "title": "AI 写完代码后，我只看这 5 个地方",
+    "date": "Mon Jun 15 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Code Review AI 代码，传统清单全过，风险却藏在它替你做的默认选择里。五个该盯的落点：边界条件、错误处理、外部依赖的假设、状态一致性、权限边界——都是 AI 最容易自信做错的地方。十分钟把注意力收到这里，换半夜少接一次事故电话。",
+    "tags": [
+      "AI编程",
+      "代码审查",
+      "工程实践",
+      "安全"
+    ],
+    "cover": "/posts/cover/ai-code-5-checkpoints.png",
+    "coverAlt": "AI 写完代码后，我只看这 5 个地方"
+  },
+  {
+    "slug": "agent-guesses-not-debug",
+    "title": "你以为 Agent 在 debug，其实它在猜",
+    "date": "Thu Jun 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Agent 改 bug 来回改不对，缺的不是脑子，是现场。只给源码，它就只能做静态推理，本质是猜。解法不是换更强的模型，是先让程序开口：用日志暴露运行时事实，再动手修。往上一层，把可观测性建进系统，才是让 Agent 自主排查、自动改善的前提。",
+    "tags": [
+      "AI编程",
+      "Debug",
+      "可观测性",
+      "Agentic"
+    ],
+    "cover": "/posts/cover/agent-guesses-not-debug.png",
+    "coverAlt": "你以为 Agent 在 debug，其实它在猜"
+  },
+  {
+    "slug": "session-as-asset",
+    "title": "每次跟 agent 聊完，你把最值钱的东西丢了",
+    "date": "Mon Jun 08 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "跟 agent 聊完，代码进了 git，但踩过的坑、方案前提、下次先查什么这类工程判断没有容器，跟着 session 一起关掉了。解法：趁 context 还热让 agent 把非显然结论压成一两百字，丢进可搜索的 decisions 目录，下次 grep 就能调回来。",
+    "tags": [
+      "AI编程",
+      "工程实践",
+      "知识管理",
+      "Agentic"
+    ],
+    "cover": "/posts/cover/session-as-asset.png",
+    "coverAlt": "每次跟 agent 聊完，你把最值钱的东西丢了"
+  },
+  {
+    "slug": "ai-tests-closed-loop",
+    "title": "AI 写的测试全绿了？你在跟它一起自欺欺人",
+    "date": "Thu Jun 04 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 同时写代码和测试，出题的和答题的是同一个脑子——代码里的隐含假设会照搬进测试，覆盖率 95% 也只证明内部一致。打破闭环只有一个方向：让测试的场景来自代码之外，由人从真实踩坑和业务理解里注入。",
+    "tags": [
+      "AI编程",
+      "测试",
+      "代码审查",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/ai-tests-closed-loop.png",
+    "coverAlt": "AI 写的测试全绿了？你在跟它一起自欺欺人"
+  },
+  {
     "slug": "yomitomo-ai-reading-companion",
     "title": "我做了一个 AI 伴读，因为 AI 摘要正在杀死阅读",
     "date": "Thu May 21 2026 08:00:00 GMT+0800 (China Standard Time)",
@@ -12,6 +82,20 @@
     ],
     "cover": "/posts/cover/yomitomo-ai-reading-companion.webp",
     "coverAlt": "Yomitomo 阅读界面"
+  },
+  {
+    "slug": "karpathy-join-anthropic",
+    "title": "Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体\"降级\"",
+    "date": "Wed May 20 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Karpathy 放弃一切头衔以 MTS 身份加入 Anthropic pretraining team，加入了 Mike Krieger、庞若鸣等人的行列——大模型时代，\"管多少人\"已经不是权力来源，能摸到模型才是。头衔在通胀，手感在稀缺。",
+    "tags": [
+      "AI行业",
+      "Karpathy",
+      "Anthropic",
+      "硅谷"
+    ],
+    "cover": "/posts/cover/karpathy-join-anthropic.png",
+    "coverAlt": "Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体\"降级\""
   },
   {
     "slug": "codesesh-ai-coding-sessions-disappearing",
@@ -27,6 +111,76 @@
     "coverAlt": "codesesh-ai-coding-sessions-disappearing"
   },
   {
+    "slug": "spec-unwritten-assumptions",
+    "title": "Spec 里最危险的，是你觉得不用写的部分",
+    "date": "Thu May 14 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "加缓存的 Spec 写了失效时间，没写\"更新数据时清除对应缓存\"——因为这太显然了。AI 不知道显然，Spec 写了什么它就做什么。越值钱的工程经验，越不会被写进 Spec；把\"理所当然\"变成白纸黑字，才是 Spec 质量的真正差距所在。",
+    "tags": [
+      "Spec",
+      "AI编程",
+      "工程实践",
+      "经验"
+    ],
+    "cover": "/posts/cover/spec-unwritten-assumptions.png",
+    "coverAlt": "Spec 里最危险的，是你觉得不用写的部分"
+  },
+  {
+    "slug": "ai-slop-battle",
+    "title": "AI泔水之争：同样的烂代码，有人当武器有人当毒药",
+    "date": "Fri May 08 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Mitchell Hashimoto 把 AI 生成的低质量代码当脚手架加速迭代，Anthropic 工程师说编程已被解决，另一篇文章却记录着新手靠 AI 产出超出自身判断力的产物——泔水不是问题，不知道自己在喝才是。",
+    "tags": [
+      "AI编程",
+      "工程文化",
+      "代码质量",
+      "判断力"
+    ],
+    "cover": "/posts/cover/ai-slop-battle.png",
+    "coverAlt": "AI泔水之争：同样的烂代码，有人当武器有人当毒药"
+  },
+  {
+    "slug": "musk-vs-altman",
+    "title": "翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现",
+    "date": "Fri May 01 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "翻读 Musk v. Altman 案公开的千页内部邮件，OpenAI 早期最聪明的几个人连续三年把资源押在 Dota、机器人手和自博弈上——语言模型在 Sam 的年终汇报里只有三行，用的词是\"希望\"。九个月后 GPT-2 发布。",
+    "tags": [
+      "OpenAI",
+      "AI历史",
+      "Musk",
+      "Altman"
+    ],
+    "cover": "/posts/cover/musk-vs-altman.png",
+    "coverAlt": "翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现"
+  },
+  {
+    "slug": "ai-review-ai",
+    "title": "我让 AI 审了自己的代码，审了 10 轮",
+    "date": "Thu Apr 30 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "用同一把 prompt 对同一段代码做了 10 轮 AI code review，每轮都发现新问题——因为每次重构后代码形状变了，新接缝暴露新问题。AI 审 AI 需要稳定的标准、迭代的耐心，以及由人来决定\"什么时候停\"。",
+    "tags": [
+      "AI编程",
+      "代码审查",
+      "重构",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/ai-review-ai.png",
+    "coverAlt": "我让 AI 审了自己的代码，审了 10 轮"
+  },
+  {
+    "slug": "rhythm-in-ai-coding",
+    "title": "8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松",
+    "date": "Thu Apr 30 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 让你随时都能写代码，但这恰恰是新的危险——你永远离自己的代码太近。用人为的停顿替代以前的被动等待：8 天写代码，16 天只当使用者，1 天带着新眼睛回来审查。",
+    "tags": [
+      "AI编程",
+      "工程节奏",
+      "独立开发",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/rhythm-in-ai-coding.png",
+    "coverAlt": "8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松"
+  },
+  {
     "slug": "2026-chiangmai-trip",
     "title": "2026 清迈之旅：在有风的地方慢慢走",
     "date": "Tue Apr 28 2026 08:00:00 GMT+0800 (China Standard Time)",
@@ -40,6 +194,300 @@
     "coverAlt": "2026-chiangmai-trip"
   },
   {
+    "slug": "ai-code-responsibility-gap",
+    "title": "AI 写的代码，你敢签你的名字吗？",
+    "date": "Mon Apr 27 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 生成代码\"均匀自信\"、没有元认知，而我们在审查时也渐渐失去犹豫——commit 签的是你的名字，但决策链条里有一段真空，出了事才会被看见。",
+    "tags": [
+      "AI编程",
+      "代码审查",
+      "工程师责任",
+      "元认知"
+    ],
+    "cover": "/posts/cover/ai-code-responsibility-gap.png",
+    "coverAlt": "AI 写的代码，你敢签你的名字吗？"
+  },
+  {
+    "slug": "enjoying-ai-too-much-scares-me",
+    "title": "我用 AI 越用越爽，这件事让我有点害怕",
+    "date": "Mon Apr 27 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "在清迈用 AI 一周做完了自己一直想做的语音笔记 APP，好用、每天在用、但没有发布——因为\"做出来\"和\"懂这件事\"在 AI 时代第一次被拆开了，我在气泡里生活太舒服，舒服到不会主动走出来。",
+    "tags": [
+      "AI",
+      "工程师成长",
+      "独立开发",
+      "认知"
+    ],
+    "cover": "/posts/cover/enjoying-ai-too-much-scares-me.png",
+    "coverAlt": "我用 AI 越用越爽，这件事让我有点害怕"
+  },
+  {
+    "slug": "ai-wont-tire-but-you-will",
+    "title": "你以为在审代码，其实在点合并",
+    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 把产出曲线和判断力曲线拆开了——Agent 永远全速，但你的审查能力在下午已经掉线。身体不再是刹车，只能靠自律：审到\"只是在确认\"就停，剩下的明天再审。",
+    "tags": [
+      "AI编程",
+      "代码审查",
+      "工程效率",
+      "认知负荷"
+    ],
+    "cover": "/posts/cover/ai-wont-tire-but-you-will.png",
+    "coverAlt": "你以为在审代码，其实在点合并"
+  },
+  {
+    "slug": "best-ai-users-need-it-least",
+    "title": "最好的 AI 使用者，是最不需要 AI 的人",
+    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "同一个工具，资深工程师产出又快又稳，新人代码里却埋着三个月后才炸的坑。AI 是放大器，放大你已有的判断力——用 AI 提速的同时，在它帮不了你的地方花笨功夫。",
+    "tags": [
+      "AI编程",
+      "工程师成长",
+      "判断力",
+      "学习"
+    ],
+    "cover": "/posts/cover/best-ai-users-need-it-least.png",
+    "coverAlt": "最好的 AI 使用者，是最不需要 AI 的人"
+  },
+  {
+    "slug": "agentic-workflow-waiting-revalued",
+    "title": "Agentic 工作流里，\"等待\"被重新定价了",
+    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Agent 跑任务时你不得不等，但切出去刷手机会冲走上下文，多 Agent 并行又带来冲突和审查瓶颈。等待期最值钱的东西，是你脑子里还热着的上下文——用来补漏洞、建预期、规划下一步，而不是切出去消遣。",
+    "tags": [
+      "Agentic",
+      "工作流",
+      "AI编程",
+      "专注力"
+    ],
+    "cover": "/posts/cover/agentic-workflow-waiting-revalued.png",
+    "coverAlt": "Agentic 工作流里，\"等待\"被重新定价了"
+  },
+  {
+    "slug": "when-ai-bypasses-all-pitfalls",
+    "title": "当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？",
+    "date": "Thu Apr 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 把所有坑都填平了，却也跳过了\"踩坑→复盘→记住\"的学习循环。直觉是被疼过之后长出来的条件反射，AI 的\"干净输出\"正在让新人失去学徒期、让老手的报警系统慢慢萎缩——主动给自己制造学习机会，是保持判断力的唯一方法。",
+    "tags": [
+      "AI编程",
+      "工程师成长",
+      "判断力",
+      "学习"
+    ],
+    "cover": "/posts/cover/when-ai-bypasses-all-pitfalls.png",
+    "coverAlt": "当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？"
+  },
+  {
+    "slug": "persona-distillation",
+    "title": "别再叫「蒸馏」了——你写的就是一张角色卡",
+    "date": "Tue Apr 14 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "GitHub 上爆火的\"人格蒸馏\"根本不是技术意义上的知识蒸馏——没有训练过程、没有权重更新，只是把原始数据摘要成一段系统提示词，产物是一张角色卡。偷换概念制造高级感，只会拉大公众预期与 AI 现实能力之间的落差。",
+    "tags": [
+      "AI",
+      "提示词工程",
+      "知识蒸馏",
+      "技术概念"
+    ],
+    "cover": "/posts/cover/persona-distillation.png",
+    "coverAlt": "别再叫「蒸馏」了——你写的就是一张角色卡"
+  },
+  {
+    "slug": "ai-code-review-expensive-testing",
+    "title": "跑一下试试，是 AI 时代最贵的验收方式",
+    "date": "Sat Apr 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 生成代码的速度远超你阅读的速度，\"跑一下试试\"只能测到你想到的场景。真正有效的验收需要两层：先前置写验收标准让 AI 生成测试，再让另一个模型以\"接手者视角\"审查技术债——这十分钟能省掉三个月后那个\"测试全过却线上出 bug\"的噩梦。",
+    "tags": [
+      "AI编程",
+      "代码审查",
+      "测试",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/ai-code-review-expensive-testing.png",
+    "coverAlt": "跑一下试试，是 AI 时代最贵的验收方式"
+  },
+  {
+    "slug": "spec-tell-ai-what-not-to-do",
+    "title": "不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做",
+    "date": "Sat Apr 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "好的前置文档不是给 AI 画一条路，而是画一个圈：目标在圈心，非目标和约束是边界，验收标准是终点线。圈内让 AI 自由发挥，\"非目标\"是投入产出比最高的一条，多模型交叉评审能在执行前填坑。",
+    "tags": [
+      "Spec",
+      "AI编程",
+      "工程实践",
+      "Agentic"
+    ],
+    "cover": "/posts/cover/spec-tell-ai-what-not-to-do.png",
+    "coverAlt": "不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做"
+  },
+  {
+    "slug": "model-core-tools-shell",
+    "title": "我同时用Claude Code和Codex开发：工具是壳，模型才是核",
+    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Cursor、Claude Code、Codex 是交互界面（壳），背后的大模型才是核心（核）。通过 Fin-Agent 的开发实录，总结出多模型调度的决策逻辑：生态绑定优先，灵活切换次之，成本最后——Agentic 时代工程师的核心竞争力是调度能力，不是工具忠诚度。",
+    "tags": [
+      "Claude Code",
+      "Codex",
+      "模型调度",
+      "AI编程"
+    ],
+    "cover": "/posts/cover/model-core-tools-shell.png",
+    "coverAlt": "我同时用Claude Code和Codex开发：工具是壳，模型才是核"
+  },
+  {
+    "slug": "assuming-x-agentic-era-engineers-survival-coordinates",
+    "title": "假设X成真：你的手艺正在被重新定价",
+    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "假设 AI Agent 在未来一两年内能独立完成大部分实现类开发工作，工程师该何去何从？向上游走——从\"怎么实现\"到\"该不该做\"；向深处走——从\"写得快\"到\"判得准\"。你的 X 抗性指标，就是这周工作中有多少是 AI 无法替代的判断。",
+    "tags": [
+      "Agentic",
+      "工程师",
+      "AI时代",
+      "职业发展"
+    ],
+    "cover": "/posts/cover/assuming-x-agentic-era-engineers-survival-coordinates.png",
+    "coverAlt": "假设X成真：你的手艺正在被重新定价"
+  },
+  {
+    "slug": "vibe-coding-ai-code-backlash-openclaw",
+    "title": "当Vibe Coding遇到百万行代码：OpenClaw教我的事",
+    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "OpenClaw 从一个 WhatsApp 聊天机器人长成 25 万 Star 的开源项目，也演示了 Vibe Coding 的结构性困境：AI 优化每次 prompt 的局部正确性，不优化系统长期一致性，百万行代码后是不断爆炸的升级、512 个安全漏洞和失控的熵增——Vibe Coding 有一条看不见的红线。",
+    "tags": [
+      "Vibe Coding",
+      "开源",
+      "安全",
+      "AI编程"
+    ],
+    "cover": "/posts/cover/vibe-coding-ai-code-backlash-openclaw.png",
+    "coverAlt": "当Vibe Coding遇到百万行代码：OpenClaw教我的事"
+  },
+  {
+    "slug": "mcp-vs-a2a-protocol-comparison",
+    "title": "MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？",
+    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "MCP 和 A2A 不是竞争关系——MCP 管的是 Agent 与工具之间的标准化调用，A2A 管的是 Agent 与 Agent 之间的协作通信。MCP 是每个 Agent 的 USB-C 口，A2A 是把所有 Agent 连在一起的局域网，两者缺一则系统不完整。",
+    "tags": [
+      "MCP",
+      "A2A",
+      "Agent协议",
+      "AI架构"
+    ],
+    "cover": "/posts/cover/mcp-vs-a2a-protocol-comparison.png",
+    "coverAlt": "MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？"
+  },
+  {
+    "slug": "vibe-coding-to-agentic-engineering",
+    "title": "Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？",
+    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Karpathy 在 Vibe Coding 诞生整整一年后亲手\"退休\"了它，提出 Agentic Engineering——你 99% 的时间在编排 Agent、监督产出，而不是直接写代码。核心流程从随性 prompt 演变为 Plan→Execute→Verify，Spec 写作、代码审查、系统设计成为新的差异化能力。",
+    "tags": [
+      "Vibe Coding",
+      "Agentic Engineering",
+      "AI编程",
+      "Karpathy"
+    ],
+    "cover": "/posts/cover/vibe-coding-to-agentic-engineering.png",
+    "coverAlt": "Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？"
+  },
+  {
+    "slug": "315-geo-ai-poisoning",
+    "title": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战",
+    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "315晚会曝光GEO投毒案例：通过批量生成虚假产品内容并矩阵分发，两小时让虚构产品\"Apollo-9\"登上AI推荐榜首。文章从技术开发者视角分析RAG架构漏洞、历史轮回（SEO→GEO）、以及攻防对策。",
+    "tags": [
+      "GEO",
+      "RAG",
+      "AI安全",
+      "信息生态"
+    ],
+    "cover": "/posts/cover/315-geo-ai-poisoning.png",
+    "coverAlt": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战"
+  },
+  {
+    "slug": "beyond-the-3-day-clone",
+    "title": "当开源想法三天就能被复制",
+    "date": "Thu Mar 26 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Coding Agent 让\"三天用 Rust 重写开源项目\"成为现实，原创者积累三年的认知资产被快速消费，开源生态的回报结构正在崩塌，原创动力在静悄悄地枯萎。",
+    "tags": [
+      "开源",
+      "Coding Agent",
+      "生态",
+      "AI编程"
+    ],
+    "cover": "/posts/cover/beyond-the-3-day-clone.png",
+    "coverAlt": "当开源想法三天就能被复制"
+  },
+  {
+    "slug": "kv-cache-why-ai-replies-get-faster",
+    "title": "KV Cache：为什么 AI 回复越来越快？",
+    "date": "Tue Mar 24 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "KV Cache 是大模型能快速响应长对话的核心机制：将历史内容的中间计算结果缓存起来，避免每次生成新词都重新计算所有上文，以显存空间换取时间，同时大幅降低 API 调用成本。",
+    "tags": [
+      "KV Cache",
+      "大模型",
+      "AI基础",
+      "性能优化"
+    ],
+    "cover": "/posts/cover/kv-cache-why-ai-replies-get-faster.png",
+    "coverAlt": "KV Cache：为什么 AI 回复越来越快？"
+  },
+  {
+    "slug": "coding-agent-almost-1-year",
+    "title": "与 AI 共事一年，我从\"甩手掌柜\"变成了\"掌舵人\"",
+    "date": "Tue Mar 24 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "与 Coding Agent 协作将近一年的真实心得：从把 AI 当外包甩手、到凌晨被 oncall 叫醒的教训，到建立\"先聊再写\"、分步验证、保持怀疑的协作习惯，工程师的核心价值在于设计、判断与掌舵。",
+    "tags": [
+      "Coding Agent",
+      "AI编程",
+      "工程实践",
+      "开发效率"
+    ],
+    "cover": "/posts/cover/coding-agent-almost-1-year.png",
+    "coverAlt": "与 AI 共事一年，我从\"甩手掌柜\"变成了\"掌舵人\""
+  },
+  {
+    "slug": "llm-only-getting-average",
+    "title": "你用 LLM，只拿到了均值",
+    "date": "Fri Mar 20 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "LLM 的输出是概率分布，大多数人拿到的是中间那块平庸的均值。真正好的答案在尾部——只有本来就懂的人，才能判断好坏、一轮轮地压榨出来。LLM 不是在拉平知识差距，而是在放大差距。",
+    "tags": [
+      "LLM",
+      "AI工具",
+      "学习",
+      "思考"
+    ],
+    "cover": "/posts/cover/llm-only-getting-average.png",
+    "coverAlt": "你用 LLM，只拿到了均值"
+  },
+  {
+    "slug": "spec-as-new-fig-leaf",
+    "title": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码",
+    "date": "Thu Mar 19 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Spec Driven Development 并没有消灭软件工程的难题，足够细的 spec 本质上就是另一种语法的代码；它还会把团队带回瀑布流，把不确定性藏在文档的完整性幻觉里，spec 永远覆盖不到的地方才是系统真正的盲区。",
+    "tags": [
+      "SDD",
+      "工程实践",
+      "Coding Agent",
+      "软件设计"
+    ],
+    "cover": "/posts/cover/spec-as-new-fig-leaf.png",
+    "coverAlt": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码"
+  },
+  {
+    "slug": "from-writing-code-to-reviewing-code",
+    "title": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移",
+    "date": "Thu Mar 19 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Coding Agent 把开发者的核心职责从\"写\"迁移到了\"审\"：AI 两分钟生成 200 行，你要花 40 分钟把关，真正决定结果的是你前面的规划与后面的判断——架构取舍、需求拆解、代码嗅觉，这些能力在 AI 时代反而更值钱了。",
+    "tags": [
+      "AI编程",
+      "Coding Agent",
+      "开发者",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/from-writing-code-to-reviewing-code.png",
+    "coverAlt": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移"
+  },
+  {
     "slug": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution",
     "title": "AI 记忆系统构建:从日志检索到知识演化",
     "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
@@ -49,6 +497,20 @@
     ],
     "cover": "/posts/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png",
     "coverAlt": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution"
+  },
+  {
+    "slug": "mcp-cli-skill-evolution",
+    "title": "工具的进化论：当 MCP 遇见 CLI，一场关于\"上下文\"的温柔革命",
+    "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "MCP 协议的\"上下文爆炸\"问题催生了 Skill+CLI 这条更轻量的路线：不把所有工具定义塞进提示词，而是用 CLI 按需调用，以 OpenClaw 为代表的社区实践正在证明这种方式的价值，MCP 与 CLI 未来会混合共存、各司其职。",
+    "tags": [
+      "MCP",
+      "CLI",
+      "AI工具",
+      "Agent"
+    ],
+    "cover": "/posts/cover/mcp-cli-skill-evolution.png",
+    "coverAlt": "工具的进化论：当 MCP 遇见 CLI，一场关于\"上下文\"的温柔革命"
   },
   {
     "slug": "2025-review",
