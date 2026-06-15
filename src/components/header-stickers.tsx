@@ -93,24 +93,32 @@ export function HeaderStickers() {
       {stickers.map((s, i) => {
         const isDragging = dragging === i;
         return (
-          <img
+          <div
             key={s.logo}
-            src={s.logo}
-            alt=""
-            draggable={false}
             onPointerDown={(e) => onPointerDown(e, i)}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             style={{
               width: SIZE,
               height: SIZE,
-              transform: `translate(${s.x}px, ${s.y}px) rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
-              filter: `${WHITE_STROKE} ${isDragging ? LIFTED_SHADOW : RESTING_SHADOW}`,
+              transform: `translate(${s.x}px, ${s.y}px)`,
               zIndex: isDragging ? 30 : 10,
-              transition: isDragging ? "none" : "transform 0.2s ease, filter 0.2s ease",
             }}
-            className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none select-none object-contain active:cursor-grabbing"
-          />
+            className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none active:cursor-grabbing"
+          >
+            <img
+              src={s.logo}
+              alt=""
+              draggable={false}
+              style={{
+                transform: `rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
+                filter: `${WHITE_STROKE} ${isDragging ? LIFTED_SHADOW : RESTING_SHADOW}`,
+                // 拿起用 ease-out 平稳抬起，放下用回弹曲线做出"啪"地贴下的手感
+                transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}, filter 0.2s ease`,
+              }}
+              className="h-full w-full select-none object-contain"
+            />
+          </div>
         );
       })}
     </div>
