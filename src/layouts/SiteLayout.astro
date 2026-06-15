@@ -4,6 +4,7 @@ import "@fontsource/outfit/500.css";
 import "@fontsource/outfit/700.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/600.css";
+import { HeaderStickers } from "@/components/header-stickers";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { SearchDialog } from "@/components/search-dialog";
 import { buildJsonLd, OG_HEIGHT, OG_WIDTH, ogType, pageImage, pageTitle, type PageMeta } from "@/lib/seo";
@@ -74,7 +75,8 @@ const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-60
         跳到正文
       </a>
       <header class="sticky top-0 z-20 border-b border-[#d8d0c4] bg-[#f7f3eb]/92 backdrop-blur-xl">
-        <div class="mx-auto flex max-w-350 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
+        <HeaderStickers client:load />
+        <div class="relative mx-auto flex max-w-350 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
           <a href="/" class="group inline-flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center overflow-hidden">
               <img
