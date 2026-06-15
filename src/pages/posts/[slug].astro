@@ -31,7 +31,7 @@ const { Content } = await render(post);
 const meta = {
   title: postMeta.title,
   description: postMeta.summary,
-  url: `${siteConfig.url}/posts/${postMeta.slug}`,
+  url: `${siteConfig.url}/posts/${postMeta.slug}/`,
   image: `${siteConfig.url}/og/${postMeta.slug}.png`,
   type: "article" as const,
   publishedTime: postMeta.date,
@@ -124,12 +124,12 @@ const meta = {
                   <dt class="shrink-0 font-medium text-ink-500">文章链接</dt>
                   <dd>
                     <a
-                      href={`${siteConfig.url}/posts/${postMeta.slug}`}
+                      href={`${siteConfig.url}/posts/${postMeta.slug}/`}
                       class="text-ink-800 underline underline-offset-2 hover:text-ink-500"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {siteConfig.url}/posts/{postMeta.slug}
+                      {siteConfig.url}/posts/{postMeta.slug}/
                     </a>
                   </dd>
                 </div>

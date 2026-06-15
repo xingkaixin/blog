@@ -15,7 +15,7 @@ function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => voi
 
   return (
     <a
-      href={`/posts/${post.slug}`}
+      href={`/posts/${post.slug}/`}
       onClick={onClose}
       className="flex gap-3 rounded-[1.4rem] border border-ink-800/10 bg-white/70 p-3 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[2px] hover:border-accent/30"
     >

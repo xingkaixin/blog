@@ -8,7 +8,7 @@ const posts = (await getPublishedPosts()).map(toPostMeta);
 const meta = {
   title: siteConfig.title,
   description: siteConfig.description,
-  url: siteConfig.url,
+  url: `${siteConfig.url}/`,
   type: "website" as const,
 };
 ---

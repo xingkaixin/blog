@@ -25,6 +25,7 @@ function resolveManualChunk(id: string) {
 export default defineConfig({
   site: "https://xingkaixin.me",
   output: "static",
+  trailingSlash: "always",
   integrations: [react()],
   markdown: {
     remarkPlugins: [remarkGfm],

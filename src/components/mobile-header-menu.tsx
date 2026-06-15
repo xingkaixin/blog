@@ -75,7 +75,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
             </a>
           )}
           {showProjects && (
-            <a href="/projects" onClick={() => setOpen(false)} className={menuItem}>
+            <a href="/projects/" onClick={() => setOpen(false)} className={menuItem}>
               <RocketIcon aria-hidden="true" className="h-4 w-4" />
               工具箱
             </a>
