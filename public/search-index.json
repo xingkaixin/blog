@@ -1,5 +1,33 @@
 [
   {
+    "slug": "skill-is-a-folder",
+    "title": "skill 越写越长，agent 反而越用越偏",
+    "date": "Thu Jun 25 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "Agent 的 skill 不是说明书，是文件夹。我把 agent 生成的 SKILL.md 从 312 行删回 40 行，它才第一次用对：判断标准留在入口，正反例和模板分家，description 写成触发词。附收下一个 skill 前要过的三个问题。",
+    "tags": [
+      "Skill",
+      "Agent",
+      "Claude Code",
+      "Context Engineering"
+    ],
+    "cover": "/posts/cover/skill-is-a-folder.png",
+    "coverAlt": "skill 越写越长，agent 反而越用越偏"
+  },
+  {
+    "slug": "ai-travel-talk-vs-act",
+    "title": "从\"能聊\"到\"能办\"：AI 旅行助手卡在哪里",
+    "date": "Mon Jun 22 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "AI 旅行助手卡住的不是\"写攻略\"，而是落地那一步。把旅行拆成去哪、何时、怎么到、能否去、玩什么、行中调整六段，每段有工具，却没人对整趟负责。能聊靠模型，能办靠实时数据、交易库存、规则校验、出错兜底。背后是一张能力网络，缺一块就停在\"推荐\"。",
+    "tags": [
+      "AI助手",
+      "Agent",
+      "链路编排",
+      "产品思考"
+    ],
+    "cover": "/posts/cover/ai-travel-talk-vs-act.png",
+    "coverAlt": "从\"能聊\"到\"能办\"：AI 旅行助手卡在哪里"
+  },
+  {
     "slug": "stay-in-the-loop",
     "title": "Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键",
     "date": "Thu Jun 18 2026 08:00:00 GMT+0800 (China Standard Time)",

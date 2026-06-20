@@ -131,6 +131,12 @@ import cAiTestsClosedLoop800 from "@/assets/cover/ai-tests-closed-loop.png?w=800
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAiTestsClosedLoopFull from "@/assets/cover/ai-tests-closed-loop.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiTravelTalkVsAct400 from "@/assets/cover/ai-travel-talk-vs-act.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiTravelTalkVsAct800 from "@/assets/cover/ai-travel-talk-vs-act.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiTravelTalkVsActFull from "@/assets/cover/ai-travel-talk-vs-act.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAiWontTireButYouWill400 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAiWontTireButYouWill800 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=800&format=webp";
@@ -251,6 +257,12 @@ import cSessionAsAsset800 from "@/assets/cover/session-as-asset.png?w=800&format
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cSessionAsAssetFull from "@/assets/cover/session-as-asset.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSkillIsAFolder400 from "@/assets/cover/skill-is-a-folder.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSkillIsAFolder800 from "@/assets/cover/skill-is-a-folder.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSkillIsAFolderFull from "@/assets/cover/skill-is-a-folder.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cSpecAsNewFigLeaf400 from "@/assets/cover/spec-as-new-fig-leaf.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cSpecAsNewFigLeaf800 from "@/assets/cover/spec-as-new-fig-leaf.png?w=800&format=webp";
@@ -351,6 +363,7 @@ export const covers = {
   "ai-review-ai.png": { full: cAiReviewAiFull, desktop: cAiReviewAi800, mobile: cAiReviewAi400 },
   "ai-slop-battle.png": { full: cAiSlopBattleFull, desktop: cAiSlopBattle800, mobile: cAiSlopBattle400 },
   "ai-tests-closed-loop.png": { full: cAiTestsClosedLoopFull, desktop: cAiTestsClosedLoop800, mobile: cAiTestsClosedLoop400 },
+  "ai-travel-talk-vs-act.png": { full: cAiTravelTalkVsActFull, desktop: cAiTravelTalkVsAct800, mobile: cAiTravelTalkVsAct400 },
   "ai-wont-tire-but-you-will.png": { full: cAiWontTireButYouWillFull, desktop: cAiWontTireButYouWill800, mobile: cAiWontTireButYouWill400 },
   "assuming-x-agentic-era-engineers-survival-coordinates.png": { full: cAssumingXAgenticEraEngineersSurvivalCoordinatesFull, desktop: cAssumingXAgenticEraEngineersSurvivalCoordinates800, mobile: cAssumingXAgenticEraEngineersSurvivalCoordinates400 },
   "best-ai-users-need-it-least.png": { full: cBestAiUsersNeedItLeastFull, desktop: cBestAiUsersNeedItLeast800, mobile: cBestAiUsersNeedItLeast400 },
@@ -371,6 +384,7 @@ export const covers = {
   "persona-distillation.png": { full: cPersonaDistillationFull, desktop: cPersonaDistillation800, mobile: cPersonaDistillation400 },
   "rhythm-in-ai-coding.png": { full: cRhythmInAiCodingFull, desktop: cRhythmInAiCoding800, mobile: cRhythmInAiCoding400 },
   "session-as-asset.png": { full: cSessionAsAssetFull, desktop: cSessionAsAsset800, mobile: cSessionAsAsset400 },
+  "skill-is-a-folder.png": { full: cSkillIsAFolderFull, desktop: cSkillIsAFolder800, mobile: cSkillIsAFolder400 },
   "spec-as-new-fig-leaf.png": { full: cSpecAsNewFigLeafFull, desktop: cSpecAsNewFigLeaf800, mobile: cSpecAsNewFigLeaf400 },
   "spec-tell-ai-what-not-to-do.png": { full: cSpecTellAiWhatNotToDoFull, desktop: cSpecTellAiWhatNotToDo800, mobile: cSpecTellAiWhatNotToDo400 },
   "spec-unwritten-assumptions.png": { full: cSpecUnwrittenAssumptionsFull, desktop: cSpecUnwrittenAssumptions800, mobile: cSpecUnwrittenAssumptions400 },
