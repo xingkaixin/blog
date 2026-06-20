@@ -2,6 +2,7 @@ import {
   ChevronLeftIcon,
   HamburgerMenuIcon,
   MagnifyingGlassIcon,
+  PersonIcon,
   RocketIcon,
 } from "@radix-ui/react-icons";
 import { useEffect, useId, useRef, useState } from "react";
@@ -21,6 +22,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const showBack = currentPath !== "/";
   const showProjects = currentPath !== "/projects";
+  const showAbout = currentPath !== "/about";
 
   useEffect(() => {
     if (!open) {
@@ -78,6 +80,12 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
             <a href="/projects/" onClick={() => setOpen(false)} className={menuItem}>
               <RocketIcon aria-hidden="true" className="h-4 w-4" />
               工具箱
+            </a>
+          )}
+          {showAbout && (
+            <a href="/about/" onClick={() => setOpen(false)} className={menuItem}>
+              <PersonIcon aria-hidden="true" className="h-4 w-4" />
+              关于
             </a>
           )}
           <SearchDialog

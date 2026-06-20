@@ -1,0 +1,36 @@
+---
+type Crumb = {
+  name: string;
+  url?: string;
+};
+
+type Props = {
+  items: Crumb[];
+};
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="面包屑" class="text-xs uppercase tracking-[0.18em] text-ink-400">
+  <ol class="flex flex-wrap items-center gap-2">
+    {
+      items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        return (
+          <li class="flex items-center gap-2">
+            {item.url && !isLast ? (
+              <a href={item.url} class="transition-colors hover:text-ink-700">
+                {item.name}
+              </a>
+            ) : (
+              <span class={isLast ? "text-ink-600" : ""} aria-current={isLast ? "page" : undefined}>
+                {item.name}
+              </span>
+            )}
+            {!isLast && <span aria-hidden="true">/</span>}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

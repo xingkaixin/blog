@@ -33,6 +33,7 @@ function buildSitemap(posts: Array<{ slug: string; date: string }>) {
   const entries = [
     urlEntry(`${siteConfig.url}/`, today, "weekly", "1.0"),
     urlEntry(`${siteConfig.url}/projects/`, today, "monthly", "0.7"),
+    urlEntry(`${siteConfig.url}/about/`, today, "yearly", "0.6"),
     ...posts.map((p) => urlEntry(`${siteConfig.url}/posts/${p.slug}/`, p.date, "monthly", "0.8")),
   ];
 

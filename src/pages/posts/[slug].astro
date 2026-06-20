@@ -1,5 +1,6 @@
 ---
 import { render } from "astro:content";
+import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import ReadingProgress from "@/components/astro/ReadingProgress.astro";
 import TocNav from "@/components/astro/TocNav.astro";
@@ -36,6 +37,10 @@ const meta = {
   type: "article" as const,
   publishedTime: postMeta.date,
   tags: postMeta.tags,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: postMeta.title, url: `${siteConfig.url}/posts/${postMeta.slug}/` },
+  ],
 };
 ---
 
@@ -56,6 +61,7 @@ const meta = {
             </figure>
 
             <div class="space-y-5">
+              <Breadcrumb items={[{ name: "首页", url: "/" }, { name: postMeta.title }]} />
               <h1 class="max-w-full text-4xl text-ink-800 [overflow-wrap:anywhere] sm:max-w-[28ch] sm:text-5xl lg:max-w-[32ch] lg:text-6xl">
                 {postMeta.title}
               </h1>

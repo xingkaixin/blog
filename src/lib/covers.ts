@@ -5,275 +5,329 @@ export type ResponsiveCover = {
 };
 
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c2025Review400 from "@/assets/cover/2025-review.webp?w=400&as=webp";
+import c2025Review400 from "@/assets/cover/2025-review.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c2025Review800 from "@/assets/cover/2025-review.webp?w=800&as=webp";
-import c2025ReviewFull from "@/assets/cover/2025-review.webp?url";
+import c2025Review800 from "@/assets/cover/2025-review.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c2026ChiangmaiTrip400 from "@/assets/cover/2026-chiangmai-trip.png?w=400&as=webp";
+import c2025ReviewFull from "@/assets/cover/2025-review.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c2026ChiangmaiTrip800 from "@/assets/cover/2026-chiangmai-trip.png?w=800&as=webp";
-import c2026ChiangmaiTripFull from "@/assets/cover/2026-chiangmai-trip.png?url";
+import c2026ChiangmaiTrip400 from "@/assets/cover/2026-chiangmai-trip.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c315GeoAiPoisoning400 from "@/assets/cover/315-geo-ai-poisoning.png?w=400&as=webp";
+import c2026ChiangmaiTrip800 from "@/assets/cover/2026-chiangmai-trip.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import c315GeoAiPoisoning800 from "@/assets/cover/315-geo-ai-poisoning.png?w=800&as=webp";
-import c315GeoAiPoisoningFull from "@/assets/cover/315-geo-ai-poisoning.png?url";
+import c2026ChiangmaiTripFull from "@/assets/cover/2026-chiangmai-trip.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAlsIceBucketChallengeAndCharity400 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=400&as=webp";
+import c315GeoAiPoisoning400 from "@/assets/cover/315-geo-ai-poisoning.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAlsIceBucketChallengeAndCharity800 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=800&as=webp";
-import cAlsIceBucketChallengeAndCharityFull from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?url";
+import c315GeoAiPoisoning800 from "@/assets/cover/315-geo-ai-poisoning.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong400 from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?w=400&as=webp";
+import c315GeoAiPoisoningFull from "@/assets/cover/315-geo-ai-poisoning.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong800 from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?w=800&as=webp";
-import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKongFull from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?url";
+import cAlsIceBucketChallengeAndCharity400 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cFollowOrBreakTheRules400 from "@/assets/cover/Follow-or-break-the-rules.webp?w=400&as=webp";
+import cAlsIceBucketChallengeAndCharity800 from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cFollowOrBreakTheRules800 from "@/assets/cover/Follow-or-break-the-rules.webp?w=800&as=webp";
-import cFollowOrBreakTheRulesFull from "@/assets/cover/Follow-or-break-the-rules.webp?url";
+import cAlsIceBucketChallengeAndCharityFull from "@/assets/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cInfuseSubscriptionMigration400 from "@/assets/cover/Infuse-subscription-migration.webp?w=400&as=webp";
+import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong400 from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cInfuseSubscriptionMigration800 from "@/assets/cover/Infuse-subscription-migration.webp?w=800&as=webp";
-import cInfuseSubscriptionMigrationFull from "@/assets/cover/Infuse-subscription-migration.webp?url";
+import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKong800 from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMemoriesMakePeopleGrowOld400 from "@/assets/cover/Memories-make-people-grow-old.webp?w=400&as=webp";
+import cAttemptToCommunicateWithTaiwanesePoliticiansAboutTheViolentProtestsInHongKongFull from "@/assets/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMemoriesMakePeopleGrowOld800 from "@/assets/cover/Memories-make-people-grow-old.webp?w=800&as=webp";
-import cMemoriesMakePeopleGrowOldFull from "@/assets/cover/Memories-make-people-grow-old.webp?url";
+import cFollowOrBreakTheRules400 from "@/assets/cover/Follow-or-break-the-rules.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTedLasso400 from "@/assets/cover/Ted-Lasso.webp?w=400&as=webp";
+import cFollowOrBreakTheRules800 from "@/assets/cover/Follow-or-break-the-rules.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTedLasso800 from "@/assets/cover/Ted-Lasso.webp?w=800&as=webp";
-import cTedLassoFull from "@/assets/cover/Ted-Lasso.webp?url";
+import cFollowOrBreakTheRulesFull from "@/assets/cover/Follow-or-break-the-rules.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheLastOfUsReview400 from "@/assets/cover/The-Last-of-Us-review.webp?w=400&as=webp";
+import cInfuseSubscriptionMigration400 from "@/assets/cover/Infuse-subscription-migration.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheLastOfUsReview800 from "@/assets/cover/The-Last-of-Us-review.webp?w=800&as=webp";
-import cTheLastOfUsReviewFull from "@/assets/cover/The-Last-of-Us-review.webp?url";
+import cInfuseSubscriptionMigration800 from "@/assets/cover/Infuse-subscription-migration.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheRequirementsAndDesignIdeasOfTheStrategyTeam400 from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?w=400&as=webp";
+import cInfuseSubscriptionMigrationFull from "@/assets/cover/Infuse-subscription-migration.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheRequirementsAndDesignIdeasOfTheStrategyTeam800 from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?w=800&as=webp";
-import cTheRequirementsAndDesignIdeasOfTheStrategyTeamFull from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?url";
+import cMemoriesMakePeopleGrowOld400 from "@/assets/cover/Memories-make-people-grow-old.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers400 from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?w=400&as=webp";
+import cMemoriesMakePeopleGrowOld800 from "@/assets/cover/Memories-make-people-grow-old.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800 from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?w=800&as=webp";
-import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?url";
+import cMemoriesMakePeopleGrowOldFull from "@/assets/cover/Memories-make-people-grow-old.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAgentGuessesNotDebug400 from "@/assets/cover/agent-guesses-not-debug.png?w=400&as=webp";
+import cTedLasso400 from "@/assets/cover/Ted-Lasso.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAgentGuessesNotDebug800 from "@/assets/cover/agent-guesses-not-debug.png?w=800&as=webp";
-import cAgentGuessesNotDebugFull from "@/assets/cover/agent-guesses-not-debug.png?url";
+import cTedLasso800 from "@/assets/cover/Ted-Lasso.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAgenticWorkflowWaitingRevalued400 from "@/assets/cover/agentic-workflow-waiting-revalued.png?w=400&as=webp";
+import cTedLassoFull from "@/assets/cover/Ted-Lasso.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAgenticWorkflowWaitingRevalued800 from "@/assets/cover/agentic-workflow-waiting-revalued.png?w=800&as=webp";
-import cAgenticWorkflowWaitingRevaluedFull from "@/assets/cover/agentic-workflow-waiting-revalued.png?url";
+import cTheLastOfUsReview400 from "@/assets/cover/The-Last-of-Us-review.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCode5Checkpoints400 from "@/assets/cover/ai-code-5-checkpoints.png?w=400&as=webp";
+import cTheLastOfUsReview800 from "@/assets/cover/The-Last-of-Us-review.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCode5Checkpoints800 from "@/assets/cover/ai-code-5-checkpoints.png?w=800&as=webp";
-import cAiCode5CheckpointsFull from "@/assets/cover/ai-code-5-checkpoints.png?url";
+import cTheLastOfUsReviewFull from "@/assets/cover/The-Last-of-Us-review.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCodeResponsibilityGap400 from "@/assets/cover/ai-code-responsibility-gap.png?w=400&as=webp";
+import cTheRequirementsAndDesignIdeasOfTheStrategyTeam400 from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCodeResponsibilityGap800 from "@/assets/cover/ai-code-responsibility-gap.png?w=800&as=webp";
-import cAiCodeResponsibilityGapFull from "@/assets/cover/ai-code-responsibility-gap.png?url";
+import cTheRequirementsAndDesignIdeasOfTheStrategyTeam800 from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCodeReviewExpensiveTesting400 from "@/assets/cover/ai-code-review-expensive-testing.png?w=400&as=webp";
+import cTheRequirementsAndDesignIdeasOfTheStrategyTeamFull from "@/assets/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiCodeReviewExpensiveTesting800 from "@/assets/cover/ai-code-review-expensive-testing.png?w=800&as=webp";
-import cAiCodeReviewExpensiveTestingFull from "@/assets/cover/ai-code-review-expensive-testing.png?url";
+import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers400 from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=400&as=webp";
+import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800 from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=800&as=webp";
-import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?url";
+import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiReviewAi400 from "@/assets/cover/ai-review-ai.png?w=400&as=webp";
+import cAgentGuessesNotDebug400 from "@/assets/cover/agent-guesses-not-debug.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiReviewAi800 from "@/assets/cover/ai-review-ai.png?w=800&as=webp";
-import cAiReviewAiFull from "@/assets/cover/ai-review-ai.png?url";
+import cAgentGuessesNotDebug800 from "@/assets/cover/agent-guesses-not-debug.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiSlopBattle400 from "@/assets/cover/ai-slop-battle.png?w=400&as=webp";
+import cAgentGuessesNotDebugFull from "@/assets/cover/agent-guesses-not-debug.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiSlopBattle800 from "@/assets/cover/ai-slop-battle.png?w=800&as=webp";
-import cAiSlopBattleFull from "@/assets/cover/ai-slop-battle.png?url";
+import cAgenticWorkflowWaitingRevalued400 from "@/assets/cover/agentic-workflow-waiting-revalued.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiTestsClosedLoop400 from "@/assets/cover/ai-tests-closed-loop.png?w=400&as=webp";
+import cAgenticWorkflowWaitingRevalued800 from "@/assets/cover/agentic-workflow-waiting-revalued.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiTestsClosedLoop800 from "@/assets/cover/ai-tests-closed-loop.png?w=800&as=webp";
-import cAiTestsClosedLoopFull from "@/assets/cover/ai-tests-closed-loop.png?url";
+import cAgenticWorkflowWaitingRevaluedFull from "@/assets/cover/agentic-workflow-waiting-revalued.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiWontTireButYouWill400 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=400&as=webp";
+import cAiCode5Checkpoints400 from "@/assets/cover/ai-code-5-checkpoints.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAiWontTireButYouWill800 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=800&as=webp";
-import cAiWontTireButYouWillFull from "@/assets/cover/ai-wont-tire-but-you-will.png?url";
+import cAiCode5Checkpoints800 from "@/assets/cover/ai-code-5-checkpoints.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAssumingXAgenticEraEngineersSurvivalCoordinates400 from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?w=400&as=webp";
+import cAiCode5CheckpointsFull from "@/assets/cover/ai-code-5-checkpoints.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cAssumingXAgenticEraEngineersSurvivalCoordinates800 from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?w=800&as=webp";
-import cAssumingXAgenticEraEngineersSurvivalCoordinatesFull from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?url";
+import cAiCodeResponsibilityGap400 from "@/assets/cover/ai-code-responsibility-gap.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cBestAiUsersNeedItLeast400 from "@/assets/cover/best-ai-users-need-it-least.png?w=400&as=webp";
+import cAiCodeResponsibilityGap800 from "@/assets/cover/ai-code-responsibility-gap.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cBestAiUsersNeedItLeast800 from "@/assets/cover/best-ai-users-need-it-least.png?w=800&as=webp";
-import cBestAiUsersNeedItLeastFull from "@/assets/cover/best-ai-users-need-it-least.png?url";
+import cAiCodeResponsibilityGapFull from "@/assets/cover/ai-code-responsibility-gap.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cBeyondThe3DayClone400 from "@/assets/cover/beyond-the-3-day-clone.png?w=400&as=webp";
+import cAiCodeReviewExpensiveTesting400 from "@/assets/cover/ai-code-review-expensive-testing.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cBeyondThe3DayClone800 from "@/assets/cover/beyond-the-3-day-clone.png?w=800&as=webp";
-import cBeyondThe3DayCloneFull from "@/assets/cover/beyond-the-3-day-clone.png?url";
+import cAiCodeReviewExpensiveTesting800 from "@/assets/cover/ai-code-review-expensive-testing.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cCodeseshAiCodingSessionsDisappearing400 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=400&as=webp";
+import cAiCodeReviewExpensiveTestingFull from "@/assets/cover/ai-code-review-expensive-testing.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cCodeseshAiCodingSessionsDisappearing800 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=800&as=webp";
-import cCodeseshAiCodingSessionsDisappearingFull from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?url";
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cCodingAgentAlmost1Year400 from "@/assets/cover/coding-agent-almost-1-year.png?w=400&as=webp";
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cCodingAgentAlmost1Year800 from "@/assets/cover/coding-agent-almost-1-year.png?w=800&as=webp";
-import cCodingAgentAlmost1YearFull from "@/assets/cover/coding-agent-almost-1-year.png?url";
+import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cEnjoyingAiTooMuchScaresMe400 from "@/assets/cover/enjoying-ai-too-much-scares-me.png?w=400&as=webp";
+import cAiReviewAi400 from "@/assets/cover/ai-review-ai.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cEnjoyingAiTooMuchScaresMe800 from "@/assets/cover/enjoying-ai-too-much-scares-me.png?w=800&as=webp";
-import cEnjoyingAiTooMuchScaresMeFull from "@/assets/cover/enjoying-ai-too-much-scares-me.png?url";
+import cAiReviewAi800 from "@/assets/cover/ai-review-ai.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cFromWritingCodeToReviewingCode400 from "@/assets/cover/from-writing-code-to-reviewing-code.png?w=400&as=webp";
+import cAiReviewAiFull from "@/assets/cover/ai-review-ai.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cFromWritingCodeToReviewingCode800 from "@/assets/cover/from-writing-code-to-reviewing-code.png?w=800&as=webp";
-import cFromWritingCodeToReviewingCodeFull from "@/assets/cover/from-writing-code-to-reviewing-code.png?url";
+import cAiSlopBattle400 from "@/assets/cover/ai-slop-battle.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cKarpathyJoinAnthropic400 from "@/assets/cover/karpathy-join-anthropic.png?w=400&as=webp";
+import cAiSlopBattle800 from "@/assets/cover/ai-slop-battle.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cKarpathyJoinAnthropic800 from "@/assets/cover/karpathy-join-anthropic.png?w=800&as=webp";
-import cKarpathyJoinAnthropicFull from "@/assets/cover/karpathy-join-anthropic.png?url";
+import cAiSlopBattleFull from "@/assets/cover/ai-slop-battle.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cKvCacheWhyAiRepliesGetFaster400 from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?w=400&as=webp";
+import cAiTestsClosedLoop400 from "@/assets/cover/ai-tests-closed-loop.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cKvCacheWhyAiRepliesGetFaster800 from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?w=800&as=webp";
-import cKvCacheWhyAiRepliesGetFasterFull from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?url";
+import cAiTestsClosedLoop800 from "@/assets/cover/ai-tests-closed-loop.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cLlmOnlyGettingAverage400 from "@/assets/cover/llm-only-getting-average.png?w=400&as=webp";
+import cAiTestsClosedLoopFull from "@/assets/cover/ai-tests-closed-loop.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cLlmOnlyGettingAverage800 from "@/assets/cover/llm-only-getting-average.png?w=800&as=webp";
-import cLlmOnlyGettingAverageFull from "@/assets/cover/llm-only-getting-average.png?url";
+import cAiWontTireButYouWill400 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cLlmReactPrompt400 from "@/assets/cover/llm-react-prompt.webp?w=400&as=webp";
+import cAiWontTireButYouWill800 from "@/assets/cover/ai-wont-tire-but-you-will.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cLlmReactPrompt800 from "@/assets/cover/llm-react-prompt.webp?w=800&as=webp";
-import cLlmReactPromptFull from "@/assets/cover/llm-react-prompt.webp?url";
+import cAiWontTireButYouWillFull from "@/assets/cover/ai-wont-tire-but-you-will.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMacosNowSupportsNetflixDolbyVision400 from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?w=400&as=webp";
+import cAssumingXAgenticEraEngineersSurvivalCoordinates400 from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMacosNowSupportsNetflixDolbyVision800 from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?w=800&as=webp";
-import cMacosNowSupportsNetflixDolbyVisionFull from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?url";
+import cAssumingXAgenticEraEngineersSurvivalCoordinates800 from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMcpCliSkillEvolution400 from "@/assets/cover/mcp-cli-skill-evolution.png?w=400&as=webp";
+import cAssumingXAgenticEraEngineersSurvivalCoordinatesFull from "@/assets/cover/assuming-x-agentic-era-engineers-survival-coordinates.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMcpCliSkillEvolution800 from "@/assets/cover/mcp-cli-skill-evolution.png?w=800&as=webp";
-import cMcpCliSkillEvolutionFull from "@/assets/cover/mcp-cli-skill-evolution.png?url";
+import cBestAiUsersNeedItLeast400 from "@/assets/cover/best-ai-users-need-it-least.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMcpVsA2aProtocolComparison400 from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?w=400&as=webp";
+import cBestAiUsersNeedItLeast800 from "@/assets/cover/best-ai-users-need-it-least.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMcpVsA2aProtocolComparison800 from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?w=800&as=webp";
-import cMcpVsA2aProtocolComparisonFull from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?url";
+import cBestAiUsersNeedItLeastFull from "@/assets/cover/best-ai-users-need-it-least.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cModelCoreToolsShell400 from "@/assets/cover/model-core-tools-shell.png?w=400&as=webp";
+import cBeyondThe3DayClone400 from "@/assets/cover/beyond-the-3-day-clone.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cModelCoreToolsShell800 from "@/assets/cover/model-core-tools-shell.png?w=800&as=webp";
-import cModelCoreToolsShellFull from "@/assets/cover/model-core-tools-shell.png?url";
+import cBeyondThe3DayClone800 from "@/assets/cover/beyond-the-3-day-clone.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMuskVsAltman400 from "@/assets/cover/musk-vs-altman.png?w=400&as=webp";
+import cBeyondThe3DayCloneFull from "@/assets/cover/beyond-the-3-day-clone.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cMuskVsAltman800 from "@/assets/cover/musk-vs-altman.png?w=800&as=webp";
-import cMuskVsAltmanFull from "@/assets/cover/musk-vs-altman.png?url";
+import cCodeseshAiCodingSessionsDisappearing400 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cPersonaDistillation400 from "@/assets/cover/persona-distillation.png?w=400&as=webp";
+import cCodeseshAiCodingSessionsDisappearing800 from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cPersonaDistillation800 from "@/assets/cover/persona-distillation.png?w=800&as=webp";
-import cPersonaDistillationFull from "@/assets/cover/persona-distillation.png?url";
+import cCodeseshAiCodingSessionsDisappearingFull from "@/assets/cover/codesesh-ai-coding-sessions-disappearing.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cRhythmInAiCoding400 from "@/assets/cover/rhythm-in-ai-coding.png?w=400&as=webp";
+import cCodingAgentAlmost1Year400 from "@/assets/cover/coding-agent-almost-1-year.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cRhythmInAiCoding800 from "@/assets/cover/rhythm-in-ai-coding.png?w=800&as=webp";
-import cRhythmInAiCodingFull from "@/assets/cover/rhythm-in-ai-coding.png?url";
+import cCodingAgentAlmost1Year800 from "@/assets/cover/coding-agent-almost-1-year.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSessionAsAsset400 from "@/assets/cover/session-as-asset.png?w=400&as=webp";
+import cCodingAgentAlmost1YearFull from "@/assets/cover/coding-agent-almost-1-year.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSessionAsAsset800 from "@/assets/cover/session-as-asset.png?w=800&as=webp";
-import cSessionAsAssetFull from "@/assets/cover/session-as-asset.png?url";
+import cEnjoyingAiTooMuchScaresMe400 from "@/assets/cover/enjoying-ai-too-much-scares-me.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecAsNewFigLeaf400 from "@/assets/cover/spec-as-new-fig-leaf.png?w=400&as=webp";
+import cEnjoyingAiTooMuchScaresMe800 from "@/assets/cover/enjoying-ai-too-much-scares-me.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecAsNewFigLeaf800 from "@/assets/cover/spec-as-new-fig-leaf.png?w=800&as=webp";
-import cSpecAsNewFigLeafFull from "@/assets/cover/spec-as-new-fig-leaf.png?url";
+import cEnjoyingAiTooMuchScaresMeFull from "@/assets/cover/enjoying-ai-too-much-scares-me.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecTellAiWhatNotToDo400 from "@/assets/cover/spec-tell-ai-what-not-to-do.png?w=400&as=webp";
+import cFromWritingCodeToReviewingCode400 from "@/assets/cover/from-writing-code-to-reviewing-code.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecTellAiWhatNotToDo800 from "@/assets/cover/spec-tell-ai-what-not-to-do.png?w=800&as=webp";
-import cSpecTellAiWhatNotToDoFull from "@/assets/cover/spec-tell-ai-what-not-to-do.png?url";
+import cFromWritingCodeToReviewingCode800 from "@/assets/cover/from-writing-code-to-reviewing-code.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecUnwrittenAssumptions400 from "@/assets/cover/spec-unwritten-assumptions.png?w=400&as=webp";
+import cFromWritingCodeToReviewingCodeFull from "@/assets/cover/from-writing-code-to-reviewing-code.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cSpecUnwrittenAssumptions800 from "@/assets/cover/spec-unwritten-assumptions.png?w=800&as=webp";
-import cSpecUnwrittenAssumptionsFull from "@/assets/cover/spec-unwritten-assumptions.png?url";
+import cKarpathyJoinAnthropic400 from "@/assets/cover/karpathy-join-anthropic.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cStateOfAi400 from "@/assets/cover/state-of-ai.webp?w=400&as=webp";
+import cKarpathyJoinAnthropic800 from "@/assets/cover/karpathy-join-anthropic.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cStateOfAi800 from "@/assets/cover/state-of-ai.webp?w=800&as=webp";
-import cStateOfAiFull from "@/assets/cover/state-of-ai.webp?url";
+import cKarpathyJoinAnthropicFull from "@/assets/cover/karpathy-join-anthropic.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cStayInTheLoop400 from "@/assets/cover/stay-in-the-loop.png?w=400&as=webp";
+import cKvCacheWhyAiRepliesGetFaster400 from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cStayInTheLoop800 from "@/assets/cover/stay-in-the-loop.png?w=800&as=webp";
-import cStayInTheLoopFull from "@/assets/cover/stay-in-the-loop.png?url";
+import cKvCacheWhyAiRepliesGetFaster800 from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheChickenOrTheEgg400 from "@/assets/cover/the-chicken-or-the-egg.webp?w=400&as=webp";
+import cKvCacheWhyAiRepliesGetFasterFull from "@/assets/cover/kv-cache-why-ai-replies-get-faster.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheChickenOrTheEgg800 from "@/assets/cover/the-chicken-or-the-egg.webp?w=800&as=webp";
-import cTheChickenOrTheEggFull from "@/assets/cover/the-chicken-or-the-egg.webp?url";
+import cLlmOnlyGettingAverage400 from "@/assets/cover/llm-only-getting-average.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheNewsroomTimeTestedMasterpieces400 from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?w=400&as=webp";
+import cLlmOnlyGettingAverage800 from "@/assets/cover/llm-only-getting-average.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheNewsroomTimeTestedMasterpieces800 from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?w=800&as=webp";
-import cTheNewsroomTimeTestedMasterpiecesFull from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?url";
+import cLlmOnlyGettingAverageFull from "@/assets/cover/llm-only-getting-average.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheStateOfEnterpriseAi2025Report400 from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?w=400&as=webp";
+import cLlmReactPrompt400 from "@/assets/cover/llm-react-prompt.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cTheStateOfEnterpriseAi2025Report800 from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?w=800&as=webp";
-import cTheStateOfEnterpriseAi2025ReportFull from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?url";
+import cLlmReactPrompt800 from "@/assets/cover/llm-react-prompt.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cVibeCodingAiCodeBacklashOpenclaw400 from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?w=400&as=webp";
+import cLlmReactPromptFull from "@/assets/cover/llm-react-prompt.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cVibeCodingAiCodeBacklashOpenclaw800 from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?w=800&as=webp";
-import cVibeCodingAiCodeBacklashOpenclawFull from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?url";
+import cMacosNowSupportsNetflixDolbyVision400 from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cVibeCodingToAgenticEngineering400 from "@/assets/cover/vibe-coding-to-agentic-engineering.png?w=400&as=webp";
+import cMacosNowSupportsNetflixDolbyVision800 from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cVibeCodingToAgenticEngineering800 from "@/assets/cover/vibe-coding-to-agentic-engineering.png?w=800&as=webp";
-import cVibeCodingToAgenticEngineeringFull from "@/assets/cover/vibe-coding-to-agentic-engineering.png?url";
+import cMacosNowSupportsNetflixDolbyVisionFull from "@/assets/cover/macOS-now-supports-Netflix-Dolby-Vision.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhenAiBypassesAllPitfalls400 from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?w=400&as=webp";
+import cMcpCliSkillEvolution400 from "@/assets/cover/mcp-cli-skill-evolution.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhenAiBypassesAllPitfalls800 from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?w=800&as=webp";
-import cWhenAiBypassesAllPitfallsFull from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?url";
+import cMcpCliSkillEvolution800 from "@/assets/cover/mcp-cli-skill-evolution.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhyIPay400 from "@/assets/cover/why-i-pay.webp?w=400&as=webp";
+import cMcpCliSkillEvolutionFull from "@/assets/cover/mcp-cli-skill-evolution.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cWhyIPay800 from "@/assets/cover/why-i-pay.webp?w=800&as=webp";
-import cWhyIPayFull from "@/assets/cover/why-i-pay.webp?url";
+import cMcpVsA2aProtocolComparison400 from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cYomitomoAiReadingCompanion400 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=400&as=webp";
+import cMcpVsA2aProtocolComparison800 from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
-import cYomitomoAiReadingCompanion800 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=800&as=webp";
-import cYomitomoAiReadingCompanionFull from "@/assets/cover/yomitomo-ai-reading-companion.webp?url";
+import cMcpVsA2aProtocolComparisonFull from "@/assets/cover/mcp-vs-a2a-protocol-comparison.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cModelCoreToolsShell400 from "@/assets/cover/model-core-tools-shell.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cModelCoreToolsShell800 from "@/assets/cover/model-core-tools-shell.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cModelCoreToolsShellFull from "@/assets/cover/model-core-tools-shell.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cMuskVsAltman400 from "@/assets/cover/musk-vs-altman.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cMuskVsAltman800 from "@/assets/cover/musk-vs-altman.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cMuskVsAltmanFull from "@/assets/cover/musk-vs-altman.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cPersonaDistillation400 from "@/assets/cover/persona-distillation.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cPersonaDistillation800 from "@/assets/cover/persona-distillation.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cPersonaDistillationFull from "@/assets/cover/persona-distillation.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cRhythmInAiCoding400 from "@/assets/cover/rhythm-in-ai-coding.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cRhythmInAiCoding800 from "@/assets/cover/rhythm-in-ai-coding.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cRhythmInAiCodingFull from "@/assets/cover/rhythm-in-ai-coding.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSessionAsAsset400 from "@/assets/cover/session-as-asset.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSessionAsAsset800 from "@/assets/cover/session-as-asset.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSessionAsAssetFull from "@/assets/cover/session-as-asset.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecAsNewFigLeaf400 from "@/assets/cover/spec-as-new-fig-leaf.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecAsNewFigLeaf800 from "@/assets/cover/spec-as-new-fig-leaf.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecAsNewFigLeafFull from "@/assets/cover/spec-as-new-fig-leaf.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecTellAiWhatNotToDo400 from "@/assets/cover/spec-tell-ai-what-not-to-do.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecTellAiWhatNotToDo800 from "@/assets/cover/spec-tell-ai-what-not-to-do.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecTellAiWhatNotToDoFull from "@/assets/cover/spec-tell-ai-what-not-to-do.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecUnwrittenAssumptions400 from "@/assets/cover/spec-unwritten-assumptions.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecUnwrittenAssumptions800 from "@/assets/cover/spec-unwritten-assumptions.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cSpecUnwrittenAssumptionsFull from "@/assets/cover/spec-unwritten-assumptions.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStateOfAi400 from "@/assets/cover/state-of-ai.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStateOfAi800 from "@/assets/cover/state-of-ai.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStateOfAiFull from "@/assets/cover/state-of-ai.webp?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStayInTheLoop400 from "@/assets/cover/stay-in-the-loop.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStayInTheLoop800 from "@/assets/cover/stay-in-the-loop.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cStayInTheLoopFull from "@/assets/cover/stay-in-the-loop.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheChickenOrTheEgg400 from "@/assets/cover/the-chicken-or-the-egg.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheChickenOrTheEgg800 from "@/assets/cover/the-chicken-or-the-egg.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheChickenOrTheEggFull from "@/assets/cover/the-chicken-or-the-egg.webp?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheNewsroomTimeTestedMasterpieces400 from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheNewsroomTimeTestedMasterpieces800 from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheNewsroomTimeTestedMasterpiecesFull from "@/assets/cover/the-newsroom-time-tested-masterpieces.webp?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheStateOfEnterpriseAi2025Report400 from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheStateOfEnterpriseAi2025Report800 from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTheStateOfEnterpriseAi2025ReportFull from "@/assets/cover/the-state-of-enterprise-ai_2025-report.webp?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingAiCodeBacklashOpenclaw400 from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingAiCodeBacklashOpenclaw800 from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingAiCodeBacklashOpenclawFull from "@/assets/cover/vibe-coding-ai-code-backlash-openclaw.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingToAgenticEngineering400 from "@/assets/cover/vibe-coding-to-agentic-engineering.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingToAgenticEngineering800 from "@/assets/cover/vibe-coding-to-agentic-engineering.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cVibeCodingToAgenticEngineeringFull from "@/assets/cover/vibe-coding-to-agentic-engineering.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhenAiBypassesAllPitfalls400 from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhenAiBypassesAllPitfalls800 from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhenAiBypassesAllPitfallsFull from "@/assets/cover/when-ai-bypasses-all-pitfalls.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhyIPay400 from "@/assets/cover/why-i-pay.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhyIPay800 from "@/assets/cover/why-i-pay.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cWhyIPayFull from "@/assets/cover/why-i-pay.webp?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cYomitomoAiReadingCompanion400 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cYomitomoAiReadingCompanion800 from "@/assets/cover/yomitomo-ai-reading-companion.webp?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cYomitomoAiReadingCompanionFull from "@/assets/cover/yomitomo-ai-reading-companion.webp?format=webp";
 
 export const covers = {
   "2025-review.webp": { full: c2025ReviewFull, desktop: c2025Review800, mobile: c2025Review400 },

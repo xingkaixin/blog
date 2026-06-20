@@ -75,12 +75,14 @@ function generateCoversFile(): void {
 
     // 添加 import 语句 (400px, 800px, full)
     // 使用 @/assets/cover/ 路径，vite-imagetools 能正确处理
+    // vite-imagetools 用 format=webp 控制输出格式（as= 用于 srcset/inline）
     imports.push(
       `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}400 from "@/assets/cover/${file}?w=400&as=webp";`,
+      `import ${varName}400 from "@/assets/cover/${file}?w=400&format=webp";`,
       `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}800 from "@/assets/cover/${file}?w=800&as=webp";`,
-      `import ${varName}Full from "@/assets/cover/${file}?url";`,
+      `import ${varName}800 from "@/assets/cover/${file}?w=800&format=webp";`,
+      `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
+      `import ${varName}Full from "@/assets/cover/${file}?format=webp";`,
     );
 
     // 添加映射条目

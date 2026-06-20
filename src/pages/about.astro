@@ -1,0 +1,62 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "关于",
+  description: "XingKaiXin，坐标上海的工程师与摄影爱好者。这是他的个人博客——行开心的颠倒世界。",
+  url: `${siteConfig.url}/about/`,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: "关于", url: `${siteConfig.url}/about/` },
+  ],
+};
+
+const contacts = [
+  { label: "邮箱", value: siteConfig.email, href: `mailto:${siteConfig.email}` },
+  { label: "GitHub", value: "xingkaixin", href: "https://github.com/xingkaixin" },
+  { label: "X", value: "xingkaixin", href: "https://x.com/xingkaixin" },
+];
+---
+
+<SiteLayout meta={meta}>
+  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
+    <div class="mx-auto max-w-3xl space-y-8">
+      <div>
+        <p class="text-xs uppercase tracking-[0.28em] text-ink-400">About</p>
+        <h1 class="mt-3 text-4xl text-ink-800 sm:text-5xl">关于</h1>
+      </div>
+
+      <div class="rounded-[2.3rem] border border-white/20 bg-white/72 px-6 py-8 shadow-[0_24px_70px_-50px_rgba(31,24,18,0.55),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:px-10">
+        <p class="text-base leading-8 text-ink-700">{siteConfig.about}</p>
+        <p class="mt-6 border-t border-ink-800/8 pt-6 text-sm leading-7 text-ink-500">
+          {siteConfig.motto}
+        </p>
+      </div>
+
+      <div class="rounded-[2rem] border border-ink-800/10 bg-white/50 px-6 py-8 sm:px-10">
+        <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">联系</h2>
+        <dl class="mt-5 grid gap-3 text-sm text-ink-600">
+          {
+            contacts.map((contact) => (
+              <div class="flex gap-3">
+                <dt class="shrink-0 font-medium text-ink-500">{contact.label}</dt>
+                <dd>
+                  <a
+                    href={contact.href}
+                    class="text-ink-800 underline underline-offset-2 hover:text-ink-500"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {contact.value}
+                  </a>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
