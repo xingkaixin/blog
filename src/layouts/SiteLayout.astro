@@ -216,15 +216,7 @@ const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-50
             ?.setAttribute("content", next === "dark" ? "#131418" : "#fafaf7");
         };
 
-        const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (reduceMotion) {
-          apply();
-          return;
-        }
-
-        root.classList.add("theme-switching");
         apply();
-        window.setTimeout(() => root.classList.remove("theme-switching"), 400);
       });
     </script>
     <script

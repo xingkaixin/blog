@@ -21,7 +21,6 @@ const WHITE_STROKE = [
   .map(([x, y]) => `drop-shadow(${x}px ${y}px 0 #fff)`)
   .join(" ");
 
-const LIFTED_SHADOW = "drop-shadow(0 8px 10px rgba(31,24,18,0.35))";
 const RESTING_SHADOW = "drop-shadow(0 2px 3px rgba(31,24,18,0.2))";
 
 interface Sticker {
@@ -119,20 +118,36 @@ export function HeaderStickers() {
               height: SIZE,
               transform: `translate(${s.x}px, ${s.y}px)`,
               zIndex: isDragging ? 30 : 10,
+              willChange: "transform",
             }}
             className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none active:cursor-grabbing"
           >
+            {/* 拿起时的落影：radial-gradient + opacity 过渡，全程走合成器，避免 Chrome 逐帧重算 filter */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: "8%",
+                right: "8%",
+                bottom: "-20%",
+                height: "36%",
+                borderRadius: "50%",
+                background: "radial-gradient(ellipse, rgba(20,21,26,0.35), transparent 70%)",
+                opacity: isDragging ? 1 : 0,
+                transition: "opacity 0.2s ease",
+              }}
+            />
             <img
               src={s.logo}
               alt=""
               draggable={false}
               style={{
                 transform: `rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
-                filter: `${WHITE_STROKE} ${isDragging ? LIFTED_SHADOW : RESTING_SHADOW}`,
+                filter: `${WHITE_STROKE} ${RESTING_SHADOW}`,
                 // 拿起用 ease-out 平稳抬起，放下用回弹曲线做出"啪"地贴下的手感
-                transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}, filter 0.2s ease`,
+                transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}`,
               }}
-              className="h-full w-full select-none object-contain"
+              className="relative h-full w-full select-none object-contain"
             />
           </div>
         );

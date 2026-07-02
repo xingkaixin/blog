@@ -16,11 +16,12 @@ const dancingScriptBundle = {
 };
 
 export function SignatureAnimation() {
-  // 在缺少浏览器 API 的环境（如测试）中优雅降级
+  // SSR/测试环境的占位：不可见但保留高度，避免水合前露出未格式化的文字、水合时布局跳动
   if (typeof window === "undefined" || typeof ResizeObserver === "undefined") {
     return (
       <div
-        className="mt-6 flex justify-end text-ink-400"
+        aria-hidden="true"
+        className="invisible mt-6 flex justify-end"
         style={{ fontSize: "36px", fontFamily: "cursive" }}
       >
         {siteConfig.author}
@@ -30,33 +31,50 @@ export function SignatureAnimation() {
 
   const rendererRef = useRef<TegakiRendererHandle>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const hasStarted = useRef(false);
 
-  // 组件挂载后立即暂停，等待滚动触发
-  useEffect(() => {
-    rendererRef.current?.engine?.pause();
-  }, []);
-
+  // tegaki 引擎可能晚于组件挂载才就绪（island 滚到视口才水合时尤其如此），
+  // 直接在 IO 回调里 play() 会落空。这里每帧同步期望状态：
+  // 引擎就绪后先暂停一次，等进入视口再播放，播放后停止同步。
   useEffect(() => {
     const el = containerRef.current;
     if (!el) {
       return;
     }
 
+    let visible = false;
+    let paused = false;
+    let raf = 0;
+
+    const sync = () => {
+      const engine = rendererRef.current?.engine;
+      if (engine && !paused) {
+        engine.pause();
+        paused = true;
+      }
+      if (engine && visible) {
+        engine.play();
+        return;
+      }
+      raf = requestAnimationFrame(sync);
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && !hasStarted.current) {
-            hasStarted.current = true;
-            rendererRef.current?.engine?.play();
-          }
+        if (entries.some((entry) => entry.isIntersecting)) {
+          visible = true;
+          observer.disconnect();
         }
       },
       { threshold: 0.3 },
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    raf = requestAnimationFrame(sync);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (

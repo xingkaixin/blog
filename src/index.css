@@ -104,7 +104,6 @@ body {
   -webkit-tap-highlight-color: transparent;
   background: var(--bg);
   color: var(--ink-800);
-  transition: background-color var(--duration-fast) var(--ease-smooth-out);
 }
 
 a {
@@ -140,22 +139,8 @@ input {
   transform: rotate(180deg);
 }
 
-/* 切换瞬间给全站颜色加统一过渡，350ms 后由脚本移除 */
-html.theme-switching,
-html.theme-switching *,
-html.theme-switching *::before,
-html.theme-switching *::after {
-  transition:
-    background-color var(--duration-medium) var(--ease-smooth-out),
-    border-color var(--duration-medium) var(--ease-smooth-out),
-    color var(--duration-medium) var(--ease-smooth-out),
-    fill var(--duration-medium) var(--ease-smooth-out),
-    box-shadow var(--duration-medium) var(--ease-smooth-out) !important;
-}
-
-html.theme-switching .site-logo {
-  transition: transform var(--duration-very-slow) var(--ease-smooth-out) !important;
-}
+/* 主题即时切换：全局颜色过渡在 Chrome 上逐帧重绘整页（叠加 header 毛玻璃重算）会掉帧，
+   仪式感由 .site-logo 的颠倒动画承担 */
 
 /* ============================================================
    文章正文
