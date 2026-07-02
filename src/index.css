@@ -1,31 +1,88 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-@theme {
-  --font-sans: "Outfit", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  --color-ink-50: #f8f5ef;
-  --color-ink-100: #efe7db;
-  --color-ink-200: #ded1bf;
-  --color-ink-300: #bea98d;
-  --color-ink-400: #8c7253;
-  --color-ink-500: #654f36;
-  --color-ink-600: #473725;
-  --color-ink-700: #31251a;
-  --color-ink-800: #1f1812;
-  --color-paper: #f4efe6;
-  --color-surface: #faf6ef;
-  --color-accent: #7b6244;
-  --color-accent-soft: #e4d9cb;
-  --color-grid: rgba(101, 79, 54, 0.06);
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ============================================================
+   颠倒世界 · 语义 token
+   正世界（亮）= 宣纸 + 碳墨；底片世界（暗）= 深墨 + 米白。
+   唯一贯穿两个世界的颜色是朱印红。
+   ============================================================ */
+
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --line: #e6e4dd;
+  --ink-50: #f4f3ef;
+  --ink-100: #ecebe6;
+  --ink-200: #d8d7d2;
+  --ink-300: #b4b4b6;
+  --ink-400: #85868c;
+  --ink-500: #5f6066;
+  --ink-600: #46474d;
+  --ink-700: #2e2f33;
+  --ink-800: #1b1c1f;
+  --accent: #c2402f;
+  --accent-soft: #f6e3de;
+  --shadow-card: 0 1px 2px rgba(20, 21, 26, 0.04), 0 12px 32px -16px rgba(20, 21, 26, 0.12);
+
+  /* 代码块两个世界共用同一块"底片" */
+  --code-bg: #17181d;
+  --code-text: #e8e7e1;
+
+  /* motion tokens */
+  --duration-stagger: 40ms;
+  --duration-quick: 150ms;
+  --duration-fast: 250ms;
+  --duration-medium: 350ms;
+  --duration-slow: 400ms;
+  --duration-very-slow: 500ms;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #131418;
+  --surface: #1c1d23;
+  --line: #2b2c33;
+  --ink-50: #1a1b20;
+  --ink-100: #23242b;
+  --ink-200: #37383f;
+  --ink-300: #55565d;
+  --ink-400: #8b8c92;
+  --ink-500: #9fa0a3;
+  --ink-600: #c0c0bd;
+  --ink-700: #deddd8;
+  --ink-800: #f0efea;
+  --accent: #e5644e;
+  --accent-soft: #37201c;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Outfit", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-display: "Smiley Sans Oblique", "Outfit", "PingFang SC", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-paper: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
 }
 
 :root {
-  color: var(--color-ink-800);
-  background:
-    radial-gradient(circle at top left, rgba(228, 217, 203, 0.42), transparent 34%),
-    radial-gradient(circle at 85% 12%, rgba(223, 212, 196, 0.2), transparent 26%),
-    linear-gradient(180deg, #faf6ef 0%, #f4efe6 100%);
+  color: var(--ink-800);
+  background: var(--bg);
   font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
@@ -44,34 +101,10 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(123, 98, 68, 0.14);
-  background:
-    linear-gradient(
-      to right,
-      transparent 0,
-      transparent calc(100% - 1px),
-      var(--color-grid) calc(100% - 1px)
-    ),
-    linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent calc(100% - 1px),
-      var(--color-grid) calc(100% - 1px)
-    );
-  background-size: 24px 24px;
-  color: var(--color-ink-800);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image:
-    radial-gradient(circle at 18% 16%, rgba(214, 200, 182, 0.22), transparent 24%),
-    radial-gradient(circle at 80% 0%, rgba(168, 148, 123, 0.08), transparent 20%),
-    radial-gradient(circle at bottom left, rgba(236, 229, 218, 0.38), transparent 28%);
+  -webkit-tap-highlight-color: transparent;
+  background: var(--bg);
+  color: var(--ink-800);
+  transition: background-color var(--duration-fast) var(--ease-smooth-out);
 }
 
 a {
@@ -89,19 +122,52 @@ input {
   isolation: isolate;
 }
 
-.grain-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: multiply;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='%2331251a' fill-opacity='.08'%3E%3Ccircle cx='12' cy='12' r='1'/%3E%3Ccircle cx='42' cy='28' r='1'/%3E%3Ccircle cx='118' cy='14' r='1'/%3E%3Ccircle cx='78' cy='58' r='1'/%3E%3Ccircle cx='134' cy='48' r='1'/%3E%3Ccircle cx='22' cy='92' r='1'/%3E%3Ccircle cx='98' cy='102' r='1'/%3E%3Ccircle cx='146' cy='126' r='1'/%3E%3Ccircle cx='54' cy='132' r='1'/%3E%3Ccircle cx='86' cy='148' r='1'/%3E%3C/g%3E%3C/svg%3E");
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
 }
 
+/* ============================================================
+   主题切换 · 世界翻转
+   ============================================================ */
+
+.site-logo {
+  transition: transform var(--duration-very-slow) var(--ease-smooth-out);
+}
+
+[data-theme="dark"] .site-logo {
+  transform: rotate(180deg);
+}
+
+/* 切换瞬间给全站颜色加统一过渡，350ms 后由脚本移除 */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color var(--duration-medium) var(--ease-smooth-out),
+    border-color var(--duration-medium) var(--ease-smooth-out),
+    color var(--duration-medium) var(--ease-smooth-out),
+    fill var(--duration-medium) var(--ease-smooth-out),
+    box-shadow var(--duration-medium) var(--ease-smooth-out) !important;
+}
+
+html.theme-switching .site-logo {
+  transition: transform var(--duration-very-slow) var(--ease-smooth-out) !important;
+}
+
+/* ============================================================
+   文章正文
+   ============================================================ */
+
 .article-prose {
-  @apply prose prose-zinc max-w-none prose-headings:font-sans prose-headings:text-ink-800 prose-h2:mt-12 prose-h2:border-t prose-h2:border-ink-800/10 prose-h2:pt-8 prose-h3:mt-8 prose-p:text-[1.02rem] prose-p:leading-8 prose-p:text-ink-600 prose-a:text-accent prose-a:no-underline hover:prose-a:text-ink-800 prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:bg-accent/5 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:text-ink-700 prose-strong:text-ink-800 prose-code:rounded prose-code:bg-ink-800/5 prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-pre:overflow-x-auto prose-pre:rounded-[1.75rem] prose-pre:border prose-pre:border-white/35 prose-pre:bg-ink-800 prose-pre:px-5 prose-pre:py-5 prose-pre:text-ink-50 prose-img:rounded-[1.75rem] prose-img:border prose-img:border-white/40 prose-img:shadow-[0_24px_60px_-40px_rgba(31,24,18,0.5)] prose-hr:border-ink-800/10 prose-th:text-ink-800 prose-td:text-ink-600;
+  @apply prose max-w-none prose-headings:font-sans prose-headings:text-ink-800 prose-h2:mt-12 prose-h2:border-t prose-h2:border-line prose-h2:pt-8 prose-h3:mt-8 prose-p:text-[1.02rem] prose-p:leading-8 prose-p:text-ink-600 prose-a:text-accent prose-a:no-underline hover:prose-a:text-ink-800 prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:bg-accent/5 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-ink-700 prose-strong:text-ink-800 prose-em:text-ink-700 prose-code:rounded prose-code:bg-ink-100 prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-code:text-ink-700 prose-pre:overflow-x-auto prose-pre:rounded-2xl prose-pre:border prose-pre:border-line prose-pre:px-5 prose-pre:py-5 prose-img:rounded-2xl prose-img:border prose-img:border-line prose-hr:border-line prose-li:text-ink-600 prose-li:marker:text-ink-400 prose-th:text-ink-800 prose-td:text-ink-600 prose-figcaption:text-ink-400;
+}
+
+.article-prose :where(pre) {
+  background: var(--code-bg);
+  color: var(--code-text);
 }
 
 .article-prose :where(h2, h3) {
@@ -123,36 +189,27 @@ input {
   content: "";
 }
 
+/* ============================================================
+   通用动效
+   ============================================================ */
+
 .fade-in {
   opacity: 0;
-  transform: translateY(18px);
-  animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.soft-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(239, 231, 219, 0.45) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(239, 231, 219, 0.45) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s linear infinite;
-}
-
-.marquee-track {
-  animation: marquee 28s linear infinite;
+  transform: translateY(14px);
+  animation: fade-in var(--duration-very-slow) var(--ease-smooth-out) forwards;
 }
 
 .hover-lift {
   transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform var(--duration-medium) var(--ease-smooth-out),
+    border-color var(--duration-medium) var(--ease-smooth-out),
+    box-shadow var(--duration-medium) var(--ease-smooth-out);
 }
 
-.hover-lift:hover {
-  transform: translateY(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .hover-lift:active {
@@ -166,20 +223,17 @@ input {
   }
 }
 
-@keyframes shimmer {
-  from {
-    background-position: 100% 0;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
-  to {
-    background-position: -100% 0;
-  }
-}
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
+  .fade-in {
+    animation-duration: 1ms;
   }
-  to {
-    transform: translateX(-50%);
+
+  .hover-lift,
+  .site-logo {
+    transition: none;
   }
 }

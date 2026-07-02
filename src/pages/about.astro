@@ -24,18 +24,18 @@ const contacts = [
   <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
     <div class="mx-auto max-w-3xl space-y-8">
       <div>
-        <p class="text-xs uppercase tracking-[0.28em] text-ink-400">About</p>
-        <h1 class="mt-3 text-4xl text-ink-800 sm:text-5xl">关于</h1>
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-400">About</p>
+        <h1 class="mt-3 font-display text-4xl text-ink-800 sm:text-5xl">关于</h1>
       </div>
 
-      <div class="rounded-[2.3rem] border border-white/20 bg-white/72 px-6 py-8 shadow-[0_24px_70px_-50px_rgba(31,24,18,0.55),inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-xl sm:px-10">
+      <div class="card rounded-2xl px-6 py-8 sm:px-10">
         <p class="text-base leading-8 text-ink-700">{siteConfig.about}</p>
-        <p class="mt-6 border-t border-ink-800/8 pt-6 text-sm leading-7 text-ink-500">
+        <p class="mt-6 border-t border-line pt-6 text-sm leading-7 text-ink-500">
           {siteConfig.motto}
         </p>
       </div>
 
-      <div class="rounded-[2rem] border border-ink-800/10 bg-white/50 px-6 py-8 sm:px-10">
+      <div class="rounded-2xl border border-line bg-surface/60 px-6 py-8 sm:px-10">
         <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">联系</h2>
         <dl class="mt-5 grid gap-3 text-sm text-ink-600">
           {

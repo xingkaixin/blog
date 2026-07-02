@@ -66,7 +66,7 @@ export function SignatureAnimation() {
         font={dancingScriptBundle}
         text={siteConfig.author}
         time={{ mode: "uncontrolled", loop: false, speed: 1.2 }}
-        style={{ fontSize: "36px", color: "#4b4b4b" }}
+        style={{ fontSize: "36px", color: "var(--ink-600)" }}
       />
     </div>
   );

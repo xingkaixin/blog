@@ -15,8 +15,8 @@ const meta = {
   <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
     <div class="mx-auto max-w-350 space-y-8">
       <div>
-        <p class="text-xs uppercase tracking-[0.28em] text-ink-400">Projects</p>
-        <h1 class="mt-3 text-4xl text-ink-800">工具箱</h1>
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-400">Projects</p>
+        <h1 class="mt-3 font-display text-4xl text-ink-800 sm:text-5xl">工具箱</h1>
       </div>
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {
@@ -36,14 +36,14 @@ const meta = {
                 class:list={["group block fade-in", project.url && "cursor-pointer"]}
                 style={`animation-delay: ${index * 90}ms`}
               >
-                <div class="hover-lift flex h-full flex-col overflow-hidden rounded-4xl border border-[#d7cfc2] bg-[#faf7f1]/96 p-5 shadow-[0_24px_60px_-52px_rgba(31,24,18,0.3),inset_0_1px_0_rgba(255,255,255,0.88)]">
+                <div class="card hover-lift flex h-full flex-col overflow-hidden rounded-2xl p-5">
                   <div class="flex items-start gap-4">
                     <img
                       src={project.logo}
                       alt={`${project.name} logo`}
                       width="48"
                       height="48"
-                      class="h-12 w-12 shrink-0 rounded-xl border border-[#e4dbcf] bg-white/88 object-contain p-1.5"
+                      class="h-12 w-12 shrink-0 rounded-xl border border-line bg-white object-contain p-1.5"
                     />
                     <div class="min-w-0 flex-1">
                       <h3 class="text-xl text-ink-800">{project.name}</h3>
@@ -54,7 +54,7 @@ const meta = {
                     {project.tags && (
                       <div class="flex flex-wrap gap-2">
                         {project.tags.map((tag) => (
-                          <span class="inline-flex items-center rounded-full border border-[#d9d1c4] bg-white/88 px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-ink-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] backdrop-blur-sm">
+                          <span class="inline-flex items-center rounded-full border border-line bg-paper px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-ink-500">
                             {tag}
                           </span>
                         ))}

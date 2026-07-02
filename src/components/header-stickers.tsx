@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { projects } from "@/lib/projects";
 
 const SIZE = 30;
-// 初始散布只占据 header 中间横向区域，两端留白避免遮挡 logo 与导航按钮
-const CENTER_MARGIN = 0.22;
+// 初始散布只占据 header 左中段，右侧留白避免遮挡导航与主题切换按钮
+const X_MIN_RATIO = 0.24;
+const X_MAX_RATIO = 0.52;
 const logos = [...new Set(projects.map((p) => p.logo))];
 
 // 8 方向 1px 白色 drop-shadow 叠加，基于 alpha 通道贴合 logo 实际轮廓描边
@@ -34,7 +35,14 @@ const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min)
 
 export function HeaderStickers() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ index: number; offsetX: number; offsetY: number } | null>(null);
+  const dragRef = useRef<{
+    index: number;
+    offsetX: number;
+    offsetY: number;
+    rect: DOMRect;
+    x: number;
+    y: number;
+  } | null>(null);
   const [stickers, setStickers] = useState<Sticker[]>([]);
   const [dragging, setDragging] = useState<number | null>(null);
 
@@ -44,8 +52,8 @@ export function HeaderStickers() {
       return;
     }
     const { width, height } = el.getBoundingClientRect();
-    const xMin = width * CENTER_MARGIN;
-    const xSpan = Math.max(width * (1 - 2 * CENTER_MARGIN) - SIZE, 0);
+    const xMin = width * X_MIN_RATIO;
+    const xSpan = Math.max(width * (X_MAX_RATIO - X_MIN_RATIO) - SIZE, 0);
     setStickers(
       logos.map((logo) => ({
         logo,
@@ -58,7 +66,7 @@ export function HeaderStickers() {
 
   const onPointerDown = (e: React.PointerEvent, index: number) => {
     const el = containerRef.current;
-    if (!el) {
+    if (!el || dragRef.current) {
       return;
     }
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -67,23 +75,31 @@ export function HeaderStickers() {
       index,
       offsetX: e.clientX - rect.left - stickers[index].x,
       offsetY: e.clientY - rect.top - stickers[index].y,
+      rect,
+      x: stickers[index].x,
+      y: stickers[index].y,
     };
     setDragging(index);
   };
 
+  // 拖动期间直接写 DOM transform，绕过 React 重渲染，松手时再提交状态
   const onPointerMove = (e: React.PointerEvent) => {
     const drag = dragRef.current;
-    const el = containerRef.current;
-    if (!drag || !el) {
+    if (!drag) {
       return;
     }
-    const rect = el.getBoundingClientRect();
-    const x = clamp(e.clientX - rect.left - drag.offsetX, 0, rect.width - SIZE);
-    const y = clamp(e.clientY - rect.top - drag.offsetY, 0, rect.height - SIZE);
-    setStickers((prev) => prev.map((s, i) => (i === drag.index ? { ...s, x, y } : s)));
+    drag.x = clamp(e.clientX - drag.rect.left - drag.offsetX, 0, drag.rect.width - SIZE);
+    drag.y = clamp(e.clientY - drag.rect.top - drag.offsetY, 0, drag.rect.height - SIZE);
+    (e.currentTarget as HTMLElement).style.transform = `translate(${drag.x}px, ${drag.y}px)`;
   };
 
   const onPointerUp = () => {
+    const drag = dragRef.current;
+    if (drag) {
+      setStickers((prev) =>
+        prev.map((s, i) => (i === drag.index ? { ...s, x: drag.x, y: drag.y } : s)),
+      );
+    }
     dragRef.current = null;
     setDragging(null);
   };

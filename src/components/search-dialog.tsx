@@ -17,7 +17,7 @@ function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => voi
     <a
       href={`/posts/${post.slug}/`}
       onClick={onClose}
-      className="flex gap-3 rounded-[1.4rem] border border-ink-800/10 bg-white/70 p-3 transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-[2px] hover:border-accent/30"
+      className="flex gap-3 rounded-[1.4rem] border border-line bg-surface p-3 transition-[border-color,background-color] duration-(--duration-quick) ease-(--ease-smooth-out) hover:border-accent/40 hover:bg-ink-50"
     >
       {post.cover && (
         <img
@@ -107,7 +107,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           <Button variant="secondary" size="sm">
             <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4" />
             搜索文章
-            <span className="hidden rounded-full bg-ink-800/5 px-2 py-0.5 font-mono text-[0.7rem] text-ink-500 sm:inline-flex">
+            <span className="hidden rounded-full bg-ink-100 px-2 py-0.5 font-mono text-[0.7rem] text-ink-500 sm:inline-flex">
               /
             </span>
           </Button>
@@ -129,7 +129,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900" />
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-ink-800" />
             </div>
           ) : displayPosts.length > 0 ? (
             <div className="max-h-[360px] space-y-2 overflow-y-auto">
@@ -138,7 +138,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
               ))}
             </div>
           ) : (
-            <div className="rounded-[1.6rem] border border-dashed border-ink-800/15 bg-white/60 px-5 py-8 text-center">
+            <div className="rounded-[1.6rem] border border-dashed border-line bg-ink-50 px-5 py-8 text-center">
               <p className="text-lg text-ink-800">没有命中结果</p>
               <p className="mt-2 text-sm leading-7 text-ink-600">
                 试试更短的词，或者改搜标签与概念名。

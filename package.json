@@ -17,6 +17,7 @@
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --type-aware --fix",
     "lint:format": "oxfmt --write",
+    "postinstall": "bun scripts/patch-smiley-font.ts",
     "preview": "astro preview",
     "test": "vitest run",
     "wrangler": "wrangler pages deploy dist --project-name=blog"
@@ -28,6 +29,7 @@
     "@radix-ui/react-icons": "^1.3.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn-fontsource-smiley-sans-oblique-regular": "^1.0.1",
     "gray-matter": "^4.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

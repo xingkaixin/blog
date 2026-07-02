@@ -1,11 +1,10 @@
 <div class="sticky top-[73px] z-10 h-[2px] w-full bg-transparent">
-  <div data-reading-progress class="h-full bg-accent transition-[width] duration-200" style="width: 0%"></div>
+  <div data-reading-progress class="h-full bg-accent transition-[width] duration-(--duration-quick)" style="width: 0%"></div>
 </div>
 
 <script>
-  const progressBar = document.querySelector<HTMLElement>("[data-reading-progress]");
-
   function updateProgress() {
+    const progressBar = document.querySelector<HTMLElement>("[data-reading-progress]");
     if (!progressBar) {
       return;
     }
@@ -18,4 +17,5 @@
 
   updateProgress();
   window.addEventListener("scroll", updateProgress, { passive: true });
+  document.addEventListener("astro:page-load", updateProgress);
 </script>

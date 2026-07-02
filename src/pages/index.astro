@@ -1,10 +1,19 @@
 ---
-import PostCard from "@/components/astro/PostCard.astro";
+import PostCover from "@/components/astro/PostCover.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostMeta } from "@/lib/astro-posts";
+import { formatDisplayDate } from "@/lib/markdown";
 import { siteConfig } from "@/lib/site";
 
 const posts = (await getPublishedPosts()).map(toPostMeta);
+const [hero, ...rest] = posts;
+const postsByYear = rest.reduce<Map<string, typeof rest>>((groups, post) => {
+  const year = post.date.slice(0, 4);
+  const group = groups.get(year) ?? [];
+  group.push(post);
+  groups.set(year, group);
+  return groups;
+}, new Map());
 const meta = {
   title: siteConfig.title,
   description: siteConfig.description,
@@ -15,25 +24,100 @@ const meta = {
 
 <SiteLayout meta={meta}>
   <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
-    <div class="mx-auto max-w-[1400px] space-y-8">
-      <div>
-        <p class="text-xs uppercase tracking-[0.28em] text-ink-400">Articles</p>
-        <h1 class="mt-3 text-4xl text-ink-800 sm:text-5xl">
-          {siteConfig.title}
-        </h1>
-        <p class="mt-3 max-w-[44ch] text-base leading-8 text-ink-600">
-          {siteConfig.description}
-        </p>
-      </div>
+    <div class="mx-auto max-w-350 space-y-16">
       {
-        posts.length > 0 ? (
-          <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {posts.map((post, index) => <PostCard post={post} index={index} />)}
-          </div>
+        hero ? (
+          <a href={`/posts/${hero.slug}/`} class="group fade-in block">
+            <article class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+              <div
+                class="card hover-lift overflow-hidden rounded-2xl lg:order-2"
+                transition:name={`cover-${hero.slug}`}
+              >
+                <PostCover
+                  src={hero.cover}
+                  alt={hero.coverAlt}
+                  priority
+
+                  imageClass="transition-transform duration-700 ease-(--ease-smooth-out) group-hover:scale-[1.02]"
+                />
+              </div>
+              <div class="lg:order-1">
+                <p class="font-mono text-xs uppercase tracking-[0.28em] text-accent">
+                  最新 · {formatDisplayDate(hero.date)}
+                </p>
+                <h1 class="mt-4 font-display text-4xl leading-tight text-balance text-ink-800 sm:text-5xl lg:text-6xl">
+                  {hero.title}
+                </h1>
+                <p class="mt-5 max-w-[52ch] text-base leading-8 text-ink-600">{hero.summary}</p>
+                <div class="mt-6 flex flex-wrap gap-2">
+                  {hero.tags.map((tag) => (
+                    <span class="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-ink-500">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <span class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-ink-800">
+                  阅读全文
+                  <svg
+                    aria-hidden="true"
+                    class="h-4 w-4 transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:translate-x-1"
+                    viewBox="0 0 15 15"
+                    fill="none"
+                  >
+                    <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </div>
+            </article>
+          </a>
         ) : (
           <div class="space-y-3">
-            <p class="text-xs uppercase tracking-[0.28em] text-ink-400">暂无文章</p>
-            <h2 class="text-4xl text-ink-800">还没有发布文章</h2>
+            <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-400">暂无文章</p>
+            <h2 class="font-display text-4xl text-ink-800">还没有发布文章</h2>
+          </div>
+        )
+      }
+
+      {
+        postsByYear.size > 0 && (
+          <div class="space-y-14">
+            {[...postsByYear.entries()].map(([year, yearPosts], groupIndex) => (
+              <section class="grid gap-4 lg:grid-cols-[140px_1fr] lg:gap-10">
+                <h2
+                  class="fade-in font-display text-3xl text-ink-300 lg:sticky lg:top-28 lg:self-start lg:text-5xl"
+                  style={`animation-delay: ${Math.min(groupIndex * 3 + 1, 8) * 40}ms`}
+                >
+                  {year}
+                </h2>
+                <div>
+                  {yearPosts.map((post, index) => (
+                    <a
+                      href={`/posts/${post.slug}/`}
+                      class="group fade-in flex items-center gap-4 border-b border-line py-4 sm:gap-6"
+                      style={`animation-delay: ${Math.min(groupIndex * 3 + index + 2, 10) * 40}ms`}
+                    >
+                      <span class="w-14 shrink-0 font-mono text-xs text-ink-400">
+                        {post.date.slice(5, 10)}
+                      </span>
+                      <span class="min-w-0 flex-1">
+                        <span class="block text-lg text-balance text-ink-700 transition-colors duration-(--duration-quick) group-hover:text-accent">
+                          {post.title}
+                        </span>
+                        <span class="mt-1 hidden text-sm text-ink-400 sm:line-clamp-1">
+                          {post.summary}
+                        </span>
+                      </span>
+                      <span
+                        class="hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:opacity-100 lg:block"
+                        transition:name={`cover-${post.slug}`}
+                      >
+                        <PostCover src={post.cover} alt="" />
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         )
       }
