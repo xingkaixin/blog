@@ -77,6 +77,12 @@ import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStranger
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull from "@/assets/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAgentFriendlyTool400 from "@/assets/cover/agent-friendly-tool.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAgentFriendlyTool800 from "@/assets/cover/agent-friendly-tool.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAgentFriendlyToolFull from "@/assets/cover/agent-friendly-tool.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAgentGuessesNotDebug400 from "@/assets/cover/agent-guesses-not-debug.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAgentGuessesNotDebug800 from "@/assets/cover/agent-guesses-not-debug.png?w=800&format=webp";
@@ -106,6 +112,18 @@ import cAiCodeReviewExpensiveTesting400 from "@/assets/cover/ai-code-review-expe
 import cAiCodeReviewExpensiveTesting800 from "@/assets/cover/ai-code-review-expensive-testing.png?w=800&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAiCodeReviewExpensiveTestingFull from "@/assets/cover/ai-code-review-expensive-testing.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiCodeVolumeNotOutcome400 from "@/assets/cover/ai-code-volume-not-outcome.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiCodeVolumeNotOutcome800 from "@/assets/cover/ai-code-volume-not-outcome.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiCodeVolumeNotOutcomeFull from "@/assets/cover/ai-code-volume-not-outcome.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiFrontendDesignSystemHandoff400 from "@/assets/cover/ai-frontend-design-system-handoff.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiFrontendDesignSystemHandoff800 from "@/assets/cover/ai-frontend-design-system-handoff.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cAiFrontendDesignSystemHandoffFull from "@/assets/cover/ai-frontend-design-system-handoff.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 from "@/assets/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
@@ -293,6 +311,12 @@ import cStayInTheLoop800 from "@/assets/cover/stay-in-the-loop.png?w=800&format=
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cStayInTheLoopFull from "@/assets/cover/stay-in-the-loop.png?format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTasteIsAMusclePredictBeforeOutput400 from "@/assets/cover/taste-is-a-muscle-predict-before-output.png?w=400&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTasteIsAMusclePredictBeforeOutput800 from "@/assets/cover/taste-is-a-muscle-predict-before-output.png?w=800&format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
+import cTasteIsAMusclePredictBeforeOutputFull from "@/assets/cover/taste-is-a-muscle-predict-before-output.png?format=webp";
+// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cTheChickenOrTheEgg400 from "@/assets/cover/the-chicken-or-the-egg.webp?w=400&format=webp";
 // @ts-expect-error - vite-imagetools: query params not resolved by TypeScript
 import cTheChickenOrTheEgg800 from "@/assets/cover/the-chicken-or-the-egg.webp?w=800&format=webp";
@@ -354,11 +378,14 @@ export const covers = {
   "The-Last-of-Us-review.webp": { full: cTheLastOfUsReviewFull, desktop: cTheLastOfUsReview800, mobile: cTheLastOfUsReview400 },
   "The-requirements-and-design-ideas-of-the-strategy-team.webp": { full: cTheRequirementsAndDesignIdeasOfTheStrategyTeamFull, desktop: cTheRequirementsAndDesignIdeasOfTheStrategyTeam800, mobile: cTheRequirementsAndDesignIdeasOfTheStrategyTeam400 },
   "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp": { full: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangersFull, desktop: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers800, mobile: cWhyDoPeopleFromShanghaiAlwaysSpeakShanghaineseFirstWhenTalkingToStrangers400 },
+  "agent-friendly-tool.png": { full: cAgentFriendlyToolFull, desktop: cAgentFriendlyTool800, mobile: cAgentFriendlyTool400 },
   "agent-guesses-not-debug.png": { full: cAgentGuessesNotDebugFull, desktop: cAgentGuessesNotDebug800, mobile: cAgentGuessesNotDebug400 },
   "agentic-workflow-waiting-revalued.png": { full: cAgenticWorkflowWaitingRevaluedFull, desktop: cAgenticWorkflowWaitingRevalued800, mobile: cAgenticWorkflowWaitingRevalued400 },
   "ai-code-5-checkpoints.png": { full: cAiCode5CheckpointsFull, desktop: cAiCode5Checkpoints800, mobile: cAiCode5Checkpoints400 },
   "ai-code-responsibility-gap.png": { full: cAiCodeResponsibilityGapFull, desktop: cAiCodeResponsibilityGap800, mobile: cAiCodeResponsibilityGap400 },
   "ai-code-review-expensive-testing.png": { full: cAiCodeReviewExpensiveTestingFull, desktop: cAiCodeReviewExpensiveTesting800, mobile: cAiCodeReviewExpensiveTesting400 },
+  "ai-code-volume-not-outcome.png": { full: cAiCodeVolumeNotOutcomeFull, desktop: cAiCodeVolumeNotOutcome800, mobile: cAiCodeVolumeNotOutcome400 },
+  "ai-frontend-design-system-handoff.png": { full: cAiFrontendDesignSystemHandoffFull, desktop: cAiFrontendDesignSystemHandoff800, mobile: cAiFrontendDesignSystemHandoff400 },
   "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png": { full: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolutionFull, desktop: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution800, mobile: cAiMemorySystemsFromLogRetrievalToKnowledgeEvolution400 },
   "ai-review-ai.png": { full: cAiReviewAiFull, desktop: cAiReviewAi800, mobile: cAiReviewAi400 },
   "ai-slop-battle.png": { full: cAiSlopBattleFull, desktop: cAiSlopBattle800, mobile: cAiSlopBattle400 },
@@ -390,6 +417,7 @@ export const covers = {
   "spec-unwritten-assumptions.png": { full: cSpecUnwrittenAssumptionsFull, desktop: cSpecUnwrittenAssumptions800, mobile: cSpecUnwrittenAssumptions400 },
   "state-of-ai.webp": { full: cStateOfAiFull, desktop: cStateOfAi800, mobile: cStateOfAi400 },
   "stay-in-the-loop.png": { full: cStayInTheLoopFull, desktop: cStayInTheLoop800, mobile: cStayInTheLoop400 },
+  "taste-is-a-muscle-predict-before-output.png": { full: cTasteIsAMusclePredictBeforeOutputFull, desktop: cTasteIsAMusclePredictBeforeOutput800, mobile: cTasteIsAMusclePredictBeforeOutput400 },
   "the-chicken-or-the-egg.webp": { full: cTheChickenOrTheEggFull, desktop: cTheChickenOrTheEgg800, mobile: cTheChickenOrTheEgg400 },
   "the-newsroom-time-tested-masterpieces.webp": { full: cTheNewsroomTimeTestedMasterpiecesFull, desktop: cTheNewsroomTimeTestedMasterpieces800, mobile: cTheNewsroomTimeTestedMasterpieces400 },
   "the-state-of-enterprise-ai_2025-report.webp": { full: cTheStateOfEnterpriseAi2025ReportFull, desktop: cTheStateOfEnterpriseAi2025Report800, mobile: cTheStateOfEnterpriseAi2025Report400 },

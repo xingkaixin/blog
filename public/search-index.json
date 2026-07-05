@@ -1,5 +1,59 @@
 [
   {
+    "slug": "ai-code-volume-not-outcome",
+    "title": "「AI 写了我们 80% 的代码」，是代码行数换了个新公关",
+    "date": "Thu Jul 09 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "“AI 代码占比”只说写了多少、不说好了多少，是代码行数换的新公关：永远涨、永远不会错、什么都不承诺。研究在如实更新，市场在数行数，它却在动预算和裁员名单。衡量交付，回到 DORA、收入这些老办法——先问：这是产出，还是产量？",
+    "tags": [
+      "AI编程",
+      "工程度量",
+      "DORA"
+    ],
+    "cover": "/posts/cover/ai-code-volume-not-outcome.png",
+    "coverAlt": "「AI 写了我们 80% 的代码」，是代码行数换了个新公关"
+  },
+  {
+    "slug": "ai-frontend-design-system-handoff",
+    "title": "AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统",
+    "date": "Mon Jul 06 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "没有 design system，agent 每屏都在重新猜审美，hex 色值堆到 19 个。它是给 agent 的约束，不是给人看的文档。先在设计工具里把字体、颜色、组件定死，再 handoff 给 agent——这就是前端的 Spec：先定系统，后写代码。",
+    "tags": [
+      "AI编程",
+      "前端",
+      "Design System",
+      "Spec"
+    ],
+    "cover": "/posts/cover/ai-frontend-design-system-handoff.png",
+    "coverAlt": "AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统"
+  },
+  {
+    "slug": "taste-is-a-muscle-predict-before-output",
+    "title": "多数人不判断 agent，只是在吸收它的结论",
+    "date": "Thu Jul 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "判断力不是天赋，是可练的肌肉，练法就是“预测—对账”。派活前先写下你赌 agent 会怎么做、会在哪翻车；等它交活，先盖住描述自己猜，再对账。赌错那个点，正是最该盯住的地方。多数人只吸收 agent 的结论、不押预测，于是跑偏一年后才发现。",
+    "tags": [
+      "AI编程",
+      "Agent",
+      "判断力"
+    ],
+    "cover": "/posts/cover/taste-is-a-muscle-predict-before-output.png",
+    "coverAlt": "多数人不判断 agent，只是在吸收它的结论"
+  },
+  {
+    "slug": "agent-friendly-tool",
+    "title": "给 agent 做 CLI：你随手写的报错，是它的下一步指令",
+    "date": "Mon Jun 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "summary": "给 agent 做 CLI，报错不是日志，是接口。拆完飞书 lark-cli 的 35 万行源码，它只要求贡献者内化一条规则：你写的每条错误信息，都会被 AI 解析以决定下一步动作。typed error、stdout/stderr 分流、_notice 递话、lint 护栏，四个能直接抄的设计。",
+    "tags": [
+      "AI编程",
+      "CLI",
+      "Agent",
+      "lark-cli"
+    ],
+    "cover": "/posts/cover/agent-friendly-tool.png",
+    "coverAlt": "给 agent 做 CLI：你随手写的报错，是它的下一步指令"
+  },
+  {
     "slug": "skill-is-a-folder",
     "title": "skill 越写越长，agent 反而越用越偏",
     "date": "Thu Jun 25 2026 08:00:00 GMT+0800 (China Standard Time)",
