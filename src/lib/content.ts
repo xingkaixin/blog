@@ -143,11 +143,12 @@ async function loadPosts(): Promise<PostDetail[]> {
     }),
   );
 
-  postsCache = entries
+  const sorted = entries
     .filter((post): post is PostDetail => Boolean(post))
     .toSorted((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 
-  return postsCache;
+  postsCache = sorted;
+  return sorted;
 }
 
 export async function getAllPosts(): Promise<PostDetail[]> {

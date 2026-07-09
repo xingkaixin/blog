@@ -54,10 +54,7 @@ function buildRobotsTxt() {
 // 为每篇现存文章生成 301，把旧链接的权重转移到新地址；
 // 未迁移内容（旧 tag/分页/已删文章）不软重定向到首页，交由 catch-all 返回 404。
 function buildRedirects(posts: Array<{ slug: string }>) {
-  const lines = [
-    ...posts.map((p) => `/${p.slug} /posts/${p.slug}/ 301`),
-    "/* /404.html 404",
-  ];
+  const lines = [...posts.map((p) => `/${p.slug} /posts/${p.slug}/ 301`), "/* /404.html 404"];
   return `${lines.join("\n")}\n`;
 }
 

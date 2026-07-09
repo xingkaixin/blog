@@ -12,9 +12,10 @@
     "moduleDetection": "force",
     "noEmit": true,
     "strict": true,
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["astro.config.ts", "vite.config.ts"]
+  "include": ["astro.config.ts", "vite.config.ts", "scripts/**/*.ts"]
 }

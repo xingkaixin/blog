@@ -36,6 +36,9 @@ export function toPostMeta(post: BlogPostEntry): BlogPostMeta {
 }
 
 export async function getPublishedPosts() {
-  const posts = await getCollection("posts", ({ data }) => !data.draft);
-  return posts.toSorted((left, right) => right.data.date.getTime() - left.data.date.getTime());
+  const posts = await getCollection("posts", (entry: BlogPostEntry) => !entry.data.draft);
+  return posts.toSorted(
+    (left: BlogPostEntry, right: BlogPostEntry) =>
+      right.data.date.getTime() - left.data.date.getTime(),
+  );
 }

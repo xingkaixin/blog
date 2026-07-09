@@ -1,6 +1,7 @@
 export const siteConfig = {
   title: "行开心的颠倒世界",
-  description: "XingKaiXin 的个人博客，聚焦 AI 编程、Agent 工程与开发者工具，也写产品观察与生活体验。",
+  description:
+    "XingKaiXin 的个人博客，聚焦 AI 编程、Agent 工程与开发者工具，也写产品观察与生活体验。",
   url: "https://xingkaixin.me",
   author: "XingKaiXin",
   language: "zh-CN",
