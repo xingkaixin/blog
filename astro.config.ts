@@ -32,7 +32,6 @@ export default defineConfig({
     rehypePlugins: [rehypeBlogContent],
   },
   vite: {
-    // @ts-expect-error Root vite vs Astro's nested vite — incompatible Plugin types, same runtime.
     plugins: [imagetools(), tailwindcss()],
     resolve: {
       alias: {

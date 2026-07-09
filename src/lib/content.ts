@@ -115,12 +115,12 @@ export function parseMarkdownPost(slug: string, source: string): PostDetail | nu
 
   return {
     slug,
-    title: String(frontmatter.title ?? ""),
-    date: String(frontmatter.date ?? ""),
-    summary: String(frontmatter.summary ?? ""),
+    title: frontmatter.title ?? "",
+    date: frontmatter.date ?? "",
+    summary: frontmatter.summary ?? "",
     tags: Array.isArray(frontmatter.tags) ? frontmatter.tags.map(String) : [],
-    cover: String(frontmatter.cover ?? ""),
-    coverAlt: String(frontmatter.coverAlt ?? ""),
+    cover: frontmatter.cover ?? "",
+    coverAlt: frontmatter.coverAlt ?? "",
     readingTime: estimateReadingTime(plainText),
     content,
     plainText,

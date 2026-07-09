@@ -26,7 +26,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
 
   useEffect(() => {
     if (!open) {
-      return;
+      return undefined;
     }
 
     const handlePointerDown = (event: PointerEvent) => {

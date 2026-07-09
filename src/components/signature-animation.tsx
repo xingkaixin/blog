@@ -38,7 +38,7 @@ export function SignatureAnimation() {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) {
-      return;
+      return undefined;
     }
 
     let visible = false;
