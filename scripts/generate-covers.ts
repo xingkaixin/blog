@@ -1,104 +1,120 @@
 #!/usr/bin/env bun
 /**
- * 自动生成 src/lib/covers.ts 文件
- * 扫描 src/assets/cover/ 目录中的所有图片文件
+ * 预生成封面多尺寸 WebP，并写入 src/lib/covers.ts（仅 URL 映射，无 imagetools 导入）
  */
 
 import fs from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 
 const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
+const OUTPUT_DIR = path.join(process.cwd(), "public", "cover");
 const OUTPUT_FILE = path.join(process.cwd(), "src", "lib", "covers.ts");
 
-// 支持的图片格式
 const SUPPORTED_EXTENSIONS = [".webp", ".png", ".jpg", ".jpeg"];
 
-/**
- * 将文件名转换为有效的变量名
- * 例如: "2025-review.webp" -> "c2025Review"
- *       "the-state-of-ai_2025-report.webp" -> "cTheStateOfAi2025Report"
- *       "why-i-pay.png" -> "cWhyIPay"
- */
+const VARIANTS = [
+  { key: "mobile" as const, width: 400, quality: 82 },
+  { key: "desktop" as const, width: 800, quality: 82 },
+  { key: "full" as const, width: null as number | null, quality: 85 },
+];
+
 function filenameToVariableName(filename: string): string {
-  // 移除任意支持的扩展名
   const name = filename.replace(/\.(webp|png|jpe?g)$/i, "");
-
-  // 将字符串按分隔符（-、_）分割，然后转换为驼峰命名
   const parts = name.split(/[-_]+/);
-
-  // 首字母大写，其余小写，然后连接
   const camelCase = parts
     .map((part, index) => {
       if (part.length === 0) {
         return "";
       }
-      // 如果第一部分以数字开头，保持原样
       if (index === 0 && /^\d/.test(part)) {
         return part;
       }
       return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
     })
     .join("");
-
-  // 添加前缀 "c" (cover)
   return `c${camelCase}`;
 }
 
-function generateCoversFile(): void {
-  // 检查封面图目录是否存在
+function fileStem(filename: string): string {
+  return filename.replace(/\.(webp|png|jpe?g)$/i, "");
+}
+
+function needsRebuild(srcPath: string, outPath: string): boolean {
+  if (!fs.existsSync(outPath)) {
+    return true;
+  }
+  return fs.statSync(srcPath).mtimeMs > fs.statSync(outPath).mtimeMs;
+}
+
+async function writeVariant(
+  srcPath: string,
+  outPath: string,
+  width: number | null,
+  quality: number,
+): Promise<void> {
+  let pipeline = sharp(srcPath);
+  if (width !== null) {
+    pipeline = pipeline.resize(width, undefined, { withoutEnlargement: true });
+  }
+  await pipeline.webp({ quality }).toFile(outPath);
+}
+
+async function generateCoversFile(): Promise<void> {
   if (!fs.existsSync(COVER_DIR)) {
     console.error(`❌ 封面图目录不存在: ${COVER_DIR}`);
     process.exit(1);
   }
 
-  // 获取所有支持的图片文件
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
   const files = fs
     .readdirSync(COVER_DIR)
     .filter((file) => SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)))
     .toSorted();
 
   if (files.length === 0) {
-    console.error(
-      `❌ 在 ${COVER_DIR} 中没有找到图片文件 (支持: ${SUPPORTED_EXTENSIONS.join(", ")})`,
-    );
+    console.error(`❌ 在 ${COVER_DIR} 中没有找到图片文件`);
     process.exit(1);
   }
 
   console.log(`📁 找到 ${files.length} 个封面图文件`);
 
-  // 生成 import 语句
-  const imports: string[] = [];
   const mappings: string[] = [];
 
   for (const file of files) {
-    const varName = filenameToVariableName(file);
+    const srcPath = path.join(COVER_DIR, file);
+    const stem = fileStem(file);
+    const urls: Record<(typeof VARIANTS)[number]["key"], string> = {
+      mobile: "",
+      desktop: "",
+      full: "",
+    };
 
-    // 添加 import 语句 (400px, 800px, full)
-    // 使用 @/assets/cover/ 路径，vite-imagetools 能正确处理
-    // vite-imagetools 用 format=webp 控制输出格式（as= 用于 srcset/inline）
-    imports.push(
-      `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}400 from "@/assets/cover/${file}?w=400&format=webp";`,
-      `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}800 from "@/assets/cover/${file}?w=800&format=webp";`,
-      `// @ts-expect-error - vite-imagetools: query params not resolved by TypeScript`,
-      `import ${varName}Full from "@/assets/cover/${file}?format=webp";`,
-    );
+    for (const variant of VARIANTS) {
+      const suffix = variant.width === null ? "" : `-${variant.width}`;
+      const outName = `${stem}${suffix}.webp`;
+      const outPath = path.join(OUTPUT_DIR, outName);
+      const publicUrl = `/cover/${outName}`;
 
-    // 添加映射条目
+      if (needsRebuild(srcPath, outPath)) {
+        await writeVariant(srcPath, outPath, variant.width, variant.quality);
+      }
+
+      urls[variant.key] = publicUrl;
+    }
+
     mappings.push(
-      `  "${file}": { full: ${varName}Full, desktop: ${varName}800, mobile: ${varName}400 }`,
+      `  "${file}": { full: "${urls.full}", desktop: "${urls.desktop}", mobile: "${urls.mobile}" }`,
     );
+    console.log(`   ${file} -> ${filenameToVariableName(file)}`);
   }
 
-  // 生成完整的文件内容
   const content = `export type ResponsiveCover = {
   full: string;
   desktop: string;
   mobile: string;
 };
-
-${imports.join("\n")}
 
 export const covers = {
 ${mappings.join(",\n")},
@@ -110,18 +126,8 @@ export function resolveCover(path: string): ResponsiveCover | null {
 }
 `;
 
-  // 写入文件
   fs.writeFileSync(OUTPUT_FILE, content, "utf8");
-
-  console.log(`✅ 成功生成 ${OUTPUT_FILE}`);
-  console.log(`   - 包含 ${files.length} 个封面图映射`);
-
-  // 打印生成的变量名供检查
-  console.log("\n📋 生成的变量名:");
-  for (const file of files) {
-    console.log(`   ${file} -> ${filenameToVariableName(file)}`);
-  }
+  console.log(`✅ 成功生成 ${OUTPUT_FILE} 与 public/cover/ 下的 WebP`);
 }
 
-// 执行生成
-generateCoversFile();
+await generateCoversFile();

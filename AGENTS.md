@@ -81,7 +81,7 @@ bun run lint     # 代码检查
 
 ### 封面图片
 
-使用 `vite-imagetools` 自动生成响应式封面图片，通过 `scripts/generate-covers.ts` 脚本处理。
+封面多尺寸 WebP 由 `scripts/generate-covers.ts`（sharp）写入 `public/cover/`，并生成 `src/lib/covers.ts` URL 映射。
 
 ## 代码风格
 

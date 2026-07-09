@@ -6,798 +6,124 @@ export type ResponsivePostImage = {
 };
 
 export const postImages: Record<string, ResponsivePostImage> = {
-  "/posts/images/2026-chiangmai-trip/ancient-pagoda.png": {
-    src: "/posts/images/2026-chiangmai-trip/ancient-pagoda.png",
-    webp: "/posts/images/2026-chiangmai-trip/ancient-pagoda.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/ancient-pagoda-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/ancient-pagoda-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png": {
-    src: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png",
-    webp: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png": {
-    src: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png",
-    webp: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/cozy-cafe.png": {
-    src: "/posts/images/2026-chiangmai-trip/cozy-cafe.png",
-    webp: "/posts/images/2026-chiangmai-trip/cozy-cafe.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/cozy-cafe-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/cozy-cafe-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/feeding-pigeons.png": {
-    src: "/posts/images/2026-chiangmai-trip/feeding-pigeons.png",
-    webp: "/posts/images/2026-chiangmai-trip/feeding-pigeons.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/feeding-pigeons-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/feeding-pigeons-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/flame-tree-street.png": {
-    src: "/posts/images/2026-chiangmai-trip/flame-tree-street.png",
-    webp: "/posts/images/2026-chiangmai-trip/flame-tree-street.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/flame-tree-street-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/flame-tree-street-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/mango-tree.png": {
-    src: "/posts/images/2026-chiangmai-trip/mango-tree.png",
-    webp: "/posts/images/2026-chiangmai-trip/mango-tree.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/mango-tree-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/mango-tree-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/nimman-live-music.png": {
-    src: "/posts/images/2026-chiangmai-trip/nimman-live-music.png",
-    webp: "/posts/images/2026-chiangmai-trip/nimman-live-music.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/nimman-live-music-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/nimman-live-music-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/street-life.png": {
-    src: "/posts/images/2026-chiangmai-trip/street-life.png",
-    webp: "/posts/images/2026-chiangmai-trip/street-life.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/street-life-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/street-life-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/sunset-pool.png": {
-    src: "/posts/images/2026-chiangmai-trip/sunset-pool.png",
-    webp: "/posts/images/2026-chiangmai-trip/sunset-pool.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/sunset-pool-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/sunset-pool-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/temple-greenery.png": {
-    src: "/posts/images/2026-chiangmai-trip/temple-greenery.png",
-    webp: "/posts/images/2026-chiangmai-trip/temple-greenery.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/temple-greenery-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/temple-greenery-1200w.webp",
-  },
-  "/posts/images/2026-chiangmai-trip/white-pagoda.png": {
-    src: "/posts/images/2026-chiangmai-trip/white-pagoda.png",
-    webp: "/posts/images/2026-chiangmai-trip/white-pagoda.webp",
-    mobile: "/posts/images/2026-chiangmai-trip/white-pagoda-800w.webp",
-    desktop: "/posts/images/2026-chiangmai-trip/white-pagoda-1200w.webp",
-  },
-  "/posts/images/315-geo-ai-poisoning/illustration-01.png": {
-    src: "/posts/images/315-geo-ai-poisoning/illustration-01.png",
-    webp: "/posts/images/315-geo-ai-poisoning/illustration-01.webp",
-    mobile: "/posts/images/315-geo-ai-poisoning/illustration-01-800w.webp",
-    desktop: "/posts/images/315-geo-ai-poisoning/illustration-01-1200w.webp",
-  },
-  "/posts/images/315-geo-ai-poisoning/illustration-02.png": {
-    src: "/posts/images/315-geo-ai-poisoning/illustration-02.png",
-    webp: "/posts/images/315-geo-ai-poisoning/illustration-02.webp",
-    mobile: "/posts/images/315-geo-ai-poisoning/illustration-02-800w.webp",
-    desktop: "/posts/images/315-geo-ai-poisoning/illustration-02-1200w.webp",
-  },
-  "/posts/images/315-geo-ai-poisoning/illustration-03.png": {
-    src: "/posts/images/315-geo-ai-poisoning/illustration-03.png",
-    webp: "/posts/images/315-geo-ai-poisoning/illustration-03.webp",
-    mobile: "/posts/images/315-geo-ai-poisoning/illustration-03-800w.webp",
-    desktop: "/posts/images/315-geo-ai-poisoning/illustration-03-1200w.webp",
-  },
-  "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png": {
-    src: "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png",
-    webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-01.webp",
-    mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-01-800w.webp",
-    desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-01-1200w.webp",
-  },
-  "/posts/images/agent-friendly-tool/agent-friendly-tool-02.png": {
-    src: "/posts/images/agent-friendly-tool/agent-friendly-tool-02.png",
-    webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-02.webp",
-    mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-02-800w.webp",
-    desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-02-1200w.webp",
-  },
-  "/posts/images/agent-friendly-tool/agent-friendly-tool-03.png": {
-    src: "/posts/images/agent-friendly-tool/agent-friendly-tool-03.png",
-    webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-03.webp",
-    mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-03-800w.webp",
-    desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-03-1200w.webp",
-  },
-  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.png": {
-    src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.png",
-    webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.webp",
-    mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01-800w.webp",
-    desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01-1200w.webp",
-  },
-  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.png": {
-    src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.png",
-    webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.webp",
-    mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02-800w.webp",
-    desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02-1200w.webp",
-  },
-  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.png": {
-    src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.png",
-    webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.webp",
-    mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03-800w.webp",
-    desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03-1200w.webp",
-  },
-  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.png": {
-    src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.png",
-    webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.webp",
-    mobile:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01-800w.webp",
-    desktop:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01-1200w.webp",
-  },
-  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.png": {
-    src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.png",
-    webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.webp",
-    mobile:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02-800w.webp",
-    desktop:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02-1200w.webp",
-  },
-  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.png": {
-    src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.png",
-    webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.webp",
-    mobile:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03-800w.webp",
-    desktop:
-      "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03-1200w.webp",
-  },
-  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png": {
-    src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png",
-    webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.webp",
-    mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01-800w.webp",
-    desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01-1200w.webp",
-  },
-  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.png": {
-    src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.png",
-    webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.webp",
-    mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02-800w.webp",
-    desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02-1200w.webp",
-  },
-  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.png": {
-    src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.png",
-    webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.webp",
-    mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03-800w.webp",
-    desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03-1200w.webp",
-  },
-  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.png": {
-    src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.png",
-    webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.webp",
-    mobile:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01-800w.webp",
-    desktop:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01-1200w.webp",
-  },
-  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.png": {
-    src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.png",
-    webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.webp",
-    mobile:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02-800w.webp",
-    desktop:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02-1200w.webp",
-  },
-  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.png": {
-    src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.png",
-    webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.webp",
-    mobile:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03-800w.webp",
-    desktop:
-      "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03-1200w.webp",
-  },
-  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.png": {
-    src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.png",
-    webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.webp",
-    mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01-800w.webp",
-    desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01-1200w.webp",
-  },
-  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.png": {
-    src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.png",
-    webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.webp",
-    mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02-800w.webp",
-    desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02-1200w.webp",
-  },
-  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.png": {
-    src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.png",
-    webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.webp",
-    mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03-800w.webp",
-    desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03-1200w.webp",
-  },
-  "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": {
-    src: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png",
-    webp: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.webp",
-    mobile:
-      "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01-800w.webp",
-    desktop:
-      "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01-1200w.webp",
-  },
-  "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.png": {
-    src: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.png",
-    webp: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.webp",
-    mobile:
-      "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02-800w.webp",
-    desktop:
-      "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02-1200w.webp",
-  },
-  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png":
-    {
-      src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png",
-      webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.webp",
-      mobile:
-        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-800w.webp",
-      desktop:
-        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-1200w.webp",
-    },
-  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png":
-    {
-      src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png",
-      webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.webp",
-      mobile:
-        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-800w.webp",
-      desktop:
-        "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-1200w.webp",
-    },
-  "/posts/images/ai-review-ai/ai-review-ai-01.png": {
-    src: "/posts/images/ai-review-ai/ai-review-ai-01.png",
-    webp: "/posts/images/ai-review-ai/ai-review-ai-01.webp",
-    mobile: "/posts/images/ai-review-ai/ai-review-ai-01-800w.webp",
-    desktop: "/posts/images/ai-review-ai/ai-review-ai-01-1200w.webp",
-  },
-  "/posts/images/ai-review-ai/ai-review-ai-02.png": {
-    src: "/posts/images/ai-review-ai/ai-review-ai-02.png",
-    webp: "/posts/images/ai-review-ai/ai-review-ai-02.webp",
-    mobile: "/posts/images/ai-review-ai/ai-review-ai-02-800w.webp",
-    desktop: "/posts/images/ai-review-ai/ai-review-ai-02-1200w.webp",
-  },
-  "/posts/images/ai-review-ai/ai-review-ai-03.png": {
-    src: "/posts/images/ai-review-ai/ai-review-ai-03.png",
-    webp: "/posts/images/ai-review-ai/ai-review-ai-03.webp",
-    mobile: "/posts/images/ai-review-ai/ai-review-ai-03-800w.webp",
-    desktop: "/posts/images/ai-review-ai/ai-review-ai-03-1200w.webp",
-  },
-  "/posts/images/ai-review-ai/ai-review-ai-04.png": {
-    src: "/posts/images/ai-review-ai/ai-review-ai-04.png",
-    webp: "/posts/images/ai-review-ai/ai-review-ai-04.webp",
-    mobile: "/posts/images/ai-review-ai/ai-review-ai-04-800w.webp",
-    desktop: "/posts/images/ai-review-ai/ai-review-ai-04-1200w.webp",
-  },
-  "/posts/images/ai-slop-battle/ai-slop-battle-01.png": {
-    src: "/posts/images/ai-slop-battle/ai-slop-battle-01.png",
-    webp: "/posts/images/ai-slop-battle/ai-slop-battle-01.webp",
-    mobile: "/posts/images/ai-slop-battle/ai-slop-battle-01-800w.webp",
-    desktop: "/posts/images/ai-slop-battle/ai-slop-battle-01-1200w.webp",
-  },
-  "/posts/images/ai-slop-battle/ai-slop-battle-02.png": {
-    src: "/posts/images/ai-slop-battle/ai-slop-battle-02.png",
-    webp: "/posts/images/ai-slop-battle/ai-slop-battle-02.webp",
-    mobile: "/posts/images/ai-slop-battle/ai-slop-battle-02-800w.webp",
-    desktop: "/posts/images/ai-slop-battle/ai-slop-battle-02-1200w.webp",
-  },
-  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png": {
-    src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png",
-    webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.webp",
-    mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01-800w.webp",
-    desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01-1200w.webp",
-  },
-  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.png": {
-    src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.png",
-    webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.webp",
-    mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02-800w.webp",
-    desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02-1200w.webp",
-  },
-  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.png": {
-    src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.png",
-    webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.webp",
-    mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03-800w.webp",
-    desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03-1200w.webp",
-  },
-  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.png": {
-    src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.png",
-    webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.webp",
-    mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01-800w.webp",
-    desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01-1200w.webp",
-  },
-  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.png": {
-    src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.png",
-    webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.webp",
-    mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02-800w.webp",
-    desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02-1200w.webp",
-  },
-  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.png": {
-    src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.png",
-    webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.webp",
-    mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03-800w.webp",
-    desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03-1200w.webp",
-  },
-  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.png": {
-    src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.png",
-    webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.webp",
-    mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01-800w.webp",
-    desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01-1200w.webp",
-  },
-  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.png": {
-    src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.png",
-    webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.webp",
-    mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02-800w.webp",
-    desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02-1200w.webp",
-  },
-  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.png": {
-    src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.png",
-    webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.webp",
-    mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03-800w.webp",
-    desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03-1200w.webp",
-  },
-  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.png":
-    {
-      src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.png",
-      webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.webp",
-      mobile:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01-800w.webp",
-      desktop:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01-1200w.webp",
-    },
-  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.png":
-    {
-      src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.png",
-      webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.webp",
-      mobile:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02-800w.webp",
-      desktop:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02-1200w.webp",
-    },
-  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.png":
-    {
-      src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.png",
-      webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.webp",
-      mobile:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03-800w.webp",
-      desktop:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03-1200w.webp",
-    },
-  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.png":
-    {
-      src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.png",
-      webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.webp",
-      mobile:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04-800w.webp",
-      desktop:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04-1200w.webp",
-    },
-  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.png":
-    {
-      src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.png",
-      webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.webp",
-      mobile:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05-800w.webp",
-      desktop:
-        "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05-1200w.webp",
-    },
-  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.png": {
-    src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.png",
-    webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.webp",
-    mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01-800w.webp",
-    desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01-1200w.webp",
-  },
-  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.png": {
-    src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.png",
-    webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.webp",
-    mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02-800w.webp",
-    desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02-1200w.webp",
-  },
-  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.png": {
-    src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.png",
-    webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.webp",
-    mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03-800w.webp",
-    desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03-1200w.webp",
-  },
-  "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.png": {
-    src: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.png",
-    webp: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.webp",
-    mobile: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01-800w.webp",
-    desktop:
-      "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01-1200w.webp",
-  },
-  "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.png": {
-    src: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.png",
-    webp: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.webp",
-    mobile: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-800w.webp",
-    desktop:
-      "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-1200w.webp",
-  },
-  "/posts/images/coding-agent-almost-1-year/illustration-01.png": {
-    src: "/posts/images/coding-agent-almost-1-year/illustration-01.png",
-    webp: "/posts/images/coding-agent-almost-1-year/illustration-01.webp",
-    mobile: "/posts/images/coding-agent-almost-1-year/illustration-01-800w.webp",
-    desktop: "/posts/images/coding-agent-almost-1-year/illustration-01-1200w.webp",
-  },
-  "/posts/images/coding-agent-almost-1-year/illustration-02.png": {
-    src: "/posts/images/coding-agent-almost-1-year/illustration-02.png",
-    webp: "/posts/images/coding-agent-almost-1-year/illustration-02.webp",
-    mobile: "/posts/images/coding-agent-almost-1-year/illustration-02-800w.webp",
-    desktop: "/posts/images/coding-agent-almost-1-year/illustration-02-1200w.webp",
-  },
-  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png": {
-    src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png",
-    webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.webp",
-    mobile:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01-800w.webp",
-    desktop:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01-1200w.webp",
-  },
-  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.png": {
-    src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.png",
-    webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.webp",
-    mobile:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02-800w.webp",
-    desktop:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02-1200w.webp",
-  },
-  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.png": {
-    src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.png",
-    webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.webp",
-    mobile:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03-800w.webp",
-    desktop:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03-1200w.webp",
-  },
-  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.png": {
-    src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.png",
-    webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.webp",
-    mobile:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04-800w.webp",
-    desktop:
-      "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04-1200w.webp",
-  },
-  "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.png": {
-    src: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.png",
-    webp: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.webp",
-    mobile: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01-800w.webp",
-    desktop: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01-1200w.webp",
-  },
-  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.png": {
-    src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.png",
-    webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.webp",
-    mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01-800w.webp",
-    desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01-1200w.webp",
-  },
-  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.png": {
-    src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.png",
-    webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.webp",
-    mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02-800w.webp",
-    desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02-1200w.webp",
-  },
-  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.png": {
-    src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.png",
-    webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.webp",
-    mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03-800w.webp",
-    desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03-1200w.webp",
-  },
-  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.png": {
-    src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.png",
-    webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.webp",
-    mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04-800w.webp",
-    desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04-1200w.webp",
-  },
-  "/posts/images/llm-react-prompt/output.png": {
-    src: "/posts/images/llm-react-prompt/output.png",
-    webp: "/posts/images/llm-react-prompt/output.webp",
-    mobile: "/posts/images/llm-react-prompt/output-800w.webp",
-    desktop: "/posts/images/llm-react-prompt/output-1200w.webp",
-  },
-  "/posts/images/llm-react-prompt/react.png": {
-    src: "/posts/images/llm-react-prompt/react.png",
-    webp: "/posts/images/llm-react-prompt/react.webp",
-    mobile: "/posts/images/llm-react-prompt/react-800w.webp",
-    desktop: "/posts/images/llm-react-prompt/react-1200w.webp",
-  },
-  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png": {
-    src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png",
-    webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.webp",
-    mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01-800w.webp",
-    desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01-1200w.webp",
-  },
-  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.png": {
-    src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.png",
-    webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.webp",
-    mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02-800w.webp",
-    desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02-1200w.webp",
-  },
-  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.png": {
-    src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.png",
-    webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.webp",
-    mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03-800w.webp",
-    desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03-1200w.webp",
-  },
-  "/posts/images/model-core-tools-shell/model-core-tools-shell-01.png": {
-    src: "/posts/images/model-core-tools-shell/model-core-tools-shell-01.png",
-    webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-01.webp",
-    mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-01-800w.webp",
-    desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-01-1200w.webp",
-  },
-  "/posts/images/model-core-tools-shell/model-core-tools-shell-02.png": {
-    src: "/posts/images/model-core-tools-shell/model-core-tools-shell-02.png",
-    webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-02.webp",
-    mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-02-800w.webp",
-    desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-02-1200w.webp",
-  },
-  "/posts/images/model-core-tools-shell/model-core-tools-shell-03.png": {
-    src: "/posts/images/model-core-tools-shell/model-core-tools-shell-03.png",
-    webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-03.webp",
-    mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-03-800w.webp",
-    desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-03-1200w.webp",
-  },
-  "/posts/images/model-core-tools-shell/model-core-tools-shell-04.png": {
-    src: "/posts/images/model-core-tools-shell/model-core-tools-shell-04.png",
-    webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-04.webp",
-    mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-04-800w.webp",
-    desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-04-1200w.webp",
-  },
-  "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png": {
-    src: "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png",
-    webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-01.webp",
-    mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-01-800w.webp",
-    desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-01-1200w.webp",
-  },
-  "/posts/images/musk-vs-altman/Musk-vs-Altman-02.png": {
-    src: "/posts/images/musk-vs-altman/Musk-vs-Altman-02.png",
-    webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-02.webp",
-    mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-02-800w.webp",
-    desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-02-1200w.webp",
-  },
-  "/posts/images/musk-vs-altman/Musk-vs-Altman-03.png": {
-    src: "/posts/images/musk-vs-altman/Musk-vs-Altman-03.png",
-    webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-03.webp",
-    mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-03-800w.webp",
-    desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-03-1200w.webp",
-  },
-  "/posts/images/musk-vs-altman/Musk-vs-Altman-04.png": {
-    src: "/posts/images/musk-vs-altman/Musk-vs-Altman-04.png",
-    webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-04.webp",
-    mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-04-800w.webp",
-    desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-04-1200w.webp",
-  },
-  "/posts/images/musk-vs-altman/Musk-vs-Altman-05.png": {
-    src: "/posts/images/musk-vs-altman/Musk-vs-Altman-05.png",
-    webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-05.webp",
-    mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-05-800w.webp",
-    desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-05-1200w.webp",
-  },
-  "/posts/images/persona-distillation/persona-distillation-01.png": {
-    src: "/posts/images/persona-distillation/persona-distillation-01.png",
-    webp: "/posts/images/persona-distillation/persona-distillation-01.webp",
-    mobile: "/posts/images/persona-distillation/persona-distillation-01-800w.webp",
-    desktop: "/posts/images/persona-distillation/persona-distillation-01-1200w.webp",
-  },
-  "/posts/images/persona-distillation/persona-distillation-02.png": {
-    src: "/posts/images/persona-distillation/persona-distillation-02.png",
-    webp: "/posts/images/persona-distillation/persona-distillation-02.webp",
-    mobile: "/posts/images/persona-distillation/persona-distillation-02-800w.webp",
-    desktop: "/posts/images/persona-distillation/persona-distillation-02-1200w.webp",
-  },
-  "/posts/images/persona-distillation/persona-distillation-03.png": {
-    src: "/posts/images/persona-distillation/persona-distillation-03.png",
-    webp: "/posts/images/persona-distillation/persona-distillation-03.webp",
-    mobile: "/posts/images/persona-distillation/persona-distillation-03-800w.webp",
-    desktop: "/posts/images/persona-distillation/persona-distillation-03-1200w.webp",
-  },
-  "/posts/images/rhythm-in-ai-coding/rhythm-01.png": {
-    src: "/posts/images/rhythm-in-ai-coding/rhythm-01.png",
-    webp: "/posts/images/rhythm-in-ai-coding/rhythm-01.webp",
-    mobile: "/posts/images/rhythm-in-ai-coding/rhythm-01-800w.webp",
-    desktop: "/posts/images/rhythm-in-ai-coding/rhythm-01-1200w.webp",
-  },
-  "/posts/images/rhythm-in-ai-coding/rhythm-02.png": {
-    src: "/posts/images/rhythm-in-ai-coding/rhythm-02.png",
-    webp: "/posts/images/rhythm-in-ai-coding/rhythm-02.webp",
-    mobile: "/posts/images/rhythm-in-ai-coding/rhythm-02-800w.webp",
-    desktop: "/posts/images/rhythm-in-ai-coding/rhythm-02-1200w.webp",
-  },
-  "/posts/images/rhythm-in-ai-coding/rhythm-03.png": {
-    src: "/posts/images/rhythm-in-ai-coding/rhythm-03.png",
-    webp: "/posts/images/rhythm-in-ai-coding/rhythm-03.webp",
-    mobile: "/posts/images/rhythm-in-ai-coding/rhythm-03-800w.webp",
-    desktop: "/posts/images/rhythm-in-ai-coding/rhythm-03-1200w.webp",
-  },
-  "/posts/images/session-as-asset/session-as-asset-01.png": {
-    src: "/posts/images/session-as-asset/session-as-asset-01.png",
-    webp: "/posts/images/session-as-asset/session-as-asset-01.webp",
-    mobile: "/posts/images/session-as-asset/session-as-asset-01-800w.webp",
-    desktop: "/posts/images/session-as-asset/session-as-asset-01-1200w.webp",
-  },
-  "/posts/images/session-as-asset/session-as-asset-02.png": {
-    src: "/posts/images/session-as-asset/session-as-asset-02.png",
-    webp: "/posts/images/session-as-asset/session-as-asset-02.webp",
-    mobile: "/posts/images/session-as-asset/session-as-asset-02-800w.webp",
-    desktop: "/posts/images/session-as-asset/session-as-asset-02-1200w.webp",
-  },
-  "/posts/images/session-as-asset/session-as-asset-03.png": {
-    src: "/posts/images/session-as-asset/session-as-asset-03.png",
-    webp: "/posts/images/session-as-asset/session-as-asset-03.webp",
-    mobile: "/posts/images/session-as-asset/session-as-asset-03-800w.webp",
-    desktop: "/posts/images/session-as-asset/session-as-asset-03-1200w.webp",
-  },
-  "/posts/images/skill-is-a-folder/skill-is-a-folder-01.png": {
-    src: "/posts/images/skill-is-a-folder/skill-is-a-folder-01.png",
-    webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-01.webp",
-    mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-01-800w.webp",
-    desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-01-1200w.webp",
-  },
-  "/posts/images/skill-is-a-folder/skill-is-a-folder-02.png": {
-    src: "/posts/images/skill-is-a-folder/skill-is-a-folder-02.png",
-    webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-02.webp",
-    mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-02-800w.webp",
-    desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-02-1200w.webp",
-  },
-  "/posts/images/skill-is-a-folder/skill-is-a-folder-03.png": {
-    src: "/posts/images/skill-is-a-folder/skill-is-a-folder-03.png",
-    webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-03.webp",
-    mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-03-800w.webp",
-    desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-03-1200w.webp",
-  },
-  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png": {
-    src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png",
-    webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.webp",
-    mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01-800w.webp",
-    desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01-1200w.webp",
-  },
-  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.png": {
-    src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.png",
-    webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.webp",
-    mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02-800w.webp",
-    desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02-1200w.webp",
-  },
-  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.png": {
-    src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.png",
-    webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.webp",
-    mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03-800w.webp",
-    desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03-1200w.webp",
-  },
-  "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.png": {
-    src: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.png",
-    webp: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.webp",
-    mobile: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01-800w.webp",
-    desktop: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01-1200w.webp",
-  },
-  "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.png": {
-    src: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.png",
-    webp: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.webp",
-    mobile: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02-800w.webp",
-    desktop: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02-1200w.webp",
-  },
-  "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png": {
-    src: "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png",
-    webp: "/posts/images/stay-in-the-loop/stay-in-the-loop-01.webp",
-    mobile: "/posts/images/stay-in-the-loop/stay-in-the-loop-01-800w.webp",
-    desktop: "/posts/images/stay-in-the-loop/stay-in-the-loop-01-1200w.webp",
-  },
-  "/posts/images/stay-in-the-loop/stay-in-the-loop-02.png": {
-    src: "/posts/images/stay-in-the-loop/stay-in-the-loop-02.png",
-    webp: "/posts/images/stay-in-the-loop/stay-in-the-loop-02.webp",
-    mobile: "/posts/images/stay-in-the-loop/stay-in-the-loop-02-800w.webp",
-    desktop: "/posts/images/stay-in-the-loop/stay-in-the-loop-02-1200w.webp",
-  },
-  "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.png":
-    {
-      src: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.png",
-      webp: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.webp",
-      mobile:
-        "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01-800w.webp",
-      desktop:
-        "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01-1200w.webp",
-    },
-  "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.png":
-    {
-      src: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.png",
-      webp: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.webp",
-      mobile:
-        "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02-800w.webp",
-      desktop:
-        "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02-1200w.webp",
-    },
-  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.png":
-    {
-      src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.png",
-      webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.webp",
-      mobile:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01-800w.webp",
-      desktop:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01-1200w.webp",
-    },
-  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.png":
-    {
-      src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.png",
-      webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.webp",
-      mobile:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02-800w.webp",
-      desktop:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02-1200w.webp",
-    },
-  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.png":
-    {
-      src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.png",
-      webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.webp",
-      mobile:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03-800w.webp",
-      desktop:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03-1200w.webp",
-    },
-  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.png":
-    {
-      src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.png",
-      webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.webp",
-      mobile:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04-800w.webp",
-      desktop:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04-1200w.webp",
-    },
-  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.png":
-    {
-      src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.png",
-      webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.webp",
-      mobile:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05-800w.webp",
-      desktop:
-        "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05-1200w.webp",
-    },
-  "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.png": {
-    src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.png",
-    webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.webp",
-    mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01-800w.webp",
-    desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01-1200w.webp",
-  },
-  "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.png": {
-    src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.png",
-    webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.webp",
-    mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02-800w.webp",
-    desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02-1200w.webp",
-  },
-  "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.png": {
-    src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.png",
-    webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.webp",
-    mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03-800w.webp",
-    desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03-1200w.webp",
-  },
-  "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.png": {
-    src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.png",
-    webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.webp",
-    mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04-800w.webp",
-    desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04-1200w.webp",
-  },
-  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.png": {
-    src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.png",
-    webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.webp",
-    mobile:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01-800w.webp",
-    desktop:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01-1200w.webp",
-  },
-  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.png": {
-    src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.png",
-    webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.webp",
-    mobile:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02-800w.webp",
-    desktop:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02-1200w.webp",
-  },
-  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.png": {
-    src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.png",
-    webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.webp",
-    mobile:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03-800w.webp",
-    desktop:
-      "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03-1200w.webp",
-  },
+  "/posts/images/2026-chiangmai-trip/ancient-pagoda.png": { src: "/posts/images/2026-chiangmai-trip/ancient-pagoda.png", webp: "/posts/images/2026-chiangmai-trip/ancient-pagoda.webp", mobile: "/posts/images/2026-chiangmai-trip/ancient-pagoda-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/ancient-pagoda-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png": { src: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.png", webp: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake.webp", mobile: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cmu-ang-kaew-lake-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png": { src: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.png", webp: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn.webp", mobile: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cmu-campus-lawn-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/cozy-cafe.png": { src: "/posts/images/2026-chiangmai-trip/cozy-cafe.png", webp: "/posts/images/2026-chiangmai-trip/cozy-cafe.webp", mobile: "/posts/images/2026-chiangmai-trip/cozy-cafe-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/cozy-cafe-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/feeding-pigeons.png": { src: "/posts/images/2026-chiangmai-trip/feeding-pigeons.png", webp: "/posts/images/2026-chiangmai-trip/feeding-pigeons.webp", mobile: "/posts/images/2026-chiangmai-trip/feeding-pigeons-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/feeding-pigeons-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/flame-tree-street.png": { src: "/posts/images/2026-chiangmai-trip/flame-tree-street.png", webp: "/posts/images/2026-chiangmai-trip/flame-tree-street.webp", mobile: "/posts/images/2026-chiangmai-trip/flame-tree-street-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/flame-tree-street-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/mango-tree.png": { src: "/posts/images/2026-chiangmai-trip/mango-tree.png", webp: "/posts/images/2026-chiangmai-trip/mango-tree.webp", mobile: "/posts/images/2026-chiangmai-trip/mango-tree-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/mango-tree-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/nimman-live-music.png": { src: "/posts/images/2026-chiangmai-trip/nimman-live-music.png", webp: "/posts/images/2026-chiangmai-trip/nimman-live-music.webp", mobile: "/posts/images/2026-chiangmai-trip/nimman-live-music-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/nimman-live-music-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/street-life.png": { src: "/posts/images/2026-chiangmai-trip/street-life.png", webp: "/posts/images/2026-chiangmai-trip/street-life.webp", mobile: "/posts/images/2026-chiangmai-trip/street-life-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/street-life-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/sunset-pool.png": { src: "/posts/images/2026-chiangmai-trip/sunset-pool.png", webp: "/posts/images/2026-chiangmai-trip/sunset-pool.webp", mobile: "/posts/images/2026-chiangmai-trip/sunset-pool-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/sunset-pool-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/temple-greenery.png": { src: "/posts/images/2026-chiangmai-trip/temple-greenery.png", webp: "/posts/images/2026-chiangmai-trip/temple-greenery.webp", mobile: "/posts/images/2026-chiangmai-trip/temple-greenery-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/temple-greenery-1200w.webp" },
+  "/posts/images/2026-chiangmai-trip/white-pagoda.png": { src: "/posts/images/2026-chiangmai-trip/white-pagoda.png", webp: "/posts/images/2026-chiangmai-trip/white-pagoda.webp", mobile: "/posts/images/2026-chiangmai-trip/white-pagoda-800w.webp", desktop: "/posts/images/2026-chiangmai-trip/white-pagoda-1200w.webp" },
+  "/posts/images/315-geo-ai-poisoning/illustration-01.png": { src: "/posts/images/315-geo-ai-poisoning/illustration-01.png", webp: "/posts/images/315-geo-ai-poisoning/illustration-01.webp", mobile: "/posts/images/315-geo-ai-poisoning/illustration-01-800w.webp", desktop: "/posts/images/315-geo-ai-poisoning/illustration-01-1200w.webp" },
+  "/posts/images/315-geo-ai-poisoning/illustration-02.png": { src: "/posts/images/315-geo-ai-poisoning/illustration-02.png", webp: "/posts/images/315-geo-ai-poisoning/illustration-02.webp", mobile: "/posts/images/315-geo-ai-poisoning/illustration-02-800w.webp", desktop: "/posts/images/315-geo-ai-poisoning/illustration-02-1200w.webp" },
+  "/posts/images/315-geo-ai-poisoning/illustration-03.png": { src: "/posts/images/315-geo-ai-poisoning/illustration-03.png", webp: "/posts/images/315-geo-ai-poisoning/illustration-03.webp", mobile: "/posts/images/315-geo-ai-poisoning/illustration-03-800w.webp", desktop: "/posts/images/315-geo-ai-poisoning/illustration-03-1200w.webp" },
+  "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png": { src: "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png", webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-01.webp", mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-01-800w.webp", desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-01-1200w.webp" },
+  "/posts/images/agent-friendly-tool/agent-friendly-tool-02.png": { src: "/posts/images/agent-friendly-tool/agent-friendly-tool-02.png", webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-02.webp", mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-02-800w.webp", desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-02-1200w.webp" },
+  "/posts/images/agent-friendly-tool/agent-friendly-tool-03.png": { src: "/posts/images/agent-friendly-tool/agent-friendly-tool-03.png", webp: "/posts/images/agent-friendly-tool/agent-friendly-tool-03.webp", mobile: "/posts/images/agent-friendly-tool/agent-friendly-tool-03-800w.webp", desktop: "/posts/images/agent-friendly-tool/agent-friendly-tool-03-1200w.webp" },
+  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.png": { src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.png", webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01.webp", mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01-800w.webp", desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-01-1200w.webp" },
+  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.png": { src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.png", webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02.webp", mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02-800w.webp", desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-02-1200w.webp" },
+  "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.png": { src: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.png", webp: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03.webp", mobile: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03-800w.webp", desktop: "/posts/images/agent-guesses-not-debug/agent-guesses-not-debug-03-1200w.webp" },
+  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.png": { src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.png", webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01.webp", mobile: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01-800w.webp", desktop: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-01-1200w.webp" },
+  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.png": { src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.png", webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02.webp", mobile: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02-800w.webp", desktop: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-02-1200w.webp" },
+  "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.png": { src: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.png", webp: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03.webp", mobile: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03-800w.webp", desktop: "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03-1200w.webp" },
+  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png": { src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png", webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.webp", mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01-800w.webp", desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01-1200w.webp" },
+  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.png": { src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.png", webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02.webp", mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02-800w.webp", desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-02-1200w.webp" },
+  "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.png": { src: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.png", webp: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03.webp", mobile: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03-800w.webp", desktop: "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-03-1200w.webp" },
+  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.png": { src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.png", webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01.webp", mobile: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01-800w.webp", desktop: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-01-1200w.webp" },
+  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.png": { src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.png", webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02.webp", mobile: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02-800w.webp", desktop: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-02-1200w.webp" },
+  "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.png": { src: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.png", webp: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03.webp", mobile: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03-800w.webp", desktop: "/posts/images/ai-code-review-expensive-testing/ai-code-review-expensive-testing-03-1200w.webp" },
+  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.png": { src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.png", webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01.webp", mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01-800w.webp", desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-01-1200w.webp" },
+  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.png": { src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.png", webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02.webp", mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02-800w.webp", desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-02-1200w.webp" },
+  "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.png": { src: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.png", webp: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03.webp", mobile: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03-800w.webp", desktop: "/posts/images/ai-code-volume-not-outcome/ai-code-volume-not-outcome-03-1200w.webp" },
+  "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": { src: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png", webp: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.webp", mobile: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01-800w.webp", desktop: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01-1200w.webp" },
+  "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.png": { src: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.png", webp: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02.webp", mobile: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02-800w.webp", desktop: "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-02-1200w.webp" },
+  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png": { src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.png", webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage.webp", mobile: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-800w.webp", desktop: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/hybrid-memory-storage-1200w.webp" },
+  "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png": { src: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.png", webp: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression.webp", mobile: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-800w.webp", desktop: "/posts/images/ai-memory-systems-from-log-retrieval-to-knowledge-evolution/memory-compression-1200w.webp" },
+  "/posts/images/ai-review-ai/ai-review-ai-01.png": { src: "/posts/images/ai-review-ai/ai-review-ai-01.png", webp: "/posts/images/ai-review-ai/ai-review-ai-01.webp", mobile: "/posts/images/ai-review-ai/ai-review-ai-01-800w.webp", desktop: "/posts/images/ai-review-ai/ai-review-ai-01-1200w.webp" },
+  "/posts/images/ai-review-ai/ai-review-ai-02.png": { src: "/posts/images/ai-review-ai/ai-review-ai-02.png", webp: "/posts/images/ai-review-ai/ai-review-ai-02.webp", mobile: "/posts/images/ai-review-ai/ai-review-ai-02-800w.webp", desktop: "/posts/images/ai-review-ai/ai-review-ai-02-1200w.webp" },
+  "/posts/images/ai-review-ai/ai-review-ai-03.png": { src: "/posts/images/ai-review-ai/ai-review-ai-03.png", webp: "/posts/images/ai-review-ai/ai-review-ai-03.webp", mobile: "/posts/images/ai-review-ai/ai-review-ai-03-800w.webp", desktop: "/posts/images/ai-review-ai/ai-review-ai-03-1200w.webp" },
+  "/posts/images/ai-review-ai/ai-review-ai-04.png": { src: "/posts/images/ai-review-ai/ai-review-ai-04.png", webp: "/posts/images/ai-review-ai/ai-review-ai-04.webp", mobile: "/posts/images/ai-review-ai/ai-review-ai-04-800w.webp", desktop: "/posts/images/ai-review-ai/ai-review-ai-04-1200w.webp" },
+  "/posts/images/ai-slop-battle/ai-slop-battle-01.png": { src: "/posts/images/ai-slop-battle/ai-slop-battle-01.png", webp: "/posts/images/ai-slop-battle/ai-slop-battle-01.webp", mobile: "/posts/images/ai-slop-battle/ai-slop-battle-01-800w.webp", desktop: "/posts/images/ai-slop-battle/ai-slop-battle-01-1200w.webp" },
+  "/posts/images/ai-slop-battle/ai-slop-battle-02.png": { src: "/posts/images/ai-slop-battle/ai-slop-battle-02.png", webp: "/posts/images/ai-slop-battle/ai-slop-battle-02.webp", mobile: "/posts/images/ai-slop-battle/ai-slop-battle-02-800w.webp", desktop: "/posts/images/ai-slop-battle/ai-slop-battle-02-1200w.webp" },
+  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png": { src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png", webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.webp", mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01-800w.webp", desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01-1200w.webp" },
+  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.png": { src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.png", webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02.webp", mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02-800w.webp", desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-02-1200w.webp" },
+  "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.png": { src: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.png", webp: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03.webp", mobile: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03-800w.webp", desktop: "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-03-1200w.webp" },
+  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.png": { src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.png", webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01.webp", mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01-800w.webp", desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-01-1200w.webp" },
+  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.png": { src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.png", webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02.webp", mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02-800w.webp", desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-02-1200w.webp" },
+  "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.png": { src: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.png", webp: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03.webp", mobile: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03-800w.webp", desktop: "/posts/images/ai-travel-talk-vs-act/ai-travel-talk-vs-act-03-1200w.webp" },
+  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.png": { src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.png", webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01.webp", mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01-800w.webp", desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-01-1200w.webp" },
+  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.png": { src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.png", webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02.webp", mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02-800w.webp", desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-02-1200w.webp" },
+  "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.png": { src: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.png", webp: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03.webp", mobile: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03-800w.webp", desktop: "/posts/images/ai-wont-tire-but-you-will/ai-wont-tire-but-you-will-03-1200w.webp" },
+  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.png": { src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.png", webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01.webp", mobile: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01-800w.webp", desktop: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-01-1200w.webp" },
+  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.png": { src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.png", webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02.webp", mobile: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02-800w.webp", desktop: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-02-1200w.webp" },
+  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.png": { src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.png", webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03.webp", mobile: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03-800w.webp", desktop: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-03-1200w.webp" },
+  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.png": { src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.png", webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04.webp", mobile: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04-800w.webp", desktop: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-04-1200w.webp" },
+  "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.png": { src: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.png", webp: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05.webp", mobile: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05-800w.webp", desktop: "/posts/images/assuming-x-agentic-era-engineers-survival-coordinates/assuming-x-agentic-era-engineers-survival-coordinates-05-1200w.webp" },
+  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.png": { src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.png", webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01.webp", mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01-800w.webp", desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-01-1200w.webp" },
+  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.png": { src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.png", webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02.webp", mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02-800w.webp", desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-02-1200w.webp" },
+  "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.png": { src: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.png", webp: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03.webp", mobile: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03-800w.webp", desktop: "/posts/images/best-ai-users-need-it-least/best-ai-users-need-it-least-03-1200w.webp" },
+  "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.png": { src: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.png", webp: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01.webp", mobile: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01-800w.webp", desktop: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-01-1200w.webp" },
+  "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.png": { src: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.png", webp: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02.webp", mobile: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-800w.webp", desktop: "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-1200w.webp" },
+  "/posts/images/coding-agent-almost-1-year/illustration-01.png": { src: "/posts/images/coding-agent-almost-1-year/illustration-01.png", webp: "/posts/images/coding-agent-almost-1-year/illustration-01.webp", mobile: "/posts/images/coding-agent-almost-1-year/illustration-01-800w.webp", desktop: "/posts/images/coding-agent-almost-1-year/illustration-01-1200w.webp" },
+  "/posts/images/coding-agent-almost-1-year/illustration-02.png": { src: "/posts/images/coding-agent-almost-1-year/illustration-02.png", webp: "/posts/images/coding-agent-almost-1-year/illustration-02.webp", mobile: "/posts/images/coding-agent-almost-1-year/illustration-02-800w.webp", desktop: "/posts/images/coding-agent-almost-1-year/illustration-02-1200w.webp" },
+  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png": { src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png", webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.webp", mobile: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01-800w.webp", desktop: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01-1200w.webp" },
+  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.png": { src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.png", webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02.webp", mobile: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02-800w.webp", desktop: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-02-1200w.webp" },
+  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.png": { src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.png", webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03.webp", mobile: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03-800w.webp", desktop: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-03-1200w.webp" },
+  "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.png": { src: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.png", webp: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04.webp", mobile: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04-800w.webp", desktop: "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-04-1200w.webp" },
+  "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.png": { src: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.png", webp: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01.webp", mobile: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01-800w.webp", desktop: "/posts/images/karpathy-join-anthropic/karpathy-join-anthropic-01-1200w.webp" },
+  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.png": { src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.png", webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01.webp", mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01-800w.webp", desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-01-1200w.webp" },
+  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.png": { src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.png", webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02.webp", mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02-800w.webp", desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-02-1200w.webp" },
+  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.png": { src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.png", webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03.webp", mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03-800w.webp", desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-03-1200w.webp" },
+  "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.png": { src: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.png", webp: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04.webp", mobile: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04-800w.webp", desktop: "/posts/images/kv-cache-why-ai-replies-get-faster/illustration-04-1200w.webp" },
+  "/posts/images/llm-react-prompt/output.png": { src: "/posts/images/llm-react-prompt/output.png", webp: "/posts/images/llm-react-prompt/output.webp", mobile: "/posts/images/llm-react-prompt/output-800w.webp", desktop: "/posts/images/llm-react-prompt/output-1200w.webp" },
+  "/posts/images/llm-react-prompt/react.png": { src: "/posts/images/llm-react-prompt/react.png", webp: "/posts/images/llm-react-prompt/react.webp", mobile: "/posts/images/llm-react-prompt/react-800w.webp", desktop: "/posts/images/llm-react-prompt/react-1200w.webp" },
+  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png": { src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png", webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.webp", mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01-800w.webp", desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01-1200w.webp" },
+  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.png": { src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.png", webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02.webp", mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02-800w.webp", desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-02-1200w.webp" },
+  "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.png": { src: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.png", webp: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03.webp", mobile: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03-800w.webp", desktop: "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-03-1200w.webp" },
+  "/posts/images/model-core-tools-shell/model-core-tools-shell-01.png": { src: "/posts/images/model-core-tools-shell/model-core-tools-shell-01.png", webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-01.webp", mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-01-800w.webp", desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-01-1200w.webp" },
+  "/posts/images/model-core-tools-shell/model-core-tools-shell-02.png": { src: "/posts/images/model-core-tools-shell/model-core-tools-shell-02.png", webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-02.webp", mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-02-800w.webp", desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-02-1200w.webp" },
+  "/posts/images/model-core-tools-shell/model-core-tools-shell-03.png": { src: "/posts/images/model-core-tools-shell/model-core-tools-shell-03.png", webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-03.webp", mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-03-800w.webp", desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-03-1200w.webp" },
+  "/posts/images/model-core-tools-shell/model-core-tools-shell-04.png": { src: "/posts/images/model-core-tools-shell/model-core-tools-shell-04.png", webp: "/posts/images/model-core-tools-shell/model-core-tools-shell-04.webp", mobile: "/posts/images/model-core-tools-shell/model-core-tools-shell-04-800w.webp", desktop: "/posts/images/model-core-tools-shell/model-core-tools-shell-04-1200w.webp" },
+  "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png": { src: "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png", webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-01.webp", mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-01-800w.webp", desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-01-1200w.webp" },
+  "/posts/images/musk-vs-altman/Musk-vs-Altman-02.png": { src: "/posts/images/musk-vs-altman/Musk-vs-Altman-02.png", webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-02.webp", mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-02-800w.webp", desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-02-1200w.webp" },
+  "/posts/images/musk-vs-altman/Musk-vs-Altman-03.png": { src: "/posts/images/musk-vs-altman/Musk-vs-Altman-03.png", webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-03.webp", mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-03-800w.webp", desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-03-1200w.webp" },
+  "/posts/images/musk-vs-altman/Musk-vs-Altman-04.png": { src: "/posts/images/musk-vs-altman/Musk-vs-Altman-04.png", webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-04.webp", mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-04-800w.webp", desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-04-1200w.webp" },
+  "/posts/images/musk-vs-altman/Musk-vs-Altman-05.png": { src: "/posts/images/musk-vs-altman/Musk-vs-Altman-05.png", webp: "/posts/images/musk-vs-altman/Musk-vs-Altman-05.webp", mobile: "/posts/images/musk-vs-altman/Musk-vs-Altman-05-800w.webp", desktop: "/posts/images/musk-vs-altman/Musk-vs-Altman-05-1200w.webp" },
+  "/posts/images/persona-distillation/persona-distillation-01.png": { src: "/posts/images/persona-distillation/persona-distillation-01.png", webp: "/posts/images/persona-distillation/persona-distillation-01.webp", mobile: "/posts/images/persona-distillation/persona-distillation-01-800w.webp", desktop: "/posts/images/persona-distillation/persona-distillation-01-1200w.webp" },
+  "/posts/images/persona-distillation/persona-distillation-02.png": { src: "/posts/images/persona-distillation/persona-distillation-02.png", webp: "/posts/images/persona-distillation/persona-distillation-02.webp", mobile: "/posts/images/persona-distillation/persona-distillation-02-800w.webp", desktop: "/posts/images/persona-distillation/persona-distillation-02-1200w.webp" },
+  "/posts/images/persona-distillation/persona-distillation-03.png": { src: "/posts/images/persona-distillation/persona-distillation-03.png", webp: "/posts/images/persona-distillation/persona-distillation-03.webp", mobile: "/posts/images/persona-distillation/persona-distillation-03-800w.webp", desktop: "/posts/images/persona-distillation/persona-distillation-03-1200w.webp" },
+  "/posts/images/rhythm-in-ai-coding/rhythm-01.png": { src: "/posts/images/rhythm-in-ai-coding/rhythm-01.png", webp: "/posts/images/rhythm-in-ai-coding/rhythm-01.webp", mobile: "/posts/images/rhythm-in-ai-coding/rhythm-01-800w.webp", desktop: "/posts/images/rhythm-in-ai-coding/rhythm-01-1200w.webp" },
+  "/posts/images/rhythm-in-ai-coding/rhythm-02.png": { src: "/posts/images/rhythm-in-ai-coding/rhythm-02.png", webp: "/posts/images/rhythm-in-ai-coding/rhythm-02.webp", mobile: "/posts/images/rhythm-in-ai-coding/rhythm-02-800w.webp", desktop: "/posts/images/rhythm-in-ai-coding/rhythm-02-1200w.webp" },
+  "/posts/images/rhythm-in-ai-coding/rhythm-03.png": { src: "/posts/images/rhythm-in-ai-coding/rhythm-03.png", webp: "/posts/images/rhythm-in-ai-coding/rhythm-03.webp", mobile: "/posts/images/rhythm-in-ai-coding/rhythm-03-800w.webp", desktop: "/posts/images/rhythm-in-ai-coding/rhythm-03-1200w.webp" },
+  "/posts/images/session-as-asset/session-as-asset-01.png": { src: "/posts/images/session-as-asset/session-as-asset-01.png", webp: "/posts/images/session-as-asset/session-as-asset-01.webp", mobile: "/posts/images/session-as-asset/session-as-asset-01-800w.webp", desktop: "/posts/images/session-as-asset/session-as-asset-01-1200w.webp" },
+  "/posts/images/session-as-asset/session-as-asset-02.png": { src: "/posts/images/session-as-asset/session-as-asset-02.png", webp: "/posts/images/session-as-asset/session-as-asset-02.webp", mobile: "/posts/images/session-as-asset/session-as-asset-02-800w.webp", desktop: "/posts/images/session-as-asset/session-as-asset-02-1200w.webp" },
+  "/posts/images/session-as-asset/session-as-asset-03.png": { src: "/posts/images/session-as-asset/session-as-asset-03.png", webp: "/posts/images/session-as-asset/session-as-asset-03.webp", mobile: "/posts/images/session-as-asset/session-as-asset-03-800w.webp", desktop: "/posts/images/session-as-asset/session-as-asset-03-1200w.webp" },
+  "/posts/images/skill-is-a-folder/skill-is-a-folder-01.png": { src: "/posts/images/skill-is-a-folder/skill-is-a-folder-01.png", webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-01.webp", mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-01-800w.webp", desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-01-1200w.webp" },
+  "/posts/images/skill-is-a-folder/skill-is-a-folder-02.png": { src: "/posts/images/skill-is-a-folder/skill-is-a-folder-02.png", webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-02.webp", mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-02-800w.webp", desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-02-1200w.webp" },
+  "/posts/images/skill-is-a-folder/skill-is-a-folder-03.png": { src: "/posts/images/skill-is-a-folder/skill-is-a-folder-03.png", webp: "/posts/images/skill-is-a-folder/skill-is-a-folder-03.webp", mobile: "/posts/images/skill-is-a-folder/skill-is-a-folder-03-800w.webp", desktop: "/posts/images/skill-is-a-folder/skill-is-a-folder-03-1200w.webp" },
+  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png": { src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png", webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.webp", mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01-800w.webp", desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01-1200w.webp" },
+  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.png": { src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.png", webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02.webp", mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02-800w.webp", desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-02-1200w.webp" },
+  "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.png": { src: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.png", webp: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03.webp", mobile: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03-800w.webp", desktop: "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-03-1200w.webp" },
+  "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.png": { src: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.png", webp: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01.webp", mobile: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01-800w.webp", desktop: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-01-1200w.webp" },
+  "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.png": { src: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.png", webp: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02.webp", mobile: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02-800w.webp", desktop: "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02-1200w.webp" },
+  "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png": { src: "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png", webp: "/posts/images/stay-in-the-loop/stay-in-the-loop-01.webp", mobile: "/posts/images/stay-in-the-loop/stay-in-the-loop-01-800w.webp", desktop: "/posts/images/stay-in-the-loop/stay-in-the-loop-01-1200w.webp" },
+  "/posts/images/stay-in-the-loop/stay-in-the-loop-02.png": { src: "/posts/images/stay-in-the-loop/stay-in-the-loop-02.png", webp: "/posts/images/stay-in-the-loop/stay-in-the-loop-02.webp", mobile: "/posts/images/stay-in-the-loop/stay-in-the-loop-02-800w.webp", desktop: "/posts/images/stay-in-the-loop/stay-in-the-loop-02-1200w.webp" },
+  "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.png": { src: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.png", webp: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01.webp", mobile: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01-800w.webp", desktop: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-01-1200w.webp" },
+  "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.png": { src: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.png", webp: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02.webp", mobile: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02-800w.webp", desktop: "/posts/images/taste-is-a-muscle-predict-before-output/taste-is-a-muscle-predict-before-output-02-1200w.webp" },
+  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.png": { src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.png", webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.webp", mobile: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01-800w.webp", desktop: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01-1200w.webp" },
+  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.png": { src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.png", webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02.webp", mobile: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02-800w.webp", desktop: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-02-1200w.webp" },
+  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.png": { src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.png", webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03.webp", mobile: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03-800w.webp", desktop: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-03-1200w.webp" },
+  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.png": { src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.png", webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04.webp", mobile: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04-800w.webp", desktop: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-04-1200w.webp" },
+  "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.png": { src: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.png", webp: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05.webp", mobile: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05-800w.webp", desktop: "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-05-1200w.webp" },
+  "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.png": { src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.png", webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01.webp", mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01-800w.webp", desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-01-1200w.webp" },
+  "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.png": { src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.png", webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02.webp", mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02-800w.webp", desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-02-1200w.webp" },
+  "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.png": { src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.png", webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03.webp", mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03-800w.webp", desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-03-1200w.webp" },
+  "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.png": { src: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.png", webp: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04.webp", mobile: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04-800w.webp", desktop: "/posts/images/vibe-coding-to-agentic-engineering/illustration-04-1200w.webp" },
+  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.png": { src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.png", webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.webp", mobile: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01-800w.webp", desktop: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01-1200w.webp" },
+  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.png": { src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.png", webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02.webp", mobile: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02-800w.webp", desktop: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-02-1200w.webp" },
+  "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.png": { src: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.png", webp: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03.webp", mobile: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03-800w.webp", desktop: "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-03-1200w.webp" },
 };

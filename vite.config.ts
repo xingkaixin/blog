@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import type { Plugin } from "vite";
-import { imagetools } from "vite-imagetools";
 import { defineConfig } from "vitest/config";
 
 const requiredFrontmatter = ["title", "date", "summary", "tags", "cover", "coverAlt"] as const;
@@ -64,7 +63,7 @@ function validateBlogContent(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [imagetools(), validateBlogContent()],
+  plugins: [validateBlogContent()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

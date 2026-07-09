@@ -3,7 +3,6 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
-import { imagetools } from "vite-imagetools";
 import { rehypeBlogContent } from "./src/lib/rehype-blog-content";
 
 function resolveManualChunk(id: string) {
@@ -32,7 +31,7 @@ export default defineConfig({
     rehypePlugins: [rehypeBlogContent],
   },
   vite: {
-    plugins: [imagetools(), tailwindcss()],
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
