@@ -1,5 +1,5 @@
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { resolveCover } from "@/lib/covers";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 
 type SearchDialogProps = {
-  trigger?: ReactNode;
+  trigger?: ReactElement<{ children?: ReactNode }>;
 };
 
 function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => void }) {
@@ -102,15 +102,17 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button variant="secondary" size="sm">
+      <DialogTrigger render={trigger ?? <Button variant="secondary" size="sm" />}>
+        {trigger ? (
+          trigger.props.children
+        ) : (
+          <>
             <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4" />
             搜索文章
             <span className="hidden rounded-full bg-ink-100 px-2 py-0.5 font-mono text-[0.7rem] text-ink-500 sm:inline-flex">
               /
             </span>
-          </Button>
+          </>
         )}
       </DialogTrigger>
       <DialogContent hideClose title="搜索文章" description="输入关键词搜索博客文章">
