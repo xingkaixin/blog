@@ -1,5 +1,5 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import { XIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +45,7 @@ export function DialogContent({
             aria-label="关闭搜索面板"
             className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-500 transition-colors hover:text-ink-800"
           >
-            <Cross2Icon aria-hidden="true" className="h-4 w-4" />
+            <XIcon aria-hidden="true" className="h-4 w-4" />
             <span className="sr-only">关闭</span>
           </DialogPrimitive.Close>
         )}

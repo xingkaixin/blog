@@ -1,10 +1,4 @@
-import {
-  ChevronLeftIcon,
-  HamburgerMenuIcon,
-  MagnifyingGlassIcon,
-  PersonIcon,
-  RocketIcon,
-} from "@radix-ui/react-icons";
+import { ChevronLeftIcon, MenuIcon, RocketIcon, SearchIcon, UserIcon } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { SearchDialog } from "@/components/search-dialog";
 import { cn } from "@/lib/utils";
@@ -58,7 +52,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
         onClick={() => setOpen((value) => !value)}
         className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 text-sm font-medium text-ink-700 transition-[transform,border-color,color] active:scale-[0.97]"
       >
-        <HamburgerMenuIcon aria-hidden="true" className="h-4 w-4" />
+        <MenuIcon aria-hidden="true" className="h-4 w-4" />
         功能
       </button>
 
@@ -84,14 +78,14 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
           )}
           {showAbout && (
             <a href="/about/" onClick={() => setOpen(false)} className={menuItem}>
-              <PersonIcon aria-hidden="true" className="h-4 w-4" />
+              <UserIcon aria-hidden="true" className="h-4 w-4" />
               关于
             </a>
           )}
           <SearchDialog
             trigger={
               <button type="button" onClick={() => setOpen(false)} className={menuItem}>
-                <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4" />
+                <SearchIcon aria-hidden="true" className="h-4 w-4" />
                 搜索文章
               </button>
             }

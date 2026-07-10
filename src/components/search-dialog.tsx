@@ -1,4 +1,4 @@
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -107,7 +107,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           trigger.props.children
         ) : (
           <>
-            <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4" />
+            <SearchIcon aria-hidden="true" className="h-4 w-4" />
             搜索文章
             <span className="hidden rounded-full bg-ink-100 px-2 py-0.5 font-mono text-[0.7rem] text-ink-500 sm:inline-flex">
               /
@@ -118,7 +118,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
       <DialogContent hideClose title="搜索文章" description="输入关键词搜索博客文章">
         <div className="space-y-4">
           <div className="relative">
-            <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-600" />
+            <SearchIcon className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-600" />
             <Input
               name="site-search"
               autoComplete="off"
