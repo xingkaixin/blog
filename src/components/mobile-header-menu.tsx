@@ -34,6 +34,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
+        requestAnimationFrame(() => triggerRef.current?.focus());
       }
     };
 

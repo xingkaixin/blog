@@ -2,7 +2,7 @@
   {
     "slug": "ai-code-volume-not-outcome",
     "title": "「AI 写了我们 80% 的代码」，是代码行数换了个新公关",
-    "date": "Thu Jul 09 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-07-09",
     "summary": "“AI 代码占比”只说写了多少、不说好了多少，是代码行数换的新公关：永远涨、永远不会错、什么都不承诺。研究在如实更新，市场在数行数，它却在动预算和裁员名单。衡量交付，回到 DORA、收入这些老办法——先问：这是产出，还是产量？",
     "tags": [
       "AI编程",
@@ -15,7 +15,7 @@
   {
     "slug": "ai-frontend-design-system-handoff",
     "title": "AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统",
-    "date": "Mon Jul 06 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-07-06",
     "summary": "没有 design system，agent 每屏都在重新猜审美，hex 色值堆到 19 个。它是给 agent 的约束，不是给人看的文档。先在设计工具里把字体、颜色、组件定死，再 handoff 给 agent——这就是前端的 Spec：先定系统，后写代码。",
     "tags": [
       "AI编程",
@@ -29,7 +29,7 @@
   {
     "slug": "taste-is-a-muscle-predict-before-output",
     "title": "多数人不判断 agent，只是在吸收它的结论",
-    "date": "Thu Jul 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-07-02",
     "summary": "判断力不是天赋，是可练的肌肉，练法就是“预测—对账”。派活前先写下你赌 agent 会怎么做、会在哪翻车；等它交活，先盖住描述自己猜，再对账。赌错那个点，正是最该盯住的地方。多数人只吸收 agent 的结论、不押预测，于是跑偏一年后才发现。",
     "tags": [
       "AI编程",
@@ -42,7 +42,7 @@
   {
     "slug": "agent-friendly-tool",
     "title": "给 agent 做 CLI：你随手写的报错，是它的下一步指令",
-    "date": "Mon Jun 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-29",
     "summary": "给 agent 做 CLI，报错不是日志，是接口。拆完飞书 lark-cli 的 35 万行源码，它只要求贡献者内化一条规则：你写的每条错误信息，都会被 AI 解析以决定下一步动作。typed error、stdout/stderr 分流、_notice 递话、lint 护栏，四个能直接抄的设计。",
     "tags": [
       "AI编程",
@@ -56,7 +56,7 @@
   {
     "slug": "skill-is-a-folder",
     "title": "skill 越写越长，agent 反而越用越偏",
-    "date": "Thu Jun 25 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-25",
     "summary": "Agent 的 skill 不是说明书，是文件夹。我把 agent 生成的 SKILL.md 从 312 行删回 40 行，它才第一次用对：判断标准留在入口，正反例和模板分家，description 写成触发词。附收下一个 skill 前要过的三个问题。",
     "tags": [
       "Skill",
@@ -70,7 +70,7 @@
   {
     "slug": "ai-travel-talk-vs-act",
     "title": "从\"能聊\"到\"能办\"：AI 旅行助手卡在哪里",
-    "date": "Mon Jun 22 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-22",
     "summary": "AI 旅行助手卡住的不是\"写攻略\"，而是落地那一步。把旅行拆成去哪、何时、怎么到、能否去、玩什么、行中调整六段，每段有工具，却没人对整趟负责。能聊靠模型，能办靠实时数据、交易库存、规则校验、出错兜底。背后是一张能力网络，缺一块就停在\"推荐\"。",
     "tags": [
       "AI助手",
@@ -84,7 +84,7 @@
   {
     "slug": "stay-in-the-loop",
     "title": "Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键",
-    "date": "Thu Jun 18 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-18",
     "summary": "Agent 写的代码逻辑通、测试也过，用户的手却按不对地方：OpenCode 作者让 agent 处理焦点切换，它选了 f 键，而所有人的手指记得 Tab。agent 生成的是 plausible，不是 right；执行可以外包，品味判断不行。",
     "tags": [
       "AI编程",
@@ -98,7 +98,7 @@
   {
     "slug": "ai-code-5-checkpoints",
     "title": "AI 写完代码后，我只看这 5 个地方",
-    "date": "Mon Jun 15 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-15",
     "summary": "Code Review AI 代码，传统清单全过，风险却藏在它替你做的默认选择里。五个该盯的落点：边界条件、错误处理、外部依赖的假设、状态一致性、权限边界——都是 AI 最容易自信做错的地方。十分钟把注意力收到这里，换半夜少接一次事故电话。",
     "tags": [
       "AI编程",
@@ -112,7 +112,7 @@
   {
     "slug": "agent-guesses-not-debug",
     "title": "你以为 Agent 在 debug，其实它在猜",
-    "date": "Thu Jun 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-11",
     "summary": "Agent 改 bug 来回改不对，缺的不是脑子，是现场。只给源码，它就只能做静态推理，本质是猜。解法不是换更强的模型，是先让程序开口：用日志暴露运行时事实，再动手修。往上一层，把可观测性建进系统，才是让 Agent 自主排查、自动改善的前提。",
     "tags": [
       "AI编程",
@@ -126,7 +126,7 @@
   {
     "slug": "session-as-asset",
     "title": "每次跟 agent 聊完，你把最值钱的东西丢了",
-    "date": "Mon Jun 08 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-08",
     "summary": "跟 agent 聊完，代码进了 git，但踩过的坑、方案前提、下次先查什么这类工程判断没有容器，跟着 session 一起关掉了。解法：趁 context 还热让 agent 把非显然结论压成一两百字，丢进可搜索的 decisions 目录，下次 grep 就能调回来。",
     "tags": [
       "AI编程",
@@ -140,7 +140,7 @@
   {
     "slug": "ai-tests-closed-loop",
     "title": "AI 写的测试全绿了？你在跟它一起自欺欺人",
-    "date": "Thu Jun 04 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-06-04",
     "summary": "AI 同时写代码和测试，出题的和答题的是同一个脑子——代码里的隐含假设会照搬进测试，覆盖率 95% 也只证明内部一致。打破闭环只有一个方向：让测试的场景来自代码之外，由人从真实踩坑和业务理解里注入。",
     "tags": [
       "AI编程",
@@ -154,7 +154,7 @@
   {
     "slug": "yomitomo-ai-reading-companion",
     "title": "我做了一个 AI 伴读，因为 AI 摘要正在杀死阅读",
-    "date": "Thu May 21 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-21",
     "summary": "四月想清楚一件事：市面上所有 AI 阅读工具都在帮你「不用读」，没人在解决「陪你读」。五月开始写 Yomitomo，一个本地优先的 AI 伴读桌面应用，把阅读的最小单位从文章变成判断。",
     "tags": [
       "AI",
@@ -168,7 +168,7 @@
   {
     "slug": "karpathy-join-anthropic",
     "title": "Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体\"降级\"",
-    "date": "Wed May 20 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-20",
     "summary": "Karpathy 放弃一切头衔以 MTS 身份加入 Anthropic pretraining team，加入了 Mike Krieger、庞若鸣等人的行列——大模型时代，\"管多少人\"已经不是权力来源，能摸到模型才是。头衔在通胀，手感在稀缺。",
     "tags": [
       "AI行业",
@@ -182,7 +182,7 @@
   {
     "slug": "codesesh-ai-coding-sessions-disappearing",
     "title": "你跟 AI 的每一次编码对话，都在悄悄消失",
-    "date": "Sat May 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-16",
     "summary": "从 agent-dump 到 agent-view 再到 CodeSesh，我在\"AI 编码 session 可视化\"这个方向上折腾了挺久。这篇文章聊聊我为什么一直在做这件事，CodeSesh 到底解决什么问题，以及它跟 Spool 这类工具的区别在哪。",
     "tags": [
       "AI 编码",
@@ -195,7 +195,7 @@
   {
     "slug": "spec-unwritten-assumptions",
     "title": "Spec 里最危险的，是你觉得不用写的部分",
-    "date": "Thu May 14 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-14",
     "summary": "加缓存的 Spec 写了失效时间，没写\"更新数据时清除对应缓存\"——因为这太显然了。AI 不知道显然，Spec 写了什么它就做什么。越值钱的工程经验，越不会被写进 Spec；把\"理所当然\"变成白纸黑字，才是 Spec 质量的真正差距所在。",
     "tags": [
       "Spec",
@@ -209,7 +209,7 @@
   {
     "slug": "ai-slop-battle",
     "title": "AI泔水之争：同样的烂代码，有人当武器有人当毒药",
-    "date": "Fri May 08 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-08",
     "summary": "Mitchell Hashimoto 把 AI 生成的低质量代码当脚手架加速迭代，Anthropic 工程师说编程已被解决，另一篇文章却记录着新手靠 AI 产出超出自身判断力的产物——泔水不是问题，不知道自己在喝才是。",
     "tags": [
       "AI编程",
@@ -223,7 +223,7 @@
   {
     "slug": "musk-vs-altman",
     "title": "翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现",
-    "date": "Fri May 01 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-05-01",
     "summary": "翻读 Musk v. Altman 案公开的千页内部邮件，OpenAI 早期最聪明的几个人连续三年把资源押在 Dota、机器人手和自博弈上——语言模型在 Sam 的年终汇报里只有三行，用的词是\"希望\"。九个月后 GPT-2 发布。",
     "tags": [
       "OpenAI",
@@ -237,7 +237,7 @@
   {
     "slug": "ai-review-ai",
     "title": "我让 AI 审了自己的代码，审了 10 轮",
-    "date": "Thu Apr 30 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-30",
     "summary": "用同一把 prompt 对同一段代码做了 10 轮 AI code review，每轮都发现新问题——因为每次重构后代码形状变了，新接缝暴露新问题。AI 审 AI 需要稳定的标准、迭代的耐心，以及由人来决定\"什么时候停\"。",
     "tags": [
       "AI编程",
@@ -251,7 +251,7 @@
   {
     "slug": "rhythm-in-ai-coding",
     "title": "8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松",
-    "date": "Thu Apr 30 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-30",
     "summary": "AI 让你随时都能写代码，但这恰恰是新的危险——你永远离自己的代码太近。用人为的停顿替代以前的被动等待：8 天写代码，16 天只当使用者，1 天带着新眼睛回来审查。",
     "tags": [
       "AI编程",
@@ -265,7 +265,7 @@
   {
     "slug": "2026-chiangmai-trip",
     "title": "2026 清迈之旅：在有风的地方慢慢走",
-    "date": "Tue Apr 28 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-28",
     "summary": "四月的清迈，阳光不燥，微风正好。在这座泰北小城里，我放慢了脚步，逛古城、喂鸽子、喝咖啡、看日落，把日子过成诗。",
     "tags": [
       "旅行",
@@ -278,7 +278,7 @@
   {
     "slug": "ai-code-responsibility-gap",
     "title": "AI 写的代码，你敢签你的名字吗？",
-    "date": "Mon Apr 27 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-27",
     "summary": "AI 生成代码\"均匀自信\"、没有元认知，而我们在审查时也渐渐失去犹豫——commit 签的是你的名字，但决策链条里有一段真空，出了事才会被看见。",
     "tags": [
       "AI编程",
@@ -292,7 +292,7 @@
   {
     "slug": "enjoying-ai-too-much-scares-me",
     "title": "我用 AI 越用越爽，这件事让我有点害怕",
-    "date": "Mon Apr 27 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-27",
     "summary": "在清迈用 AI 一周做完了自己一直想做的语音笔记 APP，好用、每天在用、但没有发布——因为\"做出来\"和\"懂这件事\"在 AI 时代第一次被拆开了，我在气泡里生活太舒服，舒服到不会主动走出来。",
     "tags": [
       "AI",
@@ -306,7 +306,7 @@
   {
     "slug": "ai-wont-tire-but-you-will",
     "title": "你以为在审代码，其实在点合并",
-    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-17",
     "summary": "AI 把产出曲线和判断力曲线拆开了——Agent 永远全速，但你的审查能力在下午已经掉线。身体不再是刹车，只能靠自律：审到\"只是在确认\"就停，剩下的明天再审。",
     "tags": [
       "AI编程",
@@ -320,7 +320,7 @@
   {
     "slug": "best-ai-users-need-it-least",
     "title": "最好的 AI 使用者，是最不需要 AI 的人",
-    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-17",
     "summary": "同一个工具，资深工程师产出又快又稳，新人代码里却埋着三个月后才炸的坑。AI 是放大器，放大你已有的判断力——用 AI 提速的同时，在它帮不了你的地方花笨功夫。",
     "tags": [
       "AI编程",
@@ -334,7 +334,7 @@
   {
     "slug": "agentic-workflow-waiting-revalued",
     "title": "Agentic 工作流里，\"等待\"被重新定价了",
-    "date": "Fri Apr 17 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-17",
     "summary": "Agent 跑任务时你不得不等，但切出去刷手机会冲走上下文，多 Agent 并行又带来冲突和审查瓶颈。等待期最值钱的东西，是你脑子里还热着的上下文——用来补漏洞、建预期、规划下一步，而不是切出去消遣。",
     "tags": [
       "Agentic",
@@ -348,7 +348,7 @@
   {
     "slug": "when-ai-bypasses-all-pitfalls",
     "title": "当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？",
-    "date": "Thu Apr 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-16",
     "summary": "AI 把所有坑都填平了，却也跳过了\"踩坑→复盘→记住\"的学习循环。直觉是被疼过之后长出来的条件反射，AI 的\"干净输出\"正在让新人失去学徒期、让老手的报警系统慢慢萎缩——主动给自己制造学习机会，是保持判断力的唯一方法。",
     "tags": [
       "AI编程",
@@ -362,7 +362,7 @@
   {
     "slug": "persona-distillation",
     "title": "别再叫「蒸馏」了——你写的就是一张角色卡",
-    "date": "Tue Apr 14 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-14",
     "summary": "GitHub 上爆火的\"人格蒸馏\"根本不是技术意义上的知识蒸馏——没有训练过程、没有权重更新，只是把原始数据摘要成一段系统提示词，产物是一张角色卡。偷换概念制造高级感，只会拉大公众预期与 AI 现实能力之间的落差。",
     "tags": [
       "AI",
@@ -376,7 +376,7 @@
   {
     "slug": "ai-code-review-expensive-testing",
     "title": "跑一下试试，是 AI 时代最贵的验收方式",
-    "date": "Sat Apr 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-11",
     "summary": "AI 生成代码的速度远超你阅读的速度，\"跑一下试试\"只能测到你想到的场景。真正有效的验收需要两层：先前置写验收标准让 AI 生成测试，再让另一个模型以\"接手者视角\"审查技术债——这十分钟能省掉三个月后那个\"测试全过却线上出 bug\"的噩梦。",
     "tags": [
       "AI编程",
@@ -390,7 +390,7 @@
   {
     "slug": "spec-tell-ai-what-not-to-do",
     "title": "不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做",
-    "date": "Sat Apr 11 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-11",
     "summary": "好的前置文档不是给 AI 画一条路，而是画一个圈：目标在圈心，非目标和约束是边界，验收标准是终点线。圈内让 AI 自由发挥，\"非目标\"是投入产出比最高的一条，多模型交叉评审能在执行前填坑。",
     "tags": [
       "Spec",
@@ -404,7 +404,7 @@
   {
     "slug": "model-core-tools-shell",
     "title": "我同时用Claude Code和Codex开发：工具是壳，模型才是核",
-    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-02",
     "summary": "Cursor、Claude Code、Codex 是交互界面（壳），背后的大模型才是核心（核）。通过 Fin-Agent 的开发实录，总结出多模型调度的决策逻辑：生态绑定优先，灵活切换次之，成本最后——Agentic 时代工程师的核心竞争力是调度能力，不是工具忠诚度。",
     "tags": [
       "Claude Code",
@@ -418,7 +418,7 @@
   {
     "slug": "assuming-x-agentic-era-engineers-survival-coordinates",
     "title": "假设X成真：你的手艺正在被重新定价",
-    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-02",
     "summary": "假设 AI Agent 在未来一两年内能独立完成大部分实现类开发工作，工程师该何去何从？向上游走——从\"怎么实现\"到\"该不该做\"；向深处走——从\"写得快\"到\"判得准\"。你的 X 抗性指标，就是这周工作中有多少是 AI 无法替代的判断。",
     "tags": [
       "Agentic",
@@ -432,7 +432,7 @@
   {
     "slug": "vibe-coding-ai-code-backlash-openclaw",
     "title": "当Vibe Coding遇到百万行代码：OpenClaw教我的事",
-    "date": "Thu Apr 02 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-04-02",
     "summary": "OpenClaw 从一个 WhatsApp 聊天机器人长成 25 万 Star 的开源项目，也演示了 Vibe Coding 的结构性困境：AI 优化每次 prompt 的局部正确性，不优化系统长期一致性，百万行代码后是不断爆炸的升级、512 个安全漏洞和失控的熵增——Vibe Coding 有一条看不见的红线。",
     "tags": [
       "Vibe Coding",
@@ -446,7 +446,7 @@
   {
     "slug": "mcp-vs-a2a-protocol-comparison",
     "title": "MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？",
-    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-29",
     "summary": "MCP 和 A2A 不是竞争关系——MCP 管的是 Agent 与工具之间的标准化调用，A2A 管的是 Agent 与 Agent 之间的协作通信。MCP 是每个 Agent 的 USB-C 口，A2A 是把所有 Agent 连在一起的局域网，两者缺一则系统不完整。",
     "tags": [
       "MCP",
@@ -460,7 +460,7 @@
   {
     "slug": "vibe-coding-to-agentic-engineering",
     "title": "Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？",
-    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-29",
     "summary": "Karpathy 在 Vibe Coding 诞生整整一年后亲手\"退休\"了它，提出 Agentic Engineering——你 99% 的时间在编排 Agent、监督产出，而不是直接写代码。核心流程从随性 prompt 演变为 Plan→Execute→Verify，Spec 写作、代码审查、系统设计成为新的差异化能力。",
     "tags": [
       "Vibe Coding",
@@ -474,7 +474,7 @@
   {
     "slug": "315-geo-ai-poisoning",
     "title": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战",
-    "date": "Sun Mar 29 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-29",
     "summary": "315晚会曝光GEO投毒案例：通过批量生成虚假产品内容并矩阵分发，两小时让虚构产品\"Apollo-9\"登上AI推荐榜首。文章从技术开发者视角分析RAG架构漏洞、历史轮回（SEO→GEO）、以及攻防对策。",
     "tags": [
       "GEO",
@@ -488,7 +488,7 @@
   {
     "slug": "beyond-the-3-day-clone",
     "title": "当开源想法三天就能被复制",
-    "date": "Thu Mar 26 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-26",
     "summary": "Coding Agent 让\"三天用 Rust 重写开源项目\"成为现实，原创者积累三年的认知资产被快速消费，开源生态的回报结构正在崩塌，原创动力在静悄悄地枯萎。",
     "tags": [
       "开源",
@@ -502,7 +502,7 @@
   {
     "slug": "kv-cache-why-ai-replies-get-faster",
     "title": "KV Cache：为什么 AI 回复越来越快？",
-    "date": "Tue Mar 24 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-24",
     "summary": "KV Cache 是大模型能快速响应长对话的核心机制：将历史内容的中间计算结果缓存起来，避免每次生成新词都重新计算所有上文，以显存空间换取时间，同时大幅降低 API 调用成本。",
     "tags": [
       "KV Cache",
@@ -516,7 +516,7 @@
   {
     "slug": "coding-agent-almost-1-year",
     "title": "与 AI 共事一年，我从\"甩手掌柜\"变成了\"掌舵人\"",
-    "date": "Tue Mar 24 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-24",
     "summary": "与 Coding Agent 协作将近一年的真实心得：从把 AI 当外包甩手、到凌晨被 oncall 叫醒的教训，到建立\"先聊再写\"、分步验证、保持怀疑的协作习惯，工程师的核心价值在于设计、判断与掌舵。",
     "tags": [
       "Coding Agent",
@@ -530,7 +530,7 @@
   {
     "slug": "llm-only-getting-average",
     "title": "你用 LLM，只拿到了均值",
-    "date": "Fri Mar 20 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-20",
     "summary": "LLM 的输出是概率分布，大多数人拿到的是中间那块平庸的均值。真正好的答案在尾部——只有本来就懂的人，才能判断好坏、一轮轮地压榨出来。LLM 不是在拉平知识差距，而是在放大差距。",
     "tags": [
       "LLM",
@@ -544,7 +544,7 @@
   {
     "slug": "spec-as-new-fig-leaf",
     "title": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码",
-    "date": "Thu Mar 19 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-19",
     "summary": "Spec Driven Development 并没有消灭软件工程的难题，足够细的 spec 本质上就是另一种语法的代码；它还会把团队带回瀑布流，把不确定性藏在文档的完整性幻觉里，spec 永远覆盖不到的地方才是系统真正的盲区。",
     "tags": [
       "SDD",
@@ -558,7 +558,7 @@
   {
     "slug": "from-writing-code-to-reviewing-code",
     "title": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移",
-    "date": "Thu Mar 19 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-19",
     "summary": "Coding Agent 把开发者的核心职责从\"写\"迁移到了\"审\"：AI 两分钟生成 200 行，你要花 40 分钟把关，真正决定结果的是你前面的规划与后面的判断——架构取舍、需求拆解、代码嗅觉，这些能力在 AI 时代反而更值钱了。",
     "tags": [
       "AI编程",
@@ -572,7 +572,7 @@
   {
     "slug": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution",
     "title": "AI 记忆系统构建:从日志检索到知识演化",
-    "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-16",
     "summary": "本文讨论 AI 长期记忆系统的构建问题，并指出当前主流的向量数据库方案本质上只是日志检索机制，而不是真正意义上的记忆。文章从三个关键挑战展开分析：记忆压缩、记忆演化以及记忆冲突。记忆压缩关注如何将大量原始对话交互转化为更高层次的知识表示，避免信息无限增长；记忆演化强调系统需要理解事实随时间变化并更新状态；记忆冲突则涉及当不同记忆相互矛盾时如何进行判断与版本管理。",
     "tags": [
       "AI Memory"
@@ -583,7 +583,7 @@
   {
     "slug": "mcp-cli-skill-evolution",
     "title": "工具的进化论：当 MCP 遇见 CLI，一场关于\"上下文\"的温柔革命",
-    "date": "Mon Mar 16 2026 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2026-03-16",
     "summary": "MCP 协议的\"上下文爆炸\"问题催生了 Skill+CLI 这条更轻量的路线：不把所有工具定义塞进提示词，而是用 CLI 按需调用，以 OpenClaw 为代表的社区实践正在证明这种方式的价值，MCP 与 CLI 未来会混合共存、各司其职。",
     "tags": [
       "MCP",
@@ -597,7 +597,7 @@
   {
     "slug": "2025-review",
     "title": "2025 Review",
-    "date": "Wed Dec 31 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2025-12-31",
     "summary": "回顾 2025 年，这是我在持续精进的同时，有意识拓展认知边界的一年。工作重心从上半年偏向数据基础设施与底层建设，逐步过渡到下半年对流程、规范以及复杂项目整体推进能力的打磨。与此同时，我也刻意让个人技术路径不局限于单一纵深，而是在系统性能、数据模型、AI 与跨学科知识之间形成交叉。这一年让我更加确认：长期价值并不来自技能数量的叠加，而来自抽象能力与判断力的积累。",
     "tags": [
       "生活",
@@ -609,7 +609,7 @@
   {
     "slug": "state-of-ai",
     "title": "2025年人工智能现状深度研究报告：代理推理、开源格局重塑与智能经济学",
-    "date": "Wed Dec 10 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2025-12-10",
     "summary": "本报告旨在为行业专家、决策者及技术构建者提供一份详尽的宏观与微观分析。核心发现表明，市场正在摆脱单一维度的军备竞赛，转向结构性的多元化发展。",
     "tags": [
       "openrouter",
@@ -621,7 +621,7 @@
   {
     "slug": "the-state-of-enterprise-ai_2025-report",
     "title": "2025年企业人工智能现状报告：运营成熟度、战略分化与代理化转型",
-    "date": "Tue Dec 09 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2025-12-09",
     "summary": "2025年标志着全球企业人工智能（Enterprise AI）发展轨迹中的一个决定性拐点。如果说2023年是“AI大爆炸”的元年，2024年是广泛实验的探索期，那么2025年则正式进入了“第一缕曙光（First Light）”的时代——在这个时代，理论上的技术能力正在结晶为可衡量的、可扩展的，且往往具有颠覆性的经济现实 。随着OpenAI发布其首份《2025年企业AI现状报告》，结合来自主要咨询公司、行业分析师以及竞争对手的佐证数据，一幅清晰的图景正在浮现：人工智能不再仅仅是一个辅助生产力的工具，而是正在成为重构现代企业架构的根本性力量。",
     "tags": [
       "OpenAI",
@@ -634,7 +634,7 @@
   {
     "slug": "the-chicken-or-the-egg",
     "title": "先有鸡还是先有蛋",
-    "date": "Thu Aug 07 2025 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2025-08-07",
     "summary": "哲学上因果循环无解，但进化史与化石-基因证据表明：早在鸡出现前，其祖先已产蛋，因此“蛋”先于“鸡”。",
     "tags": [
       "哲学",
@@ -646,7 +646,7 @@
   {
     "slug": "the-newsroom-time-tested-masterpieces",
     "title": "新闻编辑室：时间考验下的不朽佳作",
-    "date": "Sun Feb 18 2024 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2024-02-18",
     "summary": "数年后重新观看《新闻编辑室》，这部精心打造的剧集依然展现出其不减的魅力。通过对新闻行业的理想化描绘、犀利对话以及角色的深度发展，剧集不仅是对新闻职业精神的一次挚烈呼唤，也是对理想主义与现实挣扎的深情书写。尽管当年在美国本土受到了一些批评，但在中国大陆却获得了很高的评价，这反映了中美观众在文化接受度和价值观上的差异。《新闻编辑室》不仅是对新闻工作者的致敬，更是在信息爆炸的时代中，提醒我们追求真相和理想的重要性。这部剧集的价值和影响力，随着时间的推移而愈发显现，成为了一部值得反复观看和深思的不朽佳作。",
     "tags": [
       "影视",
@@ -658,7 +658,7 @@
   {
     "slug": "llm-react-prompt",
     "title": "LLM 的 ReAct 模式",
-    "date": "Tue Apr 11 2023 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2023-04-11",
     "summary": "大语言模型的 Prompt ，通过加入各类控制，让语言模型可以在碰到问题变相使用外部工具来解决",
     "tags": [
       "LLM",
@@ -670,7 +670,7 @@
   {
     "slug": "The-Last-of-Us-review",
     "title": "最后生还者观后感",
-    "date": "Thu Mar 23 2023 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2023-03-23",
     "summary": "本文是对HBO电视剧《最后生还者》的观后感。本剧改编自游戏《最后生还者》，故事背景在一个被寄生真菌摧毁的末世世界。剧集涵盖了游戏的故事情节，并加入了许多新的情节，来探索其他幸存者团体的生存。本文认为，该剧集探索了原始叙事，成功地为自己创造了独特的身份认同。本文还谈到了该剧集存在一些弱点，包括对于一些角色的剧情安排有待改进，以及对于Joel和Ellie之间关系成长的探索不够完善。总体而言，本文认为《最后生还者》的HBO电视剧版还是非常出色的。",
     "tags": [
       "游戏",
@@ -682,7 +682,7 @@
   {
     "slug": "Memories-make-people-grow-old",
     "title": "回忆使人变老",
-    "date": "Wed Feb 02 2022 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2022-02-02",
     "summary": "本文讲述了作者在整理 Gmail 邮件时发现了过往和旧友的邮件，回忆起十年前的自己和朋友们。当时的自己喜欢集体活动，热爱表达和分享想法，而朋友们的联系方式主要是邮件和电话。十年后，疫情的影响导致与朋友的联系基本上只在线上，线下聚会变少，作者的想法也只停留在工作中。",
     "tags": [
       "生活",
@@ -694,7 +694,7 @@
   {
     "slug": "Follow-or-break-the-rules",
     "title": "遵守还是违反规则",
-    "date": "Sun Dec 19 2021 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2021-12-19",
     "summary": "本文讲述了规则在我们生活中的重要性，它们让社会更有秩序。以小区单向道控制为例，说明了遵守规则的好处，同时也遇到了一些不遵守规则的人。在遇到一个年长者违反规则不愿意退让的情况下，选择报警，最终警察的到来解决了问题。虽然有些遗憾的是年长者没有意识到自己的错误并道歉，但也从中学到了报警可以解决问题的经验。",
     "tags": [
       "社会",
@@ -707,7 +707,7 @@
   {
     "slug": "Ted-Lasso",
     "title": "Ted Lasso",
-    "date": "Thu Feb 25 2021 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2021-02-25",
     "summary": "NiceTry 播客最近推荐了 Apple TV+ 上的剧集《足球教练》，这是一部节奏快、梗多好笑的剧集，虽然剧情老套，但主角 Ted 的乐观理想主义精神令人感动。该剧订了三季，今年下半年将推出新一季，非常值得期待。",
     "tags": [
       "Apple TV",
@@ -719,7 +719,7 @@
   {
     "slug": "macOS-now-supports-Netflix-Dolby-Vision",
     "title": "macOS 开始支援 Netflix 的杜比视界",
-    "date": "Tue Mar 24 2020 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2020-03-24",
     "summary": "文章讲述的是 macOS 对于 4K 和杜比视界的支持的情况。去年的 WWDC 19 中，人们以为 macOS 将支持 4K，但多个 beta 测试后发现不可能实现。而在最近 10.15.4 beta5 中，发现 Safari 上能够播放 Netflix 并点亮杜比视界标志。经过确认，18 款后的 Mac 型号并升级到了 beta5 的用户就可以享受此功能。",
     "tags": [
       "macOS",
@@ -732,7 +732,7 @@
   {
     "slug": "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong",
     "title": "尝试与台湾政治人物进行沟通香港暴力示威",
-    "date": "Sat Oct 05 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2019-10-05",
     "summary": "作者写了一封邮件给台北市议员邱威杰，表达了对香港游行示威过程中暴力行为的关注和担忧，并询问议员对此的看法。作者在邮件中提到自己是上海人，喜欢台湾，并关注了许多台湾的 YouTube 频道。作者认为香港游行示威最初是一个正常的表达诉求的游行，但随着时间的推移，出现了越来越多的暴力行为，已经越界。因此，作者选择尝试与议员进行对话。",
     "tags": [
       "台湾",
@@ -744,7 +744,7 @@
   {
     "slug": "The-requirements-and-design-ideas-of-the-strategy-team",
     "title": "策略组的需求和设计思路分享",
-    "date": "Sun Jun 30 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2019-06-30",
     "summary": "本文旨在分享关于策略组的需求和设计思路，以适用于不同的科学上网应用，如 Surge、Clash、Quantumult、Quantumult X。首先，我们需要将线路类型分为直连、公网中转、内网中转，再将节点根据地区分组，如香港、日本、新加坡、美国等。最后，我们可以根据具体应用要求来进行选择节点类型。并且，建议每个服务都保留一个直连节点，以便在不同地区时进行适当的调整，从而获得更好的使用体验。",
     "tags": [
       "策略组",
@@ -756,7 +756,7 @@
   {
     "slug": "Infuse-subscription-migration",
     "title": "Infuse 订阅迁移 - Firecore 的超优质服务",
-    "date": "Thu May 23 2019 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2019-05-23",
     "summary": "如果你使用Plex作为你的媒体库管理影片、剧集。那么对应的在iPhone和Apple TV上最佳的观看体验则是通过Infuse来实现。为了确认所有功能的开发，且未来的升级依然可以享用，大部分都会采取订阅的方式解锁Infuse的内购功能。我之前也订阅了Infuse，不过当时了解不足，导致在Apple TV上因为中国区无对应TV Store而无法使用Infuse。前2天，我发邮件给Infuse客服，期望他们可以把我的中国区订阅转移到香港账号上，在他们确认了我的订阅订单信息后，他们竟然直接提供了促销码兑换，这样我统一时间就拥有中国区和香港区2份订阅，而且香港区的订阅时间是按照我兑款时间来算且包含附赠的免费体验一个月。",
     "tags": [
       "APP",
@@ -768,7 +768,7 @@
   {
     "slug": "ALS-Ice-Bucket-Challenge-and-Charity",
     "title": "ALS冰桶挑战与慈善",
-    "date": "Sun Aug 17 2014 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2014-08-17",
     "summary": "今天在 Instgram 上看到 LBJ 在游艇上被人倒冰水，说是接受了KD的挑战，挑战前还讲了另外3个人名让他们来接受挑战，Obama 也在其中，看起来很酷啊，不过当时人在外面也就看一下就结束了。",
     "tags": [
       "ALS"
@@ -779,7 +779,7 @@
   {
     "slug": "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers",
     "title": "ALS冰桶挑战与慈善",
-    "date": "Thu Feb 20 2014 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2014-02-20",
     "summary": "作为上海土著，不排外，身边有大量非上海朋友来回答下这个问题。",
     "tags": [
       "生活"
@@ -790,7 +790,7 @@
   {
     "slug": "why-i-pay",
     "title": "我为什么要付费",
-    "date": "Fri Jul 12 2013 08:00:00 GMT+0800 (China Standard Time)",
+    "date": "2013-07-12",
     "summary": "在weibo上看到有批评使用优酷视频的广告屏蔽助手的用户，认为这是非常错误的行为且这个行为可能还对自己的隐私带来潜在的风险。",
     "tags": [
       "付费服务"

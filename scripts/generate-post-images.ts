@@ -26,7 +26,7 @@ interface ImageMapping {
   desktop: string;
 }
 
-function getRelativePath(absolutePath: string): string {
+export function getRelativePath(absolutePath: string): string {
   return "/" + path.relative(path.join(process.cwd(), "public"), absolutePath).replace(/\\/g, "/");
 }
 
@@ -135,7 +135,9 @@ ${lines.join(",\n")},
   console.log(`   - 映射文件: ${OUTPUT_FILE}`);
 }
 
-generatePostImages().catch((error) => {
-  console.error("❌ 生成失败:", error);
-  process.exit(1);
-});
+if (import.meta.main) {
+  generatePostImages().catch((error) => {
+    console.error("❌ 生成失败:", error);
+    process.exit(1);
+  });
+}

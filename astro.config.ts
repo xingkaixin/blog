@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { unified } from "@astrojs/markdown-remark";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
@@ -27,8 +28,7 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [react()],
   markdown: {
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeBlogContent],
+    processor: unified({ remarkPlugins: [remarkGfm], rehypePlugins: [rehypeBlogContent] }),
   },
   vite: {
     plugins: [tailwindcss()],

@@ -19,7 +19,7 @@ const VARIANTS = [
   { key: "full" as const, width: null as number | null, quality: 85 },
 ];
 
-function filenameToVariableName(filename: string): string {
+export function filenameToVariableName(filename: string): string {
   const name = filename.replace(/\.(webp|png|jpe?g)$/i, "");
   const parts = name.split(/[-_]+/);
   const camelCase = parts
@@ -130,4 +130,6 @@ export function resolveCover(path: string): ResponsiveCover | null {
   console.log(`✅ 成功生成 ${OUTPUT_FILE} 与 public/cover/ 下的 WebP`);
 }
 
-await generateCoversFile();
+if (import.meta.main) {
+  await generateCoversFile();
+}
