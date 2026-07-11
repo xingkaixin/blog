@@ -68,12 +68,12 @@ describe("loadSearchIndex", () => {
     expect(result).toEqual(posts);
   });
 
-  it("returns empty array on fetch failure", async () => {
+  it("rejects on fetch failure", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
+      status: 503,
     } as Response);
 
-    const result = await loadSearchIndex();
-    expect(result).toEqual([]);
+    await expect(loadSearchIndex()).rejects.toThrow("Failed to load search index: 503");
   });
 });

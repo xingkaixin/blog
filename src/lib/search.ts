@@ -28,17 +28,15 @@ export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
 
   const response = await fetch("/search-index.json");
   if (!response.ok) {
-    console.error("Failed to load search index");
-    return [];
+    throw new Error(`Failed to load search index: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as SearchIndexItem[];
   searchIndexCache = data;
   return data;
 }
 
-export async function searchPosts({ query, activeTag }: SearchParams) {
-  const posts = await loadSearchIndex();
+export function rankPosts(posts: SearchIndexItem[], { query, activeTag }: SearchParams) {
   const normalizedQuery = normalize(query);
   const terms = normalizedQuery.split(/\s+/).filter(Boolean);
 
@@ -66,4 +64,8 @@ export async function searchPosts({ query, activeTag }: SearchParams) {
       (left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date),
     )
     .map(({ post }) => post);
+}
+
+export async function searchPosts(params: SearchParams) {
+  return rankPosts(await loadSearchIndex(), params);
 }
