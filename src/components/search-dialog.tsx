@@ -8,6 +8,7 @@ import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
 
 type SearchDialogProps = {
   trigger?: ReactElement<{ children?: ReactNode }>;
+  enableShortcut?: boolean;
 };
 
 function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => void }) {
@@ -37,7 +38,7 @@ function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => voi
   );
 }
 
-export function SearchDialog({ trigger }: SearchDialogProps) {
+export function SearchDialog({ trigger, enableShortcut = true }: SearchDialogProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [posts, setPosts] = useState<SearchIndexItem[]>([]);
@@ -58,6 +59,10 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
   }, [open, status]);
 
   useEffect(() => {
+    if (!enableShortcut) {
+      return undefined;
+    }
+
     const handleKeydown = (event: KeyboardEvent) => {
       const isTypingTarget =
         event.target instanceof HTMLElement &&
@@ -77,7 +82,7 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
 
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, []);
+  }, [enableShortcut]);
 
   const results = useMemo(() => {
     if (!query.trim()) {

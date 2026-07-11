@@ -108,6 +108,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
             </a>
           )}
           <SearchDialog
+            enableShortcut={false}
             trigger={
               <button type="button" onClick={() => setOpen(false)} className={menuItem}>
                 <SearchIcon aria-hidden="true" className="h-4 w-4" />
