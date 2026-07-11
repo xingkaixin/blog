@@ -25,10 +25,40 @@ const title = pageTitle(meta);
 const buttonBase =
   "inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-[transform,background-color,color,border-color] duration-(--duration-quick) ease-(--ease-smooth-out) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]";
 const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-500 hover:bg-ink-100 hover:text-ink-800`;
+const pageTransition = {
+  forwards: {
+    old: {
+      name: "page-slide-out-left",
+      duration: "250ms",
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fillMode: "both",
+    },
+    new: {
+      name: "page-slide-in-right",
+      duration: "250ms",
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fillMode: "both",
+    },
+  },
+  backwards: {
+    old: {
+      name: "page-slide-out-right",
+      duration: "250ms",
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fillMode: "both",
+    },
+    new: {
+      name: "page-slide-in-left",
+      duration: "250ms",
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fillMode: "both",
+    },
+  },
+};
 ---
 
 <!doctype html>
-<html lang={siteConfig.language}>
+<html lang={siteConfig.language} transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -185,7 +215,7 @@ const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-50
           </div>
         </div>
       </header>
-      <main id="main-content">
+      <main id="main-content" transition:name="page-content" transition:animate={pageTransition}>
         <slot />
       </main>
       <footer class="border-t border-line px-4 py-8 sm:px-6 lg:px-10">
@@ -200,6 +230,14 @@ const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-50
       </footer>
     </div>
     <script>
+      document.addEventListener("astro:before-preparation", (event) => {
+        const isReturningToPostList =
+          event.from.pathname.startsWith("/posts/") && event.to.pathname === "/";
+        if (isReturningToPostList) {
+          event.direction = "back";
+        }
+      });
+
       document.addEventListener("click", (event) => {
         const button = (event.target as HTMLElement).closest("[data-theme-toggle]");
         if (!button) {

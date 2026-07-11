@@ -218,6 +218,34 @@ input {
   }
 }
 
+@keyframes page-slide-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--distance-base) * -1));
+  }
+}
+
+@keyframes page-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(var(--distance-base));
+  }
+}
+
+@keyframes page-slide-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(var(--distance-base));
+  }
+}
+
+@keyframes page-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--distance-base) * -1));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
