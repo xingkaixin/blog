@@ -7,20 +7,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
+import { readPublishedPosts } from "./lib/post-catalog";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const OUTPUT_FILE = path.join(process.cwd(), "public", "search-index.json");
-
-interface SearchIndexItem {
-  slug: string;
-  title: string;
-  date: string;
-  summary: string;
-  tags: string[];
-  cover: string;
-  coverAlt: string;
-}
 
 function generateSearchIndex(): void {
   if (!fs.existsSync(POSTS_DIR)) {
@@ -39,33 +29,7 @@ function generateSearchIndex(): void {
 
   console.log(`📁 找到 ${files.length} 篇文章`);
 
-  const searchIndex: SearchIndexItem[] = [];
-
-  for (const file of files) {
-    const filePath = path.join(POSTS_DIR, file);
-    const source = fs.readFileSync(filePath, "utf8");
-    const { data } = matter(source);
-
-    // 跳过草稿
-    if (data.draft) {
-      continue;
-    }
-
-    const slug = file.replace(/\.md$/, "");
-
-    searchIndex.push({
-      slug,
-      title: String(data.title ?? ""),
-      date: String(data.date ?? ""),
-      summary: String(data.summary ?? ""),
-      tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
-      cover: String(data.cover ?? ""),
-      coverAlt: String(data.coverAlt ?? ""),
-    });
-  }
-
-  // 按日期排序，最新的在前
-  searchIndex.sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+  const searchIndex = readPublishedPosts(POSTS_DIR);
 
   // 写入 JSON 文件
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(searchIndex, null, 2), "utf8");

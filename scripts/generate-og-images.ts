@@ -2,9 +2,9 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import matter from "gray-matter";
 import sharp from "sharp";
 import { siteConfig } from "../src/lib/site";
+import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
@@ -13,15 +13,7 @@ const OUTPUT_DIR = path.join(ROOT, "public", "og");
 const WIDTH = 1200;
 const HEIGHT = 630;
 
-type Post = {
-  slug: string;
-  title: string;
-  date: string;
-  summary: string;
-  tags: string[];
-  cover: string;
-  draft?: boolean;
-};
+type Post = PublishedPost;
 
 const colors = {
   paper: "#f4efe6",
@@ -91,40 +83,6 @@ function formatDate(value: string) {
     month: "long",
     day: "numeric",
   }).format(new Date(value));
-}
-
-function frontmatterString(value: unknown) {
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
-
-  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  return "";
-}
-
-function readPosts() {
-  return fs
-    .readdirSync(POSTS_DIR)
-    .filter((file) => file.endsWith(".md"))
-    .map((file): Post => {
-      const source = fs.readFileSync(path.join(POSTS_DIR, file), "utf8");
-      const { data } = matter(source);
-
-      return {
-        slug: file.replace(/\.md$/, ""),
-        title: frontmatterString(data.title),
-        date: frontmatterString(data.date),
-        summary: frontmatterString(data.summary),
-        tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
-        cover: frontmatterString(data.cover),
-        draft: Boolean(data.draft),
-      };
-    })
-    .filter((post) => !post.draft)
-    .toSorted((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
 }
 
 function baseSvg() {
@@ -243,7 +201,7 @@ async function main() {
   fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  const posts = readPosts();
+  const posts = readPublishedPosts(POSTS_DIR);
   await renderSite(posts);
   await Promise.all(posts.map(renderPost));
 
