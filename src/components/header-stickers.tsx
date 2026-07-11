@@ -103,6 +103,33 @@ export function HeaderStickers() {
     setDragging(null);
   };
 
+  const onKeyDown = (event: React.KeyboardEvent, index: number) => {
+    const delta = event.shiftKey ? 10 : 2;
+    const movement: Record<string, [number, number]> = {
+      ArrowLeft: [-delta, 0],
+      ArrowRight: [delta, 0],
+      ArrowUp: [0, -delta],
+      ArrowDown: [0, delta],
+    };
+    const offset = movement[event.key];
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!offset || !rect) {
+      return;
+    }
+    event.preventDefault();
+    setStickers((current) =>
+      current.map((sticker, stickerIndex) =>
+        stickerIndex === index
+          ? {
+              ...sticker,
+              x: clamp(sticker.x + offset[0], 0, rect.width - SIZE),
+              y: clamp(sticker.y + offset[1], 0, rect.height - SIZE),
+            }
+          : sticker,
+      ),
+    );
+  };
+
   return (
     <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
       {stickers.map((s, i) => {
@@ -110,10 +137,14 @@ export function HeaderStickers() {
         return (
           <div
             data-header-sticker
+            role="button"
+            tabIndex={0}
+            aria-label={`移动装饰贴纸 ${i + 1}，使用方向键调整位置`}
             key={s.logo}
             onPointerDown={(e) => onPointerDown(e, i)}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
+            onKeyDown={(event) => onKeyDown(event, i)}
             style={{
               width: SIZE,
               height: SIZE,
@@ -121,7 +152,7 @@ export function HeaderStickers() {
               zIndex: isDragging ? 30 : 10,
               willChange: "transform",
             }}
-            className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none active:cursor-grabbing"
+            className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
           >
             {/* 拿起时的落影：radial-gradient + opacity 过渡，全程走合成器，避免 Chrome 逐帧重算 filter */}
             <div
