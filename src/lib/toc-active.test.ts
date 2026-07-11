@@ -21,4 +21,8 @@ describe("resolveActiveTocId", () => {
   it("defaults to the first toc heading before any section becomes visible", () => {
     expect(resolveActiveTocId(["intro", "details"], new Set(), null)).toBe("intro");
   });
+
+  it("selects the final heading at the bottom of the page", () => {
+    expect(resolveActiveTocId(["intro", "details", "ending"], [], "details", true)).toBe("ending");
+  });
 });

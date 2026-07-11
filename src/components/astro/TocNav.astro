@@ -106,10 +106,13 @@ const { items } = Astro.props;
           const visibleIds = headings
             .filter((heading) => heading.getBoundingClientRect().top <= TOC_ACTIVE_OFFSET)
             .map((heading) => heading.id);
+          const isAtPageEnd =
+            window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
           const activeId = resolveActiveTocId(
             headings.map((heading) => heading.id),
             visibleIds,
             previousActiveId,
+            isAtPageEnd,
           );
 
           if (activeId && activeId !== previousActiveId) {

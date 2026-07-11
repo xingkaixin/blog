@@ -4,9 +4,14 @@ export function resolveActiveTocId(
   tocIds: string[],
   visibleIds: Iterable<string>,
   previousActiveId: string | null = null,
+  isAtPageEnd = false,
 ) {
   if (!tocIds.length) {
     return null;
+  }
+
+  if (isAtPageEnd) {
+    return tocIds[tocIds.length - 1];
   }
 
   const visibleIdSet = visibleIds instanceof Set ? visibleIds : new Set(visibleIds);
