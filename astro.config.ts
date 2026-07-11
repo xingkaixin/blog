@@ -10,8 +10,8 @@ function resolveManualChunk(id: string) {
     return "markdown";
   }
 
-  if (id.includes("@radix-ui/react-dialog") || id.includes("@radix-ui/react-icons")) {
-    return "radix-ui";
+  if (id.includes("@base-ui/react")) {
+    return "base-ui";
   }
 
   if (id.includes("@fontsource/jetbrains-mono") || id.includes("@fontsource/outfit")) {

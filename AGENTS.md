@@ -6,12 +6,12 @@
 
 ## 技术栈
 
-- **Astro 6** + **TypeScript** - 站点框架与静态生成
+- **Astro 7** + **TypeScript** - 站点框架与静态生成
 - **React 19** - 交互组件 islands
 - **Tailwind CSS 4** - 样式方案
 - **Astro Content Collections** - Markdown 内容管理
 - **remark-gfm** + 自定义 rehype 插件 - Markdown 渲染增强
-- **Radix UI** - UI 组件库
+- **Base UI** - UI 组件库
 - **Vitest** - 测试框架
 
 ## 目录结构

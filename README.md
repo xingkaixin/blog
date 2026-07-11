@@ -4,12 +4,12 @@
 
 ## 技术栈
 
-- **站点框架**: Astro 6 + TypeScript
+- **站点框架**: Astro 7 + TypeScript
 - **交互组件**: React 19 islands
 - **样式方案**: Tailwind CSS 4
 - **内容管理**: Astro Content Collections + Markdown
 - **Markdown**: remark-gfm + 自定义 rehype 插件
-- **UI 组件**: Radix UI
+- **UI 组件**: Base UI
 - **测试**: Vitest
 - **包管理**: Bun
 

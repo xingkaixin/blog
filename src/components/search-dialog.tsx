@@ -106,7 +106,10 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
       <DialogContent hideClose title="搜索文章" description="输入关键词搜索博客文章">
         <div className="space-y-4">
           <div className="relative">
-            <SearchIcon aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-600" />
+            <SearchIcon
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-600"
+            />
             <Input
               aria-label="搜索文章"
               name="site-search"
@@ -120,14 +123,22 @@ export function SearchDialog({ trigger }: SearchDialogProps) {
           </div>
           {status === "loading" ? (
             <div role="status" aria-live="polite" className="flex items-center justify-center py-8">
-              <div aria-hidden="true" className="h-6 w-6 animate-spin rounded-full border-b-2 border-ink-800" />
+              <div
+                aria-hidden="true"
+                className="h-6 w-6 animate-spin rounded-full border-b-2 border-ink-800"
+              />
               <span className="sr-only">正在加载搜索索引…</span>
             </div>
           ) : status === "failed" ? (
-            <div role="alert" className="rounded-[1.6rem] border border-dashed border-line bg-ink-50 px-5 py-8 text-center">
+            <div
+              role="alert"
+              className="rounded-[1.6rem] border border-dashed border-line bg-ink-50 px-5 py-8 text-center"
+            >
               <p className="text-lg text-ink-800">搜索索引加载失败</p>
               <p className="mt-2 text-sm text-ink-600">请检查网络连接后重试。</p>
-              <Button className="mt-4" onClick={() => setStatus("idle")}>重新加载</Button>
+              <Button className="mt-4" onClick={() => setStatus("idle")}>
+                重新加载
+              </Button>
             </div>
           ) : displayPosts.length > 0 ? (
             <div aria-live="polite" className="max-h-[360px] space-y-2 overflow-y-auto">

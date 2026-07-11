@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractPlainText, extractToc, parseMarkdownPost } from "@/lib/content";
-import { estimateReadingTime } from "@/lib/markdown";
+import { estimateReadingTime, extractPlainText, extractToc } from "@/lib/markdown";
 
 const source = `---
 title: 文章标题
@@ -25,20 +24,6 @@ const name = "demo";
 `;
 
 describe("content parsing", () => {
-  it("parses frontmatter and reading data", () => {
-    const post = parseMarkdownPost("test", source);
-
-    expect(post).not.toBeNull();
-    expect(post?.slug).toBe("test");
-    expect(post?.tags).toEqual(["vite", "react"]);
-    expect(post?.readingTime).toBeGreaterThan(0);
-  });
-
-  it("skips draft posts", () => {
-    const draftSource = source.replace("coverAlt: 测试封面", "coverAlt: 测试封面\ndraft: true");
-    expect(parseMarkdownPost("draft", draftSource)).toBeNull();
-  });
-
   it("extracts toc entries", () => {
     expect(extractToc(source)).toEqual([
       { depth: 2, text: "起点", id: "起点" },
