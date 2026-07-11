@@ -22,7 +22,7 @@ const { items } = Astro.props;
               data-toc-link={item.id}
               href={`#${item.id}`}
               class:list={[
-                "block rounded-xl border border-transparent px-3 py-2 text-sm text-ink-500 transition-colors duration-(--duration-quick) hover:bg-accent/8 hover:text-ink-800",
+                "toc-link block border-l-2 border-transparent px-3 py-2 text-sm leading-6 text-ink-500 transition-[color,border-color] duration-(--duration-quick) hover:text-ink-800",
                 item.depth === 3 && "ml-4",
               ]}
             >
@@ -40,7 +40,10 @@ const { items } = Astro.props;
             <a
               data-toc-link={item.id}
               href={`#${item.id}`}
-              class:list={["block text-sm text-ink-500", item.depth === 3 && "ml-4"]}
+              class:list={[
+                "toc-link block border-l-2 border-transparent px-3 py-2 text-sm leading-6 text-ink-500",
+                item.depth === 3 && "ml-4",
+              ]}
             >
               {item.text}
             </a>
@@ -50,25 +53,10 @@ const { items } = Astro.props;
       <script>
         import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
-        const activeClasses = [
-          "border-accent/12",
-          "bg-accent/10",
-          "font-semibold",
-          "text-ink-800",
-          "shadow-[inset_3px_0_0_var(--accent)]",
-        ];
-        const inactiveClasses = ["border-transparent", "text-ink-500"];
-
         function setActive(links: Element[], id: string) {
           for (const link of links) {
             const isActive = link.getAttribute("data-toc-link") === id;
             link.setAttribute("aria-current", isActive ? "location" : "false");
-            for (const className of activeClasses) {
-              link.classList.toggle(className, isActive);
-            }
-            for (const className of inactiveClasses) {
-              link.classList.toggle(className, !isActive);
-            }
           }
 
           const desktopNav = document.querySelector("[data-toc-scroll]");
