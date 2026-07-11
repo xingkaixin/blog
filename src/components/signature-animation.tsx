@@ -79,13 +79,18 @@ export function SignatureAnimation() {
 
   return (
     <div ref={containerRef} className="mt-6 flex justify-end">
-      <TegakiRenderer
-        ref={rendererRef}
-        font={dancingScriptBundle}
-        text={siteConfig.author}
-        time={{ mode: "uncontrolled", loop: false, speed: 1.2 }}
-        style={{ fontSize: "36px", color: "var(--ink-600)" }}
-      />
+      <span className="signature-static font-display text-4xl text-ink-600">
+        {siteConfig.author}
+      </span>
+      <span className="signature-animated">
+        <TegakiRenderer
+          ref={rendererRef}
+          font={dancingScriptBundle}
+          text={siteConfig.author}
+          time={{ mode: "uncontrolled", loop: false, speed: 1.2 }}
+          style={{ fontSize: "36px", color: "var(--ink-600)" }}
+        />
+      </span>
     </div>
   );
 }

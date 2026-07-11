@@ -1,5 +1,5 @@
 <div class="sticky top-[73px] z-10 h-[2px] w-full bg-transparent">
-  <div data-reading-progress class="h-full bg-accent transition-[width] duration-(--duration-quick)" style="width: 0%"></div>
+  <div data-reading-progress class="h-full w-full origin-left scale-x-0 bg-accent"></div>
 </div>
 
 <script>
@@ -11,11 +11,22 @@
 
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     const maxScrollable = scrollHeight - clientHeight;
-    const value = maxScrollable > 0 ? (scrollTop / maxScrollable) * 100 : 0;
-    progressBar.style.width = `${Math.min(value, 100)}%`;
+    const value = maxScrollable > 0 ? scrollTop / maxScrollable : 0;
+    progressBar.style.transform = `scaleX(${Math.min(value, 1)})`;
   }
 
-  updateProgress();
-  window.addEventListener("scroll", updateProgress, { passive: true });
-  document.addEventListener("astro:page-load", updateProgress);
+  let animationFrame = 0;
+  function scheduleUpdate() {
+    if (animationFrame) {
+      return;
+    }
+    animationFrame = requestAnimationFrame(() => {
+      animationFrame = 0;
+      updateProgress();
+    });
+  }
+
+  scheduleUpdate();
+  window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  document.addEventListener("astro:page-load", scheduleUpdate);
 </script>

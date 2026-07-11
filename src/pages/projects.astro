@@ -34,7 +34,7 @@ const meta = {
               <Wrapper
                 {...wrapperProps}
                 class:list={["group block fade-in", project.url && "cursor-pointer"]}
-                style={`animation-delay: ${index * 90}ms`}
+                style={`animation-delay: ${Math.min(index, 6) * 40}ms`}
               >
                 <div class="card hover-lift flex h-full flex-col overflow-hidden rounded-2xl p-5">
                   <div class="flex items-start gap-4">

@@ -109,6 +109,7 @@ export function HeaderStickers() {
         const isDragging = dragging === i;
         return (
           <div
+            data-header-sticker
             key={s.logo}
             onPointerDown={(e) => onPointerDown(e, i)}
             onPointerMove={onPointerMove}

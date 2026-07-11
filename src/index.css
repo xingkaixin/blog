@@ -201,6 +201,10 @@ input {
   transform: translateY(-1px) scale(0.98);
 }
 
+.signature-static {
+  display: none;
+}
+
 @keyframes fade-in {
   to {
     opacity: 1;
@@ -220,5 +224,18 @@ input {
   .hover-lift,
   .site-logo {
     transition: none;
+  }
+
+  .signature-animated {
+    display: none;
+  }
+
+  .signature-static {
+    display: inline;
+  }
+
+  [data-header-sticker],
+  [data-header-sticker] img {
+    transition: none !important;
   }
 }

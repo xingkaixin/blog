@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { extractPlainText, extractToc, parseMarkdownPost } from "@/lib/content";
+import { estimateReadingTime } from "@/lib/markdown";
 
 const source = `---
 title: 文章标题
@@ -92,5 +93,10 @@ coverAlt: 测试封面
 
   it("converts markdown into searchable plain text", () => {
     expect(extractPlainText(source)).toContain("这是一段正文，包含 链接 和 inline code");
+  });
+
+  it("estimates mixed Chinese and English reading time", () => {
+    expect(estimateReadingTime("中".repeat(800))).toBe(2);
+    expect(estimateReadingTime(Array.from({ length: 440 }, () => "word").join(" "))).toBe(2);
   });
 });

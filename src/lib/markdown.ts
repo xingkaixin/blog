@@ -82,5 +82,13 @@ export function extractToc(markdown: string): TocItem[] {
 }
 
 export function estimateReadingTime(text: string) {
-  return Math.max(1, Math.ceil(text.split(/\s+/).filter(Boolean).length / 220));
+  const cjkCharacters =
+    text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)
+      ?.length ?? 0;
+  const latinWords =
+    text
+      .replace(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu, " ")
+      .match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
+  const minutes = cjkCharacters / 400 + latinWords / 220;
+  return Math.max(1, Math.ceil(minutes));
 }
