@@ -51,9 +51,20 @@ export function extractPlainText(markdown: string) {
 }
 
 export function extractToc(markdown: string): TocItem[] {
+  let isInsideFence = false;
+
   return removeFrontmatter(markdown)
     .split("\n")
     .flatMap((line) => {
+      if (/^\s*```/.test(line)) {
+        isInsideFence = !isInsideFence;
+        return [];
+      }
+
+      if (isInsideFence) {
+        return [];
+      }
+
       const match = /^(#{2,3})\s+(.+)$/.exec(line.trim());
       if (!match) {
         return [];

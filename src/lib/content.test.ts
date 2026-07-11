@@ -45,6 +45,15 @@ describe("content parsing", () => {
     ]);
   });
 
+  it("ignores headings inside fenced code", () => {
+    const codeHeading = `${source}\n\`\`\`markdown\n## not-a-heading\n\`\`\``;
+
+    expect(extractToc(codeHeading)).toEqual([
+      { depth: 2, text: "起点", id: "起点" },
+      { depth: 3, text: "第二层", id: "第二层" },
+    ]);
+  });
+
   it("keeps headings after thematic breaks in body", () => {
     const longSource = `---
 title: 长文

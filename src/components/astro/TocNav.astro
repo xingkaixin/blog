@@ -48,7 +48,7 @@ const { items } = Astro.props;
         </nav>
       </details>
       <script>
-        import { TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
+        import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
         const activeClasses = [
           "border-accent/12",
@@ -85,6 +85,9 @@ const { items } = Astro.props;
           }
         }
 
+        let previousActiveId: string | null = null;
+        let animationFrame = 0;
+
         function updateActiveHeading() {
           const links = Array.from(document.querySelectorAll("[data-toc-link]"));
           if (!links.length) {
@@ -100,19 +103,34 @@ const { items } = Astro.props;
             return;
           }
 
-          for (let index = headings.length - 1; index >= 0; index -= 1) {
-            if (headings[index].getBoundingClientRect().top <= TOC_ACTIVE_OFFSET) {
-              setActive(links, headings[index].id);
-              return;
-            }
-          }
+          const visibleIds = headings
+            .filter((heading) => heading.getBoundingClientRect().top <= TOC_ACTIVE_OFFSET)
+            .map((heading) => heading.id);
+          const activeId = resolveActiveTocId(
+            headings.map((heading) => heading.id),
+            visibleIds,
+            previousActiveId,
+          );
 
-          setActive(links, headings[0].id);
+          if (activeId && activeId !== previousActiveId) {
+            previousActiveId = activeId;
+            setActive(links, activeId);
+          }
         }
 
-        updateActiveHeading();
-        window.addEventListener("scroll", updateActiveHeading, { passive: true });
-        document.addEventListener("astro:page-load", updateActiveHeading);
+        function scheduleUpdate() {
+          if (animationFrame) {
+            return;
+          }
+          animationFrame = requestAnimationFrame(() => {
+            animationFrame = 0;
+            updateActiveHeading();
+          });
+        }
+
+        scheduleUpdate();
+        window.addEventListener("scroll", scheduleUpdate, { passive: true });
+        document.addEventListener("astro:page-load", scheduleUpdate);
       </script>
     </>
   )
