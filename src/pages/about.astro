@@ -1,4 +1,5 @@
 ---
+import TrackCar from "@/components/astro/TrackCar.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { siteConfig } from "@/lib/site";
 
@@ -21,6 +22,7 @@ const contacts = [
 ---
 
 <SiteLayout meta={meta}>
+  <TrackCar mode="cruise" />
   <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
     <div class="mx-auto max-w-3xl space-y-8">
       <div>

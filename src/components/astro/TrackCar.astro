@@ -17,6 +17,25 @@ const { mode } = Astro.props;
 </div>
 
 <script>
+  const CRUISE_DURATION = 22; // 秒，与下方 CSS animation 时长保持一致
+  const CRUISE_KEY = "track-car-cruise-start";
+
+  // 巡航模式跨页面连续：共享会话起点时间戳，用负 animation-delay 把 CSS 循环动画
+  // 对齐到本次会话已流逝的相位，页面跳转后接着跑而非从头开始。
+  function alignCruise() {
+    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="cruise"]');
+    if (!car) {
+      return;
+    }
+    let start = Number(sessionStorage.getItem(CRUISE_KEY));
+    if (!Number.isFinite(start) || start <= 0) {
+      start = Date.now();
+      sessionStorage.setItem(CRUISE_KEY, String(start));
+    }
+    const offset = ((Date.now() - start) / 1000) % CRUISE_DURATION;
+    car.style.animationDelay = `-${offset}s`;
+  }
+
   function readProgress() {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     const max = scrollHeight - clientHeight;
@@ -49,10 +68,15 @@ const { mode } = Astro.props;
     });
   }
 
-  schedule();
+  function init() {
+    alignCruise();
+    schedule();
+  }
+
+  init();
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule);
-  document.addEventListener("astro:page-load", schedule);
+  document.addEventListener("astro:page-load", init);
 </script>
 
 <style>
