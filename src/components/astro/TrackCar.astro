@@ -14,9 +14,12 @@ const { mode } = Astro.props;
     <div data-track-trail class="track-trail absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-accent/60" />
   )}
   <div data-track-car data-mode={mode} class="track-car absolute left-0 top-0"></div>
+  <img src="/finish-flag.png" alt="" aria-hidden="true" class="track-flag absolute right-3 top-0 h-[26px] w-auto dark:invert" />
 </div>
 
 <script>
+  import confetti from "canvas-confetti";
+
   const CRUISE_DURATION = 22; // 秒，与下方 CSS animation 时长保持一致
   const CRUISE_KEY = "track-car-cruise-start";
 
@@ -42,6 +45,27 @@ const { mode } = Astro.props;
     return max > 0 ? Math.min(scrollTop / max, 1) : 0;
   }
 
+  // 冲线礼花：从格子旗实际位置爆发一次小型 confetti
+  function celebrate(lane: HTMLElement | null) {
+    const flag = lane?.querySelector<HTMLElement>(".track-flag");
+    if (!flag) {
+      return;
+    }
+    const rect = flag.getBoundingClientRect();
+    confetti({
+      particleCount: 50,
+      spread: 60,
+      startVelocity: 28,
+      scalar: 0.75,
+      disableForReducedMotion: true,
+      origin: {
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight,
+      },
+    });
+  }
+
+  let celebrated = false;
   function render() {
     const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="progress"]');
     if (!car) {
@@ -54,6 +78,13 @@ const { mode } = Astro.props;
     car.style.transform = `translateX(${travel * progress}px)`;
     if (trail) {
       trail.style.transform = `scaleX(${progress})`;
+    }
+    // 满进度首次到达才放礼花；回滚一段后重新武装，读到底可再次庆祝
+    if (progress >= 1 && !celebrated) {
+      celebrated = true;
+      celebrate(lane);
+    } else if (progress < 0.99) {
+      celebrated = false;
     }
   }
 
@@ -69,6 +100,7 @@ const { mode } = Astro.props;
   }
 
   function init() {
+    celebrated = false;
     alignCruise();
     schedule();
   }
@@ -80,6 +112,11 @@ const { mode } = Astro.props;
 </script>
 
 <style>
+  /* 赛道尽头的终点线，上下 + 左右镜像 */
+  .track-flag {
+    transform: scale(-1, -1);
+  }
+
   .track-car {
     height: 22px;
     aspect-ratio: 512 / 118;
