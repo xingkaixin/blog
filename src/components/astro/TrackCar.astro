@@ -1,0 +1,88 @@
+---
+// header 底部的赛车：
+// - cruise：首页，纯 CSS 缓慢向前巡航
+// - progress：文章页，滚动进度驱动横向位移，尾部拖一条 accent 进度轨迹
+type Props = {
+  mode: "cruise" | "progress";
+};
+
+const { mode } = Astro.props;
+---
+
+<div class="track-lane pointer-events-none sticky top-[73px] z-10 h-0" aria-hidden="true">
+  {mode === "progress" && (
+    <div data-track-trail class="track-trail absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-accent/60" />
+  )}
+  <div data-track-car data-mode={mode} class="track-car absolute left-0 top-0"></div>
+</div>
+
+<script>
+  function readProgress() {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    const max = scrollHeight - clientHeight;
+    return max > 0 ? Math.min(scrollTop / max, 1) : 0;
+  }
+
+  function render() {
+    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="progress"]');
+    if (!car) {
+      return;
+    }
+    const lane = car.parentElement;
+    const trail = lane?.querySelector<HTMLElement>("[data-track-trail]");
+    const progress = readProgress();
+    const travel = Math.max((lane?.clientWidth ?? 0) - car.offsetWidth, 0);
+    car.style.transform = `translateX(${travel * progress}px)`;
+    if (trail) {
+      trail.style.transform = `scaleX(${progress})`;
+    }
+  }
+
+  let frame = 0;
+  function schedule() {
+    if (frame) {
+      return;
+    }
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      render();
+    });
+  }
+
+  schedule();
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule);
+  document.addEventListener("astro:page-load", schedule);
+</script>
+
+<style>
+  .track-car {
+    height: 22px;
+    aspect-ratio: 512 / 118;
+    background-color: var(--color-accent);
+    -webkit-mask: url("/f1-car.png") center / contain no-repeat;
+    mask: url("/f1-car.png") center / contain no-repeat;
+    will-change: transform;
+  }
+
+  /* 从视口左侧驶入，横穿后从右侧驶离，边界回绕都在屏外完成，呈现持续向前的巡航 */
+  .track-car[data-mode="cruise"] {
+    animation: track-car-cruise 22s linear infinite;
+  }
+
+  @keyframes track-car-cruise {
+    from {
+      transform: translateX(-120px);
+    }
+    to {
+      transform: translateX(100vw);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track-car[data-mode="cruise"] {
+      animation: none;
+      transform: translateX(24px);
+    }
+  }
+</style>
