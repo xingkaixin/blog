@@ -40,9 +40,12 @@ const { mode } = Astro.props;
   }
 
   function readProgress() {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    const max = scrollHeight - clientHeight;
-    return max > 0 ? Math.min(scrollTop / max, 1) : 0;
+    const de = document.documentElement;
+    // 进度以正文底部为终点，站点页脚不计入，读完正文即满格冲线
+    const article = document.querySelector("article");
+    const end = article ? article.getBoundingClientRect().bottom + de.scrollTop : de.scrollHeight;
+    const max = end - de.clientHeight;
+    return max > 0 ? Math.min(de.scrollTop / max, 1) : 0;
   }
 
   // 冲线礼花：从格子旗实际位置爆发一次小型 confetti
