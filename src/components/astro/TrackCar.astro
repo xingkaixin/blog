@@ -20,25 +20,6 @@ const { mode } = Astro.props;
 <script>
   import confetti from "canvas-confetti";
 
-  const CRUISE_DURATION = 22; // 秒，与下方 CSS animation 时长保持一致
-  const CRUISE_KEY = "track-car-cruise-start";
-
-  // 巡航模式跨页面连续：共享会话起点时间戳，用负 animation-delay 把 CSS 循环动画
-  // 对齐到本次会话已流逝的相位，页面跳转后接着跑而非从头开始。
-  function alignCruise() {
-    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="cruise"]');
-    if (!car) {
-      return;
-    }
-    let start = Number(sessionStorage.getItem(CRUISE_KEY));
-    if (!Number.isFinite(start) || start <= 0) {
-      start = Date.now();
-      sessionStorage.setItem(CRUISE_KEY, String(start));
-    }
-    const offset = ((Date.now() - start) / 1000) % CRUISE_DURATION;
-    car.style.animationDelay = `-${offset}s`;
-  }
-
   function readProgress() {
     const de = document.documentElement;
     // 进度以正文底部为终点，站点页脚不计入，读完正文即满格冲线
@@ -118,7 +99,6 @@ const { mode } = Astro.props;
 
   function init() {
     celebrated = false;
-    alignCruise();
     schedule();
   }
 
@@ -140,27 +120,13 @@ const { mode } = Astro.props;
     background-color: var(--color-accent);
     -webkit-mask: url("/f1-car.png") center / contain no-repeat;
     mask: url("/f1-car.png") center / contain no-repeat;
+  }
+
+  .track-car[data-mode="progress"] {
     will-change: transform;
   }
 
-  /* 从视口左侧驶入，横穿后从右侧驶离，边界回绕都在屏外完成，呈现持续向前的巡航 */
   .track-car[data-mode="cruise"] {
-    animation: track-car-cruise 22s linear infinite;
-  }
-
-  @keyframes track-car-cruise {
-    from {
-      transform: translateX(-120px);
-    }
-    to {
-      transform: translateX(100vw);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .track-car[data-mode="cruise"] {
-      animation: none;
-      transform: translateX(24px);
-    }
+    transform: translateX(24px);
   }
 </style>

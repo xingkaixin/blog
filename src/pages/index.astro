@@ -87,7 +87,7 @@ const meta = {
               <section class="grid gap-4 lg:grid-cols-[140px_1fr] lg:gap-10">
                 <h2
                   class="fade-in font-display text-3xl text-ink-300 lg:sticky lg:top-28 lg:self-start lg:text-5xl"
-                  style={`animation-delay: ${Math.min(groupIndex * 3 + 1, 8) * 40}ms`}
+                  style={`animation-delay: ${Math.min(groupIndex * 3 + 1, 5) * 40}ms`}
                 >
                   {year}
                 </h2>
@@ -96,7 +96,7 @@ const meta = {
                     <a
                       href={`/posts/${post.slug}/`}
                       class="group fade-in flex items-center gap-4 border-b border-line py-4 sm:gap-6"
-                      style={`animation-delay: ${Math.min(groupIndex * 3 + index + 2, 10) * 40}ms`}
+                      style={`animation-delay: ${Math.min(groupIndex * 3 + index + 2, 5) * 40}ms`}
                     >
                       <span class="w-14 shrink-0 font-mono text-xs text-ink-400">
                         {post.date.slice(5, 10)}

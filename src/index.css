@@ -188,14 +188,11 @@ input {
 .fade-in {
   opacity: 0;
   transform: translateY(14px);
-  animation: fade-in var(--duration-very-slow) var(--ease-smooth-out) forwards;
+  animation: fade-in var(--duration-fast) var(--ease-smooth-out) forwards;
 }
 
 .hover-lift {
-  transition:
-    transform var(--duration-medium) var(--ease-smooth-out),
-    border-color var(--duration-medium) var(--ease-smooth-out),
-    box-shadow var(--duration-medium) var(--ease-smooth-out);
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -216,6 +213,12 @@ input {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-reduced {
+  to {
+    opacity: 1;
   }
 }
 
@@ -253,10 +256,19 @@ input {
   }
 
   .fade-in {
-    animation-duration: 1ms;
+    transform: none;
+    animation-name: fade-in-reduced;
+    animation-duration: var(--duration-quick);
+    animation-delay: 0ms !important;
   }
 
   .hover-lift,
+  .hover-lift:hover,
+  .hover-lift:active {
+    transform: none;
+    transition: none;
+  }
+
   .site-logo {
     transition: none;
   }
