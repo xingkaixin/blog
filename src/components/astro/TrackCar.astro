@@ -20,6 +20,26 @@ const { mode } = Astro.props;
 <script>
   import confetti from "canvas-confetti";
 
+  const CRUISE_DURATION_SECONDS = 22;
+  const CRUISE_START_KEY = "track-car-cruise-start";
+
+  // 以会话起点计算负延迟，页面切换后保持巡航相位连续。
+  function alignCruise() {
+    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="cruise"]');
+    if (!car) {
+      return;
+    }
+
+    let start = Number(sessionStorage.getItem(CRUISE_START_KEY));
+    if (!Number.isFinite(start) || start <= 0) {
+      start = Date.now();
+      sessionStorage.setItem(CRUISE_START_KEY, String(start));
+    }
+
+    const offset = ((Date.now() - start) / 1000) % CRUISE_DURATION_SECONDS;
+    car.style.animationDelay = `-${offset}s`;
+  }
+
   function readProgress() {
     const de = document.documentElement;
     // 进度以正文底部为终点，站点页脚不计入，读完正文即满格冲线
@@ -99,6 +119,7 @@ const { mode } = Astro.props;
 
   function init() {
     celebrated = false;
+    alignCruise();
     schedule();
   }
 
@@ -122,11 +143,29 @@ const { mode } = Astro.props;
     mask: url("/f1-car.png") center / contain no-repeat;
   }
 
-  .track-car[data-mode="progress"] {
+  .track-car[data-mode="progress"],
+  .track-car[data-mode="cruise"] {
     will-change: transform;
   }
 
   .track-car[data-mode="cruise"] {
-    transform: translateX(24px);
+    animation: track-car-cruise 22s linear infinite;
+  }
+
+  @keyframes track-car-cruise {
+    from {
+      transform: translateX(-120px);
+    }
+    to {
+      transform: translateX(100vw);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track-car[data-mode="cruise"] {
+      animation: none;
+      transform: translateX(24px);
+      will-change: auto;
+    }
   }
 </style>
