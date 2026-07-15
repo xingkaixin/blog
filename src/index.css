@@ -185,6 +185,49 @@ input {
    通用动效
    ============================================================ */
 
+.t-dropdown {
+  transform-origin: top left;
+  transform: translateY(-4px) scale(0.97);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-quick) var(--ease-smooth-out),
+    opacity var(--duration-quick) var(--ease-smooth-out);
+  will-change: transform, opacity;
+}
+
+.t-dropdown[data-origin="top-right"] {
+  transform-origin: top right;
+}
+
+.t-dropdown.is-open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.t-dropdown.is-closing {
+  transform: translateY(-4px) scale(0.97);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.header-sticker-entry {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-smooth-out),
+    opacity var(--duration-fast) var(--ease-smooth-out);
+  will-change: transform, opacity;
+}
+
+@starting-style {
+  .header-sticker-entry {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
 .fade-in {
   opacity: 0;
   transform: translateY(14px);
@@ -277,6 +320,27 @@ input {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .t-dropdown,
+  .t-dropdown.is-closing {
+    transform: none;
+    transition: opacity var(--duration-quick) var(--ease-smooth-out);
+    will-change: opacity;
+  }
+
+  .header-sticker-entry {
+    transform: none;
+    transition: opacity var(--duration-quick) var(--ease-smooth-out);
+    transition-delay: 0ms !important;
+    will-change: opacity;
+  }
+
+  @starting-style {
+    .header-sticker-entry {
+      opacity: 0;
+      transform: none;
+    }
   }
 
   .fade-in {

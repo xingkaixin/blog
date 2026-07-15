@@ -154,33 +154,39 @@ export function HeaderStickers() {
             }}
             className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
           >
-            {/* 拿起时的落影：radial-gradient + opacity 过渡，全程走合成器，避免 Chrome 逐帧重算 filter */}
             <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                left: "8%",
-                right: "8%",
-                bottom: "-20%",
-                height: "36%",
-                borderRadius: "50%",
-                background: "radial-gradient(ellipse, rgba(20,21,26,0.35), transparent 70%)",
-                opacity: isDragging ? 1 : 0,
-                transition: "opacity 0.2s ease",
-              }}
-            />
-            <img
-              src={s.logo}
-              alt=""
-              draggable={false}
-              style={{
-                transform: `rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
-                filter: `${WHITE_STROKE} ${RESTING_SHADOW}`,
-                // 拿起用 ease-out 平稳抬起，放下用回弹曲线做出"啪"地贴下的手感
-                transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}`,
-              }}
-              className="relative h-full w-full select-none object-contain"
-            />
+              data-header-sticker-entry
+              className="header-sticker-entry relative h-full w-full"
+              style={{ transitionDelay: `${Math.min(i, 5) * 40}ms` }}
+            >
+              {/* 拿起时的落影：radial-gradient + opacity 过渡，全程走合成器，避免 Chrome 逐帧重算 filter */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: "8%",
+                  right: "8%",
+                  bottom: "-20%",
+                  height: "36%",
+                  borderRadius: "50%",
+                  background: "radial-gradient(ellipse, rgba(20,21,26,0.35), transparent 70%)",
+                  opacity: isDragging ? 1 : 0,
+                  transition: "opacity 0.2s ease",
+                }}
+              />
+              <img
+                src={s.logo}
+                alt=""
+                draggable={false}
+                style={{
+                  transform: `rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
+                  filter: `${WHITE_STROKE} ${RESTING_SHADOW}`,
+                  // 拿起用 ease-out 平稳抬起，放下用回弹曲线做出"啪"地贴下的手感
+                  transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}`,
+                }}
+                className="relative h-full w-full select-none object-contain"
+              />
+            </div>
           </div>
         );
       })}
