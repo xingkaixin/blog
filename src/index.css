@@ -205,6 +205,30 @@ input {
   transform: translateY(-1px) scale(0.98);
 }
 
+.hover-cover-zoom,
+.hover-arrow-shift {
+  transition: transform var(--duration-quick) var(--ease-smooth-out);
+}
+
+.hover-preview-reveal {
+  opacity: 0;
+  transition: opacity var(--duration-quick) var(--ease-smooth-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .hover-cover-zoom {
+    transform: scale(1.02);
+  }
+
+  .group:hover .hover-arrow-shift {
+    transform: translateX(4px);
+  }
+
+  .group:hover .hover-preview-reveal {
+    opacity: 1;
+  }
+}
+
 .signature-static {
   display: none;
 }
@@ -271,6 +295,16 @@ input {
 
   .site-logo {
     transition: none;
+  }
+
+  .hover-cover-zoom,
+  .hover-arrow-shift {
+    transition: none;
+  }
+
+  .group:hover .hover-cover-zoom,
+  .group:hover .hover-arrow-shift {
+    transform: none;
   }
 
   .signature-animated {

@@ -135,7 +135,7 @@ export function SearchDialog({ trigger, enableShortcut = true }: SearchDialogPro
               >
                 <div
                   aria-hidden="true"
-                  className="h-6 w-6 animate-spin rounded-full border-b-2 border-ink-800"
+                  className="h-6 w-6 animate-spin rounded-full border-b-2 border-ink-800 motion-reduce:animate-none"
                 />
                 <span className="sr-only">正在加载搜索索引…</span>
               </div>

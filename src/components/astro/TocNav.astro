@@ -53,6 +53,25 @@ const { items } = Astro.props;
       <script>
         import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
 
+        function keepActiveLinkVisible(container: HTMLElement, link: HTMLElement) {
+          const containerRect = container.getBoundingClientRect();
+          const linkRect = link.getBoundingClientRect();
+          const isVisible = linkRect.top >= containerRect.top && linkRect.bottom <= containerRect.bottom;
+          if (isVisible) {
+            return;
+          }
+
+          container.scrollTo({
+            top:
+              container.scrollTop +
+              linkRect.top -
+              containerRect.top -
+              container.clientHeight / 2 +
+              link.clientHeight / 2,
+            behavior: "auto",
+          });
+        }
+
         function setActive(links: Element[], id: string) {
           for (const link of links) {
             const isActive = link.getAttribute("data-toc-link") === id;
@@ -66,10 +85,7 @@ const { items } = Astro.props;
             activeLink instanceof HTMLElement &&
             desktopNav.contains(activeLink)
           ) {
-            desktopNav.scrollTo({
-              top: activeLink.offsetTop - desktopNav.clientHeight / 2 + activeLink.clientHeight / 2,
-              behavior: "smooth",
-            });
+            keepActiveLinkVisible(desktopNav, activeLink);
           }
         }
 

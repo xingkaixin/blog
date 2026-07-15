@@ -40,7 +40,7 @@ const meta = {
                   alt={hero.coverAlt}
                   priority
 
-                  imageClass="transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) motion-reduce:transition-none motion-reduce:group-hover:scale-100 group-hover:scale-[1.02]"
+                  imageClass="hover-cover-zoom"
                 />
               </div>
               <div class="lg:order-1">
@@ -62,7 +62,7 @@ const meta = {
                   阅读全文
                   <svg
                     aria-hidden="true"
-                    class="h-4 w-4 transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:translate-x-1"
+                    class="hover-arrow-shift h-4 w-4"
                     viewBox="0 0 15 15"
                     fill="none"
                   >
@@ -110,7 +110,7 @@ const meta = {
                         </span>
                       </span>
                       <span
-                        class="hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:opacity-100 lg:block"
+                        class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line lg:block"
                         transition:name={`cover-${post.slug}`}
                       >
                         <PostCover src={post.cover} alt="" />
