@@ -2,11 +2,11 @@
 import PostCover from "@/components/astro/PostCover.astro";
 import TrackCar from "@/components/astro/TrackCar.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
-import { getPublishedPosts, toPostMeta } from "@/lib/astro-posts";
+import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
 import { formatDisplayDate } from "@/lib/markdown";
 import { siteConfig } from "@/lib/site";
 
-const posts = (await getPublishedPosts()).map(toPostMeta);
+const posts = (await getPublishedPosts()).map(toPostListItem);
 const [hero, ...rest] = posts;
 const postsByYear = rest.reduce<Map<string, typeof rest>>((groups, post) => {
   const year = post.date.slice(0, 4);

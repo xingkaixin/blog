@@ -36,20 +36,6 @@ export function formatDisplayDate(value: string | Date) {
   }).format(new Date(value));
 }
 
-export function extractPlainText(markdown: string) {
-  return removeFrontmatter(markdown)
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
-    .replace(/^>\s?/gm, "")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_~>-]/g, " ")
-    .replace(/\n+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 export function extractToc(markdown: string): TocItem[] {
   let isInsideFence = false;
 
@@ -79,16 +65,4 @@ export function extractToc(markdown: string): TocItem[] {
         },
       ];
     });
-}
-
-export function estimateReadingTime(text: string) {
-  const cjkCharacters =
-    text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)
-      ?.length ?? 0;
-  const latinWords =
-    text
-      .replace(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu, " ")
-      .match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
-  const minutes = cjkCharacters / 400 + latinWords / 220;
-  return Math.max(1, Math.ceil(minutes));
 }

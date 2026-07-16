@@ -1,24 +1,14 @@
 import { getCollection, type CollectionEntry } from "astro:content";
-import { estimateReadingTime, extractPlainText, extractToc, type TocItem } from "@/lib/markdown";
-import { toDateValue } from "@/lib/post-schema";
+import { extractToc, type TocItem } from "@/lib/markdown";
+import { toDateValue, type PublishedPost } from "@/lib/post-schema";
 
 export type BlogPostEntry = CollectionEntry<"posts">;
 
-export type BlogPostMeta = {
-  slug: string;
-  title: string;
-  date: string;
-  summary: string;
-  tags: string[];
-  cover: string;
-  coverAlt: string;
-  readingTime: number;
+export type BlogPostDetail = PublishedPost & {
   toc: TocItem[];
 };
 
-export function toPostMeta(post: BlogPostEntry): BlogPostMeta {
-  const plainText = extractPlainText(post.body);
-
+export function toPostListItem(post: BlogPostEntry): PublishedPost {
   return {
     slug: post.id,
     title: post.data.title,
@@ -27,7 +17,12 @@ export function toPostMeta(post: BlogPostEntry): BlogPostMeta {
     tags: post.data.tags,
     cover: post.data.cover,
     coverAlt: post.data.coverAlt,
-    readingTime: estimateReadingTime(plainText),
+  };
+}
+
+export function toPostDetail(post: BlogPostEntry): BlogPostDetail {
+  return {
+    ...toPostListItem(post),
     toc: extractToc(post.body),
   };
 }

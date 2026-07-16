@@ -8,7 +8,7 @@ import { SignatureAnimation } from "@/components/signature-animation";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import {
   getPublishedPosts,
-  toPostMeta,
+  toPostDetail,
   type BlogPostEntry,
 } from "@/lib/astro-posts";
 import { formatDisplayDate } from "@/lib/markdown";
@@ -27,7 +27,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props as Props;
-const postMeta = toPostMeta(post);
+const postMeta = toPostDetail(post);
 const { Content } = await render(post);
 const meta = {
   title: postMeta.title,
