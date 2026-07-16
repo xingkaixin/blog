@@ -15,6 +15,7 @@
     "dev": "astro dev",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
+    "generate:signature-glyphs": "bun scripts/generate-signature-glyphs.ts",
     "isok": "bun run lint && bun run format:check && bun run typecheck && bun run test",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --type-aware --fix",
