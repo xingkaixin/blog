@@ -1,7 +1,9 @@
 #!/usr/bin/env bun
 
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { siteConfig } from "../src/lib/site";
 import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
@@ -10,10 +12,18 @@ const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
 const COVER_DIR = path.join(ROOT, "src", "assets", "cover");
 const OUTPUT_DIR = path.join(ROOT, "public", "og");
+const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
+const CACHE_VERSION = 1;
 const WIDTH = 1200;
 const HEIGHT = 630;
 
 type Post = PublishedPost;
+
+type OgCacheManifest = {
+  version: typeof CACHE_VERSION;
+  site: string;
+  posts: Record<string, string>;
+};
 
 const colors = {
   paper: "#f4efe6",
@@ -26,6 +36,77 @@ const colors = {
 };
 
 const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
+
+function emptyCacheManifest(): OgCacheManifest {
+  return { version: CACHE_VERSION, site: "", posts: {} };
+}
+
+function readCacheManifest(): OgCacheManifest {
+  try {
+    const cache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")) as Partial<OgCacheManifest>;
+    if (cache.version !== CACHE_VERSION || typeof cache.site !== "string" || !cache.posts) {
+      return emptyCacheManifest();
+    }
+    return cache as OgCacheManifest;
+  } catch {
+    return emptyCacheManifest();
+  }
+}
+
+function fingerprint(parts: Array<string | Buffer>) {
+  const hash = createHash("sha256");
+  for (const part of parts) {
+    hash.update(part);
+  }
+  return hash.digest("hex");
+}
+
+function coverSource(post: Post) {
+  return fs.readFileSync(path.join(COVER_DIR, path.basename(post.cover)));
+}
+
+function postFingerprint(post: Post, rendererFingerprint: string) {
+  const renderInput = {
+    title: post.title,
+    date: post.date,
+    summary: post.summary,
+    tags: post.tags,
+    cover: post.cover,
+    siteTitle: siteConfig.title,
+  };
+  return fingerprint([rendererFingerprint, JSON.stringify(renderInput), coverSource(post)]);
+}
+
+function siteFingerprint(posts: Post[], rendererFingerprint: string) {
+  const latestPosts = posts.slice(0, 3);
+  const renderInput = {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    latest: latestPosts.map((post) => ({ title: post.title, cover: post.cover })),
+  };
+  return fingerprint([
+    rendererFingerprint,
+    JSON.stringify(renderInput),
+    ...latestPosts.map(coverSource),
+  ]);
+}
+
+function removeOrphanImages(posts: Post[]) {
+  const publishedSlugs = new Set(posts.map((post) => post.slug));
+  let removed = 0;
+
+  for (const file of fs.readdirSync(OUTPUT_DIR)) {
+    if (file === "site.png" || !file.endsWith(".png")) {
+      continue;
+    }
+    if (!publishedSlugs.has(file.slice(0, -4))) {
+      fs.rmSync(path.join(OUTPUT_DIR, file));
+      removed += 1;
+    }
+  }
+
+  return removed;
+}
 
 function graphemes(value: string) {
   return Array.from(segmenter.segment(value), (part) => part.segment);
@@ -198,14 +279,48 @@ async function renderSite(posts: Post[]) {
 }
 
 async function main() {
-  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
 
   const posts = readPublishedPosts(POSTS_DIR);
-  await renderSite(posts);
-  await Promise.all(posts.map(renderPost));
+  const cache = readCacheManifest();
+  const rendererFingerprint = fingerprint([
+    fs.readFileSync(fileURLToPath(import.meta.url)),
+    JSON.stringify(sharp.versions),
+  ]);
+  const nextCache = emptyCacheManifest();
+  let rendered = 0;
+  let skipped = 0;
 
-  console.log(`✅ 成功生成 ${posts.length + 1} 张 OG 图片: ${OUTPUT_DIR}`);
+  nextCache.site = siteFingerprint(posts, rendererFingerprint);
+  const siteOutput = path.join(OUTPUT_DIR, "site.png");
+  if (cache.site === nextCache.site && fs.existsSync(siteOutput)) {
+    skipped += 1;
+  } else {
+    await renderSite(posts);
+    rendered += 1;
+  }
+
+  await Promise.all(
+    posts.map(async (post) => {
+      const output = path.join(OUTPUT_DIR, `${post.slug}.png`);
+      const currentFingerprint = postFingerprint(post, rendererFingerprint);
+      nextCache.posts[post.slug] = currentFingerprint;
+
+      if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
+        skipped += 1;
+        return;
+      }
+
+      await renderPost(post);
+      rendered += 1;
+    }),
+  );
+
+  const removed = removeOrphanImages(posts);
+  fs.writeFileSync(CACHE_FILE, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
+
+  console.log(`✅ OG 图片：生成 ${rendered}，跳过 ${skipped}，清理 ${removed}: ${OUTPUT_DIR}`);
 }
 
 if (import.meta.main) {
