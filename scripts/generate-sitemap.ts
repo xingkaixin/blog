@@ -2,6 +2,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import type { PublishedPost } from "../src/lib/post-schema";
+import { buildTagArchives, tagHref } from "../src/lib/post-tags";
 import { siteConfig } from "../src/lib/site";
 import { readPublishedPosts } from "./lib/post-catalog";
 
@@ -9,7 +11,7 @@ const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
 const DIST_DIR = path.join(ROOT, "dist");
 
-export function buildSitemap(posts: Array<{ slug: string; date: string }>) {
+export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | "tags">>) {
   const today = new Date().toISOString().slice(0, 10);
 
   const urlEntry = (loc: string, lastmod: string, changefreq: string, priority: string) =>
@@ -19,6 +21,9 @@ export function buildSitemap(posts: Array<{ slug: string; date: string }>) {
     urlEntry(`${siteConfig.url}/`, today, "weekly", "1.0"),
     urlEntry(`${siteConfig.url}/projects/`, today, "monthly", "0.7"),
     urlEntry(`${siteConfig.url}/about/`, today, "yearly", "0.6"),
+    ...buildTagArchives(posts).map(({ tag }) =>
+      urlEntry(`${siteConfig.url}${tagHref(tag)}`, today, "weekly", "0.6"),
+    ),
     ...posts.map((p) => urlEntry(`${siteConfig.url}/posts/${p.slug}/`, p.date, "monthly", "0.8")),
   ];
 

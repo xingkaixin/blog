@@ -88,7 +88,7 @@ export function SearchDialog({ trigger, enableShortcut = true }: SearchDialogPro
     if (!query.trim()) {
       return [];
     }
-    return rankPosts(posts, { query, activeTag: null });
+    return rankPosts(posts, { query });
   }, [query, posts]);
 
   const displayPosts = !query.trim() ? posts.slice(0, 5) : results;

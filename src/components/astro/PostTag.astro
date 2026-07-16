@@ -1,0 +1,25 @@
+---
+import { tagHref } from "@/lib/post-tags";
+
+type Props = {
+  tag: string;
+  linked: boolean;
+};
+
+const { tag, linked } = Astro.props;
+const className =
+  "inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-ink-500";
+---
+
+{
+  linked ? (
+    <a
+      href={tagHref(tag)}
+      class={`${className} transition-colors duration-(--duration-quick) hover:border-accent/40 hover:text-accent`}
+    >
+      {tag}
+    </a>
+  ) : (
+    <span class={className}>{tag}</span>
+  )
+}

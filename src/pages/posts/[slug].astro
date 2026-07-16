@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
+import PostTag from "@/components/astro/PostTag.astro";
 import TocNav from "@/components/astro/TocNav.astro";
 import TrackCar from "@/components/astro/TrackCar.astro";
 import { SignatureAnimation } from "@/components/signature-animation";
@@ -9,24 +10,29 @@ import SiteLayout from "@/layouts/SiteLayout.astro";
 import {
   getPublishedPosts,
   toPostDetail,
+  toPostListItem,
   type BlogPostEntry,
 } from "@/lib/astro-posts";
 import { formatDisplayDate } from "@/lib/markdown";
+import { buildTagArchives } from "@/lib/post-tags";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
   post: BlogPostEntry;
+  archivedTags: string[];
 };
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
+  const archivedTags = buildTagArchives(posts.map(toPostListItem)).map(({ tag }) => tag);
   return posts.map((post) => ({
     params: { slug: post.id },
-    props: { post },
+    props: { post, archivedTags },
   }));
 }
 
-const { post } = Astro.props as Props;
+const { post, archivedTags } = Astro.props as Props;
+const archivedTagSet = new Set(archivedTags);
 const postMeta = toPostDetail(post);
 const { Content } = await render(post);
 const meta = {
@@ -75,9 +81,7 @@ const meta = {
                 <div class="flex flex-wrap gap-2 sm:justify-end">
                   {
                     postMeta.tags.map((tag) => (
-                      <span class="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-ink-500">
-                        {tag}
-                      </span>
+                      <PostTag tag={tag} linked={archivedTagSet.has(tag)} />
                     ))
                   }
                 </div>

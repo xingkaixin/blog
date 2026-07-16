@@ -1,0 +1,80 @@
+---
+import Breadcrumb from "@/components/astro/Breadcrumb.astro";
+import PostCover from "@/components/astro/PostCover.astro";
+import TrackCar from "@/components/astro/TrackCar.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import { formatDisplayDate } from "@/lib/markdown";
+import { buildTagArchives, tagHref, type TagArchive } from "@/lib/post-tags";
+import { siteConfig } from "@/lib/site";
+
+type Props = {
+  archive: TagArchive;
+};
+
+export async function getStaticPaths() {
+  const posts = (await getPublishedPosts()).map(toPostListItem);
+  return buildTagArchives(posts).map((archive) => ({
+    params: { tag: archive.tag },
+    props: { archive },
+  }));
+}
+
+const { archive } = Astro.props as Props;
+const { tag, posts } = archive;
+const url = `${siteConfig.url}${tagHref(tag)}`;
+const meta = {
+  title: `#${tag}`,
+  description: `浏览 ${siteConfig.title} 中标记为“${tag}”的 ${posts.length} 篇文章。`,
+  url,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: `#${tag}`, url },
+  ],
+};
+---
+
+<SiteLayout meta={meta}>
+  <TrackCar mode="cruise" />
+  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
+    <div class="mx-auto max-w-5xl">
+      <Breadcrumb items={[{ name: "首页", url: "/" }, { name: `#${tag}` }]} />
+      <header class="mt-8 border-b border-line pb-8">
+        <p class="font-mono text-xs uppercase tracking-[0.28em] text-accent">Tag archive</p>
+        <h1 class="mt-4 font-display text-4xl leading-tight text-ink-800 sm:text-5xl">#{tag}</h1>
+        <p class="mt-4 text-base text-ink-500">共 {posts.length} 篇文章</p>
+      </header>
+
+      <div class="mt-6">
+        {
+          posts.map((post, index) => (
+            <a
+              href={`/posts/${post.slug}/`}
+              class="group fade-in flex items-center gap-4 border-b border-line py-5 sm:gap-6"
+              style={`animation-delay: ${Math.min(index, 5) * 40}ms`}
+            >
+              <span class="w-26 shrink-0 font-mono text-xs text-ink-400">
+                {formatDisplayDate(post.date)}
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-lg text-balance text-ink-700 transition-colors duration-(--duration-quick) group-hover:text-accent">
+                  {post.title}
+                </span>
+                <span class="mt-1 hidden text-sm text-ink-400 sm:line-clamp-1">
+                  {post.summary}
+                </span>
+              </span>
+              <span
+                class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line lg:block"
+                transition:name={`cover-${post.slug}`}
+              >
+                <PostCover src={post.cover} alt="" />
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</SiteLayout>

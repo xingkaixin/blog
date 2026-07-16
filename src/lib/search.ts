@@ -4,7 +4,6 @@ export type SearchIndexItem = PublishedPost;
 
 type SearchParams = {
   query: string;
-  activeTag: string | null;
 };
 
 const normalize = (value: string) => value.trim().toLowerCase();
@@ -30,12 +29,11 @@ export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
   return data;
 }
 
-export function rankPosts(posts: SearchIndexItem[], { query, activeTag }: SearchParams) {
+export function rankPosts(posts: SearchIndexItem[], { query }: SearchParams) {
   const normalizedQuery = normalize(query);
   const terms = normalizedQuery.split(/\s+/).filter(Boolean);
 
   return posts
-    .filter((post) => (activeTag ? post.tags.includes(activeTag) : true))
     .map((post) => {
       const haystack = `${post.title} ${post.summary} ${post.tags.join(" ")}`.toLowerCase();
       const score = terms.reduce((total, term) => {
@@ -48,12 +46,7 @@ export function rankPosts(posts: SearchIndexItem[], { query, activeTag }: Search
 
       return { post, score };
     })
-    .filter(({ score, post }) => {
-      if (!terms.length) {
-        return activeTag ? post.tags.includes(activeTag) : true;
-      }
-      return score > 0;
-    })
+    .filter(({ score }) => !terms.length || score > 0)
     .toSorted(
       (left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date),
     )

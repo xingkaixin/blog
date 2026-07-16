@@ -46,8 +46,13 @@ describe("post catalog", () => {
   });
 
   it("builds sitemap and legacy redirects from the same catalog", () => {
-    const posts = [{ slug: "new-post", date: "2026-07-11" }];
+    const posts = [
+      { slug: "new-post", date: "2026-07-11", tags: ["shared", "single"] },
+      { slug: "older-post", date: "2026-07-10", tags: ["shared"] },
+    ];
     expect(buildSitemap(posts)).toContain("/posts/new-post/");
+    expect(buildSitemap(posts)).toContain("/tags/shared/");
+    expect(buildSitemap(posts)).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });
 

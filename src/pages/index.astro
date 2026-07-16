@@ -1,12 +1,15 @@
 ---
 import PostCover from "@/components/astro/PostCover.astro";
+import PostTag from "@/components/astro/PostTag.astro";
 import TrackCar from "@/components/astro/TrackCar.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
 import { formatDisplayDate } from "@/lib/markdown";
+import { buildTagArchives } from "@/lib/post-tags";
 import { siteConfig } from "@/lib/site";
 
 const posts = (await getPublishedPosts()).map(toPostListItem);
+const archivedTags = new Set(buildTagArchives(posts).map(({ tag }) => tag));
 const [hero, ...rest] = posts;
 const postsByYear = rest.reduce<Map<string, typeof rest>>((groups, post) => {
   const year = post.date.slice(0, 4);
@@ -29,9 +32,9 @@ const meta = {
     <div class="mx-auto max-w-350 space-y-16">
       {
         hero ? (
-          <a href={`/posts/${hero.slug}/`} class="group fade-in block">
-            <article class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-              <div
+          <article class="group fade-in grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+              <a
+                href={`/posts/${hero.slug}/`}
                 class="card hover-lift overflow-hidden rounded-2xl lg:order-2"
                 transition:name={`cover-${hero.slug}`}
               >
@@ -42,23 +45,23 @@ const meta = {
 
                   imageClass="hover-cover-zoom"
                 />
-              </div>
+              </a>
               <div class="lg:order-1">
                 <p class="font-mono text-xs uppercase tracking-[0.28em] text-accent">
                   最新 · {formatDisplayDate(hero.date)}
                 </p>
                 <h1 class="mt-4 font-display text-4xl leading-tight text-balance text-ink-800 sm:text-5xl lg:text-6xl">
-                  {hero.title}
+                  <a href={`/posts/${hero.slug}/`} class="transition-colors duration-(--duration-quick) hover:text-accent">
+                    {hero.title}
+                  </a>
                 </h1>
                 <p class="mt-5 max-w-[52ch] text-base leading-8 text-ink-600">{hero.summary}</p>
                 <div class="mt-6 flex flex-wrap gap-2">
                   {hero.tags.map((tag) => (
-                    <span class="inline-flex items-center rounded-full border border-line bg-surface px-3 py-1 text-[0.72rem] font-medium uppercase tracking-[0.18em] text-ink-500">
-                      {tag}
-                    </span>
+                    <PostTag tag={tag} linked={archivedTags.has(tag)} />
                   ))}
                 </div>
-                <span class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-ink-800">
+                <a href={`/posts/${hero.slug}/`} class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-ink-800">
                   阅读全文
                   <svg
                     aria-hidden="true"
@@ -68,10 +71,9 @@ const meta = {
                   >
                     <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                </span>
+                </a>
               </div>
             </article>
-          </a>
         ) : (
           <div class="space-y-3">
             <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-400">暂无文章</p>

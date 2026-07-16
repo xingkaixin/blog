@@ -35,18 +35,18 @@ describe("search posts", () => {
     } as Response);
 
     const { searchPosts } = await import("@/lib/search");
-    const results = await searchPosts({ query: "vite", activeTag: null });
+    const results = await searchPosts({ query: "vite" });
     expect(results[0]?.slug).toBe("alpha");
   });
 
-  it("filters by tag", async () => {
+  it("matches tag terms", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
       json: async () => posts,
     } as Response);
 
     const { searchPosts } = await import("@/lib/search");
-    const results = await searchPosts({ query: "", activeTag: "reading" });
+    const results = await searchPosts({ query: "reading" });
     expect(results).toHaveLength(1);
     expect(results[0]?.slug).toBe("beta");
   });
