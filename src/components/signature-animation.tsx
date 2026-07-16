@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TegakiRenderer, type TegakiRendererHandle } from "tegaki/react";
 import glyphData from "@/lib/dancing-script-glyph-data.json";
 import { siteConfig } from "@/lib/site";
@@ -16,26 +16,22 @@ const dancingScriptBundle = {
 };
 
 export function SignatureAnimation() {
-  // SSR/测试环境的占位：不可见但保留高度，避免水合前露出未格式化的文字、水合时布局跳动
-  if (typeof window === "undefined" || typeof ResizeObserver === "undefined") {
-    return (
-      <div
-        aria-hidden="true"
-        className="invisible mt-6 flex justify-end"
-        style={{ fontSize: "36px", fontFamily: "cursive" }}
-      >
-        {siteConfig.author}
-      </div>
-    );
-  }
-
   const rendererRef = useRef<TegakiRendererHandle>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isAnimationSupported, setIsAnimationSupported] = useState(false);
+
+  useEffect(() => {
+    setIsAnimationSupported(typeof ResizeObserver !== "undefined");
+  }, []);
 
   // tegaki 引擎可能晚于组件挂载才就绪（island 滚到视口才水合时尤其如此），
   // 直接在 IO 回调里 play() 会落空。这里每帧同步期望状态：
   // 引擎就绪后先暂停一次，等进入视口再播放，播放后停止同步。
   useEffect(() => {
+    if (!isAnimationSupported) {
+      return undefined;
+    }
+
     const el = containerRef.current;
     if (!el) {
       return undefined;
@@ -75,7 +71,19 @@ export function SignatureAnimation() {
       observer.disconnect();
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [isAnimationSupported]);
+
+  if (!isAnimationSupported) {
+    return (
+      <div
+        aria-hidden="true"
+        className="invisible mt-6 flex justify-end"
+        style={{ fontSize: "36px", fontFamily: "cursive" }}
+      >
+        {siteConfig.author}
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="mt-6 flex justify-end">
