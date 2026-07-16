@@ -33,6 +33,18 @@ describe("post catalog", () => {
     ).toBeNull();
   });
 
+  it("rejects missing or invalid required frontmatter", () => {
+    expect(() =>
+      parsePublishedPost("missing-date", publishedSource.replace("date: 2026-07-11\n", "")),
+    ).toThrow("date");
+    expect(() =>
+      parsePublishedPost(
+        "invalid-date",
+        publishedSource.replace("date: 2026-07-11", "date: not-a-date"),
+      ),
+    ).toThrow("date");
+  });
+
   it("builds sitemap and legacy redirects from the same catalog", () => {
     const posts = [{ slug: "new-post", date: "2026-07-11" }];
     expect(buildSitemap(posts)).toContain("/posts/new-post/");

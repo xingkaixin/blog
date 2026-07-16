@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from "astro:content";
 import { estimateReadingTime, extractPlainText, extractToc, type TocItem } from "@/lib/markdown";
+import { toDateValue } from "@/lib/post-schema";
 
 export type BlogPostEntry = CollectionEntry<"posts">;
 
@@ -14,10 +15,6 @@ export type BlogPostMeta = {
   readingTime: number;
   toc: TocItem[];
 };
-
-export function toDateValue(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
 
 export function toPostMeta(post: BlogPostEntry): BlogPostMeta {
   const plainText = extractPlainText(post.body);

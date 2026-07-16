@@ -1,12 +1,6 @@
-export type SearchIndexItem = {
-  slug: string;
-  title: string;
-  date: string;
-  summary: string;
-  tags: string[];
-  cover: string;
-  coverAlt: string;
-};
+import type { PublishedPost } from "@/lib/post-schema";
+
+export type SearchIndexItem = PublishedPost;
 
 type SearchParams = {
   query: string;
