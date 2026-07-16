@@ -66,6 +66,12 @@ const pageTransition = {
     <meta name="description" content={meta.description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={meta.url} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.title} RSS`}
+      href={`${siteConfig.url}/feed.xml`}
+    />
     <meta name="theme-color" content="#fafaf7" />
     <script is:inline>
       (function () {

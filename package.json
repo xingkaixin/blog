@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun run build:search && bun run build:covers && bun run build:post-images && bun run build:og && astro build && bun run build:sitemap && bun run build:clean-dist",
+    "build": "bun run build:search && bun run build:covers && bun run build:post-images && bun run build:og && astro build && bun run build:sitemap && bun run build:feed && bun run build:clean-dist",
     "build:clean-dist": "bun scripts/clean-dist-png.ts",
     "build:covers": "bun scripts/generate-covers.ts",
+    "build:feed": "bun scripts/generate-feed.ts",
     "build:og": "bun scripts/generate-og-images.ts",
     "build:post-images": "bun scripts/generate-post-images.ts",
     "build:search": "bun scripts/generate-search-index.ts",
