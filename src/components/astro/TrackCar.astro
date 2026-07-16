@@ -52,13 +52,17 @@ const { mode } = Astro.props;
   // 全局 confetti 默认走 OffscreenCanvas + Web Worker，该渲染路径在 CF 生产环境画不出粒子。
   // 用自有 canvas + create(useWorker:false) 强制主线程渲染。
   let fireConfetti: ReturnType<typeof confetti.create> | null = null;
+  let confettiCanvas: HTMLCanvasElement | null = null;
   function getFireConfetti() {
-    if (fireConfetti) {
+    if (fireConfetti && confettiCanvas?.isConnected) {
       return fireConfetti;
     }
+
+    fireConfetti?.reset();
     const canvas = document.createElement("canvas");
     canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:100";
     document.body.appendChild(canvas);
+    confettiCanvas = canvas;
     fireConfetti = confetti.create(canvas, { resize: true, useWorker: false });
     return fireConfetti;
   }
