@@ -92,7 +92,7 @@ export function HeaderStickers() {
     (e.currentTarget as HTMLElement).style.transform = `translate(${drag.x}px, ${drag.y}px)`;
   };
 
-  const onPointerUp = () => {
+  const finishDrag = () => {
     const drag = dragRef.current;
     if (drag) {
       setStickers((prev) =>
@@ -143,7 +143,8 @@ export function HeaderStickers() {
             key={s.logo}
             onPointerDown={(e) => onPointerDown(e, i)}
             onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
+            onPointerUp={finishDrag}
+            onPointerCancel={finishDrag}
             onKeyDown={(event) => onKeyDown(event, i)}
             style={{
               width: SIZE,
