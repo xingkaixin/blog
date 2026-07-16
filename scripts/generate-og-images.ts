@@ -39,7 +39,7 @@ function escapeXml(value: string) {
     .replace(/"/g, "&quot;");
 }
 
-function textUnits(value: string) {
+export function textUnits(value: string) {
   return graphemes(value).reduce((total, char) => {
     if (/\s/.test(char)) {
       return total + 0.35;
@@ -49,7 +49,7 @@ function textUnits(value: string) {
   }, 0);
 }
 
-function wrapText(value: string, maxUnits: number, maxLines: number) {
+export function wrapText(value: string, maxUnits: number, maxLines: number) {
   const lines: string[] = [];
   let current = "";
 
@@ -77,7 +77,7 @@ function wrapText(value: string, maxUnits: number, maxLines: number) {
   return limited;
 }
 
-function formatDate(value: string) {
+export function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "long",
@@ -208,4 +208,6 @@ async function main() {
   console.log(`✅ 成功生成 ${posts.length + 1} 张 OG 图片: ${OUTPUT_DIR}`);
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}
