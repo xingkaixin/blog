@@ -30,10 +30,16 @@ const { mode } = Astro.props;
       return;
     }
 
-    let start = Number(sessionStorage.getItem(CRUISE_START_KEY));
-    if (!Number.isFinite(start) || start <= 0) {
-      start = Date.now();
-      sessionStorage.setItem(CRUISE_START_KEY, String(start));
+    let start = Date.now();
+    try {
+      const storedStart = Number(sessionStorage.getItem(CRUISE_START_KEY));
+      if (Number.isFinite(storedStart) && storedStart > 0) {
+        start = storedStart;
+      } else {
+        sessionStorage.setItem(CRUISE_START_KEY, String(start));
+      }
+    } catch {
+      // 巡航相位同步是 best-effort，存储禁用时从当前页面重新起步。
     }
 
     const offset = ((Date.now() - start) / 1000) % CRUISE_DURATION_SECONDS;

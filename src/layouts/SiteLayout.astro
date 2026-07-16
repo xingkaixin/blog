@@ -69,8 +69,17 @@ const pageTransition = {
     <meta name="theme-color" content="#fafaf7" />
     <script is:inline>
       (function () {
+        function readStoredTheme() {
+          try {
+            var stored = localStorage.getItem("theme");
+            return stored === "dark" || stored === "light" ? stored : null;
+          } catch {
+            return null;
+          }
+        }
+
         function applyTheme() {
-          var stored = localStorage.getItem("theme");
+          var stored = readStoredTheme();
           var theme =
             stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
           document.documentElement.dataset.theme = theme;
@@ -248,10 +257,14 @@ const pageTransition = {
         const next = root.dataset.theme === "dark" ? "light" : "dark";
         const apply = () => {
           root.dataset.theme = next;
-          localStorage.setItem("theme", next);
           document
             .querySelector('meta[name="theme-color"]')
             ?.setAttribute("content", next === "dark" ? "#131418" : "#fafaf7");
+          try {
+            localStorage.setItem("theme", next);
+          } catch {
+            // 偏好持久化是 best-effort，存储禁用时仍保留当前页面的主题。
+          }
         };
 
         apply();
