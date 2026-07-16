@@ -63,7 +63,7 @@ title: 文章标题
 date: 2025-01-01
 summary: 文章摘要
 tags: [tag1, tag2]
-cover: cover-image.jpg
+cover: agent-friendly-tool.png
 coverAlt: 封面图描述
 ---
 ```
@@ -73,10 +73,15 @@ coverAlt: 封面图描述
 ### 构建命令
 
 ```bash
-bun run dev      # 开发服务器
-bun run build    # 构建生产版本 (含封面图生成)
-bun run test     # 运行测试
-bun run lint     # 代码检查
+bun run dev           # 开发服务器
+bun run build         # 完整生产构建
+bun run isok          # 完整验证门：lint、格式、类型与测试
+bun run test          # 运行测试
+bun run lint          # 代码检查
+bun run typecheck     # Astro 与 TypeScript 类型检查
+bun run format        # 自动格式化
+bun run format:check  # 仅检查格式
+bun run deploy        # 构建并部署到 Cloudflare Pages
 ```
 
 ### 封面图片

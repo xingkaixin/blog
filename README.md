@@ -37,6 +37,7 @@
 - Markdown 博客文章渲染，支持 GFM 语法
 - 响应式封面图片生成
 - 文章搜索
+- RSS 订阅与 Tag 归档
 - 目录自动提取与导航
 - 阅读进度指示器
 - SEO meta、OG 与 JSON-LD 静态生成
@@ -49,23 +50,31 @@ bun install
 
 # 开发模式
 bun run dev
+```
 
-# 构建生产版本
-bun run build
+## 常用命令
 
-# 运行测试
-bun run test
-
-# 代码检查
-bun run lint
-
-# 本地预览
-bun run preview
+```bash
+bun run isok          # 完整验证：lint、格式、类型与测试
+bun run build         # 构建 dist/（含搜索、图片、OG、Feed 与 sitemap）
+bun run preview       # 本地预览生产构建
+bun run test          # 运行测试
+bun run lint          # 代码检查
+bun run typecheck     # Astro 与 TypeScript 类型检查
+bun run format        # 自动格式化
+bun run format:check  # 仅检查格式
 ```
 
 ## 部署
 
-项目构建产物位于 `dist/` 目录，可直接部署到 Vercel、Netlify 等静态托管平台。
+默认部署目标是 Cloudflare Pages。完成 Wrangler 登录后运行：
+
+```bash
+bun run deploy
+```
+
+该命令先执行完整构建，再将 `dist/` 发布到 Cloudflare Pages 的 `blog` 项目。
+`dist/` 是纯静态产物，也可以交给其他静态托管服务。
 
 ## License
 
