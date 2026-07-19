@@ -26,9 +26,18 @@
   --accent-soft: #f6e3de;
   --shadow-card: 0 1px 2px rgba(20, 21, 26, 0.04), 0 12px 32px -16px rgba(20, 21, 26, 0.12);
 
-  /* 代码块两个世界共用同一块"底片" */
-  --code-bg: #17181d;
-  --code-text: #e8e7e1;
+  /* shiki 语法高亮跟随站点主题（见 markdown.shikiConfig.theme: "css-variables"） */
+  --astro-code-background: var(--ink-50);
+  --astro-code-foreground: var(--ink-700);
+  --astro-code-token-comment: var(--ink-400);
+  --astro-code-token-keyword: var(--accent);
+  --astro-code-token-constant: var(--accent);
+  --astro-code-token-string: var(--ink-600);
+  --astro-code-token-string-expression: var(--ink-600);
+  --astro-code-token-parameter: var(--ink-700);
+  --astro-code-token-function: var(--ink-800);
+  --astro-code-token-punctuation: var(--ink-500);
+  --astro-code-token-link: var(--accent);
 
   /* motion tokens */
   --duration-stagger: 40ms;
@@ -151,9 +160,10 @@ input {
   @apply prose max-w-none prose-headings:font-sans prose-headings:text-ink-800 prose-h2:mt-12 prose-h2:border-t prose-h2:border-line prose-h2:pt-8 prose-h3:mt-8 prose-p:text-[1.02rem] prose-p:leading-8 prose-p:text-ink-600 prose-a:text-accent prose-a:no-underline hover:prose-a:text-ink-800 prose-blockquote:border-l-2 prose-blockquote:border-accent prose-blockquote:bg-accent/5 prose-blockquote:px-6 prose-blockquote:py-4 prose-blockquote:font-normal prose-blockquote:not-italic prose-blockquote:text-ink-700 prose-strong:text-ink-800 prose-em:text-ink-700 prose-code:rounded prose-code:bg-ink-100 prose-code:px-1 prose-code:py-0.5 prose-code:font-mono prose-code:text-[0.9em] prose-code:text-ink-700 prose-pre:overflow-x-auto prose-pre:rounded-2xl prose-pre:border prose-pre:border-line prose-pre:px-5 prose-pre:py-5 prose-img:rounded-2xl prose-img:border prose-img:border-line prose-hr:border-line prose-li:text-ink-600 prose-li:marker:text-ink-400 prose-th:text-ink-800 prose-td:text-ink-600 prose-figcaption:text-ink-400;
 }
 
-.article-prose :where(pre) {
-  background: var(--code-bg);
-  color: var(--code-text);
+.article-prose :where(pre code) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
 }
 
 .article-prose :where(h2, h3) {

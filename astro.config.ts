@@ -28,6 +28,7 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [react()],
   markdown: {
+    shikiConfig: { theme: "css-variables" },
     processor: unified({ remarkPlugins: [remarkGfm], rehypePlugins: [rehypeBlogContent] }),
   },
   vite: {
