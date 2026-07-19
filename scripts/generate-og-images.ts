@@ -12,10 +12,14 @@ const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
 const COVER_DIR = path.join(ROOT, "src", "assets", "cover");
 const OUTPUT_DIR = path.join(ROOT, "public", "og");
+const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
 const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
 const CACHE_VERSION = 1;
 const WIDTH = 1200;
 const HEIGHT = 630;
+const CARD = { x: 48, y: 48, w: 1104, h: 534 };
+const LOGO_SIZE = 32;
+const LOGO_MARGIN = 24;
 
 type Post = PublishedPost;
 
@@ -186,7 +190,7 @@ function baseSvg() {
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#grid)" opacity="0.55"/>
   <circle cx="160" cy="96" r="260" fill="${colors.accentSoft}" opacity="0.42"/>
   <circle cx="1030" cy="78" r="220" fill="${colors.accentSoft}" opacity="0.28"/>
-  <rect x="48" y="48" width="1104" height="534" rx="38" fill="${colors.surface}" fill-opacity="0.72" stroke="rgba(255,255,255,0.78)" filter="url(#softShadow)"/>
+  <rect x="${CARD.x}" y="${CARD.y}" width="${CARD.w}" height="${CARD.h}" rx="38" fill="${colors.surface}" fill-opacity="0.72" stroke="rgba(255,255,255,0.78)" filter="url(#softShadow)"/>
 </svg>`;
 }
 
@@ -233,6 +237,21 @@ function siteTextSvg() {
 </svg>`;
 }
 
+let logoBufferPromise: Promise<Buffer> | null = null;
+
+function logoBuffer() {
+  logoBufferPromise ??= sharp(LOGO_PATH, { density: 384 }).resize(LOGO_SIZE, LOGO_SIZE).png().toBuffer();
+  return logoBufferPromise;
+}
+
+function logoOverlay(logo: Buffer) {
+  return {
+    input: logo,
+    left: CARD.x + CARD.w - LOGO_MARGIN - LOGO_SIZE,
+    top: CARD.y + CARD.h - LOGO_MARGIN - LOGO_SIZE,
+  };
+}
+
 async function coverBuffer(file: string, width: number, height: number) {
   const input = path.join(COVER_DIR, path.basename(file));
   const image = await sharp(input).resize(width, height, { fit: "cover" }).png().toBuffer();
@@ -248,21 +267,24 @@ async function coverBuffer(file: string, width: number, height: number) {
 
 async function renderPost(post: Post) {
   const background = sharp(Buffer.from(baseSvg())).png();
-  const cover = await coverBuffer(post.cover, 390, 430);
+  const [cover, logo] = await Promise.all([coverBuffer(post.cover, 390, 430), logoBuffer()]);
 
   await background
     .composite([
       { input: Buffer.from(textSvg(post)), top: 0, left: 0 },
       { input: cover, top: 100, left: 720 },
+      logoOverlay(logo),
     ])
     .png()
     .toFile(path.join(OUTPUT_DIR, `${post.slug}.png`));
 }
 
 async function renderSite() {
+  const logo = await logoBuffer();
+
   await sharp(Buffer.from(baseSvg()))
     .png()
-    .composite([{ input: Buffer.from(siteTextSvg()), top: 0, left: 0 }])
+    .composite([{ input: Buffer.from(siteTextSvg()), top: 0, left: 0 }, logoOverlay(logo)])
     .png()
     .toFile(path.join(OUTPUT_DIR, "site.png"));
 }
@@ -275,6 +297,7 @@ async function main() {
   const cache = readCacheManifest();
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
+    fs.readFileSync(LOGO_PATH),
     JSON.stringify(sharp.versions),
   ]);
   const nextCache = emptyCacheManifest();
