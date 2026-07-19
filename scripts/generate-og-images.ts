@@ -77,18 +77,12 @@ function postFingerprint(post: Post, rendererFingerprint: string) {
   return fingerprint([rendererFingerprint, JSON.stringify(renderInput), coverSource(post)]);
 }
 
-function siteFingerprint(posts: Post[], rendererFingerprint: string) {
-  const latestPosts = posts.slice(0, 3);
+function siteFingerprint(rendererFingerprint: string) {
   const renderInput = {
     title: siteConfig.title,
     description: siteConfig.description,
-    latest: latestPosts.map((post) => ({ title: post.title, cover: post.cover })),
   };
-  return fingerprint([
-    rendererFingerprint,
-    JSON.stringify(renderInput),
-    ...latestPosts.map(coverSource),
-  ]);
+  return fingerprint([rendererFingerprint, JSON.stringify(renderInput)]);
 }
 
 function removeOrphanImages(posts: Post[]) {
@@ -212,24 +206,19 @@ function textSvg(post: Post) {
 </svg>`;
 }
 
-function siteTextSvg(posts: Post[]) {
-  const latest = posts.slice(0, 3).map((post) => post.title);
+function siteTextSvg() {
+  const description = wrapText(siteConfig.description, 24, 3);
 
   return `
 <svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <style>
     text { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
   </style>
-  <text x="92" y="132" fill="${colors.inkSoft}" font-size="24" font-weight="600" letter-spacing="5">PERSONAL BLOG</text>
-  <text x="92" y="245" fill="${colors.ink}" font-size="72" font-weight="750">${escapeXml(siteConfig.title)}</text>
-  <text x="92" y="310" fill="${colors.inkMuted}" font-size="32" font-weight="400">${escapeXml(siteConfig.description)}</text>
-  <text x="92" y="418" fill="${colors.inkSoft}" font-size="22" font-weight="650" letter-spacing="3">RECENT WRITING</text>
-  ${latest
-    .map(
-      (title, index) => `
-  <text x="92" y="${464 + index * 42}" fill="${colors.inkMuted}" font-size="24" font-weight="500">${escapeXml(wrapText(title, 24, 1)[0])}</text>`,
-    )
-    .join("")}
+  <text x="92" y="140" fill="${colors.inkSoft}" font-size="24" font-weight="600" letter-spacing="5">PERSONAL BLOG</text>
+  <text x="92" y="272" fill="${colors.ink}" font-size="80" font-weight="750">${escapeXml(siteConfig.title)}</text>
+  <text x="92" y="336" fill="${colors.inkMuted}" font-size="30" font-weight="400">
+    ${description.map((line, index) => `<tspan x="92" dy="${index === 0 ? 0 : 44}">${escapeXml(line)}</tspan>`).join("")}
+  </text>
 </svg>`;
 }
 
@@ -259,21 +248,10 @@ async function renderPost(post: Post) {
     .toFile(path.join(OUTPUT_DIR, `${post.slug}.png`));
 }
 
-async function renderSite(posts: Post[]) {
-  const latestCovers = await Promise.all(
-    posts.slice(0, 3).map((post) => coverBuffer(post.cover, 220, 150)),
-  );
-
+async function renderSite() {
   await sharp(Buffer.from(baseSvg()))
     .png()
-    .composite([
-      { input: Buffer.from(siteTextSvg(posts)), top: 0, left: 0 },
-      ...latestCovers.map((cover, index) => ({
-        input: cover,
-        top: 150 + index * 132,
-        left: 860 + index * 26,
-      })),
-    ])
+    .composite([{ input: Buffer.from(siteTextSvg()), top: 0, left: 0 }])
     .png()
     .toFile(path.join(OUTPUT_DIR, "site.png"));
 }
@@ -292,12 +270,12 @@ async function main() {
   let rendered = 0;
   let skipped = 0;
 
-  nextCache.site = siteFingerprint(posts, rendererFingerprint);
+  nextCache.site = siteFingerprint(rendererFingerprint);
   const siteOutput = path.join(OUTPUT_DIR, "site.png");
   if (cache.site === nextCache.site && fs.existsSync(siteOutput)) {
     skipped += 1;
   } else {
-    await renderSite(posts);
+    await renderSite();
     rendered += 1;
   }
 
