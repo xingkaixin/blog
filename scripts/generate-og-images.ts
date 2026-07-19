@@ -152,6 +152,17 @@ export function wrapText(value: string, maxUnits: number, maxLines: number) {
   return limited;
 }
 
+const TAG_GAP_PX = 28;
+
+function tagPositions(tags: string[], fontSize: number) {
+  let x = 92;
+  return tags.map((tag) => {
+    const position = { tag, x };
+    x += textUnits(`# ${tag}`) * fontSize + TAG_GAP_PX;
+    return position;
+  });
+}
+
 export function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
@@ -197,10 +208,10 @@ function textSvg(post: Post) {
     ${summary.map((line, index) => `<tspan x="92" dy="${index === 0 ? 0 : 40}">${escapeXml(line)}</tspan>`).join("")}
   </text>
   <text x="92" y="528" fill="${colors.inkSoft}" font-size="22" font-weight="600" letter-spacing="2">${escapeXml(formatDate(post.date))}</text>
-  ${tags
+  ${tagPositions(tags, 20)
     .map(
-      (tag, index) => `
-  <text x="${92 + index * 128}" y="568" fill="${colors.inkMuted}" font-size="20" font-weight="600"># ${escapeXml(tag)}</text>`,
+      ({ tag, x }) => `
+  <text x="${x}" y="568" fill="${colors.inkMuted}" font-size="20" font-weight="600"># ${escapeXml(tag)}</text>`,
     )
     .join("")}
 </svg>`;
