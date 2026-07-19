@@ -26,13 +26,13 @@ type OgCacheManifest = {
 };
 
 const colors = {
-  paper: "#f4efe6",
-  surface: "#faf6ef",
-  accentSoft: "#e4d9cb",
-  ink: "#1f1812",
-  inkMuted: "#654f36",
-  inkSoft: "#8c7253",
-  line: "rgba(101,79,54,0.16)",
+  paper: "#fafaf7",
+  surface: "#ffffff",
+  accentSoft: "#f6e3de",
+  ink: "#1b1c1f",
+  inkMuted: "#46474d",
+  inkSoft: "#5f6066",
+  line: "rgba(27,28,31,0.08)",
 };
 
 const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
@@ -174,7 +174,7 @@ function baseSvg() {
       <path d="M 24 0 L 0 0 0 24" fill="none" stroke="${colors.line}" stroke-width="1"/>
     </pattern>
     <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#1f1812" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="${colors.ink}" flood-opacity="0.18"/>
     </filter>
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="${colors.paper}"/>
