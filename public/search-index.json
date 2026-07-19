@@ -1,5 +1,31 @@
 [
   {
+    "slug": "agent-daily-log-patrol",
+    "title": "部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare",
+    "date": "2026-07-16",
+    "summary": "Cloudflare 日志没人看，我给 Agent 配了每日巡检：查询过去 24 小时、对比基线、去重后开 issue。适合 loop 的任务，关键是边界清楚、结果容易核对。",
+    "tags": [
+      "Agent",
+      "Cloudflare",
+      "自动化运维"
+    ],
+    "cover": "/posts/cover/agent-daily-log-patrol.png",
+    "coverAlt": "部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare"
+  },
+  {
+    "slug": "agent-browser-self-check",
+    "title": "Agent 写完前端，我要求它先自己点一遍",
+    "date": "2026-07-13",
+    "summary": "前端改完别急着接手。把浏览器自检写进 Definition of Done，让 Agent 先走核心路径、查 console、贴截图；人只接手最后的体验判断。",
+    "tags": [
+      "Agent",
+      "前端工程",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/agent-browser-self-check.png",
+    "coverAlt": "Agent 写完前端，我要求它先自己点一遍"
+  },
+  {
     "slug": "ai-code-volume-not-outcome",
     "title": "「AI 写了我们 80% 的代码」，是代码行数换了个新公关",
     "date": "2026-07-09",
