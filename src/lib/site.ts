@@ -6,7 +6,7 @@ export const siteConfig = {
   author: "XingKaiXin",
   language: "zh-CN",
   email: "me@xingkaixin.me",
-  sameAs: ["https://github.com/xingkaixin", "https://x.com/xingkaixin"],
+  sameAs: ["https://github.com/xingkaixin", "https://x.com/xingkaixin", "https://t.me/xingkaixin"],
   about:
     "Hey，我是 XingKaiXin，我在上海工作。工作、学习之余，我还是一个摄影爱好者，同时也非常喜欢折腾各类数码产品。",
   motto:

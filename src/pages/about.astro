@@ -15,10 +15,14 @@ const meta = {
 };
 
 const contacts = [
-  { label: "邮箱", value: siteConfig.email, href: `mailto:${siteConfig.email}` },
-  { label: "GitHub", value: "xingkaixin", href: "https://github.com/xingkaixin" },
-  { label: "X", value: "xingkaixin", href: "https://x.com/xingkaixin" },
-];
+  { id: "email", label: "邮箱", href: `mailto:${siteConfig.email}` },
+  { id: "github", label: "GitHub", href: "https://github.com/xingkaixin" },
+  { id: "x", label: "X", href: "https://x.com/xingkaixin" },
+  { id: "telegram", label: "Telegram", href: "https://t.me/xingkaixin" },
+] as const;
+
+// 伪随机但构建间稳定的贡献格深浅（5 行 × 14 列）
+const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
 ---
 
 <SiteLayout meta={meta}>
@@ -31,34 +35,481 @@ const contacts = [
       </div>
 
       <div class="card rounded-2xl px-6 py-8 sm:px-10">
-        <p class="text-base leading-8 text-ink-700">{siteConfig.about}</p>
+        <div class="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+          <img
+            src="/avatar.webp"
+            alt="XingKaiXin 的手绘头像"
+            width="96"
+            height="96"
+            class="avatar-sticker h-24 w-24 shrink-0 object-cover"
+          />
+          <p class="text-base leading-8 text-ink-700">{siteConfig.about}</p>
+        </div>
         <p class="mt-6 border-t border-line pt-6 text-sm leading-7 text-ink-500">
           {siteConfig.motto}
         </p>
-      </div>
 
-      <div class="rounded-2xl border border-line bg-surface/60 px-6 py-8 sm:px-10">
-        <h2 class="text-xs font-medium uppercase tracking-[0.2em] text-ink-400">联系</h2>
-        <dl class="mt-5 grid gap-3 text-sm text-ink-600">
+        <footer class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
           {
             contacts.map((contact) => (
-              <div class="flex gap-3">
-                <dt class="shrink-0 font-medium text-ink-500">{contact.label}</dt>
-                <dd>
-                  <a
-                    href={contact.href}
-                    class="text-ink-800 underline underline-offset-2 hover:text-ink-500"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {contact.value}
-                  </a>
-                </dd>
+              <div class="contact-anchor">
+                <a
+                  href={contact.href}
+                  class="inline-flex items-center gap-1.5 text-sm text-ink-500 transition-colors hover:text-ink-800"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {contact.id === "email" && (
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                  )}
+                  {contact.id === "github" && (
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.1 11.1 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                    </svg>
+                  )}
+                  {contact.id === "x" && (
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z" />
+                    </svg>
+                  )}
+                  {contact.id === "telegram" && (
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 2 11 13" />
+                      <path d="M22 2 15 22l-4-9-9-4Z" />
+                    </svg>
+                  )}
+                  {contact.label}
+                </a>
+
+                  {contact.id === "email" && (
+                    <div class="artifact envelope" aria-hidden="true">
+                      <div class="stamp">
+                        <div class="stamp-paper" />
+                        <img src="/avatar.webp" alt="" class="stamp-img" />
+                      </div>
+                      <div class="postmark">
+                        <span>SHANGHAI</span>
+                        <span>2026</span>
+                      </div>
+                      <div class="env-lines">
+                        <p class="env-to">TO</p>
+                        <p class="env-value">{siteConfig.email}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {contact.id === "github" && (
+                    <div class="artifact gh-card" aria-hidden="true">
+                      <div class="gh-bar">
+                        <span class="gh-dot" />
+                        <span class="gh-dot" />
+                        <span class="gh-dot" />
+                        <span class="gh-path">~/xingkaixin</span>
+                      </div>
+                      <p class="gh-cmd">
+                        <span class="gh-prompt">$</span> git clone github.com/xingkaixin
+                      </p>
+                      <div class="gh-graph">
+                        {ghCells.map((level) => (
+                          <span class={`gh-cell gh-l${level}`} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {contact.id === "x" && (
+                    <div class="artifact x-card" aria-hidden="true">
+                      <span class="x-logo">𝕏</span>
+                      <div class="x-head">
+                        <img src="/avatar.webp" alt="" class="x-avatar" />
+                        <div>
+                          <p class="x-name">XingKaiXin</p>
+                          <p class="x-handle">@xingkaixin</p>
+                        </div>
+                      </div>
+                      <p class="x-post">人生不该只有一种体验。</p>
+                    </div>
+                  )}
+
+                  {contact.id === "telegram" && (
+                    <div class="artifact tg-card" aria-hidden="true">
+                      <span class="tg-plane">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M22 2 11 13" />
+                          <path d="M22 2 15 22l-4-9-9-4Z" />
+                        </svg>
+                      </span>
+                      <div class="tg-bubble">
+                        <p class="tg-handle">@xingkaixin</p>
+                        <p class="tg-msg">随时来聊：AI、摄影、数码。</p>
+                      </div>
+                    </div>
+                  )}
               </div>
             ))
           }
-        </dl>
+        </footer>
       </div>
     </div>
   </section>
 </SiteLayout>
+
+<style>
+  /* 实物卡是"物件"：颜色不随站点明暗主题翻转，就像真实的信封不会在关灯后变色 */
+  .contact-anchor {
+    position: relative;
+    --paper-cream: #fdf9ee;
+    --postal-blue: #3f5c9e;
+    --postal-red: #c2402f;
+  }
+
+  .contact-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .avatar-sticker {
+    border-radius: 1.25rem;
+    border: 3px solid #fff;
+    box-shadow:
+      0 0 0 1px var(--line),
+      0 6px 16px -6px rgba(20, 21, 26, 0.28);
+    transform: rotate(-3deg);
+    transition: transform var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .avatar-sticker:hover {
+      transform: rotate(0deg) scale(1.03);
+    }
+  }
+
+  /* ---------- 弹出通用：纸片从下方落上来并摆正 ---------- */
+
+  .artifact {
+    position: absolute;
+    bottom: calc(100% + 0.75rem);
+    left: -0.5rem;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px) rotate(-4deg) scale(0.95);
+    transform-origin: bottom left;
+    box-shadow:
+      0 2px 6px rgba(20, 21, 26, 0.08),
+      0 18px 36px -14px rgba(20, 21, 26, 0.35);
+    transition:
+      transform var(--duration-fast) var(--ease-smooth-out),
+      opacity var(--duration-fast) var(--ease-smooth-out);
+    will-change: transform, opacity;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .contact-anchor:hover .artifact {
+      opacity: 1;
+      transform: translateY(0) rotate(-1deg) scale(1);
+    }
+  }
+
+  .contact-anchor:focus-within .artifact {
+    opacity: 1;
+    transform: translateY(0) rotate(-1deg) scale(1);
+  }
+
+  /* ---------- 邮箱：航空信封 ---------- */
+
+  .envelope {
+    width: 16.5rem;
+    padding: 1rem 1.125rem 1.125rem;
+    background: var(--paper-cream);
+    border: 6px solid;
+    border-image: repeating-linear-gradient(
+        45deg,
+        var(--postal-red) 0 10px,
+        var(--paper-cream) 10px 18px,
+        var(--postal-blue) 18px 28px,
+        var(--paper-cream) 28px 36px
+      )
+      6;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.625rem;
+    z-index: 1;
+    width: 56px;
+    height: 70px;
+  }
+
+  /* 邮票齿孔：白纸层被圆点网格镂空，孔距与尺寸对齐使孔心恰好落在四边；
+     头像盖住内部的孔，只露出边缘的半孔 */
+  .stamp-paper {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    -webkit-mask-image: radial-gradient(circle, transparent 1.6px, #000 1.7px);
+    mask-image: radial-gradient(circle, transparent 1.6px, #000 1.7px);
+    -webkit-mask-size: 7px 7px;
+    mask-size: 7px 7px;
+    -webkit-mask-position: -3.5px -3.5px;
+    mask-position: -3.5px -3.5px;
+  }
+
+  .stamp-img {
+    position: absolute;
+    inset: 5px;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    object-fit: cover;
+  }
+
+  .postmark {
+    position: absolute;
+    top: 2.375rem;
+    right: 3.25rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    width: 3.375rem;
+    height: 3.375rem;
+    border: 1.5px solid;
+    border-radius: 50%;
+    color: color-mix(in srgb, var(--postal-red) 80%, transparent);
+    font-family: var(--font-mono);
+    font-size: 6px;
+    letter-spacing: 0.05em;
+    transform: rotate(-14deg);
+  }
+
+  .postmark::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid color-mix(in srgb, var(--postal-red) 45%, transparent);
+    border-radius: 50%;
+  }
+
+  .postmark::after {
+    content: "";
+    position: absolute;
+    left: 82%;
+    top: 50%;
+    width: 2.5rem;
+    height: 13px;
+    transform: translateY(-50%);
+    background: repeating-linear-gradient(to bottom, currentColor 0 1.5px, transparent 1.5px 5.5px);
+    opacity: 0.55;
+  }
+
+  .env-lines {
+    margin-top: 2.5rem;
+    color: #46474d;
+  }
+
+  .env-to {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    color: #85868c;
+  }
+
+  .env-value {
+    margin-top: 0.25rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px dashed #b4b4b6;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: #1b1c1f;
+  }
+
+  /* ---------- GitHub：迷你终端 ---------- */
+
+  .gh-card {
+    width: 15rem;
+    padding: 0 0.875rem 0.875rem;
+    background: #16171c;
+    border-radius: 0.75rem;
+    font-family: var(--font-mono);
+  }
+
+  .gh-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0.625rem 0;
+  }
+
+  .gh-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #37383f;
+  }
+
+  .gh-path {
+    margin-left: 0.375rem;
+    font-size: 10px;
+    color: #8b8c92;
+  }
+
+  .gh-cmd {
+    font-size: 11px;
+    color: #deddd8;
+  }
+
+  .gh-prompt {
+    color: #7ee787;
+  }
+
+  .gh-graph {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    gap: 3px;
+    margin-top: 0.75rem;
+  }
+
+  .gh-cell {
+    aspect-ratio: 1;
+    border-radius: 2px;
+  }
+
+  .gh-l0 {
+    background: #23242b;
+  }
+  .gh-l1 {
+    background: #0e4429;
+  }
+  .gh-l2 {
+    background: #006d32;
+  }
+  .gh-l3 {
+    background: #26a641;
+  }
+  .gh-l4 {
+    background: #39d353;
+  }
+
+  /* ---------- X：一条 post ---------- */
+
+  .x-card {
+    width: 14.5rem;
+    padding: 0.875rem 1rem;
+    background: #fff;
+    border: 1px solid #e6e4dd;
+    border-radius: 1rem;
+  }
+
+  .x-logo {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.875rem;
+    font-size: 14px;
+    color: #1b1c1f;
+  }
+
+  .x-head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .x-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .x-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1b1c1f;
+  }
+
+  .x-handle {
+    font-size: 11px;
+    color: #85868c;
+  }
+
+  .x-post {
+    margin-top: 0.5rem;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #46474d;
+  }
+
+  /* ---------- Telegram：聊天气泡 ---------- */
+
+  .tg-card {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    width: max-content;
+    box-shadow: none;
+  }
+
+  .tg-plane {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2aabee;
+    color: #fff;
+    box-shadow: 0 6px 14px -6px rgba(42, 171, 238, 0.6);
+  }
+
+  .tg-plane svg {
+    width: 16px;
+    height: 16px;
+    transform: translate(-1px, 1px);
+  }
+
+  .tg-bubble {
+    position: relative;
+    padding: 0.625rem 0.875rem;
+    background: #eaf5fd;
+    border-radius: 1rem 1rem 1rem 0.25rem;
+    box-shadow: 0 12px 28px -14px rgba(20, 21, 26, 0.35);
+  }
+
+  .tg-handle {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #2483b4;
+  }
+
+  .tg-msg {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #2e2f33;
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .artifact {
+      transform: none;
+      transition: opacity var(--duration-quick) var(--ease-smooth-out);
+      will-change: opacity;
+    }
+
+    .contact-anchor:hover .artifact,
+    .contact-anchor:focus-within .artifact {
+      transform: none;
+    }
+
+    .avatar-sticker,
+    .avatar-sticker:hover {
+      transform: rotate(-3deg);
+      transition: none;
+    }
+  }
+</style>
