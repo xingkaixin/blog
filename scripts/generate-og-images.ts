@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
 import { siteConfig } from "../src/lib/site";
 import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
@@ -13,13 +14,20 @@ const POSTS_DIR = path.join(ROOT, "content", "posts");
 const COVER_DIR = path.join(ROOT, "src", "assets", "cover");
 const OUTPUT_DIR = path.join(ROOT, "public", "og");
 const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
+const FONT_DIR = path.join(ROOT, "scripts", "assets", "fonts");
 const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
 const CACHE_VERSION = 1;
 const WIDTH = 1200;
 const HEIGHT = 630;
 const CARD = { x: 48, y: 48, w: 1104, h: 534 };
+const COVER = { x: 720, y: 100, w: 390, h: 430 };
 const LOGO_SIZE = 32;
 const LOGO_MARGIN = 24;
+
+const FONT_FILES = [
+  { file: "NotoSansSC-Regular.otf", weight: 400 },
+  { file: "NotoSansSC-Bold.otf", weight: 700 },
+] as const;
 
 type Post = PublishedPost;
 
@@ -31,15 +39,31 @@ type OgCacheManifest = {
 
 const colors = {
   paper: "#fafaf7",
-  surface: "#ffffff",
+  surface: "rgba(255,255,255,0.72)",
   accentSoft: "#f6e3de",
   ink: "#1b1c1f",
   inkMuted: "#46474d",
   inkSoft: "#5f6066",
-  line: "rgba(27,28,31,0.08)",
+  line: "rgba(27,28,31,0.044)",
 };
 
-const segmenter = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
+type Child = VNode | string;
+
+type VNode = {
+  type: string;
+  props: { style?: Record<string, unknown>; src?: string; children?: Child | Child[] };
+};
+
+function el(type: string, props: VNode["props"], ...children: Child[]): VNode {
+  if (children.length === 0) {
+    return { type, props };
+  }
+  return { type, props: { ...props, children: children.length === 1 ? children[0] : children } };
+}
+
+function text(content: string, style: Record<string, unknown>) {
+  return el("div", { style }, content);
+}
 
 function emptyCacheManifest(): OgCacheManifest {
   return { version: CACHE_VERSION, site: "", posts: {} };
@@ -106,67 +130,6 @@ function removeOrphanImages(posts: Post[]) {
   return removed;
 }
 
-function graphemes(value: string) {
-  return Array.from(segmenter.segment(value), (part) => part.segment);
-}
-
-function escapeXml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-export function textUnits(value: string) {
-  return graphemes(value).reduce((total, char) => {
-    if (/\s/.test(char)) {
-      return total + 0.35;
-    }
-
-    return total + (char.charCodeAt(0) > 255 ? 1 : 0.56);
-  }, 0);
-}
-
-export function wrapText(value: string, maxUnits: number, maxLines: number) {
-  const lines: string[] = [];
-  let current = "";
-
-  for (const char of graphemes(value.replace(/\s+/g, " ").trim())) {
-    const next = `${current}${char}`;
-
-    if (current && textUnits(next) > maxUnits) {
-      lines.push(current.trim());
-      current = char.trimStart();
-      continue;
-    }
-
-    current = next;
-  }
-
-  if (current) {
-    lines.push(current.trim());
-  }
-
-  const limited = lines.slice(0, maxLines);
-  if (lines.length > maxLines) {
-    limited[maxLines - 1] = `${limited[maxLines - 1].replace(/[，。,.!?！？、\s]+$/u, "")}...`;
-  }
-
-  return limited;
-}
-
-const TAG_GAP_PX = 28;
-
-function tagPositions(tags: string[], fontSize: number) {
-  let x = 92;
-  return tags.map((tag) => {
-    const position = { tag, x };
-    x += textUnits(`# ${tag}`) * fontSize + TAG_GAP_PX;
-    return position;
-  });
-}
-
 export function formatDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
@@ -175,118 +138,236 @@ export function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function baseSvg() {
-  return `
-<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="${colors.line}" stroke-width="1"/>
-    </pattern>
-    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="${colors.ink}" flood-opacity="0.18"/>
-    </filter>
-  </defs>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="${colors.paper}"/>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#grid)" opacity="0.55"/>
-  <circle cx="160" cy="96" r="260" fill="${colors.accentSoft}" opacity="0.42"/>
-  <circle cx="1030" cy="78" r="220" fill="${colors.accentSoft}" opacity="0.28"/>
-  <rect x="${CARD.x}" y="${CARD.y}" width="${CARD.w}" height="${CARD.h}" rx="38" fill="${colors.surface}" fill-opacity="0.72" stroke="rgba(255,255,255,0.78)" filter="url(#softShadow)"/>
-</svg>`;
+let fontsCache: SatoriOptions["fonts"] | null = null;
+
+function fonts() {
+  fontsCache ??= FONT_FILES.map(({ file, weight }) => ({
+    name: "Noto Sans SC",
+    data: fs.readFileSync(path.join(FONT_DIR, file)),
+    weight,
+    style: "normal" as const,
+  }));
+  return fontsCache;
 }
 
-function textSvg(post: Post) {
-  const title = wrapText(post.title, 10.8, 3);
-  const summary = wrapText(post.summary, 17, 2);
-  const tags = post.tags.slice(0, 3);
+let logoDataUriPromise: Promise<string> | null = null;
 
-  return `
-<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    text { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
-  </style>
-  <text x="92" y="116" fill="${colors.inkSoft}" font-size="24" font-weight="600" letter-spacing="4">${escapeXml(siteConfig.title)}</text>
-  <text x="92" y="200" fill="${colors.ink}" font-size="52" font-weight="700">
-    ${title.map((line, index) => `<tspan x="92" dy="${index === 0 ? 0 : 62}">${escapeXml(line)}</tspan>`).join("")}
-  </text>
-  <text x="92" y="${420 - Math.max(0, 3 - title.length) * 42}" fill="${colors.inkMuted}" font-size="27" font-weight="400">
-    ${summary.map((line, index) => `<tspan x="92" dy="${index === 0 ? 0 : 40}">${escapeXml(line)}</tspan>`).join("")}
-  </text>
-  <text x="92" y="528" fill="${colors.inkSoft}" font-size="22" font-weight="600" letter-spacing="2">${escapeXml(formatDate(post.date))}</text>
-  ${tagPositions(tags, 20)
-    .map(
-      ({ tag, x }) => `
-  <text x="${x}" y="568" fill="${colors.inkMuted}" font-size="20" font-weight="600"># ${escapeXml(tag)}</text>`,
-    )
-    .join("")}
-</svg>`;
+function logoDataUri() {
+  logoDataUriPromise ??= sharp(LOGO_PATH, { density: 384 })
+    .resize(LOGO_SIZE, LOGO_SIZE)
+    .png()
+    .toBuffer()
+    .then((buffer) => `data:image/png;base64,${buffer.toString("base64")}`);
+  return logoDataUriPromise;
 }
 
-function siteTextSvg() {
-  const description = wrapText(siteConfig.description, 24, 3);
-
-  return `
-<svg width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    text { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; }
-  </style>
-  <text x="92" y="140" fill="${colors.inkSoft}" font-size="24" font-weight="600" letter-spacing="5">PERSONAL BLOG</text>
-  <text x="92" y="272" fill="${colors.ink}" font-size="80" font-weight="750">${escapeXml(siteConfig.title)}</text>
-  <text x="92" y="336" fill="${colors.inkMuted}" font-size="30" font-weight="400">
-    ${description.map((line, index) => `<tspan x="92" dy="${index === 0 ? 0 : 44}">${escapeXml(line)}</tspan>`).join("")}
-  </text>
-</svg>`;
-}
-
-let logoBufferPromise: Promise<Buffer> | null = null;
-
-function logoBuffer() {
-  logoBufferPromise ??= sharp(LOGO_PATH, { density: 384 }).resize(LOGO_SIZE, LOGO_SIZE).png().toBuffer();
-  return logoBufferPromise;
-}
-
-function logoOverlay(logo: Buffer) {
-  return {
-    input: logo,
-    left: CARD.x + CARD.w - LOGO_MARGIN - LOGO_SIZE,
-    top: CARD.y + CARD.h - LOGO_MARGIN - LOGO_SIZE,
-  };
-}
-
-async function coverBuffer(file: string, width: number, height: number) {
-  const input = path.join(COVER_DIR, path.basename(file));
-  const image = await sharp(input).resize(width, height, { fit: "cover" }).png().toBuffer();
-  const mask = Buffer.from(
-    `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" rx="34" fill="#fff"/></svg>`,
-  );
-
-  return sharp(image)
-    .composite([{ input: mask, blend: "dest-in" }])
+async function coverDataUri(file: string) {
+  const buffer = await sharp(path.join(COVER_DIR, path.basename(file)))
+    .resize(COVER.w, COVER.h, { fit: "cover" })
     .png()
     .toBuffer();
+  return `data:image/png;base64,${buffer.toString("base64")}`;
+}
+
+function gridLayer(direction: "to right" | "to bottom") {
+  return el("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      width: "100%",
+      height: "100%",
+      backgroundImage: `linear-gradient(${direction}, ${colors.line} 1px, transparent 1px)`,
+      backgroundSize: "24px 24px",
+    },
+  });
+}
+
+function circle(cx: number, cy: number, r: number, opacity: number) {
+  return el("div", {
+    style: {
+      position: "absolute",
+      left: cx - r,
+      top: cy - r,
+      width: r * 2,
+      height: r * 2,
+      borderRadius: "50%",
+      backgroundColor: colors.accentSoft,
+      opacity,
+    },
+  });
+}
+
+function background(...content: Child[]) {
+  return el(
+    "div",
+    {
+      style: {
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        position: "relative",
+        backgroundColor: colors.paper,
+        fontFamily: "Noto Sans SC",
+      },
+    },
+    gridLayer("to right"),
+    gridLayer("to bottom"),
+    circle(160, 96, 260, 0.42),
+    circle(1030, 78, 220, 0.28),
+    el("div", {
+      style: {
+        position: "absolute",
+        left: CARD.x,
+        top: CARD.y,
+        width: CARD.w,
+        height: CARD.h,
+        borderRadius: 38,
+        backgroundColor: colors.surface,
+        border: "1px solid rgba(255,255,255,0.78)",
+        boxShadow: "0 24px 48px rgba(27,28,31,0.18)",
+      },
+    }),
+    ...content,
+  );
+}
+
+function logo(src: string) {
+  return el("img", {
+    src,
+    style: {
+      position: "absolute",
+      left: CARD.x + CARD.w - LOGO_MARGIN - LOGO_SIZE,
+      top: CARD.y + CARD.h - LOGO_MARGIN - LOGO_SIZE,
+      width: LOGO_SIZE,
+      height: LOGO_SIZE,
+    },
+  });
+}
+
+function postLayout(post: Post, coverSrc: string, logoSrc: string) {
+  return background(
+    el(
+      "div",
+      {
+        style: {
+          position: "absolute",
+          left: 92,
+          top: 86,
+          width: 584,
+          height: 486,
+          display: "flex",
+          flexDirection: "column",
+        },
+      },
+      text(siteConfig.title, {
+        fontSize: 24,
+        fontWeight: 700,
+        letterSpacing: 4,
+        color: colors.inkSoft,
+      }),
+      text(post.title, {
+        display: "block",
+        marginTop: 30,
+        fontSize: 52,
+        lineHeight: "62px",
+        fontWeight: 700,
+        color: colors.ink,
+        lineClamp: 3,
+      }),
+      text(post.summary, {
+        display: "block",
+        marginTop: 24,
+        fontSize: 27,
+        lineHeight: "40px",
+        fontWeight: 400,
+        color: colors.inkMuted,
+        lineClamp: 2,
+      }),
+      el("div", { style: { display: "flex", flexGrow: 1 } }),
+      text(formatDate(post.date), {
+        fontSize: 22,
+        fontWeight: 700,
+        letterSpacing: 2,
+        color: colors.inkSoft,
+      }),
+      el(
+        "div",
+        { style: { display: "flex", gap: 28, marginTop: 16 } },
+        ...post.tags
+          .slice(0, 3)
+          .map((tag) =>
+            text(`# ${tag}`, { fontSize: 20, fontWeight: 700, color: colors.inkMuted }),
+          ),
+      ),
+    ),
+    el("img", {
+      src: coverSrc,
+      style: {
+        position: "absolute",
+        left: COVER.x,
+        top: COVER.y,
+        width: COVER.w,
+        height: COVER.h,
+        borderRadius: 34,
+        objectFit: "cover",
+      },
+    }),
+    logo(logoSrc),
+  );
+}
+
+function siteLayout(logoSrc: string) {
+  return background(
+    el(
+      "div",
+      {
+        style: {
+          position: "absolute",
+          left: 92,
+          top: 110,
+          width: 1000,
+          display: "flex",
+          flexDirection: "column",
+        },
+      },
+      text("PERSONAL BLOG", {
+        fontSize: 24,
+        fontWeight: 700,
+        letterSpacing: 5,
+        color: colors.inkSoft,
+      }),
+      text(siteConfig.title, { marginTop: 44, fontSize: 80, fontWeight: 700, color: colors.ink }),
+      text(siteConfig.description, {
+        display: "block",
+        marginTop: 24,
+        fontSize: 30,
+        lineHeight: "44px",
+        fontWeight: 400,
+        color: colors.inkMuted,
+        lineClamp: 3,
+      }),
+    ),
+    logo(logoSrc),
+  );
+}
+
+async function renderToFile(layout: VNode, output: string) {
+  const svg = await satori(layout as unknown as Parameters<typeof satori>[0], {
+    width: WIDTH,
+    height: HEIGHT,
+    fonts: fonts(),
+  });
+  await sharp(Buffer.from(svg)).png().toFile(output);
 }
 
 async function renderPost(post: Post) {
-  const background = sharp(Buffer.from(baseSvg())).png();
-  const [cover, logo] = await Promise.all([coverBuffer(post.cover, 390, 430), logoBuffer()]);
-
-  await background
-    .composite([
-      { input: Buffer.from(textSvg(post)), top: 0, left: 0 },
-      { input: cover, top: 100, left: 720 },
-      logoOverlay(logo),
-    ])
-    .png()
-    .toFile(path.join(OUTPUT_DIR, `${post.slug}.png`));
+  const [cover, logoSrc] = await Promise.all([coverDataUri(post.cover), logoDataUri()]);
+  await renderToFile(postLayout(post, cover, logoSrc), path.join(OUTPUT_DIR, `${post.slug}.png`));
 }
 
 async function renderSite() {
-  const logo = await logoBuffer();
-
-  await sharp(Buffer.from(baseSvg()))
-    .png()
-    .composite([{ input: Buffer.from(siteTextSvg()), top: 0, left: 0 }, logoOverlay(logo)])
-    .png()
-    .toFile(path.join(OUTPUT_DIR, "site.png"));
+  await renderToFile(siteLayout(await logoDataUri()), path.join(OUTPUT_DIR, "site.png"));
 }
 
 async function main() {
@@ -298,6 +379,7 @@ async function main() {
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
     fs.readFileSync(LOGO_PATH),
+    ...FONT_FILES.map(({ file }) => fs.readFileSync(path.join(FONT_DIR, file))),
     JSON.stringify(sharp.versions),
   ]);
   const nextCache = emptyCacheManifest();
