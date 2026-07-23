@@ -15,10 +15,6 @@ function resolveManualChunk(id: string) {
     return "base-ui";
   }
 
-  if (id.includes("@fontsource/jetbrains-mono") || id.includes("@fontsource/outfit")) {
-    return "font-source";
-  }
-
   return undefined;
 }
 

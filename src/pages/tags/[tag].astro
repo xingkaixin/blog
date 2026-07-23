@@ -48,11 +48,10 @@ const meta = {
 
       <div class="mt-6">
         {
-          posts.map((post, index) => (
+          posts.map((post) => (
             <a
               href={`/posts/${post.slug}/`}
-              class="group fade-in flex items-center gap-4 border-b border-line py-5 sm:gap-6"
-              style={`animation-delay: ${Math.min(index, 5) * 40}ms`}
+              class="group flex items-center gap-4 border-b border-line py-5 sm:gap-6"
             >
               <span class="w-26 shrink-0 font-mono text-xs text-ink-400">
                 {formatDisplayDate(post.date)}

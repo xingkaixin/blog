@@ -1,10 +1,8 @@
 ---
-import "@fontsource/outfit/400.css";
-import "@fontsource/outfit/500.css";
-import "@fontsource/outfit/700.css";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/600.css";
-import "cn-fontsource-smiley-sans-oblique-regular/font.css";
+import jetBrainsMono400Url from "@fontsource/jetbrains-mono/latin-400.css?url";
+import outfit400Url from "@fontsource/outfit/latin-400.css?url";
+import outfit500Url from "@fontsource/outfit/latin-500.css?url";
+import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
 import { ClientRouter } from "astro:transitions";
 import { HeaderStickers } from "@/components/header-stickers";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
@@ -22,6 +20,8 @@ const { meta, noindex = false } = Astro.props;
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 const image = pageImage(meta);
 const title = pageTitle(meta);
+const analyticsHost = new URL(siteConfig.url).hostname;
+const desktopFontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url, smileyFontUrl];
 const buttonBase =
   "inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-[transform,background-color,color,border-color] duration-(--duration-quick) ease-(--ease-smooth-out) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]";
 const ghostButton = `${buttonBase} border-transparent bg-transparent text-ink-500 hover:bg-ink-100 hover:text-ink-800`;
@@ -122,12 +122,17 @@ const pageTransition = {
     <meta name="twitter:description" content={meta.description} />
     <meta name="twitter:image" content={image} />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <script is:inline define:vars={{ desktopFontUrls }}>
+      if (matchMedia("(min-width: 640px)").matches) {
+        desktopFontUrls.forEach((href) => {
+          const font = document.createElement("link");
+          font.rel = "stylesheet";
+          font.href = href;
+          document.head.append(font);
+        });
+      }
+    </script>
     <ClientRouter />
-    <script
-      defer
-      src="https://cloud.umami.is/script.js"
-      data-website-id="8c39c77b-edab-4799-b07e-6638092c01e1"
-    ></script>
     <script type="application/ld+json" set:html={JSON.stringify(buildJsonLd(meta))}></script>
   </head>
   <body>
@@ -139,7 +144,7 @@ const pageTransition = {
         跳到正文
       </a>
       <header class="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur-xl">
-        <HeaderStickers client:idle transition:persist="header-stickers" />
+        <HeaderStickers client:media="(min-width: 640px)" transition:persist="header-stickers" />
         <div class="relative mx-auto flex max-w-350 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
           <a href="/" class="group inline-flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center overflow-hidden">
@@ -202,7 +207,7 @@ const pageTransition = {
                   </a>
                 )
               }
-              <SearchDialog client:idle />
+              <SearchDialog client:media="(min-width: 640px)" />
             </div>
             <button
               type="button"
@@ -276,10 +281,29 @@ const pageTransition = {
         apply();
       });
     </script>
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "1c3ce5d60e4e4d4a87e9063032aa37af"}'
-    ></script>
+    <script is:inline define:vars={{ analyticsHost }}>
+      if (location.hostname === analyticsHost) {
+        const loadAnalytics = () => {
+          const umami = document.createElement("script");
+          umami.src = "https://cloud.umami.is/script.js";
+          umami.defer = true;
+          umami.dataset.websiteId = "8c39c77b-edab-4799-b07e-6638092c01e1";
+          document.head.append(umami);
+
+          const cloudflare = document.createElement("script");
+          cloudflare.src = "https://static.cloudflareinsights.com/beacon.min.js";
+          cloudflare.defer = true;
+          cloudflare.dataset.cfBeacon =
+            '{"token":"1c3ce5d60e4e4d4a87e9063032aa37af"}';
+          document.head.append(cloudflare);
+        };
+
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(loadAnalytics);
+        } else {
+          setTimeout(loadAnalytics, 0);
+        }
+      }
+    </script>
   </body>
 </html>

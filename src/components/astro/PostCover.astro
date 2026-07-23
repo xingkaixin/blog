@@ -25,8 +25,14 @@ const imageClassName = ["block h-auto w-full max-w-full", imageClass].filter(Boo
   {
     responsive ? (
       <picture>
-        <source srcset={responsive.mobile} media="(max-width: 639px)" />
-        <source srcset={responsive.desktop} media="(max-width: 1023px)" />
+        <source
+          srcset={`${responsive.mobile} 1x, ${responsive.desktop} 2x`}
+          media="(max-width: 639px)"
+        />
+        <source
+          srcset={`${responsive.desktop} 1x, ${responsive.full} 2x`}
+          media="(max-width: 1023px)"
+        />
         <img
           src={responsive.full}
           alt={alt}
