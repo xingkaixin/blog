@@ -88,7 +88,7 @@ const meta = {
             {[...postsByYear.entries()].map(([year, yearPosts], groupIndex) => (
               <section class="grid gap-4 lg:grid-cols-[140px_1fr] lg:gap-10">
                 <h2
-                  class="fade-in font-display text-3xl text-ink-300 lg:sticky lg:top-28 lg:self-start lg:text-5xl"
+                  class="fade-in font-display text-3xl text-ink-400 lg:sticky lg:top-28 lg:self-start lg:text-5xl"
                   style={`animation-delay: ${Math.min(groupIndex * 3 + 1, 5) * 40}ms`}
                 >
                   {year}
@@ -100,14 +100,14 @@ const meta = {
                       class="group fade-in flex items-center gap-4 border-b border-line py-4 sm:gap-6"
                       style={`animation-delay: ${Math.min(groupIndex * 3 + index + 2, 5) * 40}ms`}
                     >
-                      <span class="w-14 shrink-0 font-mono text-xs text-ink-400">
+                      <span class="w-14 shrink-0 font-mono text-xs text-ink-500">
                         {post.date.slice(5, 10)}
                       </span>
                       <span class="min-w-0 flex-1">
                         <span class="block text-lg text-balance text-ink-700 transition-colors duration-(--duration-quick) group-hover:text-accent">
                           {post.title}
                         </span>
-                        <span class="mt-1 hidden text-sm text-ink-400 sm:line-clamp-1">
+                        <span class="mt-1 hidden text-sm text-ink-500 sm:line-clamp-1">
                           {post.summary}
                         </span>
                       </span>
