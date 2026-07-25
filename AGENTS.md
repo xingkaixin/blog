@@ -22,14 +22,21 @@ src/
 ├── components/
 │   ├── astro/              # 静态展示组件
 │   ├── ui/                 # 基础 UI 组件 (button, input, dialog 等)
+│   ├── header-stickers.tsx     # header 贴纸 island
+│   ├── mobile-header-menu.tsx  # 移动端导航菜单 island
 │   ├── search-dialog.tsx       # 搜索对话框
 │   └── signature-animation.tsx # 签名动画 island
 ├── layouts/
 │   └── SiteLayout.astro    # 站点布局与 SEO meta
 ├── lib/
 │   ├── astro-posts.ts      # Astro 文章查询与派生数据
-│   ├── content.ts          # 文章加载与处理
+│   ├── covers.ts           # 封面 URL 映射（generate-covers.ts 生成）
 │   ├── markdown.ts         # Markdown 纯函数
+│   ├── post-images.ts      # 插图 URL 映射（generate-post-images.ts 生成）
+│   ├── post-schema.ts      # frontmatter zod schema 与校验
+│   ├── post-tags.ts        # tag 归档分组
+│   ├── projects.ts         # 工具箱项目数据
+│   ├── rehype-blog-content.ts  # 标题锚点、外链、响应式插图
 │   ├── seo.ts              # SEO meta 与 JSON-LD
 │   ├── search.ts           # 搜索功能
 │   ├── site.ts             # 站点配置
@@ -37,15 +44,20 @@ src/
 │   └── utils.ts            # 工具函数
 ├── pages/
 │   ├── index.astro         # 首页
+│   ├── about.astro         # 关于
 │   ├── projects.astro      # 工具箱
-│   └── posts/[slug].astro  # 文章详情页
+│   ├── 404.astro           # 404
+│   ├── posts/[slug].astro  # 文章详情页
+│   └── tags/[tag].astro    # tag 归档页
 └── content.config.ts       # 内容集合配置
 ```
 
 ## 关键文件
 
 - `src/lib/site.ts` - 站点配置 (标题、描述、作者)
-- `src/content.config.ts` - 文章 frontmatter schema 与封面校验
+- `src/lib/post-schema.ts` - frontmatter 契约唯一真源，被 content collection、构建脚本与 vite 校验插件共用
+- `src/content.config.ts` - 内容集合装配（loader + schema）
+- `src/lib/rehype-blog-content.ts` - 正文渲染增强：标题锚点、外链属性、插图转响应式 picture
 - `src/pages/posts/[slug].astro` - 文章页静态生成
 - `src/lib/seo.ts` - 页面 meta 与 JSON-LD
 - `astro.config.ts` - Astro、React island、Tailwind 与 Markdown 插件配置

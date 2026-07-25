@@ -23,7 +23,7 @@ const name = "demo";
 \`\`\`
 `;
 
-describe("content parsing", () => {
+describe("extractToc", () => {
   it("extracts toc entries", () => {
     expect(extractToc(source)).toEqual([
       { depth: 2, text: "起点", id: "起点" },
