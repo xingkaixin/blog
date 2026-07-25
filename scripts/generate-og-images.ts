@@ -18,6 +18,10 @@ const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
 const FONT_DIR = path.join(ROOT, "scripts", "assets", "fonts");
 const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
 const CACHE_VERSION = 1;
+// 每张 OG 图要经 satori 渲染 1200x630 SVG 再由 sharp 编码 PNG。冷缓存下全量并发的
+// 峰值内存随文章数线性增长，固定窗口把它压成常量。66 篇冷构建实测（10 核）：
+// 无上限 5.6s/900MB，8 并发 5.7s/656MB，6 并发 6.1s/546MB，4 并发 8.7s/501MB。
+const RENDER_CONCURRENCY = 8;
 const WIDTH = 1200;
 const HEIGHT = 630;
 const CARD = { x: 48, y: 48, w: 1104, h: 534 };
@@ -80,6 +84,20 @@ function readCacheManifest(): OgCacheManifest {
   } catch {
     return emptyCacheManifest();
   }
+}
+
+async function forEachWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<void>,
+) {
+  let cursor = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      await worker(items[cursor++]);
+    }
+  });
+  await Promise.all(runners);
 }
 
 function fingerprint(parts: Array<string | Buffer>) {
@@ -388,21 +406,19 @@ async function main() {
     rendered += 1;
   }
 
-  await Promise.all(
-    posts.map(async (post) => {
-      const output = path.join(OUTPUT_DIR, `${post.slug}.png`);
-      const currentFingerprint = postFingerprint(post, rendererFingerprint);
-      nextCache.posts[post.slug] = currentFingerprint;
+  await forEachWithConcurrency(posts, RENDER_CONCURRENCY, async (post) => {
+    const output = path.join(OUTPUT_DIR, `${post.slug}.png`);
+    const currentFingerprint = postFingerprint(post, rendererFingerprint);
+    nextCache.posts[post.slug] = currentFingerprint;
 
-      if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
-        skipped += 1;
-        return;
-      }
+    if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
+      skipped += 1;
+      return;
+    }
 
-      await renderPost(post);
-      rendered += 1;
-    }),
-  );
+    await renderPost(post);
+    rendered += 1;
+  });
 
   const removed = removeOrphanImages(posts);
   fs.writeFileSync(CACHE_FILE, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
