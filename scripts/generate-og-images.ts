@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
+import { formatDisplayDate } from "../src/lib/markdown";
 import { siteConfig } from "../src/lib/site";
 import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
 
@@ -128,14 +129,6 @@ function removeOrphanImages(posts: Post[]) {
   }
 
   return removed;
-}
-
-export function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(value));
 }
 
 let fontsCache: SatoriOptions["fonts"] | null = null;
@@ -285,7 +278,7 @@ function postLayout(post: Post, coverSrc: string, logoSrc: string) {
         lineClamp: 2,
       }),
       el("div", { style: { display: "flex", flexGrow: 1 } }),
-      text(formatDate(post.date), {
+      text(formatDisplayDate(post.date), {
         fontSize: 22,
         fontWeight: 700,
         letterSpacing: 2,

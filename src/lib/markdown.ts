@@ -28,11 +28,14 @@ export const removeFrontmatter = (source: string) => {
   return match ? match[2] : source;
 };
 
+// frontmatter 的 date 是日历日期，解析后锚在 UTC 午夜。不指定 timeZone 会按运行时
+// 本地时区渲染，在 UTC 负偏移的机器上构建会让全站日期早一天。
 export function formatDisplayDate(value: string | Date) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 

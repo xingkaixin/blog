@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractToc } from "@/lib/markdown";
+import { extractToc, formatDisplayDate } from "@/lib/markdown";
 
 const source = `---
 title: 文章标题
@@ -74,5 +74,23 @@ coverAlt: 测试封面
         id: "上半年数据基础设施与规范建设",
       },
     ]);
+  });
+});
+
+describe("formatDisplayDate", () => {
+  it("formats a calendar date in Chinese", () => {
+    expect(formatDisplayDate("2026-07-16")).toBe("2026年7月16日");
+  });
+
+  // 改写 process.env.TZ 会立即影响 Intl 的默认时区，因此该用例在任何宿主时区下
+  // 都能挡住回归：去掉 formatDisplayDate 里的 timeZone 选项就会得到 3月12日。
+  it("does not shift with the host timezone", () => {
+    const original = process.env.TZ;
+    process.env.TZ = "America/Los_Angeles";
+    try {
+      expect(formatDisplayDate("2026-03-13")).toBe("2026年3月13日");
+    } finally {
+      process.env.TZ = original;
+    }
   });
 });
