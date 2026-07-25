@@ -67,7 +67,7 @@ src/
 
 ### 文章格式
 
-博客文章使用 Markdown 格式，文件放在 `content/posts/` 目录。每篇文章必须包含以下 frontmatter：
+博客文章使用 Markdown 格式，文件平铺放在 `content/posts/` 目录（不支持子目录，放进子目录会让构建报错）。每篇文章必须包含以下 frontmatter：
 
 ```yaml
 ---
