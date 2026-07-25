@@ -3,12 +3,12 @@ import path from "node:path";
 import matter from "gray-matter";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
+import { parseFrontmatter } from "./src/lib/post-schema";
 
-const requiredFrontmatter = ["title", "date", "summary", "tags", "cover", "coverAlt"] as const;
-
+// astro build/check 通过 content collection 校验文章，但那条路径不覆盖 vitest。
+// 该插件让 `bun run test` 同样能拦住坏 frontmatter，并补上 collection 没有的 slug 去重。
 function validateBlogContent(): Plugin {
-  const root = process.cwd();
-  const postsDir = path.join(root, "content", "posts");
+  const postsDir = path.join(process.cwd(), "content", "posts");
 
   const validate = () => {
     if (!fs.existsSync(postsDir)) {
@@ -16,9 +16,8 @@ function validateBlogContent(): Plugin {
     }
 
     const seenSlugs = new Set<string>();
-    const files = fs.readdirSync(postsDir).filter((file) => file.endsWith(".md"));
 
-    for (const file of files) {
+    for (const file of fs.readdirSync(postsDir).filter((entry) => entry.endsWith(".md"))) {
       const slug = file.replace(/\.md$/, "");
 
       if (seenSlugs.has(slug)) {
@@ -26,28 +25,7 @@ function validateBlogContent(): Plugin {
       }
       seenSlugs.add(slug);
 
-      const absolutePath = path.join(postsDir, file);
-      const source = fs.readFileSync(absolutePath, "utf8");
-      const { data } = matter(source);
-
-      for (const field of requiredFrontmatter) {
-        if (data[field] == null || data[field] === "") {
-          throw new Error(`Missing frontmatter "${field}" in ${file}`);
-        }
-      }
-
-      if (!Array.isArray(data.tags) || data.tags.some((item) => typeof item !== "string")) {
-        throw new Error(`Frontmatter "tags" must be a string array in ${file}`);
-      }
-
-      if (typeof data.cover !== "string") {
-        throw new Error(`Frontmatter "cover" must be a string in ${file}`);
-      }
-
-      const coverPath = path.join(root, "src", "assets", "cover", path.basename(data.cover));
-      if (!fs.existsSync(coverPath)) {
-        throw new Error(`Cover image not found for ${file}: ${data.cover}`);
-      }
+      parseFrontmatter(slug, matter(fs.readFileSync(path.join(postsDir, file), "utf8")).data);
     }
   };
 

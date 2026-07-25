@@ -13,7 +13,7 @@ title: New post
 date: 2026-07-11
 summary: Summary
 tags: [astro, testing]
-cover: cover.png
+cover: agent-friendly-tool.png
 coverAlt: Cover
 ---
 Body`;
@@ -43,6 +43,15 @@ describe("post catalog", () => {
         publishedSource.replace("date: 2026-07-11", "date: not-a-date"),
       ),
     ).toThrow("date");
+  });
+
+  it("rejects a cover with no matching asset", () => {
+    expect(() =>
+      parsePublishedPost(
+        "missing-cover",
+        publishedSource.replace("cover: agent-friendly-tool.png", "cover: nope.png"),
+      ),
+    ).toThrow("Cover image not found");
   });
 
   it("builds sitemap and legacy redirects from the same catalog", () => {
