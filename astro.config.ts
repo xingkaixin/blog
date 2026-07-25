@@ -6,18 +6,6 @@ import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
 import { rehypeBlogContent } from "./src/lib/rehype-blog-content";
 
-function resolveManualChunk(id: string) {
-  if (id.includes("remark-gfm")) {
-    return "markdown";
-  }
-
-  if (id.includes("@base-ui/react")) {
-    return "base-ui";
-  }
-
-  return undefined;
-}
-
 export default defineConfig({
   site: "https://xingkaixin.me",
   output: "static",
@@ -32,13 +20,6 @@ export default defineConfig({
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
-      },
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: resolveManualChunk,
-        },
       },
     },
   },
