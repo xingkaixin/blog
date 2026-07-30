@@ -61,6 +61,7 @@ describe("post catalog", () => {
     ];
     expect(buildSitemap(posts)).toContain("/posts/new-post/");
     expect(buildSitemap(posts)).toContain("/tags/shared/");
+    expect(buildSitemap(posts)).toContain("/photos/");
     expect(buildSitemap(posts)).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });

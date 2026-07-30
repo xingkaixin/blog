@@ -4,6 +4,7 @@ import outfit400Url from "@fontsource/outfit/latin-400.css?url";
 import outfit500Url from "@fontsource/outfit/latin-500.css?url";
 import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
 import { ClientRouter } from "astro:transitions";
+import { ImagesIcon } from "lucide-react";
 import { HeaderStickers } from "@/components/header-stickers";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { SearchDialog } from "@/components/search-dialog";
@@ -144,7 +145,7 @@ const pageTransition = {
         跳到正文
       </a>
       <header class="sticky top-0 z-20 border-b border-line bg-paper/85 backdrop-blur-xl">
-        <HeaderStickers client:media="(min-width: 640px)" transition:persist="header-stickers" />
+        <HeaderStickers client:media="(min-width: 1024px)" transition:persist="header-stickers" />
         <div class="relative mx-auto flex max-w-350 items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
           <a href="/" class="group inline-flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center overflow-hidden">
@@ -161,7 +162,7 @@ const pageTransition = {
             </div>
           </a>
           <div class="flex items-center gap-2">
-            <div class="hidden items-center gap-2 sm:flex">
+            <div class="hidden items-center gap-2 lg:flex">
               {
                 currentPath !== "/" && (
                   <a href="/" class={ghostButton}>
@@ -193,6 +194,14 @@ const pageTransition = {
                 )
               }
               {
+                currentPath !== "/photos" && (
+                  <a href="/photos/" class={ghostButton}>
+                    <ImagesIcon aria-hidden="true" className="h-4 w-4" />
+                    照片
+                  </a>
+                )
+              }
+              {
                 currentPath !== "/about" && (
                   <a href="/about/" class={ghostButton}>
                     <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 15 15" fill="none">
@@ -207,7 +216,7 @@ const pageTransition = {
                   </a>
                 )
               }
-              <SearchDialog client:media="(min-width: 640px)" />
+              <SearchDialog client:media="(min-width: 1024px)" />
             </div>
             <button
               type="button"
@@ -231,7 +240,7 @@ const pageTransition = {
                 />
               </svg>
             </button>
-            <MobileHeaderMenu currentPath={currentPath} client:media="(max-width: 639.98px)" />
+            <MobileHeaderMenu currentPath={currentPath} client:media="(max-width: 1023.98px)" />
           </div>
         </div>
       </header>

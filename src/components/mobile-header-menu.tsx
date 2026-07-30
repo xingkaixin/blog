@@ -1,4 +1,11 @@
-import { ChevronLeftIcon, MenuIcon, RocketIcon, SearchIcon, UserIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ImagesIcon,
+  MenuIcon,
+  RocketIcon,
+  SearchIcon,
+  UserIcon,
+} from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { SearchDialog } from "@/components/search-dialog";
 import { cn } from "@/lib/utils";
@@ -24,6 +31,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   const open = menuState === "open";
   const showBack = currentPath !== "/";
   const showProjects = currentPath !== "/projects";
+  const showPhotos = currentPath !== "/photos";
   const showAbout = currentPath !== "/about";
 
   const clearCloseTimer = useCallback(() => {
@@ -94,7 +102,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   }, [open]);
 
   return (
-    <div ref={menuRef} className="relative sm:hidden">
+    <div ref={menuRef} className="relative lg:hidden">
       <button
         ref={triggerRef}
         type="button"
@@ -138,9 +146,20 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
               工具箱
             </a>
           )}
-          {showAbout && (
+          {showPhotos && (
             <a
               ref={!showBack && !showProjects ? firstItemRef : undefined}
+              href="/photos/"
+              onClick={() => closeMenu()}
+              className={menuItem}
+            >
+              <ImagesIcon aria-hidden="true" className="h-4 w-4" />
+              照片
+            </a>
+          )}
+          {showAbout && (
+            <a
+              ref={!showBack && !showProjects && !showPhotos ? firstItemRef : undefined}
               href="/about/"
               onClick={() => closeMenu()}
               className={menuItem}

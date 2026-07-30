@@ -131,7 +131,10 @@ export function HeaderStickers() {
   };
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div
+      ref={containerRef}
+      className="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block"
+    >
       {stickers.map((s, i) => {
         const isDragging = dragging === i;
         return (

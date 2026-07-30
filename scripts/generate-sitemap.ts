@@ -19,6 +19,7 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | 
 
   const entries = [
     urlEntry(`${siteConfig.url}/`, today, "weekly", "1.0"),
+    urlEntry(`${siteConfig.url}/photos/`, today, "weekly", "0.8"),
     urlEntry(`${siteConfig.url}/projects/`, today, "monthly", "0.7"),
     urlEntry(`${siteConfig.url}/about/`, today, "yearly", "0.6"),
     ...buildTagArchives(posts).map(({ tag }) =>
