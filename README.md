@@ -41,6 +41,7 @@
 - 目录自动提取与导航
 - 阅读进度指示器
 - SEO meta、OG 与 JSON-LD 静态生成
+- R2 照片墙、相册筛选与 HEIC 发布流程
 
 ## 快速开始
 
@@ -63,7 +64,11 @@ bun run lint          # 代码检查
 bun run typecheck     # Astro 与 TypeScript 类型检查
 bun run format        # 自动格式化
 bun run format:check  # 仅检查格式
+bun run photos:publish -- <照片或目录...>  # 发布照片到 R2
 ```
+
+照片存储、CORS、本地预览与发布参数见
+[照片墙文档](docs/photo-wall.md)。
 
 ## 部署
 

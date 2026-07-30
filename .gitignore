@@ -1,6 +1,7 @@
 # artifact
 dist
 public/og
+public/photo-preview
 
 # dev
 node_modules
