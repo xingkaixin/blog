@@ -8,6 +8,14 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    name: "QuoteCue",
+    description:
+      "一款为 AI 对话设计的 Chrome 扩展。选中 ChatGPT、Claude、DeepSeek 或 Kimi 回复中的片段添加批注，把多处引用与评论整理成一条结构化追问；草稿按会话保存在本地。",
+    logo: "/projects/quotecue.png",
+    url: "https://chromewebstore.google.com/detail/quotecue/gbppndnpgjmgmbepccdcbfmdjjiehofp",
+    tags: ["AI", "Chrome", "浏览器扩展"],
+  },
+  {
     name: "Yomitomo",
     description:
       "Yomitomo 是面向深度阅读的本地阅读伙伴，把网页阅读、文本批注、讨论线程和 AI 助手放进同一个阅读现场。它的目标是让用户在阅读时直接留下判断、追问和上下文，并让 AI 助手围绕原文参与批注。",
