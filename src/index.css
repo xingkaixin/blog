@@ -192,6 +192,66 @@ input {
 }
 
 /* ============================================================
+   照片墙
+   ============================================================ */
+
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.photo-row {
+  display: contents;
+}
+
+.photo-tile {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.photo-period-placeholder {
+  width: 100%;
+  min-height: max(12rem, calc(var(--photo-mobile-rows) * ((100vw - 2rem) / 3)));
+  align-content: start;
+}
+
+.photo-lightbox {
+  opacity: 1;
+  transition: opacity var(--duration-quick) var(--ease-smooth-out);
+}
+
+@starting-style {
+  .photo-lightbox {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .photo-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .photo-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  .photo-tile {
+    width: var(--photo-width);
+    height: var(--photo-height);
+    flex: none;
+    aspect-ratio: auto;
+  }
+
+  .photo-period-placeholder {
+    min-height: max(18rem, calc(var(--photo-desktop-rows) * 14rem));
+  }
+}
+
+/* ============================================================
    通用动效
    ============================================================ */
 
@@ -368,6 +428,10 @@ input {
   }
 
   .site-logo {
+    transition: none;
+  }
+
+  .photo-lightbox {
     transition: none;
   }
 

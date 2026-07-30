@@ -1,0 +1,22 @@
+---
+import { PhotoWall } from "@/components/photo-wall";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/lib/site";
+
+const photoBaseUrl =
+  import.meta.env.PUBLIC_PHOTO_BASE_URL?.trim() || "https://photos.xingkaixin.me";
+const meta = {
+  title: "照片墙",
+  description: "XingKaiXin 按拍摄时间整理的照片与旅行相册。",
+  url: `${siteConfig.url}/photos/`,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: "照片墙", url: `${siteConfig.url}/photos/` },
+  ],
+};
+---
+
+<SiteLayout meta={meta}>
+  <PhotoWall baseUrl={photoBaseUrl} client:load />
+</SiteLayout>

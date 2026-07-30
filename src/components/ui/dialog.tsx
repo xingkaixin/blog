@@ -13,6 +13,7 @@ type DialogContentProps = ComponentProps<typeof DialogPrimitive.Popup> & {
   hideClose?: boolean;
   title?: string;
   description?: string;
+  backdropClassName?: string;
 };
 
 export function DialogContent({
@@ -21,11 +22,14 @@ export function DialogContent({
   hideClose,
   title,
   description,
+  backdropClassName,
   ...props
 }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Backdrop className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+      <DialogPrimitive.Backdrop
+        className={cn("fixed inset-0 z-40 bg-black/40 backdrop-blur-sm", backdropClassName)}
+      />
       <DialogPrimitive.Popup
         className={cn(
           "fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-line bg-surface p-5 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.5)]",
