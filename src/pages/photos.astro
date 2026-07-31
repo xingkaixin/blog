@@ -3,8 +3,10 @@ import { PhotoWall } from "@/components/photo-wall";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { siteConfig } from "@/lib/site";
 
-const photoBaseUrl =
-  import.meta.env.PUBLIC_PHOTO_BASE_URL?.trim() || "https://photos.xingkaixin.me";
+// dev 走 vite 同源代理（见 astro.config.ts），绕开照片域名缺失的 CORS
+const photoBaseUrl = import.meta.env.DEV
+  ? "/__photos"
+  : import.meta.env.PUBLIC_PHOTO_BASE_URL?.trim() || "https://photos.xingkaixin.me";
 const meta = {
   title: "照片墙",
   description: "XingKaiXin 按拍摄时间整理的照片与旅行相册。",

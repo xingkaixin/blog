@@ -22,5 +22,15 @@ export default defineConfig({
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
     },
+    server: {
+      // 照片域名未开 CORS，dev 通过同源代理访问生产 R2 数据
+      proxy: {
+        "/__photos": {
+          target: "https://photos.xingkaixin.me",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/__photos/, ""),
+        },
+      },
+    },
   },
 });
