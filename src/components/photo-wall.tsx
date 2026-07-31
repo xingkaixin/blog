@@ -28,10 +28,17 @@ type MonthCatalogs = Record<string, PhotoMonthCatalog>;
 type MonthErrors = Record<string, string>;
 
 const INITIAL_PERIOD_COUNT = 2;
-const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
+// 照片 id 放 hash 而不是 query：ClientRouter 对 query 变化会整页 swap 重挂载岛屿，
+// 仅 hash 变化的同页回退则被路由短路（见 astro router 的 samePage 判断）
+const PHOTO_HASH_PATTERN = /^#photo=([a-f0-9]{32})$/;
 
 function readableError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function photoIdFromLocation(): string | null {
+  const match = PHOTO_HASH_PATTERN.exec(window.location.hash);
+  return match ? match[1] : null;
 }
 
 function historyStateWithPhoto(photoId: string): Record<string, unknown> {
@@ -301,7 +308,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       // scroll-behavior: smooth 表现为滚回顶部），先标记 manual 阻止它
       history.scrollRestoration = "manual";
       const url = new URL(window.location.href);
-      url.searchParams.set("photo", photo.id);
+      url.hash = `photo=${photo.id}`;
       history.pushState(historyStateWithPhoto(photo.id), "", url);
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
@@ -312,7 +319,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
       const url = new URL(window.location.href);
-      url.searchParams.set("photo", photo.id);
+      url.hash = `photo=${photo.id}`;
       history.replaceState(historyStateWithPhoto(photo.id), "", url);
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
@@ -333,7 +340,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     }
 
     const url = new URL(window.location.href);
-    url.searchParams.delete("photo");
+    url.hash = "";
     history.replaceState(history.state, "", url);
   }, []);
 
@@ -346,8 +353,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
     const syncPhotoFromUrl = async () => {
       const currentRequestId = ++requestId;
-      const photoId = new URL(window.location.href).searchParams.get("photo");
-      if (!photoId || !PHOTO_ID_PATTERN.test(photoId)) {
+      const photoId = photoIdFromLocation();
+      if (!photoId) {
         // 回退已经提交、大图关闭，恢复 auto 让正常的跨页返回仍能还原滚动位置
         history.scrollRestoration = "auto";
         setSelectedPhoto(null);
@@ -370,7 +377,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         }
       }
 
-      const currentPhotoId = new URL(window.location.href).searchParams.get("photo");
+      const currentPhotoId = photoIdFromLocation();
       if (!disposed && currentRequestId === requestId && currentPhotoId === photoId) {
         setSelectedPhoto(photo ?? null);
         if (photo) {
