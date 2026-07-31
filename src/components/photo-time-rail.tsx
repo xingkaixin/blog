@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import type { PhotoPeriod } from "@/lib/photo-catalog";
 
 type PhotoTimeRailProps = {
@@ -28,10 +35,25 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
   const labelPositionRef = useRef<HTMLSpanElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const previewIndexRef = useRef(0);
+  const [scrolling, setScrolling] = useState(false);
   const activeIndex = Math.max(
     0,
     periods.findIndex((period) => period.month === activeMonth),
   );
+
+  useEffect(() => {
+    let timer = 0;
+    const handleScroll = () => {
+      setScrolling(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setScrolling(false), 1_000);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const updateVisual = useCallback(
     (index: number) => {
@@ -94,6 +116,14 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       updateFromPointer(event);
+    } else if (event.pointerType === "mouse") {
+      updateFromPointer(event);
+    }
+  };
+
+  const handlePointerLeave = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      updateVisual(activeIndex);
     }
   };
 
@@ -159,11 +189,13 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
         aria-valuemax={periods.length - 1}
         aria-valuenow={activeIndex}
         aria-valuetext={formatMonth(periods[activeIndex].month)}
-        className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 md:w-9"
+        data-revealed={scrolling ? "true" : undefined}
+        className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 data-[dragging=true]:opacity-100 data-[revealed=true]:opacity-100 md:w-9"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
+        onPointerLeave={handlePointerLeave}
         onKeyDown={handleKeyDown}
       >
         <span
@@ -184,7 +216,7 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
             <span
               key={period.month}
               aria-hidden="true"
-              className="absolute right-6 hidden -translate-y-1/2 font-mono text-[0.6rem] text-ink-400 md:block"
+              className="absolute right-6 hidden -translate-y-1/2 rounded-full border border-line bg-paper/90 px-1.5 py-0.5 font-mono text-[0.6rem] text-ink-500 shadow-sm backdrop-blur-sm md:block"
               style={{ top: `${(index / (periods.length - 1)) * 100}%` }}
             >
               {period.month.slice(0, 4)}
@@ -194,12 +226,12 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
         <span
           ref={markerRef}
           aria-hidden="true"
-          className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-paper bg-accent shadow-sm will-change-transform"
+          className="absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-paper bg-accent shadow-sm transition-transform duration-(--duration-quick) ease-(--ease-smooth-out) will-change-transform group-data-[dragging=true]:transition-none motion-reduce:transition-none"
         />
         <span
           ref={labelPositionRef}
           aria-hidden="true"
-          className="absolute right-full top-0 mr-2 opacity-0 transition-opacity group-focus-within:opacity-100 group-data-[dragging=true]:opacity-100 md:opacity-100"
+          className="absolute right-full top-0 mr-2 opacity-0 transition-[transform,opacity] duration-(--duration-quick) ease-(--ease-smooth-out) group-focus-within:opacity-100 group-hover:opacity-100 group-data-[dragging=true]:opacity-100 group-data-[dragging=true]:transition-opacity group-data-[revealed=true]:opacity-100 motion-reduce:transition-opacity"
         >
           <span
             ref={labelRef}
