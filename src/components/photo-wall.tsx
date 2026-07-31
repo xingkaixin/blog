@@ -29,15 +29,37 @@ type MonthCatalogs = Record<string, PhotoMonthCatalog>;
 type MonthErrors = Record<string, string>;
 
 const INITIAL_PERIOD_COUNT = 2;
-const PHOTO_HASH_PATTERN = /^#photo=([a-f0-9]{32})$/;
+const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 function readableError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
 function photoIdFromLocation(): string | null {
-  const match = PHOTO_HASH_PATTERN.exec(window.location.hash);
-  return match ? match[1] : null;
+  const photoId = hashParamsFromLocation().get("photo");
+  return photoId && PHOTO_ID_PATTERN.test(photoId) ? photoId : null;
+}
+
+function albumIdFromLocation(): string | null {
+  const hashParams = hashParamsFromLocation();
+  if (hashParams.has("album")) {
+    return hashParams.get("album") || null;
+  }
+  return new URL(window.location.href).searchParams.get("album");
+}
+
+function hashParamsFromLocation(): URLSearchParams {
+  return new URLSearchParams(window.location.hash.slice(1));
+}
+
+function setHashParam(url: URL, key: "album" | "photo", value: string | null): void {
+  const hashParams = new URLSearchParams(url.hash.slice(1));
+  if (value === null) {
+    hashParams.delete(key);
+  } else {
+    hashParams.set(key, value);
+  }
+  url.hash = hashParams.toString();
 }
 
 function historyStateWithPhoto(photoId: string): Record<string, unknown> {
@@ -174,7 +196,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     if (!index) {
       return;
     }
-    const requestedAlbum = new URL(window.location.href).searchParams.get("album");
+    const requestedAlbum = albumIdFromLocation();
     const albumExists = index.albums.some((album) => album.id === requestedAlbum);
     setSelectedAlbumId((current) => {
       if (current && index.albums.some((album) => album.id === current)) {
@@ -304,7 +326,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
       const url = new URL(window.location.href);
-      url.hash = `photo=${photo.id}`;
+      setHashParam(url, "photo", photo.id);
       void navigate(url.href, { state: historyStateWithPhoto(photo.id) });
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
@@ -315,7 +337,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
       const url = new URL(window.location.href);
-      url.hash = `photo=${photo.id}`;
+      setHashParam(url, "photo", photo.id);
       void navigate(url.href, {
         history: "replace",
         state: historyStateWithPhoto(photo.id),
@@ -339,7 +361,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     }
 
     const url = new URL(window.location.href);
-    url.hash = "";
+    setHashParam(url, "photo", null);
     history.replaceState(history.state, "", url);
   }, []);
 
@@ -398,12 +420,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const selectAlbum = (albumId: string | null) => {
     setSelectedAlbumId(albumId);
     const url = new URL(window.location.href);
-    if (albumId) {
-      url.searchParams.set("album", albumId);
-    } else {
-      url.searchParams.delete("album");
-    }
-    history.replaceState(history.state, "", url);
+    setHashParam(url, "album", albumId ?? "");
+    void navigate(url.href, { history: "replace", state: history.state });
   };
 
   const retryMonth = useCallback(
