@@ -255,6 +255,27 @@ input {
    通用动效
    ============================================================ */
 
+/* 退出（150ms）比进入（250ms）快：等待时要柔和，收起时要利落 */
+.dialog-backdrop {
+  opacity: 1;
+  transition: opacity var(--duration-fast) var(--ease-smooth-out);
+}
+
+.dialog-backdrop[data-starting-style],
+.dialog-backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.dialog-backdrop[data-ending-style] {
+  transition-duration: var(--duration-quick);
+}
+
+@starting-style {
+  .dialog-backdrop {
+    opacity: 0;
+  }
+}
+
 .t-dropdown {
   transform-origin: top left;
   transform: translateY(-4px) scale(0.97);

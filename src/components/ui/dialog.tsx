@@ -28,7 +28,10 @@ export function DialogContent({
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop
-        className={cn("fixed inset-0 z-40 bg-black/40 backdrop-blur-sm", backdropClassName)}
+        className={cn(
+          "dialog-backdrop fixed inset-0 z-40 bg-black/40 backdrop-blur-sm",
+          backdropClassName,
+        )}
       />
       <DialogPrimitive.Popup
         className={cn(
