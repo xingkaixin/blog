@@ -297,6 +297,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
+      // 关闭时 history.back() 会对当前 entry 执行浏览器滚动恢复（叠加全局
+      // scroll-behavior: smooth 表现为滚回顶部），先标记 manual 阻止它
+      history.scrollRestoration = "manual";
       const url = new URL(window.location.href);
       url.searchParams.set("photo", photo.id);
       history.pushState(historyStateWithPhoto(photo.id), "", url);
@@ -345,6 +348,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       const currentRequestId = ++requestId;
       const photoId = new URL(window.location.href).searchParams.get("photo");
       if (!photoId || !PHOTO_ID_PATTERN.test(photoId)) {
+        // 回退已经提交、大图关闭，恢复 auto 让正常的跨页返回仍能还原滚动位置
+        history.scrollRestoration = "auto";
         setSelectedPhoto(null);
         return;
       }
