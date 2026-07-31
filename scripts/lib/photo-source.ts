@@ -12,7 +12,7 @@ import {
   type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
 
-const SUPPORTED_EXTENSIONS = new Set([".heic", ".heif", ".jpg", ".jpeg", ".png", ".webp"]);
+const SUPPORTED_EXTENSIONS = new Set([".dng", ".heic", ".heif", ".jpg", ".jpeg", ".png", ".webp"]);
 const HEIC_EXTENSIONS = new Set([".heic", ".heif"]);
 const WEBP_QUALITY = 82;
 const WEBP_EFFORT = 4;
