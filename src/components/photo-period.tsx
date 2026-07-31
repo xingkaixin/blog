@@ -214,7 +214,8 @@ function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
                     fetchPriority={loadEagerly ? "high" : "auto"}
                     decoding="async"
                     draggable={false}
-                    className="h-full w-full select-none object-cover transition-opacity duration-(--duration-quick) group-hover:opacity-95"
+                    onLoad={(event) => event.currentTarget.setAttribute("data-loaded", "")}
+                    className="h-full w-full select-none object-cover"
                   />
                 </button>
               );

@@ -210,6 +210,22 @@ input {
   aspect-ratio: 1;
 }
 
+/* 缩略图在占位色块上渐显，避免懒加载逐格闪现 */
+.photo-tile img {
+  opacity: 0;
+  transition: opacity var(--duration-quick) var(--ease-smooth-out);
+}
+
+.photo-tile img[data-loaded] {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .photo-tile:hover img[data-loaded] {
+    opacity: 0.95;
+  }
+}
+
 .photo-period-placeholder {
   width: 100%;
   min-height: max(12rem, calc(var(--photo-mobile-rows) * ((100vw - 2rem) / 3)));
