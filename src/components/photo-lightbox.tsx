@@ -133,6 +133,8 @@ export function PhotoLightbox({
         >
           <img
             key={photo.id}
+            // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
+            style={{ backgroundColor: photo.placeholderColor }}
             src={photoVariantUrl(baseUrl, photo.id, 2048)}
             srcSet={`${photoVariantUrl(baseUrl, photo.id, 960)} 960w, ${photoVariantUrl(baseUrl, photo.id, 2048)} 2048w`}
             sizes="100vw"
