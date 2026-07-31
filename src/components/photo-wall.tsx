@@ -1,3 +1,4 @@
+import { navigate } from "astro:transitions/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoPeriodSection } from "@/components/photo-period";
@@ -28,8 +29,6 @@ type MonthCatalogs = Record<string, PhotoMonthCatalog>;
 type MonthErrors = Record<string, string>;
 
 const INITIAL_PERIOD_COUNT = 2;
-// 照片 id 放 hash 而不是 query：ClientRouter 对 query 变化会整页 swap 重挂载岛屿，
-// 仅 hash 变化的同页回退则被路由短路（见 astro router 的 samePage 判断）
 const PHOTO_HASH_PATTERN = /^#photo=([a-f0-9]{32})$/;
 
 function readableError(error: unknown): string {
@@ -304,12 +303,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
-      // 关闭时 history.back() 会对当前 entry 执行浏览器滚动恢复（叠加全局
-      // scroll-behavior: smooth 表现为滚回顶部），先标记 manual 阻止它
-      history.scrollRestoration = "manual";
       const url = new URL(window.location.href);
       url.hash = `photo=${photo.id}`;
-      history.pushState(historyStateWithPhoto(photo.id), "", url);
+      void navigate(url.href, { state: historyStateWithPhoto(photo.id) });
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
@@ -320,7 +316,10 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     (photo: PhotoRecord) => {
       const url = new URL(window.location.href);
       url.hash = `photo=${photo.id}`;
-      history.replaceState(historyStateWithPhoto(photo.id), "", url);
+      void navigate(url.href, {
+        history: "replace",
+        state: historyStateWithPhoto(photo.id),
+      });
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
@@ -355,8 +354,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       const currentRequestId = ++requestId;
       const photoId = photoIdFromLocation();
       if (!photoId) {
-        // 回退已经提交、大图关闭，恢复 auto 让正常的跨页返回仍能还原滚动位置
-        history.scrollRestoration = "auto";
         setSelectedPhoto(null);
         return;
       }
