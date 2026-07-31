@@ -200,6 +200,7 @@ function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
                   type="button"
                   className="photo-tile group relative block overflow-hidden focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent active:opacity-90"
                   style={style}
+                  data-photo-id={photo.id}
                   aria-label={`查看${formatCapturedAt(photo.capturedAt)}拍摄的照片`}
                   onClick={() => onOpenPhoto(photo)}
                 >

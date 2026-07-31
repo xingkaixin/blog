@@ -20,6 +20,17 @@ function formatCapturedAt(capturedAt: string): string {
   return `${year}年${Number(month)}月${Number(day)}日 ${time}`;
 }
 
+function revealIfOutsideViewport(element: HTMLElement | null): void {
+  if (!element) {
+    return;
+  }
+  const bounds = element.getBoundingClientRect();
+  if (bounds.bottom > 0 && bounds.top < window.innerHeight) {
+    return;
+  }
+  element.scrollIntoView({ block: "center", inline: "nearest" });
+}
+
 export function PhotoLightbox({
   baseUrl,
   open,
@@ -40,6 +51,7 @@ export function PhotoLightbox({
   const albumTitles = photo.albumIds
     .map((albumId) => albumTitleById.get(albumId))
     .filter((title): title is string => Boolean(title));
+  const getPhotoTile = () => document.querySelector<HTMLElement>(`[data-photo-id="${photo.id}"]`);
 
   useEffect(() => {
     if (!open) {
@@ -96,11 +108,16 @@ export function PhotoLightbox({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => !nextOpen && onClose()}
+      onOpenChangeComplete={(nextOpen) => !nextOpen && revealIfOutsideViewport(getPhotoTile())}
+    >
       <DialogContent
         hideClose
         title="照片大图"
         description={formatCapturedAt(photo.capturedAt)}
+        finalFocus={getPhotoTile}
         backdropClassName="bg-[#101114]/90 backdrop-blur-md"
         className="photo-lightbox fixed inset-0 left-0 top-0 flex h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 bg-[#101114] p-0 text-[#f0efea] shadow-none"
       >
