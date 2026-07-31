@@ -5,6 +5,7 @@ import { photoVariantUrl, type PhotoAlbum, type PhotoRecord } from "@/lib/photo-
 
 type PhotoLightboxProps = {
   baseUrl: string;
+  open: boolean;
   photo: PhotoRecord;
   photos: PhotoRecord[];
   albums: PhotoAlbum[];
@@ -21,6 +22,7 @@ function formatCapturedAt(capturedAt: string): string {
 
 export function PhotoLightbox({
   baseUrl,
+  open,
   photo,
   photos,
   albums,
@@ -40,6 +42,9 @@ export function PhotoLightbox({
     .filter((title): title is string => Boolean(title));
 
   useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft" && previous) {
         event.preventDefault();
@@ -51,16 +56,19 @@ export function PhotoLightbox({
     };
     window.addEventListener("keydown", handleKeyDown, true);
     return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [next, onSelect, previous]);
+  }, [next, onSelect, open, previous]);
 
   useEffect(() => {
+    if (!open) {
+      return;
+    }
     for (const neighbor of [previous, next]) {
       if (neighbor) {
         const image = new Image();
         image.src = photoVariantUrl(baseUrl, neighbor.id, 2048);
       }
     }
-  }, [baseUrl, next, previous]);
+  }, [baseUrl, next, open, previous]);
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse" || event.button === 0) {
@@ -88,7 +96,7 @@ export function PhotoLightbox({
   };
 
   return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent
         hideClose
         title="照片大图"

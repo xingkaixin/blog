@@ -47,6 +47,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
   const [activeMonth, setActiveMonth] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoRecord | null>(null);
+  const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
   const wallRef = useRef<HTMLDivElement>(null);
   const monthCatalogsRef = useRef<MonthCatalogs>({});
   const monthPromisesRef = useRef(new Map<string, Promise<PhotoMonthCatalog>>());
@@ -262,8 +263,17 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       ),
     [allLoadedPhotos, selectedAlbumId],
   );
+  useEffect(() => {
+    if (selectedPhoto) {
+      lastLightboxPhotoRef.current = selectedPhoto;
+    }
+  }, [selectedPhoto]);
+  // 关闭后继续渲染最后一张，退出淡出期间大图内容不能先消失
+  const lightboxDisplayPhoto = selectedPhoto ?? lastLightboxPhotoRef.current;
+
   const lightboxPhotos =
-    selectedPhoto && filteredLoadedPhotos.some((photo) => photo.id === selectedPhoto.id)
+    lightboxDisplayPhoto &&
+    filteredLoadedPhotos.some((photo) => photo.id === lightboxDisplayPhoto.id)
       ? filteredLoadedPhotos
       : allLoadedPhotos;
 
@@ -308,6 +318,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   );
 
   const closeLightbox = useCallback(() => {
+    // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
+    setSelectedPhoto(null);
     if (
       typeof history.state === "object" &&
       history.state !== null &&
@@ -320,7 +332,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     const url = new URL(window.location.href);
     url.searchParams.delete("photo");
     history.replaceState(history.state, "", url);
-    setSelectedPhoto(null);
   }, []);
 
   useEffect(() => {
@@ -538,10 +549,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         />
       )}
 
-      {selectedPhoto && index && (
+      {lightboxDisplayPhoto && index && (
         <PhotoLightbox
           baseUrl={normalizedBaseUrl}
-          photo={selectedPhoto}
+          open={selectedPhoto !== null}
+          photo={lightboxDisplayPhoto}
           photos={lightboxPhotos}
           albums={index.albums}
           onClose={closeLightbox}

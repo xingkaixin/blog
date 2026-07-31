@@ -218,7 +218,16 @@ input {
 
 .photo-lightbox {
   opacity: 1;
-  transition: opacity var(--duration-quick) var(--ease-smooth-out);
+  transition: opacity var(--duration-fast) var(--ease-smooth-out);
+}
+
+.photo-lightbox[data-starting-style],
+.photo-lightbox[data-ending-style] {
+  opacity: 0;
+}
+
+.photo-lightbox[data-ending-style] {
+  transition-duration: var(--duration-quick);
 }
 
 @starting-style {
@@ -449,10 +458,6 @@ input {
   }
 
   .site-logo {
-    transition: none;
-  }
-
-  .photo-lightbox {
     transition: none;
   }
 
