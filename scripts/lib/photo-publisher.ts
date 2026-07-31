@@ -23,6 +23,7 @@ const SHARD_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const INDEX_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=86400";
 const PROCESS_CONCURRENCY = 2;
 const READ_CONCURRENCY = 8;
+const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 export type PublishAlbum = {
   id: string;
@@ -49,6 +50,18 @@ export type PublishPhotosResult = {
   reused: number;
   updatedPeriods: number;
   catalogChanged: boolean;
+};
+
+export type DeletePhotosOptions = {
+  photoIds: string[];
+  store: PhotoObjectStore;
+  now?: () => Date;
+};
+
+export type DeletePhotosResult = {
+  deleted: number;
+  removedObjects: number;
+  updatedPeriods: number;
 };
 
 type LoadedCatalog = {
@@ -133,6 +146,59 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
     reused,
     updatedPeriods: dirtyMonths.size,
     catalogChanged,
+  };
+}
+
+export async function deletePhotos(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
+  const photoIds = [...new Set(options.photoIds)];
+  if (photoIds.length === 0) {
+    throw new Error("至少需要指定一张照片");
+  }
+  if (photoIds.some((photoId) => !PHOTO_ID_PATTERN.test(photoId))) {
+    throw new Error("照片 ID 必须是 32 位小写十六进制内容 ID");
+  }
+
+  const catalog = await loadCatalog(options.store);
+  const targets = photoIds.map((photoId) => {
+    const month = catalog.photoMonths.get(photoId);
+    const photo = month
+      ? catalog.months.get(month)?.photos.find((item) => item.id === photoId)
+      : null;
+    if (!month || !photo) {
+      throw new Error(`Catalog 中不存在照片 ${photoId}`);
+    }
+    return { month, photo };
+  });
+  const oldPeriodPaths = new Set(
+    targets
+      .map(({ month }) => catalog.periodPaths.get(month))
+      .filter((periodPath): periodPath is string => Boolean(periodPath)),
+  );
+  const dirtyMonths = new Set(targets.map(({ month }) => month));
+
+  for (const { month, photo } of targets) {
+    const monthCatalog = catalog.months.get(month);
+    if (!monthCatalog) {
+      throw new Error(`缺少照片 ${photo.id} 所属月份 ${month}`);
+    }
+    monthCatalog.photos = monthCatalog.photos.filter((item) => item.id !== photo.id);
+    catalog.photoMonths.delete(photo.id);
+  }
+  removeUnusedAlbums(catalog);
+  await writeCatalog(options.store, catalog, dirtyMonths, options.now?.() ?? new Date());
+
+  const objectKeys = new Set(oldPeriodPaths);
+  for (const photoId of photoIds) {
+    for (const width of PHOTO_VARIANT_WIDTHS) {
+      objectKeys.add(`media/${photoId}/${width}.webp`);
+    }
+  }
+  await Promise.all([...objectKeys].map((key) => options.store.delete(key)));
+
+  return {
+    deleted: photoIds.length,
+    removedObjects: objectKeys.size,
+    updatedPeriods: dirtyMonths.size,
   };
 }
 
@@ -315,6 +381,10 @@ async function writeCatalog(
       if (!shard) {
         throw new Error(`缺少待写入的月份 ${month}`);
       }
+      if (shard.photos.length === 0) {
+        nextPaths.delete(month);
+        return;
+      }
       shard.photos.sort(comparePhotosNewestFirst);
       const validatedShard = parsePhotoMonthCatalog(shard);
       const body = serializeJson(validatedShard);
@@ -357,6 +427,19 @@ async function writeCatalog(
     contentType: "application/json; charset=utf-8",
     cacheControl: INDEX_CACHE_CONTROL,
   });
+}
+
+function removeUnusedAlbums(catalog: LoadedCatalog): void {
+  const referencedAlbums = new Set(
+    [...catalog.months.values()].flatMap((month) =>
+      month.photos.flatMap((photo) => photo.albumIds),
+    ),
+  );
+  for (const albumId of catalog.albums.keys()) {
+    if (!referencedAlbums.has(albumId)) {
+      catalog.albums.delete(albumId);
+    }
+  }
 }
 
 function countAlbums(photos: PhotoRecord[]): Record<string, number> {

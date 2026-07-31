@@ -65,6 +65,7 @@ bun run typecheck     # Astro 与 TypeScript 类型检查
 bun run format        # 自动格式化
 bun run format:check  # 仅检查格式
 bun run photos:publish -- <照片或目录...>  # 发布照片到 R2
+bun run photos:delete -- <照片或目录...> --confirm  # 从 R2 移除照片
 ```
 
 照片存储、CORS、本地预览与发布参数见

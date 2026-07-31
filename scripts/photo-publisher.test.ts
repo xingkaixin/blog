@@ -8,13 +8,14 @@ import {
   parsePhotoMonthCatalog,
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
-import { publishPhotos } from "./lib/photo-publisher";
+import { deletePhotos, publishPhotos } from "./lib/photo-publisher";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import type { PhotoObjectBody, PhotoObjectStore, PutPhotoObjectOptions } from "./lib/photo-store";
 
 class MemoryPhotoStore implements PhotoObjectStore {
   readonly objects = new Map<string, PhotoObjectBody>();
   readonly writes: string[] = [];
+  readonly deletes: string[] = [];
 
   async getText(key: string): Promise<string | null> {
     const value = this.objects.get(key);
@@ -27,6 +28,11 @@ class MemoryPhotoStore implements PhotoObjectStore {
   async put(key: string, body: PhotoObjectBody, _options: PutPhotoObjectOptions): Promise<void> {
     this.objects.set(key, body);
     this.writes.push(key);
+  }
+
+  async delete(key: string): Promise<void> {
+    this.objects.delete(key);
+    this.deletes.push(key);
   }
 }
 
@@ -144,5 +150,32 @@ describe("photo publisher", () => {
     );
     const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(index.periods[0].path))!));
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
+  });
+
+  it("updates the catalog before deleting a photo's assets", async () => {
+    const file = await createSourceFile();
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [file],
+      store,
+      album: { id: "smoke-test", title: "测试" },
+      processPhoto: async () => processedPhoto(id),
+    });
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!),
+    );
+    const oldPeriodPath = index.periods[0].path;
+
+    const result = await deletePhotos({ photoIds: [id], store });
+
+    expect(result).toEqual({ deleted: 1, removedObjects: 4, updatedPeriods: 1 });
+    expect(
+      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!)),
+    ).toEqual(expect.objectContaining({ albums: [], periods: [] }));
+    expect(store.objects.has(oldPeriodPath)).toBe(false);
+    expect(store.objects.has(`media/${id}/480.webp`)).toBe(false);
+    expect(store.deletes).toContain(oldPeriodPath);
   });
 });

@@ -60,6 +60,16 @@ bun run photos:publish -- ~/Pictures/Japan/favorite.heic \
   --album-title "喜欢"
 ```
 
+移除照片时必须提供原始照片文件，并显式添加 `--confirm`。发布器会先更新
+Catalog，再清理对应的 WebP 和旧月份索引：
+
+```bash
+bun run photos:delete -- ~/Pictures/Japan/favorite.heic --confirm
+```
+
+如果原始文件已经不存在，可以先从月份 Catalog 中确认照片 ID，再使用本地脚本或
+Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏链接。
+
 支持 HEIC、HEIF、JPEG、PNG 与 WebP。在 macOS 上 HEIC 使用系统 `sips` 解码，并以
 `heif-convert --disable-limits` 作为后备；其他系统需要能从 `PATH` 调用
 `heif-convert`。中间 PNG 写在系统临时目录，并在单张照片处理完成后删除。

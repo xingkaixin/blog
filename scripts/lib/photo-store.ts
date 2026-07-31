@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -18,6 +19,7 @@ export type PutPhotoObjectOptions = {
 export interface PhotoObjectStore {
   getText(key: string): Promise<string | null>;
   put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<void>;
+  delete(key: string): Promise<void>;
   close?(): void;
 }
 
@@ -76,6 +78,10 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
     await fs.writeFile(temporary, body);
     await fs.rename(temporary, target);
   }
+
+  async delete(key: string): Promise<void> {
+    await fs.rm(resolveObjectPath(this.rootDirectory, key), { force: true });
+  }
 }
 
 export class R2PhotoObjectStore implements PhotoObjectStore {
@@ -123,6 +129,15 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
       CacheControl: options.cacheControl,
     };
     await this.client.send(new PutObjectCommand(input));
+  }
+
+  async delete(key: string): Promise<void> {
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
   }
 
   close(): void {
