@@ -1,19 +1,35 @@
-export interface Project {
+export interface ProjectLink {
+  label: string;
+  url: string;
+}
+
+interface ProjectDetails {
   name: string;
   description: string;
   logo: string;
-  url?: string;
   tags?: string[];
 }
+
+export type Project = ProjectDetails &
+  ({ url: string; links?: never } | { url?: never; links: ProjectLink[] });
 
 export const projects: Project[] = [
   {
     name: "QuoteCue",
     description:
-      "一款为 AI 对话设计的 Chrome 扩展。选中 ChatGPT、Claude、DeepSeek 或 Kimi 回复中的片段添加批注，把多处引用与评论整理成一条结构化追问；草稿按会话保存在本地。",
+      "一款为 AI 对话设计的浏览器扩展。选中 ChatGPT、Claude、DeepSeek 或 Kimi 回复中的片段添加批注，把多处引用与评论整理成一条结构化追问；草稿按会话保存在本地。",
     logo: "/projects/quotecue.png",
-    url: "https://chromewebstore.google.com/detail/quotecue/gbppndnpgjmgmbepccdcbfmdjjiehofp",
-    tags: ["AI", "Chrome", "浏览器扩展"],
+    links: [
+      {
+        label: "Chrome",
+        url: "https://chromewebstore.google.com/detail/quotecue/gbppndnpgjmgmbepccdcbfmdjjiehofp",
+      },
+      {
+        label: "Edge",
+        url: "https://microsoftedge.microsoft.com/addons/detail/icopgahikmamgfagjdjjdfobfnhicbie",
+      },
+    ],
+    tags: ["AI", "Chrome", "Edge", "浏览器扩展"],
   },
   {
     name: "Yomitomo",
@@ -52,7 +68,17 @@ export const projects: Project[] = [
     description:
       "检测并递归展开 JSON 中的字符串化值，专为 AI 模型输出和 MCP/Agent 工具调用中的嵌套 JSON 设计。支持 JSONL、语法高亮与路径显示。",
     logo: "/projects/unquote.svg",
-    url: "https://unquote.xingkaixin.me",
+    links: [
+      { label: "网站", url: "https://unquote.xingkaixin.me" },
+      {
+        label: "Chrome",
+        url: "https://chromewebstore.google.com/detail/unquote/ohcepfneflaihakpkkgmnbdgjhnmcjeg",
+      },
+      {
+        label: "Edge",
+        url: "https://microsoftedge.microsoft.com/addons/detail/amdbhljchamjbhknbamkcemccmelegdp",
+      },
+    ],
     tags: ["工具", "JSON", "JSONL"],
   },
   {

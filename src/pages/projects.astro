@@ -23,19 +23,20 @@ const meta = {
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {
           projects.map((project) => {
-            const Wrapper = project.url ? "a" : "div";
-            const wrapperProps = project.url
-              ? {
+            const hasMultipleLinks = project.links !== undefined;
+            const Wrapper = hasMultipleLinks ? "article" : "a";
+            const wrapperProps = hasMultipleLinks
+              ? {}
+              : {
                   href: project.url,
                   target: "_blank",
                   rel: "noopener noreferrer",
-                }
-              : {};
+                };
 
             return (
               <Wrapper
                 {...wrapperProps}
-                class:list={["group block", project.url && "cursor-pointer"]}
+                class:list={["group block", !hasMultipleLinks && "cursor-pointer"]}
               >
                 <div class="card hover-lift flex h-full flex-col overflow-hidden rounded-2xl p-5">
                   <div class="flex items-start gap-4">
@@ -64,7 +65,29 @@ const meta = {
                         ))}
                       </div>
                     )}
-                    {project.url && (
+                    {hasMultipleLinks ? (
+                      <div class="ml-auto flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+                        {project.links.map((link) => (
+                          <a
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${project.name}：${link.label}`}
+                            class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-700"
+                          >
+                            {link.label}
+                            <svg
+                              aria-hidden="true"
+                              class="hover-arrow-shift h-4 w-4"
+                              viewBox="0 0 15 15"
+                              fill="none"
+                            >
+                              <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
                       <span class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-700">
                         访问
                         <svg
