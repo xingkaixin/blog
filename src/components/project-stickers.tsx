@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { projects } from "@/lib/projects";
 
 const SIZE = 30;
-// 初始散布只占据 header 左中段，右侧留白避免遮挡导航与主题切换按钮
-const X_MIN_RATIO = 0.24;
-const X_MAX_RATIO = 0.52;
-const logos = [...new Set(projects.map((p) => p.logo))];
+const X_MIN_RATIO = 0;
+const X_MAX_RATIO = 1;
+const logos = [...new Set(projects.map((project) => project.logo))].slice(0, 5);
 
 // 8 方向 1px 白色 drop-shadow 叠加，基于 alpha 通道贴合 logo 实际轮廓描边
 const WHITE_STROKE = [
@@ -32,7 +31,7 @@ interface Sticker {
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
 
-export function HeaderStickers() {
+export function ProjectStickers() {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     index: number;

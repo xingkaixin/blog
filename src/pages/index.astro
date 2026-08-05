@@ -1,22 +1,15 @@
 ---
-import PostCover from "@/components/astro/PostCover.astro";
-import PostTag from "@/components/astro/PostTag.astro";
+import { PostConsole, type PostConsoleItem } from "@/components/post-console";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { formatDisplayDate } from "@/lib/markdown";
-import { buildTagArchives } from "@/lib/post-tags";
+import { estimateReadingMetrics } from "@/lib/markdown";
 import { siteConfig } from "@/lib/site";
 
-const posts = (await getPublishedPosts()).map(toPostListItem);
-const archivedTags = new Set(buildTagArchives(posts).map(({ tag }) => tag));
-const [hero, ...rest] = posts;
-const postsByYear = rest.reduce<Map<string, typeof rest>>((groups, post) => {
-  const year = post.date.slice(0, 4);
-  const group = groups.get(year) ?? [];
-  group.push(post);
-  groups.set(year, group);
-  return groups;
-}, new Map());
+const entries = await getPublishedPosts();
+const posts: PostConsoleItem[] = entries.map((entry) => ({
+  ...toPostListItem(entry),
+  ...estimateReadingMetrics(entry.body),
+}));
 const meta = {
   title: siteConfig.title,
   description: siteConfig.description,
@@ -25,104 +18,6 @@ const meta = {
 };
 ---
 
-<SiteLayout meta={meta}>
-  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
-    <div class="mx-auto max-w-350 space-y-16">
-      {
-        hero ? (
-          <article class="group grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-              <a
-                href={`/posts/${hero.slug}/`}
-                class="card hover-lift overflow-hidden rounded-2xl lg:order-2"
-                transition:name={`cover-${hero.slug}`}
-              >
-                <PostCover
-                  src={hero.cover}
-                  alt={hero.coverAlt}
-                  priority
-
-                  imageClass="hover-cover-zoom"
-                />
-              </a>
-              <div class="lg:order-1">
-                <p class="font-mono text-xs uppercase tracking-[0.28em] text-accent">
-                  最新 · {formatDisplayDate(hero.date)}
-                </p>
-                <h1 class="mt-4 font-display text-4xl leading-tight text-balance text-ink-800 sm:text-5xl lg:text-6xl">
-                  <a href={`/posts/${hero.slug}/`} class="transition-colors duration-(--duration-quick) hover:text-accent">
-                    {hero.title}
-                  </a>
-                </h1>
-                <p class="mt-5 max-w-[52ch] text-base leading-8 text-ink-600">{hero.summary}</p>
-                <div class="mt-6 flex flex-wrap gap-2">
-                  {hero.tags.map((tag) => (
-                    <PostTag tag={tag} linked={archivedTags.has(tag)} />
-                  ))}
-                </div>
-                <a href={`/posts/${hero.slug}/`} class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-ink-800">
-                  阅读全文
-                  <svg
-                    aria-hidden="true"
-                    class="hover-arrow-shift h-4 w-4"
-                    viewBox="0 0 15 15"
-                    fill="none"
-                  >
-                    <path d="M8.15 3.15 12.5 7.5l-4.35 4.35M2.5 7.5h9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-        ) : (
-          <div class="space-y-3">
-            <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-400">暂无文章</p>
-            <h2 class="font-display text-4xl text-ink-800">还没有发布文章</h2>
-          </div>
-        )
-      }
-
-      {
-        postsByYear.size > 0 && (
-          <div class="space-y-14">
-            {[...postsByYear.entries()].map(([year, yearPosts], groupIndex) => (
-              <section class="grid gap-4 lg:grid-cols-[140px_1fr] lg:gap-10">
-                <h2
-                  class="fade-in font-display text-3xl text-ink-400 lg:sticky lg:top-28 lg:self-start lg:text-5xl"
-                  style={`animation-delay: ${Math.min(groupIndex * 3 + 1, 5) * 40}ms`}
-                >
-                  {year}
-                </h2>
-                <div>
-                  {yearPosts.map((post, index) => (
-                    <a
-                      href={`/posts/${post.slug}/`}
-                      class="group fade-in flex items-center gap-4 border-b border-line py-4 sm:gap-6"
-                      style={`animation-delay: ${Math.min(groupIndex * 3 + index + 2, 5) * 40}ms`}
-                    >
-                      <span class="w-14 shrink-0 font-mono text-xs text-ink-500">
-                        {post.date.slice(5, 10)}
-                      </span>
-                      <span class="min-w-0 flex-1">
-                        <span class="block text-lg text-balance text-ink-700 transition-colors duration-(--duration-quick) group-hover:text-accent">
-                          {post.title}
-                        </span>
-                        <span class="mt-1 hidden text-sm text-ink-500 sm:line-clamp-1">
-                          {post.summary}
-                        </span>
-                      </span>
-                      <span
-                        class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line lg:block"
-                        transition:name={`cover-${post.slug}`}
-                      >
-                        <PostCover src={post.cover} alt="" />
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        )
-      }
-    </div>
-  </section>
+<SiteLayout meta={meta} status={`NORMAL · ${posts.length} posts`}>
+  <PostConsole posts={posts} client:load />
 </SiteLayout>
