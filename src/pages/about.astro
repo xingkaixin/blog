@@ -1,5 +1,6 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
+import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
 
 const meta = {
@@ -14,26 +15,55 @@ const meta = {
 };
 
 const contacts = [
-  { id: "email", label: "邮箱", href: `mailto:${siteConfig.email}` },
-  { id: "github", label: "GitHub", href: "https://github.com/xingkaixin" },
-  { id: "x", label: "X", href: "https://x.com/xingkaixin" },
-  { id: "telegram", label: "Telegram", href: "https://t.me/xingkaixin" },
+  { id: "email", label: "邮箱", value: siteConfig.email, href: `mailto:${siteConfig.email}` },
+  {
+    id: "github",
+    label: "GitHub",
+    value: "github.com/xingkaixin",
+    href: "https://github.com/xingkaixin",
+  },
+  { id: "x", label: "X", value: "@xingkaixin", href: "https://x.com/xingkaixin" },
+  {
+    id: "telegram",
+    label: "Telegram",
+    value: "@xingkaixin",
+    href: "https://t.me/xingkaixin",
+  },
+] as const;
+
+const featuredProjectNames = new Set(["Yomitomo", "CodeSesh"]);
+const featuredProjects = projects.filter((project) => featuredProjectNames.has(project.name));
+const stack = [
+  ["框架", "Astro 7 + TypeScript"],
+  ["交互", "React 19 islands"],
+  ["样式", "Tailwind CSS 4"],
+  ["内容", "Content Collections + Markdown"],
+  ["组件", "Base UI"],
+  ["验证", "Vitest + Bun"],
+  ["部署", "Cloudflare Pages"],
 ] as const;
 
 // 伪随机但构建间稳定的贡献格深浅（5 行 × 14 列）
 const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
 ---
 
-<SiteLayout meta={meta}>
-  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
-    <div class="mx-auto max-w-3xl space-y-8">
-      <div>
-        <p class="font-mono text-xs uppercase tracking-[0.28em] text-ink-500">About</p>
-        <h1 class="mt-3 font-display text-4xl text-ink-800 sm:text-5xl">关于</h1>
+<SiteLayout meta={meta} status="ABOUT · SHANGHAI">
+  <section class="mx-auto grid min-h-[calc(100dvh-90px)] max-w-320 px-3 pb-14 sm:px-5 lg:grid-cols-[190px_minmax(0,1fr)] lg:px-0 xl:grid-cols-[210px_minmax(0,1fr)_280px]">
+    <nav aria-label="关于页大纲" class="border-b border-line py-4 lg:border-b-0 lg:border-r lg:px-5 lg:py-8">
+      <p class="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400 lg:block">
+        大纲
+      </p>
+      <div class="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-3 lg:block lg:space-y-1">
+        <a href="#intro" class="outline-link">简介</a>
+        <a href="#working-on" class="outline-link">在做什么</a>
+        <a href="#stack" class="outline-link">这个站怎么搭</a>
+        <a href="#contact" class="outline-link">联系</a>
       </div>
+    </nav>
 
-      <div class="card rounded-2xl px-6 py-8 sm:px-10">
-        <div class="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+    <article class="min-w-0 py-8 lg:px-8 lg:py-10 xl:px-10">
+      <section id="intro" class="scroll-mt-20">
+        <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
           <img
             src="/avatar.webp"
             alt="XingKaiXin 的手绘头像"
@@ -41,117 +71,179 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
             height="96"
             class="avatar-sticker h-24 w-24 shrink-0 object-cover"
           />
-          <p class="text-base leading-8 text-ink-700">{siteConfig.about}</p>
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">About</p>
+            <h1 class="mt-1.5 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
+              XingKaiXin
+            </h1>
+            <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
+          </div>
         </div>
-        <p class="mt-6 border-t border-line pt-6 text-sm leading-7 text-ink-500">
+        <p class="mt-7 text-[15px] leading-8 text-ink-700">{siteConfig.about}</p>
+        <blockquote class="mt-5 border-l-3 border-accent py-1 pl-4 text-[14px] leading-7 text-ink-500">
           {siteConfig.motto}
-        </p>
+        </blockquote>
+      </section>
 
-        <footer class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-5">
+      <section id="working-on" class="mt-12 scroll-mt-20">
+        <p class="section-kicker">在做什么</p>
+        <div class="mt-3 border-t border-line">
           {
-            contacts.map((contact) => (
-              <div class="contact-anchor">
-                <a
-                  href={contact.href}
-                  class="inline-flex items-center gap-1.5 text-sm text-ink-500 transition-colors hover:text-ink-800"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {contact.id === "email" && (
-                    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="2" y="4" width="20" height="16" rx="2" />
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                    </svg>
-                  )}
-                  {contact.id === "github" && (
-                    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.1 11.1 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-                    </svg>
-                  )}
-                  {contact.id === "x" && (
-                    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z" />
-                    </svg>
-                  )}
-                  {contact.id === "telegram" && (
-                    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 2 11 13" />
-                      <path d="M22 2 15 22l-4-9-9-4Z" />
-                    </svg>
-                  )}
-                  {contact.label}
-                </a>
+            featuredProjects.map((project) => (
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group grid gap-1 border-b border-ink-100 py-3.5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-4"
+              >
+                <span class="font-medium text-ink-800 transition-colors group-hover:text-accent">
+                  {project.name}
+                </span>
+                <span class="text-[13px] leading-6 text-ink-500">{project.description}</span>
+              </a>
+            ))
+          }
+          <div class="grid gap-1 border-b border-ink-100 py-3.5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-4">
+            <span class="font-medium text-ink-800">写字</span>
+            <span class="text-[13px] leading-6 text-ink-500">
+              记录 AI 编程、Agent 工程、产品观察，以及生活里值得留下的片段。
+            </span>
+          </div>
+        </div>
+      </section>
 
-                  {contact.id === "email" && (
-                    <div class="artifact envelope" aria-hidden="true">
-                      <div class="stamp">
-                        <div class="stamp-paper" />
-                        <img src="/avatar.webp" alt="" class="stamp-img" />
-                      </div>
-                      <div class="postmark">
-                        <span>SHANGHAI</span>
-                        <span>2026</span>
-                      </div>
-                      <div class="env-lines">
-                        <p class="env-to">TO</p>
-                        <p class="env-value">{siteConfig.email}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {contact.id === "github" && (
-                    <div class="artifact gh-card" aria-hidden="true">
-                      <div class="gh-bar">
-                        <span class="gh-dot" />
-                        <span class="gh-dot" />
-                        <span class="gh-dot" />
-                        <span class="gh-path">~/xingkaixin</span>
-                      </div>
-                      <p class="gh-cmd">
-                        <span class="gh-prompt">$</span> git clone github.com/xingkaixin
-                      </p>
-                      <div class="gh-graph">
-                        {ghCells.map((level) => (
-                          <span class={`gh-cell gh-l${level}`} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {contact.id === "x" && (
-                    <div class="artifact x-card" aria-hidden="true">
-                      <span class="x-logo">𝕏</span>
-                      <div class="x-head">
-                        <img src="/avatar.webp" alt="" class="x-avatar" />
-                        <div>
-                          <p class="x-name">XingKaiXin</p>
-                          <p class="x-handle">@xingkaixin</p>
-                        </div>
-                      </div>
-                      <p class="x-post">人生不该只有一种体验。</p>
-                    </div>
-                  )}
-
-                  {contact.id === "telegram" && (
-                    <div class="artifact tg-card" aria-hidden="true">
-                      <span class="tg-plane">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M22 2 11 13" />
-                          <path d="M22 2 15 22l-4-9-9-4Z" />
-                        </svg>
-                      </span>
-                      <div class="tg-bubble">
-                        <p class="tg-handle">@xingkaixin</p>
-                        <p class="tg-msg">随时来聊：AI、摄影、数码。</p>
-                      </div>
-                    </div>
-                  )}
+      <section id="stack" class="mt-12 scroll-mt-20">
+        <p class="section-kicker">这个站怎么搭</p>
+        <dl class="mt-3 border-t border-line">
+          {
+            stack.map(([label, value]) => (
+              <div class="grid grid-cols-[76px_minmax(0,1fr)] border-b border-ink-100 py-2.5 text-[13px]">
+                <dt class="font-mono text-[10px] text-ink-400">{label}</dt>
+                <dd class="text-ink-600">{value}</dd>
               </div>
             ))
           }
-        </footer>
+        </dl>
+        <p class="mt-4 font-mono text-[10px] leading-5 text-ink-400">
+          源码公开在 <a
+            href="https://github.com/xingkaixin/blog"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-ink-600 underline decoration-line underline-offset-3 hover:text-accent"
+          >GitHub</a>，内容版权归作者所有。
+        </p>
+      </section>
+    </article>
+
+    <aside id="contact" class="scroll-mt-20 border-t border-line py-8 lg:col-start-2 lg:px-8 xl:col-start-3 xl:row-start-1 xl:border-l xl:border-t-0 xl:px-5 xl:py-10">
+      <p class="section-kicker">联系</p>
+      <p class="mt-2 text-[13px] leading-6 text-ink-500">聊 AI、工具、摄影，或者只是来打个招呼。</p>
+      <div class="mt-4 border-t border-line">
+        {
+          contacts.map((contact) => (
+            <div class="contact-anchor border-b border-ink-100">
+              <a
+                href={contact.href}
+                class="group flex items-center gap-2 py-3 text-ink-500 focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {contact.id === "email" && (
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                )}
+                {contact.id === "github" && (
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.1 11.1 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                  </svg>
+                )}
+                {contact.id === "x" && (
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z" />
+                  </svg>
+                )}
+                {contact.id === "telegram" && (
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 2 11 13" />
+                    <path d="M22 2 15 22l-4-9-9-4Z" />
+                  </svg>
+                )}
+                <span class="min-w-0 flex-1">
+                  <span class="block text-[12px] text-ink-700 group-hover:text-accent">{contact.label}</span>
+                  <span class="mt-0.5 block truncate font-mono text-[9px] text-ink-400">{contact.value}</span>
+                </span>
+                <span aria-hidden="true" class="font-mono text-[11px] text-ink-300 group-hover:text-accent">↗</span>
+              </a>
+
+              {contact.id === "email" && (
+                <div class="artifact envelope" aria-hidden="true">
+                  <div class="stamp">
+                    <div class="stamp-paper" />
+                    <img src="/avatar.webp" alt="" class="stamp-img" />
+                  </div>
+                  <div class="postmark">
+                    <span>SHANGHAI</span>
+                    <span>2026</span>
+                  </div>
+                  <div class="env-lines">
+                    <p class="env-to">TO</p>
+                    <p class="env-value">{siteConfig.email}</p>
+                  </div>
+                </div>
+              )}
+
+              {contact.id === "github" && (
+                <div class="artifact gh-card" aria-hidden="true">
+                  <div class="gh-bar">
+                    <span class="gh-dot" />
+                    <span class="gh-dot" />
+                    <span class="gh-dot" />
+                    <span class="gh-path">~/xingkaixin</span>
+                  </div>
+                  <p class="gh-cmd">
+                    <span class="gh-prompt">$</span> git clone github.com/xingkaixin
+                  </p>
+                  <div class="gh-graph">
+                    {ghCells.map((level) => <span class={`gh-cell gh-l${level}`} />)}
+                  </div>
+                </div>
+              )}
+
+              {contact.id === "x" && (
+                <div class="artifact x-card" aria-hidden="true">
+                  <span class="x-logo">𝕏</span>
+                  <div class="x-head">
+                    <img src="/avatar.webp" alt="" class="x-avatar" />
+                    <div>
+                      <p class="x-name">XingKaiXin</p>
+                      <p class="x-handle">@xingkaixin</p>
+                    </div>
+                  </div>
+                  <p class="x-post">人生不该只有一种体验。</p>
+                </div>
+              )}
+
+              {contact.id === "telegram" && (
+                <div class="artifact tg-card" aria-hidden="true">
+                  <span class="tg-plane">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 2 11 13" />
+                      <path d="M22 2 15 22l-4-9-9-4Z" />
+                    </svg>
+                  </span>
+                  <div class="tg-bubble">
+                    <p class="tg-handle">@xingkaixin</p>
+                    <p class="tg-msg">随时来聊：AI、摄影、数码。</p>
+                  </div>
+                </div>
+              )}
+              </div>
+          ))
+        }
       </div>
-    </div>
+    </aside>
   </section>
 </SiteLayout>
 
@@ -167,6 +259,44 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
   .contact-icon {
     width: 15px;
     height: 15px;
+  }
+
+  .outline-link {
+    display: block;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+    color: var(--ink-500);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    transition:
+      color var(--duration-quick) var(--ease-smooth-out),
+      background-color var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .section-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-400);
+  }
+
+  @media (min-width: 64rem) {
+    .outline-link {
+      border-color: transparent;
+      padding: 0.4rem 0.5rem;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .outline-link:hover {
+      color: var(--ink-800);
+      background: var(--ink-50);
+    }
   }
 
   .avatar-sticker {
