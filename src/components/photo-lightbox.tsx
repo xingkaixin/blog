@@ -42,6 +42,7 @@ export function PhotoLightbox({
 }: PhotoLightboxProps) {
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const index = photos.findIndex((candidate) => candidate.id === photo.id);
+  const currentPosition = index >= 0 ? index + 1 : 1;
   const previous = index > 0 ? photos[index - 1] : undefined;
   const next = index >= 0 && index < photos.length - 1 ? photos[index + 1] : undefined;
   const albumTitleById = useMemo(
@@ -141,7 +142,7 @@ export function PhotoLightbox({
         </div>
 
         <div
-          className="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 pb-3 sm:px-16"
+          className="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 pb-2 sm:px-16"
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerCancel={() => {
@@ -184,6 +185,14 @@ export function PhotoLightbox({
             </button>
           )}
         </div>
+
+        <footer className="flex h-10 shrink-0 items-center justify-between gap-4 border-t border-white/10 px-3 font-mono text-[10px] text-[#8b8c92] sm:px-5">
+          <span aria-live="polite" className="text-[#deddd8]">
+            {currentPosition} / {photos.length}
+          </span>
+          <span className="sm:hidden">左右滑动 · Esc 关闭</span>
+          <span className="hidden sm:inline">← → 切换 · Esc 关闭</span>
+        </footer>
       </DialogContent>
     </Dialog>
   );

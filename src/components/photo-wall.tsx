@@ -1,4 +1,5 @@
 import { navigate } from "astro:transitions/client";
+import { ArrowLeftIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoPeriodSection } from "@/components/photo-period";
@@ -9,6 +10,7 @@ import {
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   photoObjectUrl,
+  photoVariantUrl,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
@@ -27,9 +29,37 @@ type CatalogState =
 
 type MonthCatalogs = Record<string, PhotoMonthCatalog>;
 type MonthErrors = Record<string, string>;
+type PhotoView = { mode: "overview" } | { mode: "timeline"; albumId: string | null };
+
+type AlbumOverviewItem = {
+  id: string | null;
+  title: string;
+  count: number;
+  meta: string;
+  photos: PhotoRecord[];
+};
 
 const INITIAL_PERIOD_COUNT = 2;
 const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
+const ALBUM_CHIP_CLASS_NAME =
+  "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper";
+const ALBUM_SIDEBAR_CLASS_NAME =
+  "flex w-full items-center justify-between gap-3 rounded-[6px] px-2 py-1.5 text-left text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800 [&>span:last-child]:font-mono [&>span:last-child]:text-[9px] [&>span:last-child]:text-ink-400";
+
+function formatPeriodRange(periods: PhotoPeriod[]): string {
+  const newest = periods[0]?.month;
+  const oldest = periods.at(-1)?.month;
+  if (!newest || !oldest) {
+    return "";
+  }
+  if (newest === oldest) {
+    const [year, month] = newest.split("-");
+    return `${year}年${Number(month)}月`;
+  }
+  const newestYear = newest.slice(0, 4);
+  const oldestYear = oldest.slice(0, 4);
+  return newestYear === oldestYear ? newestYear : `${oldestYear} – ${newestYear}`;
+}
 
 function readableError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -40,12 +70,17 @@ function photoIdFromLocation(): string | null {
   return photoId && PHOTO_ID_PATTERN.test(photoId) ? photoId : null;
 }
 
-function albumIdFromLocation(): string | null {
+function photoViewFromLocation(index: PhotoCatalogIndex): PhotoView {
   const hashParams = hashParamsFromLocation();
-  if (hashParams.has("album")) {
-    return hashParams.get("album") || null;
+  const legacyAlbumId = new URL(window.location.href).searchParams.get("album");
+  if (!hashParams.has("album") && legacyAlbumId === null) {
+    return { mode: "overview" };
   }
-  return new URL(window.location.href).searchParams.get("album");
+  const requestedAlbumId = hashParams.has("album") ? hashParams.get("album") : legacyAlbumId;
+  const albumId = index.albums.some((album) => album.id === requestedAlbumId)
+    ? requestedAlbumId
+    : null;
+  return { mode: "timeline", albumId };
 }
 
 function hashParamsFromLocation(): URLSearchParams {
@@ -72,7 +107,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const [catalogState, setCatalogState] = useState<CatalogState>({ status: "loading" });
   const [monthCatalogs, setMonthCatalogs] = useState<MonthCatalogs>({});
   const [monthErrors, setMonthErrors] = useState<MonthErrors>({});
-  const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
+  const [photoView, setPhotoView] = useState<PhotoView>({ mode: "overview" });
   const [activeMonth, setActiveMonth] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoRecord | null>(null);
   const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
@@ -191,19 +226,16 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   );
 
   const index = catalogState.status === "ready" ? catalogState.index : null;
+  const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
 
   useEffect(() => {
     if (!index) {
-      return;
+      return undefined;
     }
-    const requestedAlbum = albumIdFromLocation();
-    const albumExists = index.albums.some((album) => album.id === requestedAlbum);
-    setSelectedAlbumId((current) => {
-      if (current && index.albums.some((album) => album.id === current)) {
-        return current;
-      }
-      return requestedAlbum && albumExists ? requestedAlbum : null;
-    });
+    const syncViewFromUrl = () => setPhotoView(photoViewFromLocation(index));
+    syncViewFromUrl();
+    window.addEventListener("popstate", syncViewFromUrl);
+    return () => window.removeEventListener("popstate", syncViewFromUrl);
   }, [index]);
 
   const visiblePeriods = useMemo(() => {
@@ -232,6 +264,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   }, [visiblePeriods]);
 
   useEffect(() => {
+    if (photoView.mode !== "timeline") {
+      return undefined;
+    }
     const wall = wallRef.current;
     if (!wall || visiblePeriods.length === 0) {
       return undefined;
@@ -278,12 +313,71 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       observer.observe(section);
     }
     return () => observer.disconnect();
-  }, [visiblePeriods]);
+  }, [photoView.mode, visiblePeriods]);
 
   const allLoadedPhotos = useMemo(
     () => index?.periods.flatMap((period) => monthCatalogs[period.month]?.photos ?? []) ?? [],
     [index, monthCatalogs],
   );
+  const overviewPeriods = useMemo(() => {
+    if (!index) {
+      return [];
+    }
+    const neededMonths = new Set(index.periods.slice(0, 1).map((period) => period.month));
+    for (const album of index.albums) {
+      let previewCount = 0;
+      for (const period of index.periods) {
+        const count = period.albumCounts[album.id] ?? 0;
+        if (count === 0) {
+          continue;
+        }
+        neededMonths.add(period.month);
+        previewCount += count;
+        if (previewCount >= 4) {
+          break;
+        }
+      }
+    }
+    return index.periods.filter((period) => neededMonths.has(period.month));
+  }, [index]);
+
+  useEffect(() => {
+    if (photoView.mode !== "overview") {
+      return;
+    }
+    for (const period of overviewPeriods) {
+      void loadMonth(period).catch(() => undefined);
+    }
+  }, [loadMonth, overviewPeriods, photoView.mode]);
+
+  const overviewItems = useMemo<AlbumOverviewItem[]>(() => {
+    if (!index) {
+      return [];
+    }
+    const totalCount = index.periods.reduce((sum, period) => sum + period.count, 0);
+    const albumItems = index.albums.map((album) => {
+      const albumPeriods = index.periods.filter(
+        (period) => (period.albumCounts[album.id] ?? 0) > 0,
+      );
+      return {
+        id: album.id,
+        title: album.title,
+        count: albumPeriods.reduce((sum, period) => sum + (period.albumCounts[album.id] ?? 0), 0),
+        meta: formatPeriodRange(albumPeriods),
+        photos: allLoadedPhotos.filter((photo) => photo.albumIds.includes(album.id)).slice(0, 4),
+      };
+    });
+    return [
+      {
+        id: null,
+        title: "全部",
+        count: totalCount,
+        meta: formatPeriodRange(index.periods),
+        photos: allLoadedPhotos.slice(0, 4),
+      },
+      ...albumItems,
+    ];
+  }, [allLoadedPhotos, index]);
   const filteredLoadedPhotos = useMemo(
     () =>
       allLoadedPhotos.filter(
@@ -417,11 +511,32 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     };
   }, [index, loadMonth, preloadAdjacentPeriods]);
 
-  const selectAlbum = (albumId: string | null) => {
-    setSelectedAlbumId(albumId);
+  const openTimeline = (albumId: string | null) => {
+    setPhotoView({ mode: "timeline", albumId });
     const url = new URL(window.location.href);
     setHashParam(url, "album", albumId ?? "");
-    void navigate(url.href, { history: "replace", state: history.state });
+    void navigate(url.href, { state: history.state }).then(() => window.scrollTo(0, 0));
+  };
+
+  const selectAlbum = (albumId: string | null) => {
+    setPhotoView({ mode: "timeline", albumId });
+    const url = new URL(window.location.href);
+    setHashParam(url, "album", albumId ?? "");
+    setHashParam(url, "photo", null);
+    void navigate(url.href, { history: "replace", state: history.state }).then(() =>
+      window.scrollTo(0, 0),
+    );
+  };
+
+  const returnToOverview = () => {
+    setPhotoView({ mode: "overview" });
+    setSelectedPhoto(null);
+    const url = new URL(window.location.href);
+    setHashParam(url, "album", null);
+    setHashParam(url, "photo", null);
+    void navigate(url.href, { history: "replace", state: history.state }).then(() =>
+      window.scrollTo(0, 0),
+    );
   };
 
   const retryMonth = useCallback(
@@ -463,31 +578,91 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       sum + (selectedAlbumId ? (period.albumCounts[selectedAlbumId] ?? 0) : period.count),
     0,
   );
+  const selectedAlbum = index?.albums.find((album) => album.id === selectedAlbumId);
+  const timelineRange = formatPeriodRange(visiblePeriods);
 
   return (
-    <section className="pb-20 pt-9 sm:pt-12">
-      <div className="mx-auto max-w-350 px-4 sm:px-6 lg:px-10">
-        <div className="max-w-2xl">
-          <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-            <h1 className="font-display text-4xl text-ink-800 sm:text-5xl">照片墙</h1>
-            {catalogState.status === "ready" && (
-              <span className="pb-1 font-mono text-xs text-ink-400">{totalPhotoCount} 张照片</span>
-            )}
-          </div>
-          <p className="mt-3 text-sm leading-7 text-ink-500">按拍摄时间，从最近的照片开始。</p>
+    <section className="pb-20">
+      {catalogState.status === "loading" && (
+        <div className="mx-auto max-w-320 px-3 pt-8 sm:px-5 lg:px-8 lg:pt-[30px]">
+          <PhotoArchiveHeader />
+          <AlbumOverviewLoading />
         </div>
+      )}
 
-        {index && index.albums.length > 0 && (
+      {catalogState.status === "error" && (
+        <div className="mx-auto max-w-320 px-3 pt-8 sm:px-5 lg:px-8 lg:pt-[30px]">
+          <PhotoArchiveHeader />
+          <div
+            role="alert"
+            className="mt-8 flex min-h-72 flex-col items-center justify-center gap-4 rounded-[10px] border border-line bg-surface px-6 text-center"
+          >
+            <div>
+              <h2 className="text-lg font-medium text-ink-800">照片暂时无法加载</h2>
+              <p className="mt-2 text-sm leading-7 text-ink-500">请稍后重试。</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void loadCatalog()}
+              className="rounded-[6px] bg-ink-800 px-4 py-2 text-sm font-medium text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 active:scale-[0.97]"
+            >
+              重新加载
+            </button>
+          </div>
+        </div>
+      )}
+
+      {catalogState.status === "ready" && photoView.mode === "overview" && (
+        <div className="mx-auto max-w-320 px-3 pt-8 sm:px-5 lg:px-8 lg:pt-[30px]">
+          <PhotoArchiveHeader
+            detail={`${index.albums.length} 个相册 · ${overviewItems[0]?.count ?? 0} 张照片`}
+          />
+          <div className="mt-[26px] grid gap-[26px] sm:grid-cols-2 lg:grid-cols-3">
+            {overviewItems.map((item, itemIndex) => (
+              <AlbumOverviewCard
+                key={item.id ?? "all"}
+                baseUrl={normalizedBaseUrl}
+                item={item}
+                eager={itemIndex < 3}
+                onOpen={() => openTimeline(item.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {catalogState.status === "ready" && photoView.mode === "timeline" && (
+        <div className="mx-auto max-w-320">
+          <header className="flex flex-wrap items-center gap-2.5 border-b border-line px-3 py-3 sm:px-6">
+            <button
+              type="button"
+              onClick={returnToOverview}
+              className="inline-flex items-center gap-1.5 rounded-[5px] text-[13px] text-ink-500 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            >
+              <ArrowLeftIcon aria-hidden="true" className="h-3.5 w-3.5" />
+              相册
+            </button>
+            <span aria-hidden="true" className="text-line">
+              /
+            </span>
+            <h1 className="text-[15px] font-medium text-ink-800">
+              {selectedAlbum?.title ?? "全部"}
+            </h1>
+            <span className="font-mono text-[10px] text-ink-400">
+              {totalPhotoCount} 张{timelineRange && ` · ${timelineRange}`}
+            </span>
+          </header>
+
           <div
             role="group"
-            aria-label="筛选相册"
-            className="-mx-4 mt-7 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+            aria-label="切换相册"
+            className="flex gap-1.5 overflow-x-auto border-b border-line px-3 py-2.5 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
           >
             <button
               type="button"
               aria-pressed={selectedAlbumId === null}
               onClick={() => selectAlbum(null)}
-              className="shrink-0 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink-600 transition-[transform,background-color,color,border-color] aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]"
+              className={ALBUM_CHIP_CLASS_NAME}
             >
               全部
             </button>
@@ -497,84 +672,108 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
                 type="button"
                 aria-pressed={selectedAlbumId === album.id}
                 onClick={() => selectAlbum(album.id)}
-                className="shrink-0 rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink-600 transition-[transform,background-color,color,border-color] aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]"
+                className={ALBUM_CHIP_CLASS_NAME}
               >
                 {album.title}
               </button>
             ))}
           </div>
-        )}
-      </div>
 
-      <div
-        ref={wallRef}
-        className={cn(
-          "mx-auto mt-9 max-w-350",
-          visiblePeriods.length > 1
-            ? "pr-8 sm:px-6 sm:pr-14 lg:px-10 lg:pr-16"
-            : "pr-0 sm:px-6 lg:px-10",
-        )}
-      >
-        {catalogState.status === "loading" && <PhotoWallLoading />}
-        {catalogState.status === "error" && (
-          <div
-            role="alert"
-            className="flex min-h-72 flex-col items-center justify-center gap-4 border border-line bg-surface px-6 text-center"
-          >
-            <div>
-              <h2 className="text-lg font-medium text-ink-800">照片暂时无法加载</h2>
-              <p className="mt-2 text-sm leading-7 text-ink-500">请稍后重试。</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void loadCatalog()}
-              className="rounded-full bg-ink-800 px-5 py-2.5 text-sm font-medium text-paper transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 active:scale-[0.97]"
-            >
-              重新加载
-            </button>
-          </div>
-        )}
-        {catalogState.status === "ready" && visiblePeriods.length === 0 && (
-          <div className="flex min-h-72 items-center justify-center border border-line bg-surface px-6 text-center">
-            <div>
-              <h2 className="text-lg font-medium text-ink-800">
-                {selectedAlbumId ? "这个相册还没有照片" : "还没有照片"}
-              </h2>
-              <p className="mt-2 text-sm leading-7 text-ink-500">
-                新照片发布后会按拍摄时间显示在这里。
+          <div className="lg:grid lg:min-h-[680px] lg:grid-cols-[220px_minmax(0,1fr)_56px]">
+            <aside className="hidden border-r border-line px-[18px] py-5 lg:flex lg:flex-col">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">相册</p>
+              <div role="group" aria-label="切换相册" className="mt-2 space-y-0.5">
+                <button
+                  type="button"
+                  aria-pressed={selectedAlbumId === null}
+                  onClick={() => selectAlbum(null)}
+                  className={ALBUM_SIDEBAR_CLASS_NAME}
+                >
+                  <span>全部照片</span>
+                  <span>{index.periods.reduce((sum, period) => sum + period.count, 0)}</span>
+                </button>
+                {index.albums.map((album) => (
+                  <button
+                    key={album.id}
+                    type="button"
+                    aria-pressed={selectedAlbumId === album.id}
+                    onClick={() => selectAlbum(album.id)}
+                    className={ALBUM_SIDEBAR_CLASS_NAME}
+                  >
+                    <span>{album.title}</span>
+                    <span>
+                      {index.periods.reduce(
+                        (sum, period) => sum + (period.albumCounts[album.id] ?? 0),
+                        0,
+                      )}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-auto border-t border-line pt-4 font-mono text-[10px] leading-5 text-ink-400">
+                {totalPhotoCount} 张 · {timelineRange}
+                <br />
+                按拍摄时间倒序
               </p>
+            </aside>
+
+            <div
+              ref={wallRef}
+              className={cn(
+                "min-w-0 py-[18px]",
+                visiblePeriods.length > 1
+                  ? "pr-8 sm:px-5 sm:pr-12 lg:px-5 lg:pr-5"
+                  : "sm:px-5 lg:px-5",
+              )}
+            >
+              {visiblePeriods.length === 0 ? (
+                <div className="flex min-h-72 items-center justify-center border-y border-line bg-surface px-6 text-center sm:rounded-[10px] sm:border">
+                  <div>
+                    <h2 className="text-lg font-medium text-ink-800">
+                      {selectedAlbumId ? "这个相册还没有照片" : "还没有照片"}
+                    </h2>
+                    <p className="mt-2 text-sm leading-7 text-ink-500">
+                      新照片发布后会按拍摄时间显示在这里。
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-9 md:space-y-12">
+                  {visiblePeriods.map((period, indexInList) => (
+                    <PhotoPeriodSection
+                      key={`${selectedAlbumId ?? "all"}-${period.month}`}
+                      baseUrl={normalizedBaseUrl}
+                      period={period}
+                      monthCatalog={monthCatalogs[period.month]}
+                      albumId={selectedAlbumId}
+                      error={monthErrors[period.month]}
+                      eager={indexInList === 0}
+                      onVisible={() => {
+                        void loadMonth(period).catch(() => undefined);
+                      }}
+                      onRetry={() => retryMonth(period)}
+                      onOpenPhoto={openPhoto}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <div aria-hidden="true" className="hidden justify-center py-6 lg:flex">
+              <span className="w-px bg-line opacity-50" />
             </div>
           </div>
-        )}
-        {catalogState.status === "ready" && visiblePeriods.length > 0 && (
-          <div className="space-y-9 md:space-y-12">
-            {visiblePeriods.map((period, indexInList) => (
-              <PhotoPeriodSection
-                key={`${selectedAlbumId ?? "all"}-${period.month}`}
-                baseUrl={normalizedBaseUrl}
-                period={period}
-                monthCatalog={monthCatalogs[period.month]}
-                albumId={selectedAlbumId}
-                error={monthErrors[period.month]}
-                eager={indexInList === 0}
-                onVisible={() => {
-                  void loadMonth(period).catch(() => undefined);
-                }}
-                onRetry={() => retryMonth(period)}
-                onOpenPhoto={openPhoto}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {catalogState.status === "ready" && visiblePeriods.length > 1 && (
-        <PhotoTimeRail
-          periods={visiblePeriods}
-          activeMonth={activeMonth}
-          onSelect={(month) => void jumpToMonth(month)}
-        />
+        </div>
       )}
+
+      {catalogState.status === "ready" &&
+        photoView.mode === "timeline" &&
+        visiblePeriods.length > 1 && (
+          <PhotoTimeRail
+            periods={visiblePeriods}
+            activeMonth={activeMonth}
+            onSelect={(month) => void jumpToMonth(month)}
+          />
+        )}
 
       {lightboxDisplayPhoto && index && (
         <PhotoLightbox
@@ -591,28 +790,94 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   );
 }
 
-function PhotoWallLoading() {
+function PhotoArchiveHeader({ detail }: { detail?: string }) {
   return (
-    <div aria-label="正在加载照片墙" className="space-y-9">
-      {[
-        { month: "最近", count: 8 },
-        { month: "更早", count: 6 },
-      ].map((group) => (
-        <section key={group.month}>
-          <div className="mb-3 flex items-center justify-between px-3 sm:px-0">
-            <span className="h-3 w-24 bg-ink-100" />
-            <span className="h-3 w-10 bg-ink-50" />
-          </div>
-          <div className="grid grid-cols-3 gap-0.5 md:grid-cols-4 md:gap-1">
-            {Array.from({ length: group.count }, (_, index) => (
-              <span
-                key={index}
-                aria-hidden="true"
-                className="aspect-square bg-ink-100 even:bg-ink-50"
+    <header className="flex flex-col gap-3 border-b border-line pb-[18px] sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+          {detail ?? "正在读取照片档案"}
+        </p>
+        <h1 className="mt-2 font-display text-4xl font-normal leading-none text-ink-800">照片墙</h1>
+      </div>
+      <p className="text-[13px] leading-6 text-ink-500">按拍摄时间，从最近的照片开始。</p>
+    </header>
+  );
+}
+
+function AlbumOverviewCard({
+  baseUrl,
+  item,
+  eager,
+  onOpen,
+}: {
+  baseUrl: string;
+  item: AlbumOverviewItem;
+  eager: boolean;
+  onOpen: () => void;
+}) {
+  const placements = [
+    "left-[12%] top-[14%] h-[56%] w-[52%] -rotate-7",
+    "right-[10%] top-[8%] h-[44%] w-[46%] rotate-6",
+    "bottom-[8%] left-[22%] h-[42%] w-[44%] rotate-4",
+    "right-[8%] bottom-[12%] h-[40%] w-[38%] -rotate-4",
+  ];
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group w-full rounded-[8px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+      aria-label={`打开${item.title}，${item.count}张照片`}
+    >
+      <span className="relative block aspect-4/3 overflow-hidden rounded-[12px] border border-line bg-surface">
+        {(item.photos.length > 0 ? item.photos : [null, null, null, null]).map((photo, index) => (
+          <span
+            key={photo?.id ?? index}
+            className={cn(
+              "absolute overflow-hidden border-4 border-white bg-ink-100 shadow-[0_8px_22px_-10px_rgba(20,21,26,0.55)] transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:scale-[1.02]",
+              placements[index],
+            )}
+          >
+            {photo && (
+              <img
+                src={photoVariantUrl(baseUrl, photo.id, 480)}
+                alt=""
+                width={photo.width}
+                height={photo.height}
+                loading={eager ? "eager" : "lazy"}
+                fetchPriority={eager ? "high" : "auto"}
+                decoding="async"
+                className="h-full w-full object-cover"
+                style={{ backgroundColor: photo.placeholderColor }}
               />
-            ))}
-          </div>
-        </section>
+            )}
+          </span>
+        ))}
+      </span>
+      <span className="mt-3 flex items-baseline justify-between gap-4 px-1">
+        <span className="text-[15px] font-medium text-ink-800 transition-colors group-hover:text-accent">
+          {item.title}
+        </span>
+        <span className="font-mono text-[10px] text-ink-400">{item.count} 张</span>
+      </span>
+      <span className="mt-0.5 block px-1 font-mono text-[9px] tracking-[0.08em] text-ink-300">
+        {item.meta}
+      </span>
+    </button>
+  );
+}
+
+function AlbumOverviewLoading() {
+  return (
+    <div
+      aria-label="正在加载相册"
+      className="mt-[26px] grid gap-[26px] sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {Array.from({ length: 6 }, (_, index) => (
+        <div key={index}>
+          <span aria-hidden="true" className="block aspect-4/3 rounded-[12px] bg-ink-100" />
+          <span aria-hidden="true" className="mt-3 block h-4 w-24 bg-ink-100" />
+        </div>
       ))}
     </div>
   );
