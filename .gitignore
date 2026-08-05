@@ -17,6 +17,7 @@ node_modules
 skills-lock.json
 EXTEND.md
 .issues
+.design
 
 
 # env
