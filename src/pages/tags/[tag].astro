@@ -3,7 +3,6 @@ import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { formatDisplayDate } from "@/lib/markdown";
 import { buildTagArchives, tagHref, type TagArchive } from "@/lib/post-tags";
 import { siteConfig } from "@/lib/site";
 
@@ -34,44 +33,46 @@ const meta = {
 };
 ---
 
-<SiteLayout meta={meta}>
-  <section class="px-4 pb-20 pt-10 sm:px-6 lg:px-10 lg:pt-14">
-    <div class="mx-auto max-w-5xl">
+<SiteLayout meta={meta} status={`TAG · ${tag} · ${posts.length}`}>
+  <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
+    <header class="border-b border-line pb-5">
       <Breadcrumb items={[{ name: "首页", url: "/" }, { name: `#${tag}` }]} />
-      <header class="mt-8 border-b border-line pb-8">
-        <p class="font-mono text-xs uppercase tracking-[0.28em] text-accent">Tag archive</p>
-        <h1 class="mt-4 font-display text-4xl leading-tight text-ink-800 sm:text-5xl">#{tag}</h1>
-        <p class="mt-4 text-base text-ink-500">共 {posts.length} 篇文章</p>
-      </header>
-
-      <div class="mt-6">
-        {
-          posts.map((post) => (
-            <a
-              href={`/posts/${post.slug}/`}
-              class="group flex items-center gap-4 border-b border-line py-5 sm:gap-6"
-            >
-              <span class="w-26 shrink-0 font-mono text-xs text-ink-500">
-                {formatDisplayDate(post.date)}
-              </span>
-              <span class="min-w-0 flex-1">
-                <span class="block text-lg text-balance text-ink-700 transition-colors duration-(--duration-quick) group-hover:text-accent">
-                  {post.title}
-                </span>
-                <span class="mt-1 hidden text-sm text-ink-500 sm:line-clamp-1">
-                  {post.summary}
-                </span>
-              </span>
-              <span
-                class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-lg border border-line lg:block"
-                transition:name={`cover-${post.slug}`}
-              >
-                <PostCover src={post.cover} alt="" />
-              </span>
-            </a>
-          ))
-        }
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">Tag archive</p>
+          <h1 class="mt-2 font-display text-4xl leading-none text-ink-800 sm:text-5xl">#{tag}</h1>
+        </div>
+        <p class="font-mono text-[10px] text-ink-400">{posts.length} 篇 · 按时间倒序</p>
       </div>
+    </header>
+
+    <div aria-label={`标记为${tag}的文章`}>
+      {
+        posts.map((post) => (
+          <a
+            href={`/posts/${post.slug}/`}
+            class="group -mx-1 block border-b border-ink-100 px-3 py-3.5 transition-[background-color,box-shadow] hover:bg-surface hover:shadow-[inset_3px_0_0_var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:flex lg:items-center lg:gap-5 lg:px-4 lg:py-3"
+          >
+            <span class="font-mono text-[10px] text-ink-400 lg:w-[76px] lg:shrink-0">
+              {post.date}
+            </span>
+            <span class="mt-1 block min-w-0 flex-1 lg:mt-0">
+              <h2 class="text-[15px] leading-6 text-ink-800 transition-colors group-hover:text-accent">
+                {post.title}
+              </h2>
+              <span class="mt-0.5 line-clamp-2 text-[12px] leading-5 text-ink-500 lg:line-clamp-1">
+                {post.summary}
+              </span>
+            </span>
+            <span
+              class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-[6px] border border-line lg:block"
+              transition:name={`cover-${post.slug}`}
+            >
+              <PostCover src={post.cover} alt="" imageClass="aspect-video object-cover" />
+            </span>
+          </a>
+        ))
+      }
     </div>
   </section>
 </SiteLayout>

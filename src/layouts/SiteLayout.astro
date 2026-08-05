@@ -26,7 +26,7 @@ type Props = {
 };
 
 const { meta, noindex = false, status } = Astro.props;
-const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+const currentPath = decodeURI(Astro.url.pathname.replace(/\/$/, "") || "/");
 const image = pageImage(meta);
 const title = pageTitle(meta);
 const analyticsHost = new URL(siteConfig.url).hostname;
@@ -177,7 +177,7 @@ const pageTransition = {
           </a>
 
           {currentPath !== "/" && (
-            <span class="hidden shrink-0 font-mono text-xs text-ink-400 xl:inline">
+            <span class="hidden max-w-52 shrink-0 truncate font-mono text-xs text-ink-400 xl:inline">
               {currentPath}
             </span>
           )}

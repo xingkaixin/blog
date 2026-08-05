@@ -10,18 +10,29 @@ const meta = {
 };
 ---
 
-<SiteLayout meta={meta} noindex>
-  <section class="px-4 py-24 sm:px-6 lg:px-10">
-    <div class="card mx-auto max-w-xl rounded-3xl px-8 py-12 text-center">
-      <p class="font-mono text-xs uppercase tracking-[0.32em] text-ink-500">404</p>
-      <h1 class="mt-4 font-display text-4xl text-ink-800">页面未找到</h1>
-      <p class="mt-4 leading-8 text-ink-600">这篇内容可能已经删除、移动，或者链接已经过期。</p>
-      <a
-        href="/"
-        class="mt-8 inline-flex h-11 items-center justify-center rounded-full border border-accent bg-accent px-6 text-sm font-medium text-white transition-colors hover:bg-ink-800 hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
-      >
-        返回首页
-      </a>
+<SiteLayout meta={meta} noindex status="ERROR · 404">
+  <section class="mx-auto flex min-h-[calc(100dvh-90px)] max-w-320 items-center px-3 py-16 sm:px-5 lg:px-8">
+    <div class="mx-auto w-full max-w-3xl border-y border-line py-8 sm:py-10">
+      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+        Error · Resource not found
+      </p>
+      <div class="mt-5 grid gap-5 sm:grid-cols-[130px_minmax(0,1fr)] sm:items-start sm:gap-8">
+        <span aria-hidden="true" class="font-mono text-6xl leading-none text-ink-200 sm:text-7xl">
+          404
+        </span>
+        <div>
+          <h1 class="font-display text-4xl leading-none text-ink-800">页面未找到</h1>
+          <p class="mt-4 text-[15px] leading-7 text-ink-500">
+            这篇内容可能已经删除、移动，或者链接已经过期。
+          </p>
+          <a
+            href="/"
+            class="mt-6 inline-flex h-9 items-center justify-center rounded-[6px] border border-ink-800 bg-ink-800 px-4 font-mono text-[11px] text-paper transition-colors hover:border-accent hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
+          >
+            ← 返回首页
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 </SiteLayout>

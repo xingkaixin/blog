@@ -11,7 +11,7 @@ type Props = {
 const { items } = Astro.props;
 ---
 
-<nav aria-label="面包屑" class="text-xs uppercase tracking-[0.18em] text-ink-500">
+<nav aria-label="面包屑" class="font-mono text-[10px] tracking-[0.06em] text-ink-400">
   <ol class="flex flex-wrap items-center gap-2">
     {
       items.map((item, index) => {
@@ -19,11 +19,11 @@ const { items } = Astro.props;
         return (
           <li class="flex items-center gap-2">
             {item.url && !isLast ? (
-              <a href={item.url} class="transition-colors hover:text-ink-700">
+              <a href={item.url} class="transition-colors hover:text-accent">
                 {item.name}
               </a>
             ) : (
-              <span class={isLast ? "text-ink-600" : ""} aria-current={isLast ? "page" : undefined}>
+              <span class={isLast ? "text-ink-500" : ""} aria-current={isLast ? "page" : undefined}>
                 {item.name}
               </span>
             )}
