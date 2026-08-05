@@ -1,132 +1,370 @@
 import { SearchIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { resolveCover } from "@/lib/covers";
+import { tagHref } from "@/lib/post-tags";
 import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
+import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-function PostItem({ post, onClose }: { post: SearchIndexItem; onClose: () => void }) {
-  const cover = resolveCover(post.cover);
+type LinkItem = {
+  id: string;
+  kind: "link";
+  glyph: string;
+  title: string;
+  hint: string;
+  href: string;
+  keywords: string;
+};
 
-  return (
-    <a
-      href={`/posts/${post.slug}/`}
-      onClick={onClose}
-      className="flex gap-3 rounded-[1.4rem] border border-line bg-surface p-3 transition-[border-color,background-color] duration-(--duration-quick) ease-(--ease-smooth-out) hover:border-accent/40 hover:bg-ink-50"
-    >
-      {post.cover && (
-        <img
-          src={cover?.mobile ?? post.cover}
-          alt={post.coverAlt}
-          width={80}
-          height={64}
-          loading="lazy"
-          className="h-16 w-20 shrink-0 rounded-lg object-cover"
-        />
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-lg text-ink-800">{post.title}</p>
-        <p className="mt-1 line-clamp-2 text-sm leading-7 text-ink-600">{post.summary}</p>
-      </div>
-    </a>
-  );
+type ActionItem = {
+  id: string;
+  kind: "action";
+  glyph: string;
+  title: string;
+  hint: string;
+  action: "theme";
+  keywords: string;
+};
+
+type PaletteItem = LinkItem | ActionItem;
+
+type PaletteGroup = {
+  label: string;
+  items: PaletteItem[];
+};
+
+const routeItems: PaletteItem[] = [
+  {
+    id: "route-home",
+    kind: "link",
+    glyph: "›",
+    title: "文章日志",
+    hint: "/",
+    href: "/",
+    keywords: "首页 文章 日志 home posts",
+  },
+  {
+    id: "route-projects",
+    kind: "link",
+    glyph: "›",
+    title: "工具箱",
+    hint: "/projects",
+    href: "/projects/",
+    keywords: "工具 项目 projects",
+  },
+  {
+    id: "route-photos",
+    kind: "link",
+    glyph: "›",
+    title: "照片墙",
+    hint: "/photos",
+    href: "/photos/",
+    keywords: "照片 摄影 相册 photos",
+  },
+  {
+    id: "route-about",
+    kind: "link",
+    glyph: "›",
+    title: "关于",
+    hint: "/about",
+    href: "/about/",
+    keywords: "关于 联系 about",
+  },
+  {
+    id: "action-theme",
+    kind: "action",
+    glyph: "›",
+    title: "翻转世界",
+    hint: "⌘J",
+    action: "theme",
+    keywords: "主题 亮色 暗色 theme dark light",
+  },
+  {
+    id: "route-feed",
+    kind: "link",
+    glyph: "›",
+    title: "订阅 RSS",
+    hint: "/feed.xml",
+    href: "/feed.xml",
+    keywords: "订阅 rss feed",
+  },
+];
+
+function normalize(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function postItem(post: SearchIndexItem): LinkItem {
+  return {
+    id: `post-${post.slug}`,
+    kind: "link",
+    glyph: "#",
+    title: post.title,
+    hint: post.date,
+    href: `/posts/${post.slug}/`,
+    keywords: `${post.title} ${post.summary} ${post.tags.join(" ")}`,
+  };
 }
 
 export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [query, setQuery] = useState("");
   const [posts, setPosts] = useState<SearchIndexItem[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "loaded" | "failed">("idle");
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (open && status === "idle") {
-      setStatus("loading");
-      void loadSearchIndex()
-        .then((index) => {
-          setPosts(index);
-          setStatus("loaded");
-        })
-        .catch(() => {
-          setStatus("failed");
-        });
+    if (!open || status !== "idle") {
+      return;
     }
+
+    setStatus("loading");
+    void loadSearchIndex()
+      .then((index) => {
+        setPosts(index);
+        setStatus("loaded");
+      })
+      .catch(() => {
+        setStatus("failed");
+      });
   }, [open, status]);
 
-  const results = useMemo(() => {
-    if (!query.trim()) {
+  const groups = useMemo<PaletteGroup[]>(() => {
+    if (status !== "loaded") {
       return [];
     }
-    return rankPosts(posts, { query });
-  }, [query, posts]);
 
-  const displayPosts = !query.trim() ? posts.slice(0, 5) : results;
+    const normalizedQuery = normalize(query);
+    if (!normalizedQuery) {
+      return [
+        { label: "最近发布", items: posts.slice(0, 4).map(postItem) },
+        { label: "跳转与命令", items: routeItems },
+      ];
+    }
+
+    const tagCounts = new Map<string, number>();
+    for (const post of posts) {
+      for (const tag of post.tags) {
+        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      }
+    }
+
+    const matchedPosts = rankPosts(posts, { query }).slice(0, 8).map(postItem);
+    const matchedTags = [...tagCounts]
+      .filter(([tag]) => normalize(tag).includes(normalizedQuery))
+      .toSorted(([left], [right]) => left.localeCompare(right, "zh-CN"))
+      .slice(0, 5)
+      .map<LinkItem>(([tag, count]) => ({
+        id: `tag-${tag}`,
+        kind: "link",
+        glyph: "⌗",
+        title: `${tag} · ${count} 篇`,
+        hint: "筛选",
+        href: tagHref(tag),
+        keywords: tag,
+      }));
+    const matchedRoutes = routeItems.filter((item) =>
+      normalize(`${item.title} ${item.hint} ${item.keywords}`).includes(normalizedQuery),
+    );
+
+    return [
+      { label: `文章 · ${matchedPosts.length}`, items: matchedPosts },
+      { label: "标签", items: matchedTags },
+      { label: "命令", items: matchedRoutes },
+    ].filter((group) => group.items.length > 0);
+  }, [posts, query, status]);
+
+  const items = useMemo(() => groups.flatMap((group) => group.items), [groups]);
+  const activeItem = items[activeIndex] ?? items[0];
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [query, status]);
+
+  const activate = (item: PaletteItem | undefined) => {
+    if (!item) {
+      return;
+    }
+    if (item.kind === "action") {
+      window.dispatchEvent(new Event("site:toggle-theme"));
+      onOpenChange(false);
+      return;
+    }
+    window.location.assign(item.href);
+  };
+
+  const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (items.length === 0) {
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((current) => (current + 1) % items.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((current) => (current - 1 + items.length) % items.length);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      activate(activeItem);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent hideClose title="搜索文章" description="输入关键词搜索博客文章">
-        <div className="space-y-4">
-          <div className="relative">
-            <SearchIcon
-              aria-hidden="true"
-              className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-600"
-            />
-            <Input
-              aria-label="搜索文章"
-              name="site-search"
-              autoComplete="off"
-              enterKeyHint="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索文章…"
-              className="pl-11"
-            />
-          </div>
-          <div style={{ height: 360 }}>
-            {status === "loading" ? (
-              <div
-                role="status"
-                aria-live="polite"
-                className="flex h-full items-center justify-center"
+      <DialogContent
+        hideClose
+        title="命令面板"
+        description="搜索文章、跳转页面或执行站点命令"
+        className="command-palette fixed bottom-0 left-0 top-auto max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
+      >
+        <div className="flex justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
+          <span className="h-1 w-9 rounded-full bg-ink-200" />
+        </div>
+
+        <div className="flex h-[52px] items-center gap-3 border-b border-line px-4">
+          <SearchIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
+          <input
+            autoFocus
+            aria-label="搜索与命令"
+            aria-controls="command-palette-results"
+            aria-activedescendant={activeItem?.id}
+            autoComplete="off"
+            enterKeyHint="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={handleInputKeyDown}
+            placeholder="搜索文章、跳转页面、切换世界…"
+            className="min-w-0 flex-1 bg-transparent font-mono text-sm text-ink-800 outline-none placeholder:text-ink-400"
+          />
+          {status === "loaded" && query.trim() && (
+            <span className="shrink-0 font-mono text-[10px] text-ink-400">
+              {items.length} 个结果
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="shrink-0 text-sm text-ink-500 sm:hidden"
+          >
+            取消
+          </button>
+        </div>
+
+        <div
+          id="command-palette-results"
+          role="listbox"
+          aria-label="命令面板结果"
+          className="min-h-64 overflow-y-auto sm:max-h-[430px]"
+        >
+          {status === "loading" ? (
+            <PaletteLoading />
+          ) : status === "failed" ? (
+            <div
+              role="alert"
+              className="flex min-h-64 flex-col items-center justify-center px-6 text-center"
+            >
+              <p className="text-base text-ink-800">搜索索引加载失败</p>
+              <p className="mt-2 text-sm text-ink-500">检查网络连接后可以重新加载。</p>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="mt-4"
+                onClick={() => setStatus("idle")}
               >
-                <div
-                  aria-hidden="true"
-                  className="h-6 w-6 animate-spin rounded-full border-b-2 border-ink-800 motion-reduce:animate-none"
-                />
-                <span className="sr-only">正在加载搜索索引…</span>
-              </div>
-            ) : status === "failed" ? (
-              <div
-                role="alert"
-                className="flex h-full flex-col items-center justify-center rounded-[1.6rem] border border-dashed border-line bg-ink-50 px-5 py-8 text-center"
-              >
-                <p className="text-lg text-ink-800">搜索索引加载失败</p>
-                <p className="mt-2 text-sm text-ink-600">请检查网络连接后重试。</p>
-                <Button className="mt-4" onClick={() => setStatus("idle")}>
-                  重新加载
-                </Button>
-              </div>
-            ) : displayPosts.length > 0 ? (
-              <div aria-live="polite" className="h-full space-y-2 overflow-y-auto">
-                {displayPosts.map((post) => (
-                  <PostItem key={post.slug} post={post} onClose={() => onOpenChange(false)} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center rounded-[1.6rem] border border-dashed border-line bg-ink-50 px-5 py-8 text-center">
-                <p className="text-lg text-ink-800">没有命中结果</p>
-                <p className="mt-2 text-sm leading-7 text-ink-600">
-                  试试更短的词，或者改搜标签与概念名。
-                </p>
-              </div>
-            )}
-          </div>
+                重新加载
+              </Button>
+            </div>
+          ) : groups.length > 0 ? (
+            <div aria-live="polite" className="py-1.5">
+              {groups.map((group) => (
+                <section key={group.label} aria-label={group.label}>
+                  <p className="px-4 pb-1 pt-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+                    {group.label}
+                  </p>
+                  {group.items.map((item) => {
+                    const itemIndex = items.indexOf(item);
+                    const selected = itemIndex === activeIndex;
+                    const itemClassName = cn(
+                      "flex min-h-10 w-full items-center gap-2.5 px-4 py-2 text-left transition-colors",
+                      selected
+                        ? "bg-ink-50 text-ink-800 shadow-[inset_2px_0_0_var(--accent)]"
+                        : "text-ink-700 hover:bg-ink-50",
+                    );
+                    const content = (
+                      <>
+                        <span className="w-4 shrink-0 font-mono text-[11px] text-ink-300">
+                          {item.glyph}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-sm">{item.title}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-ink-400">
+                          {item.hint}
+                        </span>
+                      </>
+                    );
+
+                    return item.kind === "link" ? (
+                      <a
+                        id={item.id}
+                        key={item.id}
+                        href={item.href}
+                        role="option"
+                        aria-selected={selected}
+                        className={itemClassName}
+                        onMouseEnter={() => setActiveIndex(itemIndex)}
+                        onFocus={() => setActiveIndex(itemIndex)}
+                        onClick={() => onOpenChange(false)}
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <button
+                        id={item.id}
+                        key={item.id}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        className={itemClassName}
+                        onMouseEnter={() => setActiveIndex(itemIndex)}
+                        onFocus={() => setActiveIndex(itemIndex)}
+                        onClick={() => activate(item)}
+                      >
+                        {content}
+                      </button>
+                    );
+                  })}
+                </section>
+              ))}
+            </div>
+          ) : status === "loaded" ? (
+            <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
+              <p className="text-base text-ink-800">没有命中结果</p>
+              <p className="mt-2 text-sm text-ink-500">试试更短的关键词，或搜索标签名。</p>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="hidden h-10 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
+          <span>⏎ 打开</span>
+          <span>↑↓ 移动</span>
+          <span>⌘J 翻转世界</span>
+          <span className="ml-auto">esc 关闭</span>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function PaletteLoading() {
+  return (
+    <div role="status" aria-label="正在加载搜索索引" className="space-y-2 px-4 py-4">
+      <span className="block h-2.5 w-20 bg-ink-100" />
+      {Array.from({ length: 6 }, (_, index) => (
+        <span key={index} aria-hidden="true" className="block h-10 bg-ink-50 even:bg-ink-100/60" />
+      ))}
+    </div>
   );
 }

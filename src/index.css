@@ -108,7 +108,7 @@ html {
 
 body {
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -325,9 +325,33 @@ input {
   transition-duration: var(--duration-quick);
 }
 
+.dialog-popup {
+  opacity: 1;
+  scale: 1;
+  transform-origin: top center;
+  transition:
+    opacity var(--duration-fast) var(--ease-smooth-out),
+    scale var(--duration-fast) var(--ease-smooth-out);
+}
+
+.dialog-popup[data-starting-style],
+.dialog-popup[data-ending-style] {
+  opacity: 0;
+  scale: 0.985;
+}
+
+.dialog-popup[data-ending-style] {
+  transition-duration: var(--duration-quick);
+}
+
 @starting-style {
   .dialog-backdrop {
     opacity: 0;
+  }
+
+  .dialog-popup {
+    opacity: 0;
+    scale: 0.985;
   }
 }
 
@@ -498,6 +522,11 @@ input {
     transform: none;
     transition: opacity var(--duration-quick) var(--ease-smooth-out);
     will-change: opacity;
+  }
+
+  .dialog-popup {
+    scale: 1;
+    transition: opacity var(--duration-quick) var(--ease-smooth-out);
   }
 
   .header-sticker-entry {

@@ -4,7 +4,6 @@ import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import PostTag from "@/components/astro/PostTag.astro";
 import TocNav from "@/components/astro/TocNav.astro";
-import TrackCar from "@/components/astro/TrackCar.astro";
 import { SignatureAnimation } from "@/components/signature-animation";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import {
@@ -52,7 +51,6 @@ const meta = {
 
 <SiteLayout meta={meta}>
   <div class="pb-20">
-    <TrackCar mode="progress" />
     <section class="px-4 pt-10 sm:px-6 lg:px-10">
       <div class="mx-auto max-w-[1400px]">
         <div class:list={["grid min-w-0 gap-10 lg:items-start", postMeta.toc.length && "lg:grid-cols-[minmax(0,1fr)_300px]"]}>

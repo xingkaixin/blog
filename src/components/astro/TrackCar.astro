@@ -1,181 +1,93 @@
 ---
-// header 底部的赛车：
-// - cruise：首页，纯 CSS 缓慢向前巡航
-// - progress：文章页，滚动进度驱动横向位移，尾部拖一条 accent 进度轨迹
 type Props = {
   mode: "cruise" | "progress";
+  label: string;
+  hint?: string;
 };
 
-const { mode } = Astro.props;
+const {
+  mode,
+  label,
+  hint = "⌘K 命令面板 · ⌘J 翻转世界",
+} = Astro.props;
 ---
 
-<div class="track-lane pointer-events-none sticky top-[73px] z-10 h-0" aria-hidden="true">
-  {mode === "progress" && (
-    <div data-track-trail class="track-trail absolute inset-x-0 top-0 h-[2px] origin-left scale-x-0 bg-accent/60" />
-  )}
-  <div data-track-car data-mode={mode} class="track-car absolute left-0 top-0"></div>
-  <img src="/finish-flag.png" alt="" aria-hidden="true" class="track-flag absolute right-3 top-0 h-[26px] w-auto dark:invert" />
-</div>
-
-<script>
-  import confetti from "canvas-confetti";
-
-  const CRUISE_DURATION_SECONDS = 22;
-  const CRUISE_START_KEY = "track-car-cruise-start";
-
-  // 以会话起点计算负延迟，页面切换后保持巡航相位连续。
-  function alignCruise() {
-    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="cruise"]');
-    if (!car) {
-      return;
-    }
-
-    let start = Date.now();
-    try {
-      const storedStart = Number(sessionStorage.getItem(CRUISE_START_KEY));
-      if (Number.isFinite(storedStart) && storedStart > 0) {
-        start = storedStart;
-      } else {
-        sessionStorage.setItem(CRUISE_START_KEY, String(start));
-      }
-    } catch {
-      // 巡航相位同步是 best-effort，存储禁用时从当前页面重新起步。
-    }
-
-    const offset = ((Date.now() - start) / 1000) % CRUISE_DURATION_SECONDS;
-    car.style.animationDelay = `-${offset}s`;
-  }
-
-  function readProgress() {
-    const de = document.documentElement;
-    // 进度以正文底部为终点，站点页脚不计入，读完正文即满格冲线
-    const article = document.querySelector("article");
-    const end = article ? article.getBoundingClientRect().bottom + de.scrollTop : de.scrollHeight;
-    const max = end - de.clientHeight;
-    return max > 0 ? Math.min(de.scrollTop / max, 1) : 0;
-  }
-
-  // 全局 confetti 默认走 OffscreenCanvas + Web Worker，该渲染路径在 CF 生产环境画不出粒子。
-  // 用自有 canvas + create(useWorker:false) 强制主线程渲染。
-  let fireConfetti: ReturnType<typeof confetti.create> | null = null;
-  let confettiCanvas: HTMLCanvasElement | null = null;
-  function getFireConfetti() {
-    if (fireConfetti && confettiCanvas?.isConnected) {
-      return fireConfetti;
-    }
-
-    fireConfetti?.reset();
-    const canvas = document.createElement("canvas");
-    canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:100";
-    document.body.appendChild(canvas);
-    confettiCanvas = canvas;
-    fireConfetti = confetti.create(canvas, { resize: true, useWorker: false });
-    return fireConfetti;
-  }
-
-  // 冲线礼花：从格子旗实际位置爆发一次小型 confetti
-  function celebrate(lane: HTMLElement | null) {
-    const flag = lane?.querySelector<HTMLElement>(".track-flag");
-    if (!flag) {
-      return;
-    }
-    const rect = flag.getBoundingClientRect();
-    getFireConfetti()({
-      particleCount: 50,
-      spread: 60,
-      startVelocity: 28,
-      scalar: 0.75,
-      disableForReducedMotion: true,
-      origin: {
-        x: (rect.left + rect.width / 2) / window.innerWidth,
-        y: (rect.top + rect.height / 2) / window.innerHeight,
-      },
-    });
-  }
-
-  let celebrated = false;
-  function render() {
-    const car = document.querySelector<HTMLElement>('[data-track-car][data-mode="progress"]');
-    if (!car) {
-      return;
-    }
-    const lane = car.parentElement;
-    const trail = lane?.querySelector<HTMLElement>("[data-track-trail]");
-    const progress = readProgress();
-    const travel = Math.max((lane?.clientWidth ?? 0) - car.offsetWidth, 0);
-    car.style.transform = `translateX(${travel * progress}px)`;
-    if (trail) {
-      trail.style.transform = `scaleX(${progress})`;
-    }
-    // 满进度首次到达才放礼花；回滚一段后重新武装，读到底可再次庆祝
-    if (progress >= 1 && !celebrated) {
-      celebrated = true;
-      celebrate(lane);
-    } else if (progress < 0.99) {
-      celebrated = false;
-    }
-  }
-
-  let frame = 0;
-  function schedule() {
-    if (frame) {
-      return;
-    }
-    frame = requestAnimationFrame(() => {
-      frame = 0;
-      render();
-    });
-  }
-
-  function init() {
-    celebrated = false;
-    alignCruise();
-    schedule();
-  }
-
-  init();
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", schedule);
-  document.addEventListener("astro:page-load", init);
-</script>
+<footer
+  class="fixed inset-x-0 bottom-0 z-30 h-[30px] border-t border-line bg-ink-50"
+  aria-label="页面状态"
+>
+  <div class="relative mx-auto flex h-full max-w-320 items-center justify-between gap-4 px-4 font-mono text-[10px] tracking-[0.08em] text-ink-400 sm:px-6 lg:px-8">
+    <span class="max-w-[52vw] truncate">{label}</span>
+    <div class="track-lane pointer-events-none absolute inset-y-0 left-[35vw] right-[35vw] hidden overflow-hidden sm:block" aria-hidden="true">
+      {mode === "progress" && <span class="track-trail absolute inset-x-0 top-0 h-px origin-left bg-accent/55" />}
+      <span class="track-car absolute left-0 top-1" data-mode={mode}></span>
+    </div>
+    <span class="hidden shrink-0 sm:block">{hint}</span>
+  </div>
+</footer>
 
 <style>
-  /* 赛道尽头的终点线，上下 + 左右镜像 */
-  .track-flag {
-    transform: scale(-1, -1);
-  }
-
   .track-car {
-    height: 22px;
-    aspect-ratio: 512 / 118;
-    background-color: var(--color-accent);
+    width: 86px;
+    height: 20px;
+    background-color: var(--accent);
     -webkit-mask: url("/f1-car.png") center / contain no-repeat;
     mask: url("/f1-car.png") center / contain no-repeat;
-  }
-
-  .track-car[data-mode="progress"],
-  .track-car[data-mode="cruise"] {
     will-change: transform;
   }
 
   .track-car[data-mode="cruise"] {
-    animation: track-car-cruise 22s linear infinite;
+    animation: track-car-cruise 18s linear infinite;
+  }
+
+  .track-car[data-mode="progress"],
+  .track-trail {
+    animation: track-car-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  .track-trail {
+    animation-name: track-trail-progress;
   }
 
   @keyframes track-car-cruise {
     from {
-      transform: translateX(-120px);
+      transform: translateX(-100px);
     }
     to {
-      transform: translateX(100vw);
+      transform: translateX(30vw);
+    }
+  }
+
+  @keyframes track-car-progress {
+    to {
+      transform: translateX(calc(30vw - 86px));
+    }
+  }
+
+  @keyframes track-trail-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .track-car[data-mode="cruise"] {
+    .track-car,
+    .track-trail {
       animation: none;
-      transform: translateX(24px);
       will-change: auto;
+    }
+
+    .track-car {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .track-trail {
+      transform: scaleX(0.5);
     }
   }
 </style>

@@ -1,13 +1,13 @@
 import {
-  ChevronLeftIcon,
+  FileTextIcon,
   ImagesIcon,
   MenuIcon,
+  MoonStarIcon,
   RocketIcon,
-  SearchIcon,
+  RssIcon,
   UserIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { SearchDialog } from "@/components/search-dialog";
 import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {
@@ -17,9 +17,15 @@ type MobileHeaderMenuProps = {
 type MenuState = "closed" | "open" | "closing";
 
 const MENU_CLOSE_FALLBACK_MS = 150;
-
 const menuItem =
-  "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-ink-700 transition-colors hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+  "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
+const routes = [
+  { href: "/", path: "/", label: "文章", icon: FileTextIcon },
+  { href: "/projects/", path: "/projects", label: "工具箱", icon: RocketIcon },
+  { href: "/photos/", path: "/photos", label: "照片", icon: ImagesIcon },
+  { href: "/about/", path: "/about", label: "关于", icon: UserIcon },
+  { href: "/feed.xml", path: "/feed", label: "订阅 RSS", icon: RssIcon },
+] as const;
 
 export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   const [menuState, setMenuState] = useState<MenuState>("closed");
@@ -29,10 +35,6 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   const firstItemRef = useRef<HTMLAnchorElement>(null);
   const closeTimerRef = useRef<number | null>(null);
   const open = menuState === "open";
-  const showBack = currentPath !== "/";
-  const showProjects = currentPath !== "/projects";
-  const showPhotos = currentPath !== "/photos";
-  const showAbout = currentPath !== "/about";
 
   const clearCloseTimer = useCallback(() => {
     if (closeTimerRef.current !== null) {
@@ -50,7 +52,6 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
     (restoreFocus = false) => {
       clearCloseTimer();
       setMenuState("closing");
-
       const duration =
         Number.parseFloat(
           getComputedStyle(document.documentElement).getPropertyValue("--duration-quick"),
@@ -80,7 +81,6 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
         closeMenu();
       }
     };
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeMenu(true);
@@ -101,18 +101,23 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
     }
   }, [open]);
 
+  const toggleTheme = () => {
+    closeMenu();
+    window.dispatchEvent(new Event("site:toggle-theme"));
+  };
+
   return (
-    <div ref={menuRef} className="relative lg:hidden">
+    <div ref={menuRef} className="relative shrink-0 lg:hidden">
       <button
         ref={triggerRef}
         type="button"
+        aria-label={open ? "关闭导航" : "打开导航"}
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => (open ? closeMenu() : openMenu())}
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-line bg-surface px-4 text-sm font-medium text-ink-700 transition-[transform,border-color,color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]"
+        className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[8px] border border-line bg-surface text-ink-600 transition-[transform,background-color] hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.96]"
       >
         <MenuIcon aria-hidden="true" className="h-4 w-4" />
-        功能
       </button>
 
       <div
@@ -122,61 +127,36 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
         aria-hidden={!open}
         inert={!open}
         className={cn(
-          "t-dropdown absolute right-0 top-12 z-30 w-56 rounded-[1.4rem] border border-line bg-surface p-2 shadow-[0_22px_60px_-36px_rgba(0,0,0,0.5)]",
+          "t-dropdown absolute right-0 top-11 z-30 w-56 rounded-[10px] border border-line bg-surface p-2 shadow-[0_22px_60px_-36px_rgba(0,0,0,0.5)]",
           menuState === "open" && "is-open",
           menuState === "closing" && "is-closing",
           menuState === "closed" && "invisible",
         )}
       >
         <nav aria-label="移动端导航" className="space-y-1">
-          {showBack && (
-            <a ref={firstItemRef} href="/" onClick={() => closeMenu()} className={menuItem}>
-              <ChevronLeftIcon aria-hidden="true" className="h-4 w-4" />
-              返回
-            </a>
-          )}
-          {showProjects && (
-            <a
-              ref={!showBack ? firstItemRef : undefined}
-              href="/projects/"
-              onClick={() => closeMenu()}
-              className={menuItem}
-            >
-              <RocketIcon aria-hidden="true" className="h-4 w-4" />
-              工具箱
-            </a>
-          )}
-          {showPhotos && (
-            <a
-              ref={!showBack && !showProjects ? firstItemRef : undefined}
-              href="/photos/"
-              onClick={() => closeMenu()}
-              className={menuItem}
-            >
-              <ImagesIcon aria-hidden="true" className="h-4 w-4" />
-              照片
-            </a>
-          )}
-          {showAbout && (
-            <a
-              ref={!showBack && !showProjects && !showPhotos ? firstItemRef : undefined}
-              href="/about/"
-              onClick={() => closeMenu()}
-              className={menuItem}
-            >
-              <UserIcon aria-hidden="true" className="h-4 w-4" />
-              关于
-            </a>
-          )}
-          <SearchDialog
-            enableShortcut={false}
-            trigger={
-              <button type="button" onClick={() => closeMenu()} className={menuItem}>
-                <SearchIcon aria-hidden="true" className="h-4 w-4" />
-                搜索文章
-              </button>
-            }
-          />
+          {routes.map((route, index) => {
+            const Icon = route.icon;
+            const active = currentPath === route.path;
+            return (
+              <a
+                key={route.path}
+                ref={index === 0 ? firstItemRef : undefined}
+                href={route.href}
+                aria-current={active ? "page" : undefined}
+                onClick={() => closeMenu()}
+                className={menuItem}
+              >
+                <Icon aria-hidden="true" className="h-4 w-4" />
+                {route.label}
+              </a>
+            );
+          })}
+          <div className="my-1 h-px bg-line" />
+          <button type="button" onClick={toggleTheme} className={menuItem}>
+            <MoonStarIcon aria-hidden="true" className="h-4 w-4" />
+            翻转世界
+            <span className="ml-auto font-mono text-[10px] text-ink-400">⌘J</span>
+          </button>
         </nav>
       </div>
     </div>

@@ -35,7 +35,7 @@ export function DialogContent({
       />
       <DialogPrimitive.Popup
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-3xl border border-line bg-surface p-5 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.5)]",
+          "dialog-popup fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[14px] border border-line bg-surface p-5 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.5)]",
           className,
         )}
         {...props}
@@ -50,7 +50,7 @@ export function DialogContent({
         {!hideClose && (
           <DialogPrimitive.Close
             aria-label="关闭搜索面板"
-            className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink-500 transition-colors hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-line bg-surface text-ink-500 transition-colors hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             <XIcon aria-hidden="true" className="h-4 w-4" />
             <span className="sr-only">关闭</span>
