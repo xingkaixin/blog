@@ -336,7 +336,18 @@ const pageTransition = {
           }
         };
 
-        apply();
+        const canWipe =
+          typeof document.startViewTransition === "function" &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!canWipe) {
+          apply();
+          return;
+        }
+
+        root.classList.add("theme-wipe");
+        document.startViewTransition(apply).finished.finally(() => {
+          root.classList.remove("theme-wipe");
+        });
       });
     </script>
     <script is:inline define:vars={{ analyticsHost }}>

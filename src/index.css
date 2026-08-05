@@ -463,6 +463,31 @@ input {
   }
 }
 
+/* 主题切换时收起 Astro 路由的独立快照，让整页共用 root 快照做斜切。 */
+.theme-wipe :is([data-astro-transition-scope], [data-astro-transition-persist]) {
+  view-transition-name: none !important;
+}
+
+.theme-wipe::view-transition-old(root),
+.theme-wipe::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.theme-wipe::view-transition-new(root) {
+  animation: theme-wipe var(--duration-very-slow) var(--ease-in-out) both;
+}
+
+/* 顶点 300% 越界保证斜边扫过整个视口后仍完全覆盖。 */
+@keyframes theme-wipe {
+  from {
+    clip-path: polygon(100% 0, 100% 0, 100% 0);
+  }
+  to {
+    clip-path: polygon(-200% 0, 100% 0, 100% 300%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
