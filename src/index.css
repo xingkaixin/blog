@@ -149,8 +149,38 @@ input {
   transform: rotate(180deg);
 }
 
+.theme-icon {
+  position: relative;
+  display: inline-grid;
+}
+
+.theme-icon-fallback,
+.theme-icon-morph {
+  grid-area: 1 / 1;
+}
+
+.theme-icon-fallback {
+  display: inline-grid;
+}
+
+.theme-icon-fallback > * {
+  grid-area: 1 / 1;
+}
+
+.theme-icon-morph {
+  opacity: 0;
+}
+
+.theme-icon[data-morph-ready] .theme-icon-fallback {
+  opacity: 0;
+}
+
+.theme-icon[data-morph-ready] .theme-icon-morph {
+  opacity: 1;
+}
+
 /* 主题即时切换：全局颜色过渡在 Chrome 上逐帧重绘整页（叠加 header 毛玻璃重算）会掉帧，
-   仪式感由 .site-logo 的颠倒动画承担 */
+   仪式感由 .site-logo 的颠倒动画与 Morphicons 图标形变承担 */
 
 /* ============================================================
    文章正文

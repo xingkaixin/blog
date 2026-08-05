@@ -5,11 +5,13 @@ import outfit500Url from "@fontsource/outfit/latin-500.css?url";
 import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
 import { ClientRouter } from "astro:transitions";
 import { ImagesIcon } from "lucide-react";
+import { canonicalD } from "morphicons/dom";
 import { HeaderStickers } from "@/components/header-stickers";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import { SearchDialog } from "@/components/search-dialog";
 import { buildJsonLd, OG_HEIGHT, OG_WIDTH, ogType, pageImage, pageTitle, type PageMeta } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import { DARK_THEME_ICON, LIGHT_THEME_ICON } from "@/lib/theme-icons";
 import "../index.css";
 
 type Props = {
@@ -22,6 +24,8 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 const image = pageImage(meta);
 const title = pageTitle(meta);
 const analyticsHost = new URL(siteConfig.url).hostname;
+const lightThemeIconPath = canonicalD(LIGHT_THEME_ICON);
+const darkThemeIconPath = canonicalD(DARK_THEME_ICON);
 const desktopFontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url, smileyFontUrl];
 const buttonBase =
   "inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-[transform,background-color,color,border-color] duration-(--duration-quick) ease-(--ease-smooth-out) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]";
@@ -224,21 +228,27 @@ const pageTransition = {
               aria-label="切换亮暗模式"
               class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-ink-500 transition-[transform,background-color,color] duration-(--duration-quick) ease-(--ease-smooth-out) hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.92]"
             >
-              <svg aria-hidden="true" class="h-4 w-4 dark:hidden" viewBox="0 0 15 15" fill="none">
-                <circle cx="7.5" cy="7.5" r="3" stroke="currentColor" />
-                <path
-                  d="M7.5 1.5v1.5M7.5 12v1.5M13.5 7.5H12M3 7.5H1.5M11.75 3.25l-1.06 1.06M4.31 10.69l-1.06 1.06M11.75 11.75l-1.06-1.06M4.31 4.31 3.25 3.25"
+              <span class="theme-icon h-4 w-4" data-theme-icon>
+                <span class="theme-icon-fallback">
+                  <svg aria-hidden="true" class="h-4 w-4 dark:hidden" viewBox="0 0 15 15" fill="none">
+                    <path d={lightThemeIconPath} stroke="currentColor" stroke-linecap="round" />
+                  </svg>
+                  <svg aria-hidden="true" class="hidden h-4 w-4 dark:block" viewBox="0 0 15 15" fill="none">
+                    <path d={darkThemeIconPath} stroke="currentColor" stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  class="theme-icon-morph h-4 w-4"
+                  viewBox="0 0 15 15"
+                  fill="none"
                   stroke="currentColor"
                   stroke-linecap="round"
-                />
-              </svg>
-              <svg aria-hidden="true" class="hidden h-4 w-4 dark:block" viewBox="0 0 15 15" fill="none">
-                <path
-                  d="M12.9 9.4A5.75 5.75 0 0 1 5.6 2.1a5.75 5.75 0 1 0 7.3 7.3Z"
-                  stroke="currentColor"
                   stroke-linejoin="round"
-                />
-              </svg>
+                >
+                  <path data-theme-icon-path></path>
+                </svg>
+              </span>
             </button>
             <MobileHeaderMenu currentPath={currentPath} client:media="(max-width: 1023.98px)" />
           </div>
@@ -259,6 +269,11 @@ const pageTransition = {
       </footer>
     </div>
     <script>
+      import { createMorph, type Morph } from "morphicons/dom";
+      import { DARK_THEME_ICON, LIGHT_THEME_ICON } from "@/lib/theme-icons";
+
+      let themeMorph: Morph | null = null;
+
       document.addEventListener("astro:before-preparation", (event) => {
         const isReturningToPostList =
           event.from.pathname.startsWith("/posts/") && event.to.pathname === "/";
@@ -266,6 +281,38 @@ const pageTransition = {
           event.direction = "back";
         }
       });
+
+      const isDarkTheme = () => document.documentElement.dataset.theme === "dark";
+
+      const syncThemeToggleLabel = () => {
+        const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+        if (!button) {
+          return;
+        }
+
+        button.setAttribute(
+          "aria-label",
+          isDarkTheme() ? "切换为亮色模式" : "切换为暗色模式",
+        );
+      };
+
+      const setupThemeMorph = () => {
+        themeMorph?.destroy();
+        themeMorph = null;
+        syncThemeToggleLabel();
+
+        const icon = document.querySelector<HTMLElement>("[data-theme-icon]");
+        const path = icon?.querySelector<SVGPathElement>("[data-theme-icon-path]");
+        if (!icon || !path) {
+          return;
+        }
+
+        themeMorph = createMorph(path, isDarkTheme() ? DARK_THEME_ICON : LIGHT_THEME_ICON);
+        icon.dataset.morphReady = "";
+      };
+
+      setupThemeMorph();
+      document.addEventListener("astro:page-load", setupThemeMorph);
 
       document.addEventListener("click", (event) => {
         const button = (event.target as HTMLElement).closest("[data-theme-toggle]");
@@ -277,6 +324,8 @@ const pageTransition = {
         const next = root.dataset.theme === "dark" ? "light" : "dark";
         const apply = () => {
           root.dataset.theme = next;
+          themeMorph?.morphTo(next === "dark" ? DARK_THEME_ICON : LIGHT_THEME_ICON, "smooth");
+          syncThemeToggleLabel();
           document
             .querySelector('meta[name="theme-color"]')
             ?.setAttribute("content", next === "dark" ? "#131418" : "#fafaf7");

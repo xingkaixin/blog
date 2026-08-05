@@ -38,6 +38,7 @@
     "cn-fontsource-smiley-sans-oblique-regular": "^1.0.1",
     "gray-matter": "^4.0.3",
     "lucide-react": "^1.24.0",
+    "morphicons": "1.4.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "remark-gfm": "^4.0.1",
