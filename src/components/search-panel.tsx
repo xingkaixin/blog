@@ -311,6 +311,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                         id={item.id}
                         key={item.id}
                         href={item.href}
+                        data-astro-reload={item.href.endsWith(".xml") ? "" : undefined}
                         role="option"
                         aria-selected={selected}
                         className={itemClassName}

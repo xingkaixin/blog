@@ -1,14 +1,6 @@
-#!/usr/bin/env bun
+import type { PublishedPost } from "@/lib/post-schema";
+import { siteConfig } from "@/lib/site";
 
-import fs from "node:fs";
-import path from "node:path";
-import type { PublishedPost } from "../src/lib/post-schema";
-import { siteConfig } from "../src/lib/site";
-import { readPublishedPosts } from "./lib/post-catalog";
-
-const ROOT = process.cwd();
-const POSTS_DIR = path.join(ROOT, "content", "posts");
-const DIST_DIR = path.join(ROOT, "dist");
 const FEED_ITEM_LIMIT = 20;
 
 function escapeXml(value: string) {
@@ -60,18 +52,4 @@ export function buildFeed(posts: PublishedPost[]) {
     "</rss>",
     "",
   ].join("\n");
-}
-
-function main() {
-  if (!fs.existsSync(DIST_DIR)) {
-    throw new Error("dist/ not found. Run astro build first.");
-  }
-
-  const posts = readPublishedPosts(POSTS_DIR);
-  fs.writeFileSync(path.join(DIST_DIR, "feed.xml"), buildFeed(posts), "utf8");
-  console.log(`✅ 生成 feed.xml（最新 ${Math.min(posts.length, FEED_ITEM_LIMIT)} 篇文章）`);
-}
-
-if (import.meta.main) {
-  main();
 }
