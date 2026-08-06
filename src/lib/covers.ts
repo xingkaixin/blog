@@ -42,6 +42,7 @@ export const covers = {
   "beyond-the-3-day-clone.png": { full: "/cover/beyond-the-3-day-clone.webp", desktop: "/cover/beyond-the-3-day-clone-800.webp", mobile: "/cover/beyond-the-3-day-clone-400.webp" },
   "codesesh-ai-coding-sessions-disappearing.webp": { full: "/cover/codesesh-ai-coding-sessions-disappearing.webp", desktop: "/cover/codesesh-ai-coding-sessions-disappearing-800.webp", mobile: "/cover/codesesh-ai-coding-sessions-disappearing-400.webp" },
   "coding-agent-almost-1-year.png": { full: "/cover/coding-agent-almost-1-year.webp", desktop: "/cover/coding-agent-almost-1-year-800.webp", mobile: "/cover/coding-agent-almost-1-year-400.webp" },
+  "coding-joy-stolen.png": { full: "/cover/coding-joy-stolen.webp", desktop: "/cover/coding-joy-stolen-800.webp", mobile: "/cover/coding-joy-stolen-400.webp" },
   "enjoying-ai-too-much-scares-me.png": { full: "/cover/enjoying-ai-too-much-scares-me.webp", desktop: "/cover/enjoying-ai-too-much-scares-me-800.webp", mobile: "/cover/enjoying-ai-too-much-scares-me-400.webp" },
   "from-writing-code-to-reviewing-code.png": { full: "/cover/from-writing-code-to-reviewing-code.webp", desktop: "/cover/from-writing-code-to-reviewing-code-800.webp", mobile: "/cover/from-writing-code-to-reviewing-code-400.webp" },
   "karpathy-join-anthropic.png": { full: "/cover/karpathy-join-anthropic.webp", desktop: "/cover/karpathy-join-anthropic-800.webp", mobile: "/cover/karpathy-join-anthropic-400.webp" },
