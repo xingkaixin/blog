@@ -38,6 +38,7 @@ export const covers = {
   "ai-travel-talk-vs-act.png": { full: "/cover/ai-travel-talk-vs-act.webp", desktop: "/cover/ai-travel-talk-vs-act-800.webp", mobile: "/cover/ai-travel-talk-vs-act-400.webp" },
   "ai-wont-tire-but-you-will.png": { full: "/cover/ai-wont-tire-but-you-will.webp", desktop: "/cover/ai-wont-tire-but-you-will-800.webp", mobile: "/cover/ai-wont-tire-but-you-will-400.webp" },
   "assuming-x-agentic-era-engineers-survival-coordinates.png": { full: "/cover/assuming-x-agentic-era-engineers-survival-coordinates.webp", desktop: "/cover/assuming-x-agentic-era-engineers-survival-coordinates-800.webp", mobile: "/cover/assuming-x-agentic-era-engineers-survival-coordinates-400.webp" },
+  "benchmark-noise.png": { full: "/cover/benchmark-noise.webp", desktop: "/cover/benchmark-noise-800.webp", mobile: "/cover/benchmark-noise-400.webp" },
   "best-ai-users-need-it-least.png": { full: "/cover/best-ai-users-need-it-least.webp", desktop: "/cover/best-ai-users-need-it-least-800.webp", mobile: "/cover/best-ai-users-need-it-least-400.webp" },
   "beyond-the-3-day-clone.png": { full: "/cover/beyond-the-3-day-clone.webp", desktop: "/cover/beyond-the-3-day-clone-800.webp", mobile: "/cover/beyond-the-3-day-clone-400.webp" },
   "codesesh-ai-coding-sessions-disappearing.webp": { full: "/cover/codesesh-ai-coding-sessions-disappearing.webp", desktop: "/cover/codesesh-ai-coding-sessions-disappearing-800.webp", mobile: "/cover/codesesh-ai-coding-sessions-disappearing-400.webp" },

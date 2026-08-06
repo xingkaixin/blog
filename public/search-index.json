@@ -1,5 +1,19 @@
 [
   {
+    "slug": "benchmark-noise",
+    "title": "看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的",
+    "date": "2026-08-06",
+    "summary": "SWE-Bench 分数还能信吗？OpenAI 审计 731 个任务，约 30% 是坏的；Cursor 发现 Opus 解掉的题里 63% 是检索到现成修复。总分没失效，只是不再等于编码能力。该攒一份自己 repo 的私有评测集了。",
+    "tags": [
+      "AI编程",
+      "模型评测",
+      "SWE-Bench",
+      "Benchmark"
+    ],
+    "cover": "/posts/cover/benchmark-noise.png",
+    "coverAlt": "看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的"
+  },
+  {
     "slug": "coding-joy-stolen",
     "title": "AI 五分钟解了你一周的 bug，然后你不开心了",
     "date": "2026-08-04",
