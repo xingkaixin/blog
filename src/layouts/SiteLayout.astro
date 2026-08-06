@@ -100,19 +100,10 @@ const pageTransition = {
     <meta name="theme-color" content="#fafaf7" />
     <script is:inline>
       (function () {
-        function readStoredTheme() {
-          try {
-            var stored = localStorage.getItem("theme");
-            return stored === "dark" || stored === "light" ? stored : null;
-          } catch {
-            return null;
-          }
-        }
+        var colorScheme = matchMedia("(prefers-color-scheme: dark)");
 
         function applyTheme() {
-          var stored = readStoredTheme();
-          var theme =
-            stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          var theme = colorScheme.matches ? "dark" : "light";
           document.documentElement.dataset.theme = theme;
           var themeColor = document.querySelector('meta[name="theme-color"]');
           if (themeColor) {
@@ -121,6 +112,7 @@ const pageTransition = {
         }
 
         applyTheme();
+        colorScheme.addEventListener("change", applyTheme);
         document.addEventListener("astro:after-swap", applyTheme);
       })();
     </script>
@@ -239,11 +231,6 @@ const pageTransition = {
           document
             .querySelector('meta[name="theme-color"]')
             ?.setAttribute("content", next === "dark" ? "#131418" : "#fafaf7");
-          try {
-            localStorage.setItem("theme", next);
-          } catch {
-            // 主题持久化失败不影响当前页面切换。
-          }
         };
 
         const canWipe =

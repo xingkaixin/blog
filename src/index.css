@@ -93,6 +93,7 @@
 :root {
   color: var(--ink-800);
   background: var(--bg);
+  color-scheme: light;
   font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
