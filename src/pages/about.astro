@@ -347,6 +347,27 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
     transform: translateY(0) rotate(-1deg) scale(1);
   }
 
+  @media (min-width: 80rem) {
+    .artifact {
+      top: 50%;
+      right: calc(100% + 0.75rem);
+      bottom: auto;
+      left: auto;
+      transform: translate(10px, -50%) rotate(4deg) scale(0.95);
+      transform-origin: right center;
+    }
+
+    .contact-anchor:focus-within .artifact {
+      transform: translate(0, -50%) rotate(1deg) scale(1);
+    }
+  }
+
+  @media (min-width: 80rem) and (hover: hover) and (pointer: fine) {
+    .contact-anchor:hover .artifact {
+      transform: translate(0, -50%) rotate(1deg) scale(1);
+    }
+  }
+
   /* ---------- 邮箱：航空信封 ---------- */
 
   .envelope {
