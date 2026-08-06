@@ -46,6 +46,7 @@ export const covers = {
   "coding-joy-stolen.png": { full: "/cover/coding-joy-stolen.webp", desktop: "/cover/coding-joy-stolen-800.webp", mobile: "/cover/coding-joy-stolen-400.webp" },
   "enjoying-ai-too-much-scares-me.png": { full: "/cover/enjoying-ai-too-much-scares-me.webp", desktop: "/cover/enjoying-ai-too-much-scares-me-800.webp", mobile: "/cover/enjoying-ai-too-much-scares-me-400.webp" },
   "from-writing-code-to-reviewing-code.png": { full: "/cover/from-writing-code-to-reviewing-code.webp", desktop: "/cover/from-writing-code-to-reviewing-code-800.webp", mobile: "/cover/from-writing-code-to-reviewing-code-400.webp" },
+  "judgment-needs-a-deadline.png": { full: "/cover/judgment-needs-a-deadline.webp", desktop: "/cover/judgment-needs-a-deadline-800.webp", mobile: "/cover/judgment-needs-a-deadline-400.webp" },
   "karpathy-join-anthropic.png": { full: "/cover/karpathy-join-anthropic.webp", desktop: "/cover/karpathy-join-anthropic-800.webp", mobile: "/cover/karpathy-join-anthropic-400.webp" },
   "kv-cache-why-ai-replies-get-faster.png": { full: "/cover/kv-cache-why-ai-replies-get-faster.webp", desktop: "/cover/kv-cache-why-ai-replies-get-faster-800.webp", mobile: "/cover/kv-cache-why-ai-replies-get-faster-400.webp" },
   "llm-only-getting-average.png": { full: "/cover/llm-only-getting-average.webp", desktop: "/cover/llm-only-getting-average-800.webp", mobile: "/cover/llm-only-getting-average-400.webp" },

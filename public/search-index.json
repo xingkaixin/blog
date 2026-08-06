@@ -1,5 +1,18 @@
 [
   {
+    "slug": "judgment-needs-a-deadline",
+    "title": "2023 年我判断中国大模型没戏，三年后我发现少写了一个期限",
+    "date": "2026-08-07",
+    "summary": "中国大模型在 2023 年看起来很难追上，三年后，“没戏”的判断已经站不住。长期预测最容易漏掉期限，也低估了系统改变趋势的能力。",
+    "tags": [
+      "大模型",
+      "预测",
+      "判断力"
+    ],
+    "cover": "/posts/cover/judgment-needs-a-deadline.png",
+    "coverAlt": "2023 年我判断中国大模型没戏，三年后我发现少写了一个期限"
+  },
+  {
     "slug": "benchmark-noise",
     "title": "看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的",
     "date": "2026-08-06",
