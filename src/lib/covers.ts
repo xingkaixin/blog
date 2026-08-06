@@ -24,6 +24,7 @@ export const covers = {
   "agent-guesses-not-debug.png": { full: "/cover/agent-guesses-not-debug.webp", desktop: "/cover/agent-guesses-not-debug-800.webp", mobile: "/cover/agent-guesses-not-debug-400.webp" },
   "agent-harness-not-model.png": { full: "/cover/agent-harness-not-model.webp", desktop: "/cover/agent-harness-not-model-800.webp", mobile: "/cover/agent-harness-not-model-400.webp" },
   "agent-restates-goal.png": { full: "/cover/agent-restates-goal.webp", desktop: "/cover/agent-restates-goal-800.webp", mobile: "/cover/agent-restates-goal-400.webp" },
+  "agent-stop-conditions.png": { full: "/cover/agent-stop-conditions.webp", desktop: "/cover/agent-stop-conditions-800.webp", mobile: "/cover/agent-stop-conditions-400.webp" },
   "agentic-workflow-waiting-revalued.png": { full: "/cover/agentic-workflow-waiting-revalued.webp", desktop: "/cover/agentic-workflow-waiting-revalued-800.webp", mobile: "/cover/agentic-workflow-waiting-revalued-400.webp" },
   "ai-code-5-checkpoints.png": { full: "/cover/ai-code-5-checkpoints.webp", desktop: "/cover/ai-code-5-checkpoints-800.webp", mobile: "/cover/ai-code-5-checkpoints-400.webp" },
   "ai-code-responsibility-gap.png": { full: "/cover/ai-code-responsibility-gap.webp", desktop: "/cover/ai-code-responsibility-gap-800.webp", mobile: "/cover/ai-code-responsibility-gap-400.webp" },

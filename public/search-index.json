@@ -1,5 +1,18 @@
 [
   {
+    "slug": "agent-stop-conditions",
+    "title": "Agent 跑得越快，越要提前告诉它什么时候停",
+    "date": "2026-08-03",
+    "summary": "Agent 长任务除了完成目标，还要写明三类停点：连续尝试无改善、缺少关键事实、即将越过范围。停下汇报，比继续猜更省时间。",
+    "tags": [
+      "AI编程",
+      "Agent",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/agent-stop-conditions.png",
+    "coverAlt": "Agent 跑得越快，越要提前告诉它什么时候停"
+  },
+  {
     "slug": "search-before-create",
     "title": "AI 又造了一个 helper：开工前先搜一遍仓库",
     "date": "2026-07-30",
