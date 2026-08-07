@@ -97,6 +97,7 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!),
     );
     expect(index.albums).toEqual([{ id: "japan-2026", title: "日本旅行" }]);
+    expect(index.photoMonths[id]).toBe("2026-04");
     expect(index.periods[0]?.path).toMatch(/^catalog\/months\/2026-04\.[a-f0-9]{24}\.json$/);
 
     const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(index.periods[0].path))!));

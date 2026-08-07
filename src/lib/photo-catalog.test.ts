@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   catalogIndexUrl,
+  locatePhotoPeriod,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   photoVariantUrl,
+  validatePhotoCatalog,
+  validatePhotoMonth,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
 } from "@/lib/photo-catalog";
@@ -12,6 +15,7 @@ const indexFixture: PhotoCatalogIndex = {
   schemaVersion: 1,
   generatedAt: "2026-07-30T12:00:00.000Z",
   albums: [{ id: "japan-2026", title: "日本旅行" }],
+  photoMonths: { "0123456789abcdef0123456789abcdef": "2026-04" },
   periods: [
     {
       month: "2026-04",
@@ -52,6 +56,15 @@ describe("photo catalog", () => {
     ).toThrow("拍摄月份");
   });
 
+  it("rejects timestamps with impossible calendar dates", () => {
+    expect(() =>
+      parsePhotoMonthCatalog({
+        ...monthFixture,
+        photos: [{ ...monthFixture.photos[0], capturedAt: "2026-02-30T12:00:00+08:00" }],
+      }),
+    ).toThrow("ISO 时间");
+  });
+
   it("rejects unknown album references in the index", () => {
     expect(() =>
       parsePhotoCatalogIndex({
@@ -59,6 +72,44 @@ describe("photo catalog", () => {
         periods: [{ ...indexFixture.periods[0], albumCounts: { missing: 1 } }],
       }),
     ).toThrow("不存在的相册");
+  });
+
+  it("validates index and shard invariants through one module", () => {
+    expect(validatePhotoMonth(indexFixture, indexFixture.periods[0], monthFixture)).toEqual(
+      monthFixture,
+    );
+    expect(validatePhotoCatalog(indexFixture, [monthFixture]).photoMonths).toEqual(
+      new Map([[monthFixture.photos[0].id, "2026-04"]]),
+    );
+
+    expect(() =>
+      validatePhotoMonth(
+        { ...indexFixture, periods: [{ ...indexFixture.periods[0], albumCounts: {} }] },
+        { ...indexFixture.periods[0], albumCounts: {} },
+        monthFixture,
+      ),
+    ).toThrow("相册计数");
+    const unknownAlbumPeriod = { ...indexFixture.periods[0], albumCounts: { missing: 1 } };
+    expect(() =>
+      validatePhotoMonth({ ...indexFixture, periods: [unknownAlbumPeriod] }, unknownAlbumPeriod, {
+        ...monthFixture,
+        photos: [{ ...monthFixture.photos[0], albumIds: ["missing"] }],
+      }),
+    ).toThrow("不存在的相册");
+  });
+
+  it("locates a photo without scanning month shards", () => {
+    expect(locatePhotoPeriod(indexFixture, monthFixture.photos[0].id)).toEqual(
+      indexFixture.periods[0],
+    );
+    expect(locatePhotoPeriod(indexFixture, "ffffffffffffffffffffffffffffffff")).toBeNull();
+  });
+
+  it("accepts a legacy index without a locator for migration", () => {
+    const legacy = structuredClone(indexFixture) as unknown as Record<string, unknown>;
+    delete legacy.photoMonths;
+
+    expect(parsePhotoCatalogIndex(legacy).photoMonths).toEqual({});
   });
 
   it("derives catalog and media URLs from one base URL", () => {

@@ -6,11 +6,13 @@ import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
 import {
   catalogIndexUrl,
+  locatePhotoPeriod,
   monthFromCapturedAt,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   photoObjectUrl,
   photoVariantUrl,
+  validatePhotoMonth,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
@@ -97,6 +99,18 @@ function setHashParam(url: URL, key: "album" | "photo", value: string | null): v
   url.hash = hashParams.toString();
 }
 
+function normalizeLegacyAlbumLocation(): void {
+  const url = new URL(window.location.href);
+  const hashParams = new URLSearchParams(url.hash.slice(1));
+  const legacyAlbumId = url.searchParams.get("album");
+  if (legacyAlbumId === null || hashParams.has("album")) {
+    return;
+  }
+  url.searchParams.delete("album");
+  setHashParam(url, "album", legacyAlbumId);
+  history.replaceState(history.state, "", url);
+}
+
 function historyStateWithPhoto(photoId: string): Record<string, unknown> {
   const current = typeof history.state === "object" && history.state !== null ? history.state : {};
   return { ...current, photoWall: true, photoId };
@@ -160,6 +174,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     return () => requestControllerRef.current?.abort();
   }, [loadCatalog]);
 
+  const index = catalogState.status === "ready" ? catalogState.index : null;
+
   const loadMonth = useCallback(
     (period: PhotoPeriod): Promise<PhotoMonthCatalog> => {
       const loaded = monthCatalogsRef.current[period.month];
@@ -181,10 +197,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           if (!response.ok) {
             throw new Error(`月份 ${period.month} 请求失败 (${response.status})`);
           }
-          const monthCatalog = parsePhotoMonthCatalog(await response.json());
-          if (monthCatalog.month !== period.month || monthCatalog.photos.length !== period.count) {
-            throw new Error(`月份 ${period.month} 与主 Catalog 不一致`);
+          const parsedMonth = parsePhotoMonthCatalog(await response.json());
+          if (!index) {
+            throw new Error("照片主 Catalog 尚未加载");
           }
+          const monthCatalog = validatePhotoMonth(index, period, parsedMonth);
           if (requestGenerationRef.current !== generation) {
             return monthCatalog;
           }
@@ -222,17 +239,19 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       monthPromisesRef.current.set(period.month, request);
       return request;
     },
-    [normalizedBaseUrl],
+    [index, normalizedBaseUrl],
   );
 
-  const index = catalogState.status === "ready" ? catalogState.index : null;
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
 
   useEffect(() => {
     if (!index) {
       return undefined;
     }
-    const syncViewFromUrl = () => setPhotoView(photoViewFromLocation(index));
+    const syncViewFromUrl = () => {
+      normalizeLegacyAlbumLocation();
+      setPhotoView(photoViewFromLocation(index));
+    };
     syncViewFromUrl();
     window.addEventListener("popstate", syncViewFromUrl);
     return () => window.removeEventListener("popstate", syncViewFromUrl);
@@ -326,7 +345,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     const neededMonths = new Set(index.periods.slice(0, 1).map((period) => period.month));
     for (const album of index.albums) {
       let previewCount = 0;
-      for (const period of index.periods) {
+      const locatedPeriod = locatePhotoPeriod(index, photoId);
+      const candidatePeriods = locatedPeriod ? [locatedPeriod] : index.periods;
+      for (const period of candidatePeriods) {
         const count = period.albumCounts[album.id] ?? 0;
         if (count === 0) {
           continue;
@@ -514,6 +535,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const openTimeline = (albumId: string | null) => {
     setPhotoView({ mode: "timeline", albumId });
     const url = new URL(window.location.href);
+    url.searchParams.delete("album");
     setHashParam(url, "album", albumId ?? "");
     void navigate(url.href, { state: history.state }).then(() => window.scrollTo(0, 0));
   };
@@ -521,6 +543,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const selectAlbum = (albumId: string | null) => {
     setPhotoView({ mode: "timeline", albumId });
     const url = new URL(window.location.href);
+    url.searchParams.delete("album");
     setHashParam(url, "album", albumId ?? "");
     setHashParam(url, "photo", null);
     void navigate(url.href, { history: "replace", state: history.state }).then(() =>
@@ -532,6 +555,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     setPhotoView({ mode: "overview" });
     setSelectedPhoto(null);
     const url = new URL(window.location.href);
+    url.searchParams.delete("album");
     setHashParam(url, "album", null);
     setHashParam(url, "photo", null);
     void navigate(url.href, { history: "replace", state: history.state }).then(() =>

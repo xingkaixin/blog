@@ -30,6 +30,7 @@ export type PhotoCatalogIndex = {
   generatedAt: string;
   albums: PhotoAlbum[];
   periods: PhotoPeriod[];
+  photoMonths: Record<string, string>;
 };
 
 export type PhotoMonthCatalog = {
@@ -43,7 +44,7 @@ const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 const MONTH_PATTERN = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 const COLOR_PATTERN = /^#[a-f0-9]{6}$/;
 const ISO_TIMESTAMP_PATTERN =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/;
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
 const MAX_IMAGE_DIMENSION = 100_000;
 
@@ -90,10 +91,34 @@ function assertUnique(values: string[], field: string): void {
 
 function readTimestamp(value: unknown, field: string): string {
   const timestamp = readString(value, field);
-  if (!ISO_TIMESTAMP_PATTERN.test(timestamp) || !Number.isFinite(Date.parse(timestamp))) {
+  const match = ISO_TIMESTAMP_PATTERN.exec(timestamp);
+  if (!match || !isValidTimestampParts(match) || !Number.isFinite(Date.parse(timestamp))) {
     throw new PhotoCatalogError(`${field} 必须是包含时区的 ISO 时间`);
   }
   return timestamp;
+}
+
+function isValidTimestampParts(match: RegExpExecArray): boolean {
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const offsetHour = Number(match[8] ?? 0);
+  const offsetMinute = Number(match[9] ?? 0);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day &&
+    hour <= 23 &&
+    minute <= 59 &&
+    second <= 59 &&
+    offsetHour <= 23 &&
+    offsetMinute <= 59
+  );
 }
 
 function readMonth(value: unknown, field: string): string {
@@ -149,6 +174,22 @@ function readPeriod(value: unknown, field: string): PhotoPeriod {
     albumCounts: readAlbumCounts(period.albumCounts, `${field}.albumCounts`, count),
     path,
   };
+}
+
+function readPhotoMonths(value: unknown): Record<string, string> {
+  if (value === undefined) {
+    return {};
+  }
+
+  const input = readRecord(value, "catalog.photoMonths");
+  const output: Record<string, string> = {};
+  for (const [photoId, month] of Object.entries(input)) {
+    if (!PHOTO_ID_PATTERN.test(photoId)) {
+      throw new PhotoCatalogError("catalog.photoMonths 包含无效的照片 ID");
+    }
+    output[photoId] = readMonth(month, `catalog.photoMonths.${photoId}`);
+  }
+  return output;
 }
 
 function readPhoto(value: unknown, field: string): PhotoRecord {
@@ -229,6 +270,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   const periods = input.periods.map((period, index) =>
     readPeriod(period, `catalog.periods[${index}]`),
   );
+  const photoMonths = readPhotoMonths(input.photoMonths);
 
   assertUnique(
     albums.map((album) => album.id),
@@ -241,6 +283,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   assertNewestFirst(periods, (period) => period.month, "catalog.periods");
 
   const albumIds = new Set(albums.map((album) => album.id));
+  const periodMonths = new Set(periods.map((period) => period.month));
   for (const period of periods) {
     for (const albumId of Object.keys(period.albumCounts)) {
       if (!albumIds.has(albumId)) {
@@ -248,12 +291,22 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
       }
     }
   }
+  for (const [photoId, month] of Object.entries(photoMonths)) {
+    if (!periodMonths.has(month)) {
+      throw new PhotoCatalogError(`照片 ${photoId} 指向不存在的月份 ${month}`);
+    }
+  }
+  const totalPhotoCount = periods.reduce((sum, period) => sum + period.count, 0);
+  if (Object.keys(photoMonths).length > 0 && Object.keys(photoMonths).length !== totalPhotoCount) {
+    throw new PhotoCatalogError("catalog.photoMonths 必须完整覆盖所有照片");
+  }
 
   return {
     schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
     generatedAt,
     albums,
     periods,
+    photoMonths,
   };
 }
 
@@ -288,6 +341,111 @@ export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
     month,
     photos,
   };
+}
+
+export type ValidatedPhotoCatalog = {
+  index: PhotoCatalogIndex;
+  months: Map<string, PhotoMonthCatalog>;
+  photoMonths: Map<string, string>;
+};
+
+export function validatePhotoMonth(
+  index: PhotoCatalogIndex,
+  period: PhotoPeriod,
+  shard: PhotoMonthCatalog,
+): PhotoMonthCatalog {
+  if (
+    !index.periods.some(
+      (candidate) => candidate.month === period.month && candidate.path === period.path,
+    )
+  ) {
+    throw new PhotoCatalogError(`月份 ${period.month} 不属于主 Catalog`);
+  }
+  if (period.month !== shard.month || period.count !== shard.photos.length) {
+    throw new PhotoCatalogError(`月份索引 ${period.path} 与主 Catalog 不一致`);
+  }
+
+  const actualAlbumCounts = countAlbums(shard.photos);
+  if (!sameCounts(actualAlbumCounts, period.albumCounts)) {
+    throw new PhotoCatalogError(`月份索引 ${period.path} 的相册计数与主 Catalog 不一致`);
+  }
+
+  const albumIds = new Set(index.albums.map((album) => album.id));
+  for (const photo of shard.photos) {
+    for (const albumId of photo.albumIds) {
+      if (!albumIds.has(albumId)) {
+        throw new PhotoCatalogError(`照片 ${photo.id} 引用了不存在的相册 ${albumId}`);
+      }
+    }
+    const locatedMonth = index.photoMonths[photo.id];
+    if (locatedMonth && locatedMonth !== shard.month) {
+      throw new PhotoCatalogError(`照片 ${photo.id} 的定位月份与月份 Catalog 不一致`);
+    }
+  }
+  return shard;
+}
+
+export function validatePhotoCatalog(
+  index: PhotoCatalogIndex,
+  shards: Iterable<PhotoMonthCatalog>,
+): ValidatedPhotoCatalog {
+  const periods = new Map(index.periods.map((period) => [period.month, period]));
+  const months = new Map<string, PhotoMonthCatalog>();
+  const photoMonths = new Map<string, string>();
+
+  for (const shard of shards) {
+    const period = periods.get(shard.month);
+    if (!period) {
+      throw new PhotoCatalogError(`月份 ${shard.month} 不属于主 Catalog`);
+    }
+    if (months.has(shard.month)) {
+      throw new PhotoCatalogError(`月份 ${shard.month} 重复出现`);
+    }
+    validatePhotoMonth(index, period, shard);
+    months.set(shard.month, shard);
+    for (const photo of shard.photos) {
+      if (photoMonths.has(photo.id)) {
+        throw new PhotoCatalogError(`照片 ${photo.id} 在多个 Catalog 月份中重复出现`);
+      }
+      photoMonths.set(photo.id, shard.month);
+    }
+  }
+
+  if (months.size !== periods.size) {
+    const missing = [...periods.keys()].filter((month) => !months.has(month));
+    throw new PhotoCatalogError(`主 Catalog 缺少月份分片 ${missing.join(", ")}`);
+  }
+  if (
+    Object.keys(index.photoMonths).length > 0 &&
+    [...photoMonths].some(([photoId, month]) => index.photoMonths[photoId] !== month)
+  ) {
+    throw new PhotoCatalogError("catalog.photoMonths 与月份分片不一致");
+  }
+
+  return { index, months, photoMonths };
+}
+
+export function locatePhotoPeriod(index: PhotoCatalogIndex, photoId: string): PhotoPeriod | null {
+  const month = index.photoMonths[photoId];
+  return month ? (index.periods.find((period) => period.month === month) ?? null) : null;
+}
+
+function countAlbums(photos: PhotoRecord[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const photo of photos) {
+    for (const albumId of photo.albumIds) {
+      counts[albumId] = (counts[albumId] ?? 0) + 1;
+    }
+  }
+  return counts;
+}
+
+function sameCounts(left: Record<string, number>, right: Record<string, number>): boolean {
+  const entries = Object.entries(left);
+  return (
+    entries.length === Object.keys(right).length &&
+    entries.every(([albumId, count]) => right[albumId] === count)
+  );
 }
 
 export function catalogIndexUrl(baseUrl: string): string {

@@ -8,6 +8,7 @@ import {
   monthFromCapturedAt,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
+  validatePhotoCatalog,
   type PhotoAlbum,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
@@ -312,10 +313,6 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
   }
 
   const index = parsePhotoCatalogIndex(parseJson(indexText, PHOTO_CATALOG_INDEX_KEY));
-  const knownAlbumIds = new Set(index.albums.map((album) => album.id));
-  const months = new Map<string, PhotoMonthCatalog>();
-  const periodPaths = new Map<string, string>();
-  const photoMonths = new Map<string, string>();
 
   const loadedMonths = await mapLimit(index.periods, READ_CONCURRENCY, async (period) => {
     const shardText = await store.getText(period.path);
@@ -323,48 +320,20 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
       throw new Error(`Catalog 引用了不存在的月份索引 ${period.path}`);
     }
     const shard = parsePhotoMonthCatalog(parseJson(shardText, period.path));
-    validatePeriod(period, shard);
     return { period, shard };
   });
-
-  for (const { period, shard } of loadedMonths) {
-    months.set(shard.month, shard);
-    periodPaths.set(shard.month, period.path);
-    for (const photo of shard.photos) {
-      for (const albumId of photo.albumIds) {
-        if (!knownAlbumIds.has(albumId)) {
-          throw new Error(`照片 ${photo.id} 引用了不存在的相册 ${albumId}`);
-        }
-      }
-      if (photoMonths.has(photo.id)) {
-        throw new Error(`照片 ${photo.id} 在多个 Catalog 月份中重复出现`);
-      }
-      photoMonths.set(photo.id, shard.month);
-    }
-  }
+  const validated = validatePhotoCatalog(
+    index,
+    loadedMonths.map(({ shard }) => shard),
+  );
 
   return {
     index,
     albums: new Map(index.albums.map((album) => [album.id, album])),
-    months,
-    periodPaths,
-    photoMonths,
+    months: validated.months,
+    periodPaths: new Map(loadedMonths.map(({ period }) => [period.month, period.path])),
+    photoMonths: validated.photoMonths,
   };
-}
-
-function validatePeriod(period: PhotoPeriod, shard: PhotoMonthCatalog): void {
-  if (period.month !== shard.month || period.count !== shard.photos.length) {
-    throw new Error(`月份索引 ${period.path} 与主 Catalog 不一致`);
-  }
-
-  const actualAlbumCounts = countAlbums(shard.photos);
-  const expectedEntries = Object.entries(period.albumCounts);
-  const countsMatch =
-    expectedEntries.length === Object.keys(actualAlbumCounts).length &&
-    expectedEntries.every(([albumId, count]) => actualAlbumCounts[albumId] === count);
-  if (!countsMatch) {
-    throw new Error(`月份索引 ${period.path} 的相册计数与主 Catalog 不一致`);
-  }
 }
 
 async function writeCatalog(
@@ -421,6 +390,9 @@ async function writeCatalog(
     generatedAt: generatedAt.toISOString(),
     albums,
     periods,
+    photoMonths: Object.fromEntries(
+      [...catalog.photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
+    ),
   };
 
   await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
