@@ -1,6 +1,6 @@
 ---
 title: LLM 的 ReAct 模式
-date: 2023-04-11
+date: '2023-04-11'
 summary: 大语言模型的 Prompt ，通过加入各类控制，让语言模型可以在碰到问题变相使用外部工具来解决
 tags:
   - LLM

@@ -1,6 +1,6 @@
 ---
 title: '当Vibe Coding遇到百万行代码：OpenClaw教我的事'
-date: 2026-04-02
+date: '2026-04-02'
 summary: OpenClaw 从一个 WhatsApp 聊天机器人长成 25 万 Star 的开源项目，也演示了 Vibe Coding 的结构性困境：AI 优化每次 prompt 的局部正确性，不优化系统长期一致性，百万行代码后是不断爆炸的升级、512 个安全漏洞和失控的熵增——Vibe Coding 有一条看不见的红线。
 tags:
   - Vibe Coding

@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { buildTagArchives, tagHref, type TagArchive } from "@/lib/post-tags";
+import { buildPostTaxonomy, type TagArchive } from "@/lib/post-tags";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 
 export async function getStaticPaths() {
   const posts = (await getPublishedPosts()).map(toPostListItem);
-  return buildTagArchives(posts).map((archive) => ({
+  return buildPostTaxonomy(posts).archives.map((archive) => ({
     params: { tag: archive.tag },
     props: { archive },
   }));
@@ -20,7 +20,7 @@ export async function getStaticPaths() {
 
 const { archive } = Astro.props as Props;
 const { tag, posts } = archive;
-const url = `${siteConfig.url}${tagHref(tag)}`;
+const url = `${siteConfig.url}${archive.href}`;
 const meta = {
   title: `#${tag}`,
   description: `浏览 ${siteConfig.title} 中标记为“${tag}”的 ${posts.length} 篇文章。`,

@@ -34,6 +34,35 @@ describe("rehype blog content", () => {
     expect(internalLink.properties).toEqual({ href: "/about/" });
   });
 
+  it("assigns stable unique ids to repeated headings", () => {
+    const first = {
+      type: "element",
+      tagName: "h2",
+      properties: {},
+      children: [{ type: "text", value: "重复标题" }],
+    };
+    const second = structuredClone(first);
+    const linked = {
+      type: "element",
+      tagName: "h2",
+      properties: {},
+      children: [
+        {
+          type: "element",
+          tagName: "a",
+          properties: { href: "https://example.com" },
+          children: [{ type: "text", value: "Docs" }],
+        },
+      ],
+    };
+
+    rehypeBlogContent()({ type: "root", children: [first, second, linked] });
+
+    expect(first.properties).toMatchObject({ id: "重复标题" });
+    expect(second.properties).toMatchObject({ id: "重复标题-2" });
+    expect(linked.properties).toMatchObject({ id: "docs" });
+  });
+
   it("adds lazy responsive markup to known post images", () => {
     const image = {
       type: "element",

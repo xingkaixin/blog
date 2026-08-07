@@ -1,6 +1,6 @@
 ---
 title: 'Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体"降级"'
-date: 2026-05-20
+date: '2026-05-20'
 summary: Karpathy 放弃一切头衔以 MTS 身份加入 Anthropic pretraining team，加入了 Mike Krieger、庞若鸣等人的行列——大模型时代，"管多少人"已经不是权力来源，能摸到模型才是。头衔在通胀，手感在稀缺。
 tags:
   - AI行业

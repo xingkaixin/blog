@@ -1,6 +1,6 @@
 ---
 title: 'MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？'
-date: 2026-03-29
+date: '2026-03-29'
 summary: MCP 和 A2A 不是竞争关系——MCP 管的是 Agent 与工具之间的标准化调用，A2A 管的是 Agent 与 Agent 之间的协作通信。MCP 是每个 Agent 的 USB-C 口，A2A 是把所有 Agent 连在一起的局域网，两者缺一则系统不完整。
 tags:
   - MCP

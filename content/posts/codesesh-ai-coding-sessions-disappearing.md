@@ -1,6 +1,6 @@
 ---
 title: 你跟 AI 的每一次编码对话，都在悄悄消失
-date: 2026-05-16
+date: '2026-05-16'
 summary: 从 agent-dump 到 agent-view 再到 CodeSesh，我在"AI 编码 session 可视化"这个方向上折腾了挺久。这篇文章聊聊我为什么一直在做这件事，CodeSesh 到底解决什么问题，以及它跟 Spool 这类工具的区别在哪。
 tags:
   - AI 编码

@@ -3,6 +3,7 @@ import { ProjectStickers } from "@/components/project-stickers";
 import { resolveCover } from "@/lib/covers";
 import type { ReadingMetrics } from "@/lib/markdown";
 import type { PublishedPost } from "@/lib/post-schema";
+import { buildPostTaxonomy } from "@/lib/post-tags";
 import { cn } from "@/lib/utils";
 
 export type PostConsoleItem = PublishedPost & ReadingMetrics;
@@ -84,26 +85,17 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
 
 export function PostConsole({ posts }: PostConsoleProps) {
   const years = useMemo(() => [...new Set(posts.map((post) => post.date.slice(0, 4)))], [posts]);
-  const tagCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const post of posts) {
-      for (const tag of post.tags) {
-        counts.set(tag, (counts.get(tag) ?? 0) + 1);
-      }
-    }
-    return counts;
-  }, [posts]);
+  const taxonomy = useMemo(() => buildPostTaxonomy(posts), [posts]);
   const popularTags = useMemo(
     () =>
-      [...tagCounts]
+      taxonomy.tags
         .toSorted(
-          ([leftTag, leftCount], [rightTag, rightCount]) =>
-            rightCount - leftCount || leftTag.localeCompare(rightTag, "zh-CN"),
+          (left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"),
         )
         .slice(0, 9),
-    [tagCounts],
+    [taxonomy],
   );
-  const [selectedYear, setSelectedYear] = useState<string | null>(years[0] ?? null);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [previewSlug, setPreviewSlug] = useState(posts[0]?.slug ?? "");
   const listRef = useRef<HTMLDivElement>(null);
@@ -117,15 +109,7 @@ export function PostConsole({ posts }: PostConsoleProps) {
     [posts, selectedTag, selectedYear],
   );
   const previewPost = filteredPosts.find((post) => post.slug === previewSlug) ?? filteredPosts[0];
-  const relatedPosts = previewPost
-    ? posts
-        .filter(
-          (post) =>
-            post.slug !== previewPost.slug &&
-            previewPost.tags.some((tag) => post.tags.includes(tag)),
-        )
-        .slice(0, 2)
-    : [];
+  const relatedPosts = previewPost ? taxonomy.relatedTo(previewPost, 2) : [];
   const totalWords = posts.reduce((sum, post) => sum + post.wordCount, 0);
 
   const handleListKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -151,6 +135,31 @@ export function PostConsole({ posts }: PostConsoleProps) {
       <div className="border-b border-line px-3 py-2 lg:hidden">
         <div
           role="group"
+          aria-label="按年份筛选文章"
+          className="mb-2 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <button
+            type="button"
+            aria-pressed={selectedYear === null}
+            onClick={() => setSelectedYear(null)}
+            className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper"
+          >
+            全部年份
+          </button>
+          {years.map((year) => (
+            <button
+              key={year}
+              type="button"
+              aria-pressed={selectedYear === year}
+              onClick={() => setSelectedYear(year)}
+              className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+        <div
+          role="group"
           aria-label="按标签筛选文章"
           className="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
@@ -162,7 +171,7 @@ export function PostConsole({ posts }: PostConsoleProps) {
           >
             全部
           </button>
-          {popularTags.slice(0, 6).map(([tag]) => (
+          {popularTags.slice(0, 6).map(({ tag }) => (
             <button
               key={tag}
               type="button"
@@ -183,6 +192,15 @@ export function PostConsole({ posts }: PostConsoleProps) {
               年份
             </p>
             <div className="space-y-0.5">
+              <button
+                type="button"
+                aria-pressed={selectedYear === null}
+                onClick={() => setSelectedYear(null)}
+                className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
+              >
+                <span>全部</span>
+                <span className="font-mono text-[10px] text-ink-400">{posts.length}</span>
+              </button>
               {years.map((year) => {
                 const count = posts.filter((post) => post.date.startsWith(year)).length;
                 return (
@@ -206,7 +224,7 @@ export function PostConsole({ posts }: PostConsoleProps) {
               标签
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {popularTags.map(([tag]) => (
+              {popularTags.map(({ tag }) => (
                 <button
                   key={tag}
                   type="button"

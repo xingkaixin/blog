@@ -1,6 +1,6 @@
 ---
 title: '我同时用Claude Code和Codex开发：工具是壳，模型才是核'
-date: 2026-04-02
+date: '2026-04-02'
 summary: Cursor、Claude Code、Codex 是交互界面（壳），背后的大模型才是核心（核）。通过 Fin-Agent 的开发实录，总结出多模型调度的决策逻辑：生态绑定优先，灵活切换次之，成本最后——Agentic 时代工程师的核心竞争力是调度能力，不是工具忠诚度。
 tags:
   - Claude Code

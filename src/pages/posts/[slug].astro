@@ -13,7 +13,7 @@ import {
   type BlogPostEntry,
 } from "@/lib/astro-posts";
 import { estimateReadingMetrics, formatDisplayDate, removeFrontmatter } from "@/lib/markdown";
-import { buildTagArchives } from "@/lib/post-tags";
+import { buildPostTaxonomy } from "@/lib/post-tags";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
@@ -23,7 +23,7 @@ type Props = {
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
-  const archivedTags = buildTagArchives(posts.map(toPostListItem)).map(({ tag }) => tag);
+  const archivedTags = buildPostTaxonomy(posts.map(toPostListItem)).archives.map(({ tag }) => tag);
   return posts.map((post) => ({
     params: { slug: post.id },
     props: { post, archivedTags },
@@ -32,10 +32,10 @@ export async function getStaticPaths() {
 
 const { post, archivedTags } = Astro.props as Props;
 const archivedTagSet = new Set(archivedTags);
-const postMeta = toPostDetail(post);
 const readingMetrics = estimateReadingMetrics(post.body);
 const hasLeadingMarkdownTitle = /^#\s+/.test(removeFrontmatter(post.body).trimStart());
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const postMeta = toPostDetail(post, hasLeadingMarkdownTitle ? headings.slice(1) : headings);
 const meta = {
   title: postMeta.title,
   description: postMeta.summary,

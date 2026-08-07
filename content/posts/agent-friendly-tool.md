@@ -1,6 +1,6 @@
 ---
 title: '给 agent 做 CLI：你随手写的报错，是它的下一步指令'
-date: 2026-06-29
+date: '2026-06-29'
 summary: 给 agent 做 CLI，报错不是日志，是接口。拆完飞书 lark-cli 的 35 万行源码，它只要求贡献者内化一条规则：你写的每条错误信息，都会被 AI 解析以决定下一步动作。typed error、stdout/stderr 分流、_notice 递话、lint 护栏，四个能直接抄的设计。
 tags:
   - AI编程

@@ -1,24 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { parseFrontmatter, toDateValue, type PublishedPost } from "../../src/lib/post-schema";
+import { isPublishedFrontmatter, parseFrontmatter } from "../../src/lib/post-schema";
+import {
+  comparePublishedPostsNewestFirst,
+  toPublishedPost,
+  type PublishedPost,
+} from "../../src/lib/published-post";
 
 export function parsePublishedPost(slug: string, source: string): PublishedPost | null {
   const frontmatter = parseFrontmatter(slug, matter(source).data);
 
-  if (frontmatter.draft) {
+  if (!isPublishedFrontmatter(frontmatter)) {
     return null;
   }
 
-  return {
-    slug,
-    title: frontmatter.title,
-    date: toDateValue(frontmatter.date),
-    summary: frontmatter.summary,
-    tags: frontmatter.tags,
-    cover: frontmatter.cover,
-    coverAlt: frontmatter.coverAlt,
-  };
+  return toPublishedPost(slug, frontmatter);
 }
 
 // 文章发现的唯一实现：平铺一层。content collection 的 glob 与之对齐，
@@ -42,7 +39,7 @@ export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
       ),
     )
     .filter((post): post is PublishedPost => post !== null)
-    .toSorted((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+    .toSorted(comparePublishedPostsNewestFirst);
 }
 
-export type { PublishedPost } from "../../src/lib/post-schema";
+export type { PublishedPost } from "../../src/lib/published-post";

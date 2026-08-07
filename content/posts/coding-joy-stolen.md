@@ -1,6 +1,6 @@
 ---
 title: 'AI 五分钟解了你一周的 bug，然后你不开心了'
-date: 2026-08-04
+date: '2026-08-04'
 summary: Fable 五分钟用 dyld interpose 复现了一周的 bug，顺手修了潜伏七年的缺陷。编程的"施法乐趣"被剥夺了——但被剥夺的，恰恰是效率的敌人。
 tags:
   - AI编程

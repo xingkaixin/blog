@@ -1,6 +1,12 @@
+import type { MarkdownHeading } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import { extractToc, type TocItem } from "@/lib/markdown";
-import { toDateValue, type PublishedPost } from "@/lib/post-schema";
+import { tocFromHeadings, type TocItem } from "@/lib/markdown";
+import { isPublishedFrontmatter } from "@/lib/post-schema";
+import {
+  comparePublishedPostsNewestFirst,
+  toPublishedPost,
+  type PublishedPost,
+} from "@/lib/published-post";
 
 export type BlogPostEntry = CollectionEntry<"posts">;
 
@@ -9,28 +15,19 @@ export type BlogPostDetail = PublishedPost & {
 };
 
 export function toPostListItem(post: BlogPostEntry): PublishedPost {
-  return {
-    slug: post.id,
-    title: post.data.title,
-    date: toDateValue(post.data.date),
-    summary: post.data.summary,
-    tags: post.data.tags,
-    cover: post.data.cover,
-    coverAlt: post.data.coverAlt,
-  };
+  return toPublishedPost(post.id, post.data);
 }
 
-export function toPostDetail(post: BlogPostEntry): BlogPostDetail {
+export function toPostDetail(post: BlogPostEntry, headings: MarkdownHeading[]): BlogPostDetail {
   return {
     ...toPostListItem(post),
-    toc: extractToc(post.body),
+    toc: tocFromHeadings(headings),
   };
 }
 
 export async function getPublishedPosts() {
-  const posts = await getCollection("posts", (entry: BlogPostEntry) => !entry.data.draft);
-  return posts.toSorted(
-    (left: BlogPostEntry, right: BlogPostEntry) =>
-      right.data.date.getTime() - left.data.date.getTime(),
+  const posts = await getCollection("posts", (entry: BlogPostEntry) =>
+    isPublishedFrontmatter(entry.data),
   );
+  return posts.toSorted((left, right) => comparePublishedPostsNewestFirst(left.data, right.data));
 }

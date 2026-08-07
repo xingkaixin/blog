@@ -1,6 +1,6 @@
 ---
 title: 'AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统'
-date: 2026-07-06
+date: '2026-07-06'
 summary: 没有 design system，agent 每屏都在重新猜审美，hex 色值堆到 19 个。它是给 agent 的约束，不是给人看的文档。先在设计工具里把字体、颜色、组件定死，再 handoff 给 agent——这就是前端的 Spec：先定系统，后写代码。
 tags:
   - AI编程

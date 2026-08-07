@@ -4,6 +4,12 @@ export type TocItem = {
   id: string;
 };
 
+type RenderedHeading = {
+  depth: number;
+  slug: string;
+  text: string;
+};
+
 const slugify = (value: string) =>
   value
     .trim()
@@ -59,33 +65,8 @@ export function formatDisplayDate(value: string | Date) {
   }).format(new Date(value));
 }
 
-export function extractToc(markdown: string): TocItem[] {
-  let isInsideFence = false;
-
-  return removeFrontmatter(markdown)
-    .split("\n")
-    .flatMap((line) => {
-      if (/^\s*```/.test(line)) {
-        isInsideFence = !isInsideFence;
-        return [];
-      }
-
-      if (isInsideFence) {
-        return [];
-      }
-
-      const match = /^(#{2,3})\s+(.+)$/.exec(line.trim());
-      if (!match) {
-        return [];
-      }
-
-      const text = normalizeHeadingText(match[2]);
-      return [
-        {
-          depth: match[1].length,
-          text,
-          id: buildHeadingId(text),
-        },
-      ];
-    });
+export function tocFromHeadings(headings: RenderedHeading[]): TocItem[] {
+  return headings
+    .filter(({ depth }) => depth === 2 || depth === 3)
+    .map(({ depth, slug, text }) => ({ depth, id: slug, text }));
 }

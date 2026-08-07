@@ -10,7 +10,7 @@ import { parsePublishedPost } from "./lib/post-catalog";
 
 const publishedSource = `---
 title: New post
-date: 2026-07-11
+date: '2026-07-11'
 summary: Summary
 tags: [astro, testing]
 cover: agent-friendly-tool.png
@@ -35,12 +35,12 @@ describe("post catalog", () => {
 
   it("rejects missing or invalid required frontmatter", () => {
     expect(() =>
-      parsePublishedPost("missing-date", publishedSource.replace("date: 2026-07-11\n", "")),
+      parsePublishedPost("missing-date", publishedSource.replace("date: '2026-07-11'\n", "")),
     ).toThrow("date");
     expect(() =>
       parsePublishedPost(
         "invalid-date",
-        publishedSource.replace("date: 2026-07-11", "date: not-a-date"),
+        publishedSource.replace("date: '2026-07-11'", "date: not-a-date"),
       ),
     ).toThrow("date");
   });

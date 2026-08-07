@@ -1,6 +1,6 @@
 ---
 title: 'Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？'
-date: 2026-03-29
+date: '2026-03-29'
 summary: Karpathy 在 Vibe Coding 诞生整整一年后亲手"退休"了它，提出 Agentic Engineering——你 99% 的时间在编排 Agent、监督产出，而不是直接写代码。核心流程从随性 prompt 演变为 Plan→Execute→Verify，Spec 写作、代码审查、系统设计成为新的差异化能力。
 tags:
   - Vibe Coding

@@ -1,6 +1,6 @@
 ---
 title: 'Agent 写完前端，我要求它先自己点一遍'
-date: 2026-07-13
+date: '2026-07-13'
 summary: 前端改完别急着接手。把浏览器自检写进 Definition of Done，让 Agent 先走核心路径、查 console、贴截图；人只接手最后的体验判断。
 tags:
   - Agent

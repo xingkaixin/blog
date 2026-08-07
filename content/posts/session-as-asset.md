@@ -1,6 +1,6 @@
 ---
 title: '每次跟 agent 聊完，你把最值钱的东西丢了'
-date: 2026-06-08
+date: '2026-06-08'
 summary: 跟 agent 聊完，代码进了 git，但踩过的坑、方案前提、下次先查什么这类工程判断没有容器，跟着 session 一起关掉了。解法：趁 context 还热让 agent 把非显然结论压成一两百字，丢进可搜索的 decisions 目录，下次 grep 就能调回来。
 tags:
   - AI编程

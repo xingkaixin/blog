@@ -1,4 +1,4 @@
-import type { PublishedPost } from "@/lib/post-schema";
+import { parsePublishedPosts, type PublishedPost } from "@/lib/published-post";
 
 export type SearchIndexItem = PublishedPost;
 
@@ -24,9 +24,9 @@ export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
     throw new Error(`Failed to load search index: ${response.status}`);
   }
 
-  const data = (await response.json()) as SearchIndexItem[];
-  searchIndexCache = data;
-  return data;
+  const index = parsePublishedPosts(await response.json());
+  searchIndexCache = index;
+  return index;
 }
 
 export function rankPosts(posts: SearchIndexItem[], { query }: SearchParams) {

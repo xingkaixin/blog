@@ -1,6 +1,6 @@
 ---
 title: macOS 开始支援 Netflix 的杜比视界
-date: 2020-03-24
+date: '2020-03-24'
 summary: 文章讲述的是 macOS 对于 4K 和杜比视界的支持的情况。去年的 WWDC 19 中，人们以为 macOS 将支持 4K，但多个 beta 测试后发现不可能实现。而在最近 10.15.4 beta5 中，发现 Safari 上能够播放 Netflix 并点亮杜比视界标志。经过确认，18 款后的 Mac 型号并升级到了 beta5 的用户就可以享受此功能。
 tags:
   - macOS

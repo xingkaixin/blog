@@ -1,6 +1,6 @@
 ---
 title: 'Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键'
-date: 2026-06-18
+date: '2026-06-18'
 summary: Agent 写的代码逻辑通、测试也过，用户的手却按不对地方：OpenCode 作者让 agent 处理焦点切换，它选了 f 键，而所有人的手指记得 Tab。agent 生成的是 plausible，不是 right；执行可以外包，品味判断不行。
 tags:
   - AI编程

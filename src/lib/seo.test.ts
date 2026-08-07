@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildJsonLd, ogType, pageImage, pageTitle, type PageMeta } from "@/lib/seo";
+import {
+  buildJsonLd,
+  ogType,
+  pageImage,
+  pageTitle,
+  serializeJsonLd,
+  type PageMeta,
+} from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 
 const websiteMeta: PageMeta = {
@@ -58,5 +65,14 @@ describe("SEO metadata", () => {
         { position: 2, name: "测试文章", item: articleMeta.url },
       ],
     });
+  });
+
+  it("serializes JSON-LD without executable HTML delimiters", () => {
+    const serialized = serializeJsonLd({ text: "</script><script>alert(1)</script>&\u2028" });
+
+    expect(serialized).not.toContain("<");
+    expect(serialized).not.toContain(">");
+    expect(serialized).not.toContain("&");
+    expect(JSON.parse(serialized)).toEqual({ text: "</script><script>alert(1)</script>&\u2028" });
   });
 });

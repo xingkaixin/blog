@@ -1,6 +1,6 @@
 ---
 title: '翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现'
-date: 2026-05-01
+date: '2026-05-01'
 summary: 翻读 Musk v. Altman 案公开的千页内部邮件，OpenAI 早期最聪明的几个人连续三年把资源押在 Dota、机器人手和自博弈上——语言模型在 Sam 的年终汇报里只有三行，用的词是"希望"。九个月后 GPT-2 发布。
 tags:
   - OpenAI

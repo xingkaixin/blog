@@ -2,7 +2,7 @@ import { SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { tagHref } from "@/lib/post-tags";
+import { buildPostTaxonomy } from "@/lib/post-tags";
 import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
 import { cn } from "@/lib/utils";
 
@@ -146,25 +146,18 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       ];
     }
 
-    const tagCounts = new Map<string, number>();
-    for (const post of posts) {
-      for (const tag of post.tags) {
-        tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-      }
-    }
-
+    const taxonomy = buildPostTaxonomy(posts);
     const matchedPosts = rankPosts(posts, { query }).slice(0, 8).map(postItem);
-    const matchedTags = [...tagCounts]
-      .filter(([tag]) => normalize(tag).includes(normalizedQuery))
-      .toSorted(([left], [right]) => left.localeCompare(right, "zh-CN"))
+    const matchedTags = taxonomy.tags
+      .filter(({ tag, href }) => href !== null && normalize(tag).includes(normalizedQuery))
       .slice(0, 5)
-      .map<LinkItem>(([tag, count]) => ({
+      .map<LinkItem>(({ tag, count, href }) => ({
         id: `tag-${tag}`,
         kind: "link",
         glyph: "⌗",
         title: `${tag} · ${count} 篇`,
         hint: "筛选",
-        href: tagHref(tag),
+        href: href!,
         keywords: tag,
       }));
     const matchedRoutes = routeItems.filter((item) =>

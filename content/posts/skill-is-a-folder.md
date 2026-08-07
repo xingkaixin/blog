@@ -1,6 +1,6 @@
 ---
 title: 'skill 越写越长，agent 反而越用越偏'
-date: 2026-06-25
+date: '2026-06-25'
 summary: Agent 的 skill 不是说明书，是文件夹。我把 agent 生成的 SKILL.md 从 312 行删回 40 行，它才第一次用对：判断标准留在入口，正反例和模板分家，description 写成触发词。附收下一个 skill 前要过的三个问题。
 tags:
   - Skill

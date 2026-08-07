@@ -1,6 +1,6 @@
 ---
 title: '我只点 merge：Agent 全自动迭代半个月后，我把这套关了'
-date: 2026-07-21
+date: '2026-07-21'
 summary: Agent 自动开 worktree、提 PR，我只负责 merge。半个月后，代码能跑，产品却失去了方向。自动化之前，先把执行判断和产品判断分开。
 tags:
   - Agentic

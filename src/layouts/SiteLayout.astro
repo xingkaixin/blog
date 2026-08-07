@@ -14,6 +14,7 @@ import {
   ogType,
   pageImage,
   pageTitle,
+  serializeJsonLd,
   type PageMeta,
 } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
@@ -142,7 +143,7 @@ const pageTransition = {
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     {fontUrls.map((href) => <link rel="stylesheet" href={href} />)}
     <ClientRouter />
-    <script type="application/ld+json" set:html={JSON.stringify(buildJsonLd(meta))}></script>
+    <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta))}></script>
   </head>
   <body>
     <div class="relative min-h-[100dvh] pb-[30px]">

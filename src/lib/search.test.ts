@@ -76,4 +76,13 @@ describe("loadSearchIndex", () => {
 
     await expect(loadSearchIndex()).rejects.toThrow("Failed to load search index: 503");
   });
+
+  it("rejects malformed generated entries", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => [{ ...posts[0], date: "2026-02-30" }],
+    } as Response);
+
+    await expect(loadSearchIndex()).rejects.toThrow("searchIndex[0].date");
+  });
 });

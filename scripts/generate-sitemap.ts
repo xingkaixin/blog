@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { PublishedPost } from "../src/lib/post-schema";
-import { buildTagArchives, tagHref } from "../src/lib/post-tags";
+import { buildPostTaxonomy } from "../src/lib/post-tags";
 import { siteConfig } from "../src/lib/site";
 import { readPublishedPosts } from "./lib/post-catalog";
 
@@ -22,8 +22,8 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | 
     urlEntry(`${siteConfig.url}/photos/`, today, "weekly", "0.8"),
     urlEntry(`${siteConfig.url}/projects/`, today, "monthly", "0.7"),
     urlEntry(`${siteConfig.url}/about/`, today, "yearly", "0.6"),
-    ...buildTagArchives(posts).map(({ tag }) =>
-      urlEntry(`${siteConfig.url}${tagHref(tag)}`, today, "weekly", "0.6"),
+    ...buildPostTaxonomy(posts).archives.map(({ href }) =>
+      urlEntry(`${siteConfig.url}${href}`, today, "weekly", "0.6"),
     ),
     ...posts.map((p) => urlEntry(`${siteConfig.url}/posts/${p.slug}/`, p.date, "monthly", "0.8")),
   ];

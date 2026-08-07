@@ -1,6 +1,6 @@
 ---
 title: '部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare'
-date: 2026-07-16
+date: '2026-07-16'
 summary: Cloudflare 日志没人看，我给 Agent 配了每日巡检：查询过去 24 小时、对比基线、去重后开 issue。适合 loop 的任务，关键是边界清楚、结果容易核对。
 tags:
   - Agent
