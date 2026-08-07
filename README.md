@@ -45,6 +45,8 @@
 
 ## 快速开始
 
+项目固定使用 Bun 1.3.14，本地与 CI 都从 `package.json` 读取同一版本。
+
 ```bash
 # 安装依赖
 bun install
