@@ -22,6 +22,7 @@ export const projects: Project[] = [
       "一款为 AI 对话设计的浏览器扩展。选中 ChatGPT、Claude、DeepSeek 或 Kimi 回复中的片段添加批注，把多处引用与评论整理成一条结构化追问；草稿按会话保存在本地。",
     logo: "/projects/quotecue.png",
     links: [
+      { label: "网站", url: "https://quotecue.xingkaixin.me/" },
       {
         label: "Chrome",
         url: "https://chromewebstore.google.com/detail/quotecue/gbppndnpgjmgmbepccdcbfmdjjiehofp",
