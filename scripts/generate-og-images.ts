@@ -36,6 +36,23 @@ const FONT_FILES = [
 
 type Post = PublishedPost;
 
+export type GenerateOgImagesOptions = {
+  outputDirectory: string;
+  cacheFile: string;
+  posts: Post[];
+  rendererFingerprint: string;
+  coverSource: (post: Post) => Buffer;
+  renderPost: (post: Post, output: string) => Promise<void>;
+  renderSite: (output: string) => Promise<void>;
+  concurrency?: number;
+};
+
+export type GenerateOgImagesResult = {
+  rendered: number;
+  skipped: number;
+  removed: number;
+};
+
 type OgCacheManifest = {
   version: typeof CACHE_VERSION;
   site: string;
@@ -74,16 +91,29 @@ function emptyCacheManifest(): OgCacheManifest {
   return { version: CACHE_VERSION, site: "", posts: {} };
 }
 
-function readCacheManifest(): OgCacheManifest {
+function readCacheManifest(file: string): OgCacheManifest {
   try {
-    const cache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")) as Partial<OgCacheManifest>;
-    if (cache.version !== CACHE_VERSION || typeof cache.site !== "string" || !cache.posts) {
+    const cache = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<OgCacheManifest>;
+    if (
+      cache.version !== CACHE_VERSION ||
+      typeof cache.site !== "string" ||
+      !isStringRecord(cache.posts)
+    ) {
       return emptyCacheManifest();
     }
     return cache as OgCacheManifest;
   } catch {
     return emptyCacheManifest();
   }
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((entry) => typeof entry === "string")
+  );
 }
 
 async function forEachWithConcurrency<T>(
@@ -108,11 +138,7 @@ function fingerprint(parts: Array<string | Buffer>) {
   return hash.digest("hex");
 }
 
-function coverSource(post: Post) {
-  return fs.readFileSync(path.join(COVER_DIR, path.basename(post.cover)));
-}
-
-function postFingerprint(post: Post, rendererFingerprint: string) {
+function postFingerprint(post: Post, rendererFingerprint: string, coverSource: Buffer) {
   const renderInput = {
     title: post.title,
     date: post.date,
@@ -121,7 +147,7 @@ function postFingerprint(post: Post, rendererFingerprint: string) {
     cover: post.cover,
     siteTitle: siteConfig.title,
   };
-  return fingerprint([rendererFingerprint, JSON.stringify(renderInput), coverSource(post)]);
+  return fingerprint([rendererFingerprint, JSON.stringify(renderInput), coverSource]);
 }
 
 function siteFingerprint(rendererFingerprint: string) {
@@ -132,16 +158,16 @@ function siteFingerprint(rendererFingerprint: string) {
   return fingerprint([rendererFingerprint, JSON.stringify(renderInput)]);
 }
 
-function removeOrphanImages(posts: Post[]) {
+function removeOrphanImages(outputDirectory: string, posts: Post[]) {
   const publishedSlugs = new Set(posts.map((post) => post.slug));
   let removed = 0;
 
-  for (const file of fs.readdirSync(OUTPUT_DIR)) {
+  for (const file of fs.readdirSync(outputDirectory)) {
     if (file === "site.png" || !file.endsWith(".png")) {
       continue;
     }
     if (!publishedSlugs.has(file.slice(0, -4))) {
-      fs.rmSync(path.join(OUTPUT_DIR, file));
+      fs.rmSync(path.join(outputDirectory, file));
       removed += 1;
     }
   }
@@ -372,60 +398,84 @@ async function renderToFile(layout: VNode, output: string) {
   await sharp(Buffer.from(svg)).png().toFile(output);
 }
 
-async function renderPost(post: Post) {
+async function renderPost(post: Post, output: string) {
   const [cover, logoSrc] = await Promise.all([coverDataUri(post.cover), logoDataUri()]);
-  await renderToFile(postLayout(post, cover, logoSrc), path.join(OUTPUT_DIR, `${post.slug}.png`));
+  await renderToFile(postLayout(post, cover, logoSrc), output);
 }
 
-async function renderSite() {
-  await renderToFile(siteLayout(await logoDataUri()), path.join(OUTPUT_DIR, "site.png"));
+async function renderSite(output: string) {
+  await renderToFile(siteLayout(await logoDataUri()), output);
 }
 
-async function main() {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-  fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
+export async function generateOgImages(
+  options: GenerateOgImagesOptions = defaultOptions(),
+): Promise<GenerateOgImagesResult> {
+  fs.mkdirSync(options.outputDirectory, { recursive: true });
+  fs.mkdirSync(path.dirname(options.cacheFile), { recursive: true });
 
-  const posts = readPublishedPosts(POSTS_DIR);
-  const cache = readCacheManifest();
+  const cache = readCacheManifest(options.cacheFile);
+  const nextCache = emptyCacheManifest();
+  let rendered = 0;
+  let skipped = 0;
+
+  nextCache.site = siteFingerprint(options.rendererFingerprint);
+  const siteOutput = path.join(options.outputDirectory, "site.png");
+  if (cache.site === nextCache.site && fs.existsSync(siteOutput)) {
+    skipped += 1;
+  } else {
+    await options.renderSite(siteOutput);
+    rendered += 1;
+  }
+
+  await forEachWithConcurrency(
+    options.posts,
+    options.concurrency ?? RENDER_CONCURRENCY,
+    async (post) => {
+      const output = path.join(options.outputDirectory, `${post.slug}.png`);
+      const currentFingerprint = postFingerprint(
+        post,
+        options.rendererFingerprint,
+        options.coverSource(post),
+      );
+      nextCache.posts[post.slug] = currentFingerprint;
+
+      if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
+        skipped += 1;
+        return;
+      }
+
+      await options.renderPost(post, output);
+      rendered += 1;
+    },
+  );
+
+  const removed = removeOrphanImages(options.outputDirectory, options.posts);
+  fs.writeFileSync(options.cacheFile, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
+
+  return { rendered, skipped, removed };
+}
+
+function defaultOptions(): GenerateOgImagesOptions {
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
     fs.readFileSync(LOGO_PATH),
     ...FONT_FILES.map(({ file }) => fs.readFileSync(path.join(FONT_DIR, file))),
     JSON.stringify(sharp.versions),
   ]);
-  const nextCache = emptyCacheManifest();
-  let rendered = 0;
-  let skipped = 0;
-
-  nextCache.site = siteFingerprint(rendererFingerprint);
-  const siteOutput = path.join(OUTPUT_DIR, "site.png");
-  if (cache.site === nextCache.site && fs.existsSync(siteOutput)) {
-    skipped += 1;
-  } else {
-    await renderSite();
-    rendered += 1;
-  }
-
-  await forEachWithConcurrency(posts, RENDER_CONCURRENCY, async (post) => {
-    const output = path.join(OUTPUT_DIR, `${post.slug}.png`);
-    const currentFingerprint = postFingerprint(post, rendererFingerprint);
-    nextCache.posts[post.slug] = currentFingerprint;
-
-    if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
-      skipped += 1;
-      return;
-    }
-
-    await renderPost(post);
-    rendered += 1;
-  });
-
-  const removed = removeOrphanImages(posts);
-  fs.writeFileSync(CACHE_FILE, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
-
-  console.log(`✅ OG 图片：生成 ${rendered}，跳过 ${skipped}，清理 ${removed}: ${OUTPUT_DIR}`);
+  return {
+    outputDirectory: OUTPUT_DIR,
+    cacheFile: CACHE_FILE,
+    posts: readPublishedPosts(POSTS_DIR),
+    rendererFingerprint,
+    coverSource: (post) => fs.readFileSync(path.join(COVER_DIR, path.basename(post.cover))),
+    renderPost,
+    renderSite,
+  };
 }
 
 if (import.meta.main) {
-  await main();
+  const result = await generateOgImages();
+  console.log(
+    `✅ OG 图片：生成 ${result.rendered}，跳过 ${result.skipped}，清理 ${result.removed}: ${OUTPUT_DIR}`,
+  );
 }

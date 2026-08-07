@@ -4,7 +4,9 @@ import path from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it } from "vitest";
 import { generateCovers, type GenerateCoversOptions } from "./generate-covers";
+import { generateOgImages, type GenerateOgImagesOptions } from "./generate-og-images";
 import { generatePostImages, type GeneratePostImagesOptions } from "./generate-post-images";
+import type { PublishedPost } from "./lib/post-catalog";
 
 const temporaryDirectories: string[] = [];
 
@@ -52,6 +54,52 @@ describe("image generators", () => {
     expect(fs.existsSync(path.join(options.outputDirectory, "demo-400.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "demo-800.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "demo.webp"))).toBe(true);
+  });
+
+  it("invalidates and cleans OG artifacts from content fingerprints", async () => {
+    const root = createTemporaryDirectory();
+    const outputDirectory = path.join(root, "public", "og");
+    const cacheFile = path.join(root, "cache", "og.json");
+    const post: PublishedPost = {
+      slug: "demo",
+      title: "Demo",
+      date: "2026-08-07",
+      summary: "Summary",
+      tags: ["testing"],
+      cover: "demo.png",
+      coverAlt: "Demo cover",
+    };
+    const renders: string[] = [];
+    let cover = Buffer.from("first-cover");
+    const options: GenerateOgImagesOptions = {
+      outputDirectory,
+      cacheFile,
+      posts: [post],
+      rendererFingerprint: "renderer-v1",
+      coverSource: () => cover,
+      renderPost: async (current, output) => {
+        renders.push(current.slug);
+        fs.writeFileSync(output, current.title);
+      },
+      renderSite: async (output) => {
+        renders.push("site");
+        fs.writeFileSync(output, "site");
+      },
+    };
+
+    expect(await generateOgImages(options)).toEqual({ rendered: 2, skipped: 0, removed: 0 });
+    expect(await generateOgImages(options)).toEqual({ rendered: 0, skipped: 2, removed: 0 });
+
+    cover = Buffer.from("changed-cover");
+    fs.writeFileSync(path.join(outputDirectory, "orphan.png"), "orphan");
+    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 1, removed: 1 });
+
+    options.rendererFingerprint = "renderer-v2";
+    expect(await generateOgImages(options)).toEqual({ rendered: 2, skipped: 0, removed: 0 });
+
+    fs.rmSync(path.join(outputDirectory, "site.png"));
+    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 1, removed: 0 });
+    expect(renders).toEqual(["site", "demo", "demo", "site", "demo", "site"]);
   });
 });
 
