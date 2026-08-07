@@ -9,6 +9,7 @@ import {
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   validatePhotoCatalog,
+  validatePhotoMonth,
   type PhotoAlbum,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
@@ -85,7 +86,7 @@ type LoadedCatalog = {
   indexVersion: string | null;
   albums: Map<string, PhotoAlbum>;
   months: Map<string, PhotoMonthCatalog>;
-  periodPaths: Map<string, string>;
+  periods: Map<string, PhotoPeriod>;
   photoMonths: Map<string, string>;
   retiredObjects: Map<string, RetiredPhotoObjects>;
 };
@@ -103,10 +104,15 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
 
 async function publishPhotosOnce(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
   validateAlbum(options.album);
-  const catalog = await loadCatalog(options.store);
-  const albumChanged = applyAlbum(catalog.albums, options.album);
   const identifiedFiles = await identifyFiles(options.files);
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
+  const catalog = await loadCatalog(options.store);
+  await loadCatalogMonths(
+    options.store,
+    catalog,
+    uniqueFiles.flatMap((file) => catalog.photoMonths.get(file.id) ?? []),
+  );
+  const albumChanged = applyAlbum(catalog.albums, options.album);
   const dirtyMonths = new Set<string>();
   const pending: IdentifiedFile[] = [];
   let reused = identifiedFiles.length - uniqueFiles.length;
@@ -140,16 +146,24 @@ async function publishPhotosOnce(options: PublishPhotosOptions): Promise<Publish
       throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
     }
     const record = validateNewPhoto(photo, options.album?.id);
+    return { file: identified.file, photo, record };
+  });
+
+  await loadCatalogMonths(
+    options.store,
+    catalog,
+    processed.map(({ record }) => monthFromCapturedAt(record.capturedAt)),
+  );
+  await mapLimit(processed, PROCESS_CONCURRENCY, async ({ file, photo }) => {
     await uploadPhotoAssets(options.store, photo);
     options.onProgress?.({
       type: "published",
-      file: identified.file,
+      file,
       photoId: photo.id,
     });
-    return record;
   });
 
-  for (const record of processed) {
+  for (const { record } of processed) {
     const month = monthFromCapturedAt(record.capturedAt);
     const monthCatalog = catalog.months.get(month) ?? {
       schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
@@ -195,6 +209,11 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
   const catalog = await loadCatalog(options.store);
   const alreadyRetired = photoIds.filter((photoId) => catalog.retiredObjects.has(photoId));
   const activePhotoIds = photoIds.filter((photoId) => !catalog.retiredObjects.has(photoId));
+  await loadCatalogMonths(
+    options.store,
+    catalog,
+    activePhotoIds.flatMap((photoId) => catalog.photoMonths.get(photoId) ?? []),
+  );
   const targets = activePhotoIds.map((photoId) => {
     const month = catalog.photoMonths.get(photoId);
     const photo = month
@@ -224,15 +243,13 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
     monthCatalog.photos = monthCatalog.photos.filter((item) => item.id !== photo.id);
     catalog.photoMonths.delete(photo.id);
   }
-  removeUnusedAlbums(catalog);
-
   const deleteAfter = new Date(
     (options.now?.() ?? new Date()).getTime() + RETIRED_OBJECT_GRACE_MS,
   ).toISOString();
   const objectKeys = new Set<string>();
   for (const { month, photo } of targets) {
     const photoObjectKeys = new Set<string>();
-    const oldPeriodPath = catalog.periodPaths.get(month);
+    const oldPeriodPath = catalog.periods.get(month)?.path;
     if (oldPeriodPath) {
       photoObjectKeys.add(oldPeriodPath);
     }
@@ -414,7 +431,7 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
       indexVersion: null,
       albums: new Map(),
       months: new Map(),
-      periodPaths: new Map(),
+      periods: new Map(),
       photoMonths: new Map(),
       retiredObjects: new Map(),
     };
@@ -422,28 +439,60 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
 
   const index = parsePhotoCatalogIndex(parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY));
 
-  const loadedMonths = await mapLimit(index.periods, READ_CONCURRENCY, async (period) => {
+  const catalog: LoadedCatalog = {
+    index,
+    indexVersion: indexObject.version,
+    albums: new Map(index.albums.map((album) => [album.id, album])),
+    months: new Map(),
+    periods: new Map(index.periods.map((period) => [period.month, period])),
+    photoMonths: new Map(Object.entries(index.photoMonths)),
+    retiredObjects: new Map(index.retiredObjects.map((entry) => [entry.photoId, entry])),
+  };
+  const photoCount = index.periods.reduce((sum, period) => sum + period.count, 0);
+  if (photoCount > 0 && Object.keys(index.photoMonths).length === 0) {
+    const loadedMonths = await readCatalogMonths(store, index, index.periods);
+    const validated = validatePhotoCatalog(
+      index,
+      loadedMonths.map(({ shard }) => shard),
+    );
+    catalog.months = validated.months;
+    catalog.photoMonths = validated.photoMonths;
+  }
+  return catalog;
+}
+
+async function loadCatalogMonths(
+  store: PhotoObjectStore,
+  catalog: LoadedCatalog,
+  months: Iterable<string>,
+): Promise<void> {
+  if (!catalog.index) {
+    return;
+  }
+  const periods = [...new Set(months)]
+    .filter((month) => !catalog.months.has(month))
+    .map((month) => catalog.periods.get(month))
+    .filter((period): period is PhotoPeriod => Boolean(period));
+  const loadedMonths = await readCatalogMonths(store, catalog.index, periods);
+  for (const { period, shard } of loadedMonths) {
+    catalog.months.set(period.month, shard);
+  }
+}
+
+async function readCatalogMonths(
+  store: PhotoObjectStore,
+  index: PhotoCatalogIndex,
+  periods: PhotoPeriod[],
+): Promise<Array<{ period: PhotoPeriod; shard: PhotoMonthCatalog }>> {
+  return mapLimit(periods, READ_CONCURRENCY, async (period) => {
     const shardObject = await store.getText(period.path);
     if (!shardObject) {
       throw new Error(`Catalog 引用了不存在的月份索引 ${period.path}`);
     }
     const shard = parsePhotoMonthCatalog(parseJson(shardObject.text, period.path));
+    validatePhotoMonth(index, period, shard);
     return { period, shard };
   });
-  const validated = validatePhotoCatalog(
-    index,
-    loadedMonths.map(({ shard }) => shard),
-  );
-
-  return {
-    index,
-    indexVersion: indexObject.version,
-    albums: new Map(index.albums.map((album) => [album.id, album])),
-    months: validated.months,
-    periodPaths: new Map(loadedMonths.map(({ period }) => [period.month, period.path])),
-    photoMonths: validated.photoMonths,
-    retiredObjects: new Map(index.retiredObjects.map((entry) => [entry.photoId, entry])),
-  };
 }
 
 async function writeCatalog(
@@ -452,7 +501,7 @@ async function writeCatalog(
   dirtyMonths: Set<string>,
   generatedAt: Date,
 ): Promise<void> {
-  const nextPaths = new Map(catalog.periodPaths);
+  const nextPeriods = new Map(catalog.periods);
 
   await Promise.all(
     [...dirtyMonths].map(async (month) => {
@@ -461,7 +510,7 @@ async function writeCatalog(
         throw new Error(`缺少待写入的月份 ${month}`);
       }
       if (shard.photos.length === 0) {
-        nextPaths.delete(month);
+        nextPeriods.delete(month);
         return;
       }
       shard.photos.sort(comparePhotosNewestFirst);
@@ -473,28 +522,29 @@ async function writeCatalog(
         contentType: "application/json; charset=utf-8",
         cacheControl: SHARD_CACHE_CONTROL,
       });
-      nextPaths.set(month, key);
+      nextPeriods.set(month, {
+        month,
+        count: validatedShard.photos.length,
+        albumCounts: countAlbums(validatedShard.photos),
+        path: key,
+      });
     }),
   );
 
+  const referencedAlbums = new Set(
+    [...nextPeriods.values()].flatMap((period) => Object.keys(period.albumCounts)),
+  );
+  for (const albumId of catalog.albums.keys()) {
+    if (!referencedAlbums.has(albumId)) {
+      catalog.albums.delete(albumId);
+    }
+  }
   const albums = [...catalog.albums.values()].toSorted((left, right) =>
     left.id.localeCompare(right.id),
   );
-  const periods = [...catalog.months.values()]
-    .filter((month) => month.photos.length > 0)
-    .toSorted((left, right) => right.month.localeCompare(left.month))
-    .map((month): PhotoPeriod => {
-      const periodPath = nextPaths.get(month.month);
-      if (!periodPath) {
-        throw new Error(`月份 ${month.month} 缺少内容寻址路径`);
-      }
-      return {
-        month: month.month,
-        count: month.photos.length,
-        albumCounts: countAlbums(month.photos),
-        path: periodPath,
-      };
-    });
+  const periods = [...nextPeriods.values()].toSorted((left, right) =>
+    right.month.localeCompare(left.month),
+  );
   const index: PhotoCatalogIndex = {
     schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
     generatedAt: generatedAt.toISOString(),
@@ -528,19 +578,6 @@ async function retryCatalogMutation<T>(operation: () => Promise<T>): Promise<T> 
     }
   }
   throw new Error("照片 Catalog 提交重试次数耗尽");
-}
-
-function removeUnusedAlbums(catalog: LoadedCatalog): void {
-  const referencedAlbums = new Set(
-    [...catalog.months.values()].flatMap((month) =>
-      month.photos.flatMap((photo) => photo.albumIds),
-    ),
-  );
-  for (const albumId of catalog.albums.keys()) {
-    if (!referencedAlbums.has(albumId)) {
-      catalog.albums.delete(albumId);
-    }
-  }
 }
 
 function countAlbums(photos: PhotoRecord[]): Record<string, number> {

@@ -21,12 +21,14 @@ import {
 class MemoryPhotoStore implements PhotoObjectStore {
   readonly objects = new Map<string, PhotoObjectBody>();
   readonly versions = new Map<string, string>();
+  readonly reads: string[] = [];
   readonly writes: string[] = [];
   readonly deletes: string[] = [];
   readonly deleteFailures = new Map<string, number>();
   nextVersion = 0;
 
   async getText(key: string): Promise<PhotoTextObject | null> {
+    this.reads.push(key);
     const value = this.objects.get(key);
     if (value === undefined) {
       return null;
@@ -79,10 +81,10 @@ async function createSourceFile(contents = "stable photo bytes"): Promise<string
   return file;
 }
 
-function processedPhoto(id: string): ProcessedPhoto {
+function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"): ProcessedPhoto {
   return {
     id,
-    capturedAt: "2026-04-25T21:12:30.244+07:00",
+    capturedAt,
     width: 3024,
     height: 4032,
     placeholderColor: "#4f5f6a",
@@ -231,6 +233,50 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(index.periods[0].path))!.text),
     );
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
+  });
+
+  it("reads only the catalog months needed by a mutation", async () => {
+    const januaryFile = await createSourceFile("january photo");
+    const februaryFile = await createSourceFile("february photo");
+    const marchFile = await createSourceFile("march photo");
+    const januaryId = await hashPhotoFile(januaryFile);
+    const februaryId = await hashPhotoFile(februaryFile);
+    const marchId = await hashPhotoFile(marchFile);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [januaryFile],
+      store,
+      processPhoto: async () => processedPhoto(januaryId, "2026-01-10T12:00:00+08:00"),
+    });
+    await publishPhotos({
+      files: [februaryFile],
+      store,
+      processPhoto: async () => processedPhoto(februaryId, "2026-02-10T12:00:00+08:00"),
+    });
+
+    store.reads.length = 0;
+    await publishPhotos({
+      files: [marchFile],
+      store,
+      processPhoto: async () => processedPhoto(marchId, "2026-03-10T12:00:00+08:00"),
+    });
+    expect(store.reads.filter((key) => key.startsWith("catalog/months/"))).toEqual([]);
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const januaryPath = index.periods.find((period) => period.month === "2026-01")!.path;
+    store.reads.length = 0;
+    await publishPhotos({
+      files: [januaryFile],
+      store,
+      album: { id: "favorites", title: "喜欢" },
+      processPhoto: async () => {
+        throw new Error("existing photo should not be processed");
+      },
+    });
+    expect(store.reads.filter((key) => key.startsWith("catalog/months/"))).toEqual([januaryPath]);
   });
 
   it("keeps retired objects through the cache grace period and resumes partial cleanup", async () => {
