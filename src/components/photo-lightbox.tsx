@@ -2,6 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { photoVariantUrl, type PhotoAlbum, type PhotoRecord } from "@/lib/photo-catalog";
+import { photoFromArrow, photoFromSwipe, planPhotoPreload } from "@/lib/photo-preload";
 
 type PhotoLightboxProps = {
   baseUrl: string;
@@ -59,12 +60,10 @@ export function PhotoLightbox({
       return undefined;
     }
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft" && previous) {
+      const selected = photoFromArrow(event.key, previous, next);
+      if (selected) {
         event.preventDefault();
-        onSelect(previous);
-      } else if (event.key === "ArrowRight" && next) {
-        event.preventDefault();
-        onSelect(next);
+        onSelect(selected);
       }
     };
     window.addEventListener("keydown", handleKeyDown, true);
@@ -73,14 +72,27 @@ export function PhotoLightbox({
 
   useEffect(() => {
     if (!open) {
-      return;
+      return undefined;
     }
-    for (const neighbor of [previous, next]) {
-      if (neighbor) {
-        const image = new Image();
-        image.src = photoVariantUrl(baseUrl, neighbor.id, 2048);
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
       }
+    ).connection;
+    const plan = planPhotoPreload(previous, next, window.innerWidth, connection);
+    if (!plan || document.visibilityState !== "visible") {
+      return undefined;
     }
+    const preload = () => {
+      const image = new Image();
+      image.src = photoVariantUrl(baseUrl, plan.photo.id, plan.width);
+    };
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(preload, { timeout: 1_500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+    const timeoutId = globalThis.setTimeout(preload, 150);
+    return () => globalThis.clearTimeout(timeoutId);
   }, [baseUrl, next, open, previous]);
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -98,13 +110,9 @@ export function PhotoLightbox({
 
     const deltaX = event.clientX - start.x;
     const deltaY = event.clientY - start.y;
-    if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) {
-      return;
-    }
-    if (deltaX > 0 && previous) {
-      onSelect(previous);
-    } else if (deltaX < 0 && next) {
-      onSelect(next);
+    const selected = photoFromSwipe(deltaX, deltaY, previous, next);
+    if (selected) {
+      onSelect(selected);
     }
   };
 
