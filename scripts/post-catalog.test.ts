@@ -19,6 +19,9 @@ describe("post catalog", () => {
       date: "2026-07-11",
       tags: ["astro", "testing"],
     });
+    expect(
+      parsePublishedPost("unquoted-date", publishedSource.replace("'2026-07-11'", "2026-07-11")),
+    ).toMatchObject({ date: "2026-07-11" });
   });
 
   it("excludes drafts", () => {
@@ -37,6 +40,15 @@ describe("post catalog", () => {
         publishedSource.replace("date: '2026-07-11'", "date: not-a-date"),
       ),
     ).toThrow("date");
+    expect(() =>
+      parsePublishedPost(
+        "duplicate-title",
+        publishedSource.replace("title: New post", "title: New post\ntitle: Duplicate"),
+      ),
+    ).toThrow("Map keys must be unique");
+    expect(() => parsePublishedPost("missing-frontmatter", "Body only")).toThrow(
+      "frontmatter delimiter",
+    );
   });
 
   it("rejects a cover with no matching asset", () => {
