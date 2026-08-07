@@ -5,6 +5,7 @@ import path from "node:path";
 import type { PublishedPost } from "../src/lib/post-schema";
 import { buildPostTaxonomy } from "../src/lib/post-tags";
 import { siteConfig } from "../src/lib/site";
+import { sitemapNavigation } from "../src/lib/site-navigation";
 import { readPublishedPosts } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
@@ -18,10 +19,9 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | 
     `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 
   const entries = [
-    urlEntry(`${siteConfig.url}/`, today, "weekly", "1.0"),
-    urlEntry(`${siteConfig.url}/photos/`, today, "weekly", "0.8"),
-    urlEntry(`${siteConfig.url}/projects/`, today, "monthly", "0.7"),
-    urlEntry(`${siteConfig.url}/about/`, today, "yearly", "0.6"),
+    ...sitemapNavigation().map((route) =>
+      urlEntry(`${siteConfig.url}${route.href}`, today, route.changefreq, route.priority),
+    ),
     ...buildPostTaxonomy(posts).archives.map(({ href }) =>
       urlEntry(`${siteConfig.url}${href}`, today, "weekly", "0.6"),
     ),

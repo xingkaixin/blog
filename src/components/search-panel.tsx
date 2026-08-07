@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { buildPostTaxonomy } from "@/lib/post-tags";
 import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
+import { searchNavigation } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {
@@ -38,43 +39,14 @@ type PaletteGroup = {
   items: PaletteItem[];
 };
 
+const routeLinks: LinkItem[] = searchNavigation().map((route) => ({
+  ...route,
+  kind: "link",
+  glyph: "›",
+}));
+const feedRouteIndex = routeLinks.findIndex((route) => route.id === "route-feed");
 const routeItems: PaletteItem[] = [
-  {
-    id: "route-home",
-    kind: "link",
-    glyph: "›",
-    title: "文章日志",
-    hint: "/",
-    href: "/",
-    keywords: "首页 文章 日志 home posts",
-  },
-  {
-    id: "route-projects",
-    kind: "link",
-    glyph: "›",
-    title: "工具箱",
-    hint: "/projects",
-    href: "/projects/",
-    keywords: "工具 项目 projects",
-  },
-  {
-    id: "route-photos",
-    kind: "link",
-    glyph: "›",
-    title: "照片墙",
-    hint: "/photos",
-    href: "/photos/",
-    keywords: "照片 摄影 相册 photos",
-  },
-  {
-    id: "route-about",
-    kind: "link",
-    glyph: "›",
-    title: "关于",
-    hint: "/about",
-    href: "/about/",
-    keywords: "关于 联系 about",
-  },
+  ...routeLinks.slice(0, feedRouteIndex),
   {
     id: "action-theme",
     kind: "action",
@@ -84,15 +56,7 @@ const routeItems: PaletteItem[] = [
     action: "theme",
     keywords: "主题 亮色 暗色 theme dark light",
   },
-  {
-    id: "route-feed",
-    kind: "link",
-    glyph: "›",
-    title: "订阅 RSS",
-    hint: "/feed.xml",
-    href: "/feed.xml",
-    keywords: "订阅 rss feed",
-  },
+  ...routeLinks.slice(feedRouteIndex),
 ];
 
 function normalize(value: string): string {

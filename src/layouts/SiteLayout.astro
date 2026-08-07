@@ -5,8 +5,8 @@ import outfit500Url from "@fontsource/outfit/latin-500.css?url";
 import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
 import { ClientRouter } from "astro:transitions";
 import TrackCar from "@/components/astro/TrackCar.astro";
+import SearchLauncher from "@/components/astro/SearchLauncher.astro";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
-import { SearchDialog } from "@/components/search-dialog";
 import {
   buildJsonLd,
   OG_HEIGHT,
@@ -18,6 +18,12 @@ import {
   type PageMeta,
 } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
+import {
+  desktopNavigation,
+  isSiteRouteActive,
+  normalizeSitePath,
+  siteStatus,
+} from "@/lib/site-navigation";
 import "../index.css";
 
 type Props = {
@@ -27,30 +33,13 @@ type Props = {
 };
 
 const { meta, noindex = false, status } = Astro.props;
-const currentPath = decodeURI(Astro.url.pathname.replace(/\/$/, "") || "/");
+const currentPath = normalizeSitePath(Astro.url.pathname);
 const image = pageImage(meta);
 const title = pageTitle(meta);
 const analyticsHost = new URL(siteConfig.url).hostname;
 const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url, smileyFontUrl];
-const navItems = [
-  { href: "/projects/", path: "/projects" },
-  { href: "/photos/", path: "/photos" },
-  { href: "/about/", path: "/about" },
-  { href: "/feed.xml", path: "/feed" },
-];
-const defaultStatus = currentPath.startsWith("/posts/")
-  ? "READING"
-  : currentPath.startsWith("/tags/")
-    ? "TAG ARCHIVE"
-    : currentPath === "/projects"
-      ? "PROJECTS"
-      : currentPath === "/photos"
-        ? "PHOTOS"
-        : currentPath === "/about"
-          ? "ABOUT"
-          : currentPath === "/"
-            ? "HOME"
-            : "SYSTEM";
+const navItems = desktopNavigation();
+const defaultStatus = siteStatus(currentPath);
 const pageTransition = {
   forwards: {
     old: {
@@ -175,12 +164,12 @@ const pageTransition = {
             </span>
           )}
 
-          <SearchDialog client:load />
+          <SearchLauncher />
 
           <nav aria-label="主导航" class="hidden shrink-0 items-center gap-0.5 lg:flex">
             {
               navItems.map((item) => {
-                const active = currentPath === item.path;
+                const active = isSiteRouteActive(currentPath, item.path);
                 return (
                   <a
                     href={item.href}
@@ -198,7 +187,7 @@ const pageTransition = {
             }
           </nav>
 
-          <MobileHeaderMenu currentPath={currentPath} client:load />
+          <MobileHeaderMenu currentPath={currentPath} client:media="(max-width: 1023px)" />
         </div>
       </header>
 

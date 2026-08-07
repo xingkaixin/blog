@@ -1,0 +1,69 @@
+<button
+  type="button"
+  data-search-trigger
+  class="group flex h-9 min-w-0 flex-1 items-center gap-2 rounded-[8px] border border-line bg-paper px-2.5 text-left transition-[border-color,background-color] hover:border-ink-300 hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:px-3"
+>
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    class="h-3.5 w-3.5 shrink-0 text-ink-400"
+  >
+    <circle cx="11" cy="11" r="8"></circle>
+    <path d="m21 21-4.3-4.3"></path>
+  </svg>
+  <span class="min-w-0 flex-1 truncate font-mono text-xs text-ink-400 sm:hidden">
+    搜索 · 跳转
+  </span>
+  <span class="hidden min-w-0 flex-1 truncate font-mono text-xs text-ink-400 sm:block">
+    搜索文章、跳转页面、切换世界…
+  </span>
+  <kbd
+    class="hidden shrink-0 rounded-[4px] border border-ink-200 bg-surface px-1.5 py-0.5 font-mono text-[10px] font-normal text-ink-400 sm:inline-flex"
+  >
+    ⌘K
+  </kbd>
+</button>
+<div data-search-root></div>
+
+<script>
+  const launcherFlag = "__blogSearchLauncherInstalled";
+  const launcherWindow = window as Window & Record<string, unknown>;
+
+  const isTypingTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement &&
+    (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+
+  const openSearch = async () => {
+    const root = document.querySelector<HTMLElement>("[data-search-root]");
+    if (!root) {
+      return;
+    }
+    const { openSearchDialog } = await import("@/components/search-dialog-entry");
+    openSearchDialog(root);
+  };
+
+  if (!launcherWindow[launcherFlag]) {
+    launcherWindow[launcherFlag] = true;
+    document.addEventListener("click", (event) => {
+      if ((event.target as Element | null)?.closest("[data-search-trigger]")) {
+        void openSearch();
+      }
+    });
+    window.addEventListener("keydown", (event) => {
+      if (isTypingTarget(event.target)) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      const commandShortcut = (event.metaKey || event.ctrlKey) && key === "k";
+      const slashShortcut = !event.metaKey && !event.ctrlKey && !event.altKey && key === "/";
+      if (commandShortcut || slashShortcut) {
+        event.preventDefault();
+        void openSearch();
+      }
+    });
+  }
+</script>

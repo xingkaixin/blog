@@ -8,6 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {
@@ -19,13 +20,14 @@ type MenuState = "closed" | "open" | "closing";
 const MENU_CLOSE_FALLBACK_MS = 150;
 const menuItem =
   "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
-const routes = [
-  { href: "/", path: "/", label: "文章", icon: FileTextIcon },
-  { href: "/projects/", path: "/projects", label: "工具箱", icon: RocketIcon },
-  { href: "/photos/", path: "/photos", label: "照片", icon: ImagesIcon },
-  { href: "/about/", path: "/about", label: "关于", icon: UserIcon },
-  { href: "/feed.xml", path: "/feed", label: "订阅 RSS", icon: RssIcon },
-] as const;
+const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
+  home: FileTextIcon,
+  projects: RocketIcon,
+  photos: ImagesIcon,
+  about: UserIcon,
+  feed: RssIcon,
+};
+const routes = mobileNavigation();
 
 export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
   const [menuState, setMenuState] = useState<MenuState>("closed");
@@ -135,8 +137,8 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
       >
         <nav aria-label="移动端导航" className="space-y-1">
           {routes.map((route, index) => {
-            const Icon = route.icon;
-            const active = currentPath === route.path;
+            const Icon = routeIcons[route.id];
+            const active = isSiteRouteActive(currentPath, route.path);
             return (
               <a
                 key={route.path}
