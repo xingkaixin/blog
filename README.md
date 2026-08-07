@@ -20,7 +20,7 @@
 ├── public/                # 静态资源
 ├── scripts/                # 构建脚本
 ├── src/
-│   ├── assets/            # 图片资源 (封面图)
+│   ├── assets/            # 非公开图片母版（封面与文章插图）
 │   ├── components/         # Astro 组件与 React islands
 │   │   ├── astro/          # 静态展示组件
 │   │   └── ui/             # React UI 基础组件
@@ -71,6 +71,10 @@ bun run photos:gc -- --confirm  # 回收超过缓存宽限期的照片对象
 
 照片存储、CORS、本地预览与发布参数见
 [照片墙文档](docs/photo-wall.md)。
+
+文章插图母版放在 `src/assets/post-images/<文章 slug>/`，Markdown 仍使用
+`/posts/images/<文章 slug>/<文件名>`。构建只会把响应式 WebP 写入
+`public/posts/images/`，不会公开母版。
 
 ## 部署
 

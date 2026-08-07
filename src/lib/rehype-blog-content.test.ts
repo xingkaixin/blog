@@ -113,4 +113,17 @@ describe("rehype blog content", () => {
       },
     });
   });
+
+  it("rejects managed post images that are missing from generated data", () => {
+    const image = {
+      type: "element",
+      tagName: "img",
+      properties: { src: "/posts/images/missing/source.jpg", alt: "缺失图片" },
+      children: [],
+    };
+
+    expect(() => rehypeBlogContent()({ type: "root", children: [image] })).toThrow(
+      "/posts/images/missing/source.jpg",
+    );
+  });
 });

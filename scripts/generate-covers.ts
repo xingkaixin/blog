@@ -1,135 +1,189 @@
 #!/usr/bin/env bun
-/**
- * 预生成封面多尺寸 WebP，并写入 src/lib/covers.ts（仅 URL 映射，无 imagetools 导入）
- */
 
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
-const OUTPUT_DIR = path.join(process.cwd(), "public", "cover");
-const OUTPUT_FILE = path.join(process.cwd(), "src", "lib", "covers.ts");
-
-const SUPPORTED_EXTENSIONS = [".webp", ".png", ".jpg", ".jpeg"];
-
+const SUPPORTED_SOURCE_EXTENSIONS = new Set([".webp", ".png", ".jpg", ".jpeg"]);
+const MANIFEST_VERSION = 1;
 const VARIANTS = [
-  { key: "mobile" as const, width: 400, quality: 82 },
-  { key: "desktop" as const, width: 800, quality: 82 },
-  { key: "full" as const, width: null as number | null, quality: 85 },
+  { key: "mobile" as const, suffix: "-400", width: 400, quality: 82 },
+  { key: "desktop" as const, suffix: "-800", width: 800, quality: 82 },
+  { key: "full" as const, suffix: "", width: null as number | null, quality: 85 },
 ];
 
-export function filenameToVariableName(filename: string): string {
-  const name = filename.replace(/\.(webp|png|jpe?g)$/i, "");
-  const parts = name.split(/[-_]+/);
-  const camelCase = parts
-    .map((part, index) => {
-      if (part.length === 0) {
-        return "";
-      }
-      if (index === 0 && /^\d/.test(part)) {
-        return part;
-      }
-      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
-    })
-    .join("");
-  return `c${camelCase}`;
-}
+export type GenerateCoversOptions = {
+  sourceDirectory: string;
+  outputDirectory: string;
+  dataFile: string;
+  manifestFile: string;
+};
 
-function fileStem(filename: string): string {
-  return filename.replace(/\.(webp|png|jpe?g)$/i, "");
-}
+export type GenerateCoversResult = {
+  generated: number;
+  reused: number;
+  removed: number;
+};
 
-function needsRebuild(srcPath: string, outPath: string): boolean {
-  if (!fs.existsSync(outPath)) {
-    return true;
-  }
-  return fs.statSync(srcPath).mtimeMs > fs.statSync(outPath).mtimeMs;
-}
-
-async function writeVariant(
-  srcPath: string,
-  outPath: string,
-  width: number | null,
-  quality: number,
-): Promise<void> {
-  let pipeline = sharp(srcPath);
-  if (width !== null) {
-    pipeline = pipeline.resize(width, undefined, { withoutEnlargement: true });
-  }
-  await pipeline.webp({ quality }).toFile(outPath);
-}
-
-async function generateCoversFile(): Promise<void> {
-  if (!fs.existsSync(COVER_DIR)) {
-    console.error(`❌ 封面图目录不存在: ${COVER_DIR}`);
-    process.exit(1);
-  }
-
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-
-  const files = fs
-    .readdirSync(COVER_DIR)
-    .filter((file) => SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)))
-    .toSorted();
-
-  if (files.length === 0) {
-    console.error(`❌ 在 ${COVER_DIR} 中没有找到图片文件`);
-    process.exit(1);
-  }
-
-  console.log(`📁 找到 ${files.length} 个封面图文件`);
-
-  const mappings: string[] = [];
-
-  for (const file of files) {
-    const srcPath = path.join(COVER_DIR, file);
-    const stem = fileStem(file);
-    const urls: Record<(typeof VARIANTS)[number]["key"], string> = {
-      mobile: "",
-      desktop: "",
-      full: "",
-    };
-
-    for (const variant of VARIANTS) {
-      const suffix = variant.width === null ? "" : `-${variant.width}`;
-      const outName = `${stem}${suffix}.webp`;
-      const outPath = path.join(OUTPUT_DIR, outName);
-      const publicUrl = `/cover/${outName}`;
-
-      if (needsRebuild(srcPath, outPath)) {
-        await writeVariant(srcPath, outPath, variant.width, variant.quality);
-      }
-
-      urls[variant.key] = publicUrl;
-    }
-
-    mappings.push(
-      `  "${file}": { full: "${urls.full}", desktop: "${urls.desktop}", mobile: "${urls.mobile}" }`,
-    );
-    console.log(`   ${file} -> ${filenameToVariableName(file)}`);
-  }
-
-  const content = `export type ResponsiveCover = {
+type CoverMapping = {
   full: string;
   desktop: string;
   mobile: string;
 };
 
-export const covers = {
-${mappings.join(",\n")},
-} as const;
+type CoverManifest = {
+  version: typeof MANIFEST_VERSION;
+  entries: Record<string, string>;
+};
 
-export function resolveCover(path: string): ResponsiveCover | null {
-  const filename = path.split("/").pop();
-  return filename ? (covers[filename as keyof typeof covers] ?? null) : null;
+export async function generateCovers(
+  options: GenerateCoversOptions = defaultOptions(),
+): Promise<GenerateCoversResult> {
+  if (!fs.existsSync(options.sourceDirectory)) {
+    throw new Error(`封面源目录不存在: ${options.sourceDirectory}`);
+  }
+  fs.mkdirSync(options.outputDirectory, { recursive: true });
+
+  const sources = fs
+    .readdirSync(options.sourceDirectory, { withFileTypes: true })
+    .filter(
+      (entry) =>
+        entry.isFile() && SUPPORTED_SOURCE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()),
+    )
+    .map((entry) => entry.name)
+    .toSorted();
+  if (sources.length === 0) {
+    throw new Error(`封面源目录中没有图片: ${options.sourceDirectory}`);
+  }
+
+  const manifest = readManifest(options.manifestFile);
+  const nextManifest: CoverManifest = { version: MANIFEST_VERSION, entries: {} };
+  const rendererFingerprint = fingerprint([
+    fs.readFileSync(fileURLToPath(import.meta.url)),
+    JSON.stringify(VARIANTS),
+    JSON.stringify(sharp.versions),
+  ]);
+  const mappings: Record<string, CoverMapping> = {};
+  const expectedOutputs = new Set<string>();
+  const usedStems = new Set<string>();
+  let generated = 0;
+  let reused = 0;
+
+  for (const filename of sources) {
+    const source = path.join(options.sourceDirectory, filename);
+    const stem = filename.slice(0, -path.extname(filename).length);
+    if (usedStems.has(stem)) {
+      throw new Error(`多个封面源文件会生成同名输出: ${stem}`);
+    }
+    usedStems.add(stem);
+    const outputPaths = VARIANTS.map((variant) =>
+      path.join(options.outputDirectory, `${stem}${variant.suffix}.webp`),
+    );
+    for (const output of outputPaths) {
+      expectedOutputs.add(path.resolve(output));
+    }
+
+    const currentFingerprint = fingerprint([rendererFingerprint, fs.readFileSync(source)]);
+    nextManifest.entries[filename] = currentFingerprint;
+    if (
+      manifest.entries[filename] === currentFingerprint &&
+      outputPaths.every((output) => fs.existsSync(output))
+    ) {
+      reused += 1;
+    } else {
+      await writeVariants(source, outputPaths);
+      generated += 1;
+    }
+
+    mappings[filename] = Object.fromEntries(
+      VARIANTS.map((variant, index) => [
+        variant.key,
+        `/cover/${path.basename(outputPaths[index])}`,
+      ]),
+    ) as CoverMapping;
+  }
+
+  const removed = removeUnexpectedOutputs(options.outputDirectory, expectedOutputs);
+  writeDataFile(options.dataFile, mappings);
+  writeManifest(options.manifestFile, nextManifest);
+  return { generated, reused, removed };
 }
-`;
 
-  fs.writeFileSync(OUTPUT_FILE, content, "utf8");
-  console.log(`✅ 成功生成 ${OUTPUT_FILE} 与 public/cover/ 下的 WebP`);
+async function writeVariants(source: string, outputs: string[]): Promise<void> {
+  for (const [index, variant] of VARIANTS.entries()) {
+    let pipeline = sharp(source);
+    if (variant.width !== null) {
+      pipeline = pipeline.resize(variant.width, undefined, { withoutEnlargement: true });
+    }
+    await pipeline.webp({ quality: variant.quality }).toFile(outputs[index]);
+  }
+}
+
+function removeUnexpectedOutputs(directory: string, expected: Set<string>): number {
+  let removed = 0;
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (!entry.isFile()) {
+      throw new Error(`封面公开目录包含非文件条目: ${entryPath}`);
+    }
+    if (
+      entry.name === ".DS_Store" ||
+      (entry.name.endsWith(".webp") && !expected.has(path.resolve(entryPath)))
+    ) {
+      fs.rmSync(entryPath);
+      removed += 1;
+      continue;
+    }
+    if (!entry.name.endsWith(".webp")) {
+      throw new Error(`封面公开目录包含非生成文件: ${entryPath}`);
+    }
+  }
+  return removed;
+}
+
+function writeDataFile(file: string, mappings: Record<string, CoverMapping>): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(mappings, null, 2)}\n`, "utf8");
+}
+
+function readManifest(file: string): CoverManifest {
+  try {
+    const value = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<CoverManifest>;
+    if (value.version === MANIFEST_VERSION && value.entries && !Array.isArray(value.entries)) {
+      return value as CoverManifest;
+    }
+  } catch {
+    return { version: MANIFEST_VERSION, entries: {} };
+  }
+  return { version: MANIFEST_VERSION, entries: {} };
+}
+
+function writeManifest(file: string, manifest: CoverManifest): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
+
+function fingerprint(parts: Array<string | Buffer>): string {
+  const hash = createHash("sha256");
+  for (const part of parts) {
+    hash.update(part);
+  }
+  return hash.digest("hex");
+}
+
+function defaultOptions(): GenerateCoversOptions {
+  const root = process.cwd();
+  return {
+    sourceDirectory: path.join(root, "src", "assets", "cover"),
+    outputDirectory: path.join(root, "public", "cover"),
+    dataFile: path.join(root, "src", "lib", "generated", "covers.json"),
+    manifestFile: path.join(root, ".astro", "cover-manifest.json"),
+  };
 }
 
 if (import.meta.main) {
-  await generateCoversFile();
+  const result = await generateCovers();
+  console.log(`✅ 封面：生成 ${result.generated}，复用 ${result.reused}，清理 ${result.removed}`);
 }

@@ -1,5 +1,5 @@
 import { buildHeadingId, normalizeHeadingText } from "./markdown";
-import { postImages } from "./post-images";
+import { resolvePostImage } from "./post-images";
 
 type HastNode = {
   type?: string;
@@ -10,8 +10,9 @@ type HastNode = {
 };
 
 function walk(node: HastNode, visitor: (node: HastNode) => void) {
+  const children = node.children ?? [];
   visitor(node);
-  for (const child of node.children ?? []) {
+  for (const child of children) {
     walk(child, visitor);
   }
 }
@@ -74,8 +75,11 @@ export function rehypeBlogContent() {
         return;
       }
 
-      const responsive = postImages[node.properties.src];
+      const responsive = resolvePostImage(node.properties.src);
       if (!responsive) {
+        if (node.properties.src.startsWith("/posts/images/")) {
+          throw new Error(`文章插图没有对应的生成数据: ${node.properties.src}`);
+        }
         node.properties = {
           ...node.properties,
           loading: "lazy",

@@ -1,143 +1,211 @@
 #!/usr/bin/env bun
-/**
- * 文章插图优化脚本
- * 扫描 public/posts/images/ 目录，为每张图片生成多尺寸 WebP 版本
- */
 
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-const IMAGES_DIR = path.join(process.cwd(), "public", "posts", "images");
-const OUTPUT_FILE = path.join(process.cwd(), "src", "lib", "post-images.ts");
-
-const SUPPORTED_EXTENSIONS = [".png", ".jpg", ".jpeg"];
-
-// 需要生成的尺寸配置
-const SIZE_VARIANTS = [
-  { suffix: "800w", width: 800, quality: 80 },
-  { suffix: "1200w", width: 1200, quality: 80 },
+const SUPPORTED_SOURCE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
+const MANIFEST_VERSION = 1;
+const VARIANTS = [
+  { key: "webp" as const, suffix: "", width: null as number | null, quality: 85 },
+  { key: "mobile" as const, suffix: "-800w", width: 800, quality: 80 },
+  { key: "desktop" as const, suffix: "-1200w", width: 1200, quality: 80 },
 ];
 
-interface ImageMapping {
+export type GeneratePostImagesOptions = {
+  sourceDirectory: string;
+  outputDirectory: string;
+  dataFile: string;
+  manifestFile: string;
+};
+
+export type GeneratePostImagesResult = {
+  generated: number;
+  reused: number;
+  removed: number;
+};
+
+type ImageMapping = {
   src: string;
   webp: string;
   mobile: string;
   desktop: string;
-}
+};
 
-export function getRelativePath(absolutePath: string): string {
-  return "/" + path.relative(path.join(process.cwd(), "public"), absolutePath).replace(/\\/g, "/");
-}
+type ImageManifest = {
+  version: typeof MANIFEST_VERSION;
+  entries: Record<string, string>;
+};
 
-function needsRebuild(srcPath: string, outputPath: string): boolean {
-  if (!fs.existsSync(outputPath)) {
-    return true;
+export async function generatePostImages(
+  options: GeneratePostImagesOptions = defaultOptions(),
+): Promise<GeneratePostImagesResult> {
+  if (!fs.existsSync(options.sourceDirectory)) {
+    throw new Error(`文章插图源目录不存在: ${options.sourceDirectory}`);
   }
-  const srcStat = fs.statSync(srcPath);
-  const outStat = fs.statSync(outputPath);
-  return srcStat.mtimeMs > outStat.mtimeMs;
-}
+  fs.mkdirSync(options.outputDirectory, { recursive: true });
 
-async function processImage(srcPath: string): Promise<ImageMapping | null> {
-  const dir = path.dirname(srcPath);
-  const basename = path.basename(srcPath, path.extname(srcPath));
-  const webpPath = path.join(dir, `${basename}.webp`);
+  const manifest = readManifest(options.manifestFile);
+  const nextManifest: ImageManifest = { version: MANIFEST_VERSION, entries: {} };
+  const rendererFingerprint = fingerprint([
+    fs.readFileSync(fileURLToPath(import.meta.url)),
+    JSON.stringify(VARIANTS),
+    JSON.stringify(sharp.versions),
+  ]);
+  const mappings: Record<string, ImageMapping> = {};
+  const expectedOutputs = new Set<string>();
+  const usedStems = new Set<string>();
+  let generated = 0;
+  let reused = 0;
 
-  const mapping: ImageMapping = {
-    src: getRelativePath(srcPath),
-    webp: getRelativePath(webpPath),
-    mobile: "",
-    desktop: "",
-  };
-
-  // 生成原尺寸 WebP (quality 85)
-  if (needsRebuild(srcPath, webpPath)) {
-    await sharp(srcPath).webp({ quality: 85 }).toFile(webpPath);
-  }
-
-  // 生成各尺寸版本
-  for (const variant of SIZE_VARIANTS) {
-    const outputPath = path.join(dir, `${basename}-${variant.suffix}.webp`);
-
-    if (variant.suffix === "800w") {
-      mapping.mobile = getRelativePath(outputPath);
-    } else if (variant.suffix === "1200w") {
-      mapping.desktop = getRelativePath(outputPath);
+  for (const source of collectSourceFiles(options.sourceDirectory)) {
+    const relativeSource = normalizePath(path.relative(options.sourceDirectory, source));
+    const sourceUrl = `/posts/images/${relativeSource}`;
+    const stem = relativeSource.slice(0, -path.extname(relativeSource).length);
+    if (usedStems.has(stem)) {
+      throw new Error(`多个文章插图源文件会生成同名输出: ${stem}`);
+    }
+    usedStems.add(stem);
+    const outputPaths = VARIANTS.map((variant) =>
+      path.join(options.outputDirectory, `${stem}${variant.suffix}.webp`),
+    );
+    for (const output of outputPaths) {
+      expectedOutputs.add(path.resolve(output));
     }
 
-    if (needsRebuild(srcPath, outputPath)) {
-      await sharp(srcPath)
-        .resize(variant.width, null, { withoutEnlargement: true })
-        .webp({ quality: variant.quality })
-        .toFile(outputPath);
+    const currentFingerprint = fingerprint([rendererFingerprint, fs.readFileSync(source)]);
+    nextManifest.entries[sourceUrl] = currentFingerprint;
+    if (
+      manifest.entries[sourceUrl] === currentFingerprint &&
+      outputPaths.every((output) => fs.existsSync(output))
+    ) {
+      reused += 1;
+    } else {
+      await writeVariants(source, outputPaths);
+      generated += 1;
     }
+
+    mappings[sourceUrl] = {
+      src: sourceUrl,
+      webp: publicUrl(options.outputDirectory, outputPaths[0]),
+      mobile: publicUrl(options.outputDirectory, outputPaths[1]),
+      desktop: publicUrl(options.outputDirectory, outputPaths[2]),
+    };
   }
 
-  return mapping;
+  const removed = removeUnexpectedOutputs(options.outputDirectory, expectedOutputs);
+  writeDataFile(options.dataFile, mappings);
+  writeManifest(options.manifestFile, nextManifest);
+  return { generated, reused, removed };
 }
 
-async function generatePostImages(): Promise<void> {
-  if (!fs.existsSync(IMAGES_DIR)) {
-    console.log("📁 文章插图目录不存在，跳过");
-    return;
+async function writeVariants(source: string, outputs: string[]): Promise<void> {
+  for (const [index, variant] of VARIANTS.entries()) {
+    const output = outputs[index];
+    fs.mkdirSync(path.dirname(output), { recursive: true });
+    let pipeline = sharp(source);
+    if (variant.width !== null) {
+      pipeline = pipeline.resize(variant.width, undefined, { withoutEnlargement: true });
+    }
+    await pipeline.webp({ quality: variant.quality }).toFile(output);
   }
+}
 
-  const entries = fs.readdirSync(IMAGES_DIR, { withFileTypes: true });
-  const mappings: ImageMapping[] = [];
-  let processed = 0;
+function collectSourceFiles(directory: string): string[] {
+  const files: string[] = [];
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectSourceFiles(entryPath));
+    } else if (
+      entry.isFile() &&
+      SUPPORTED_SOURCE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+    ) {
+      files.push(entryPath);
+    }
+  }
+  return files.toSorted();
+}
 
-  for (const entry of entries) {
-    if (!entry.isDirectory()) {
+function removeUnexpectedOutputs(directory: string, expected: Set<string>): number {
+  let removed = 0;
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      removed += removeUnexpectedOutputs(entryPath, expected);
+      if (fs.readdirSync(entryPath).length === 0) {
+        fs.rmdirSync(entryPath);
+      }
       continue;
     }
-
-    const articleDir = path.join(IMAGES_DIR, entry.name);
-    const files = fs
-      .readdirSync(articleDir)
-      .filter((file) => SUPPORTED_EXTENSIONS.some((ext) => file.toLowerCase().endsWith(ext)));
-
-    for (const file of files) {
-      const srcPath = path.join(articleDir, file);
-      const result = await processImage(srcPath);
-      if (result) {
-        mappings.push(result);
-        processed++;
-      }
+    if (
+      entry.name === ".DS_Store" ||
+      (entry.name.endsWith(".webp") && !expected.has(path.resolve(entryPath)))
+    ) {
+      fs.rmSync(entryPath);
+      removed += 1;
+      continue;
+    }
+    if (!entry.name.endsWith(".webp")) {
+      throw new Error(`文章插图公开目录包含非生成文件: ${entryPath}`);
     }
   }
+  return removed;
+}
 
-  // 按路径排序，保证输出稳定
-  mappings.sort((a, b) => a.src.localeCompare(b.src));
+function publicUrl(outputDirectory: string, output: string): string {
+  return `/posts/images/${normalizePath(path.relative(outputDirectory, output))}`;
+}
 
-  // 生成映射文件
-  const lines = mappings.map(
-    (m) =>
-      `  "${m.src}": { src: "${m.src}", webp: "${m.webp}", mobile: "${m.mobile}", desktop: "${m.desktop}" }`,
-  );
+function writeDataFile(file: string, mappings: Record<string, ImageMapping>): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(mappings, null, 2)}\n`, "utf8");
+}
 
-  const content = `export type ResponsivePostImage = {
-  src: string;
-  webp: string;
-  mobile: string;
-  desktop: string;
-};
+function readManifest(file: string): ImageManifest {
+  try {
+    const value = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<ImageManifest>;
+    if (value.version === MANIFEST_VERSION && value.entries && !Array.isArray(value.entries)) {
+      return value as ImageManifest;
+    }
+  } catch {
+    return { version: MANIFEST_VERSION, entries: {} };
+  }
+  return { version: MANIFEST_VERSION, entries: {} };
+}
 
-export const postImages: Record<string, ResponsivePostImage> = {
-${lines.join(",\n")},
-};
-`;
+function writeManifest(file: string, manifest: ImageManifest): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
 
-  fs.writeFileSync(OUTPUT_FILE, content, "utf8");
+function fingerprint(parts: Array<string | Buffer>): string {
+  const hash = createHash("sha256");
+  for (const part of parts) {
+    hash.update(part);
+  }
+  return hash.digest("hex");
+}
 
-  console.log(`✅ 文章插图优化完成`);
-  console.log(`   - 处理 ${processed} 张图片`);
-  console.log(`   - 映射文件: ${OUTPUT_FILE}`);
+function normalizePath(value: string): string {
+  return value.replaceAll(path.sep, "/");
+}
+
+function defaultOptions(): GeneratePostImagesOptions {
+  const root = process.cwd();
+  return {
+    sourceDirectory: path.join(root, "src", "assets", "post-images"),
+    outputDirectory: path.join(root, "public", "posts", "images"),
+    dataFile: path.join(root, "src", "lib", "generated", "post-images.json"),
+    manifestFile: path.join(root, ".astro", "post-images-manifest.json"),
+  };
 }
 
 if (import.meta.main) {
-  generatePostImages().catch((error) => {
-    console.error("❌ 生成失败:", error);
-    process.exit(1);
-  });
+  const result = await generatePostImages();
+  console.log(
+    `✅ 文章插图：生成 ${result.generated}，复用 ${result.reused}，清理 ${result.removed}`,
+  );
 }

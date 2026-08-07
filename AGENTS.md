@@ -18,35 +18,36 @@
 
 ```
 src/
-├── assets/cover/           # 博客封面图片
+├── assets/cover/           # 博客封面母版
+├── assets/post-images/     # 文章插图母版（不直接发布）
 ├── components/
 │   ├── astro/              # 静态展示组件
-│   ├── ui/                 # 基础 UI 组件 (button, input, dialog 等)
-│   ├── header-stickers.tsx     # header 贴纸 island
+│   ├── ui/                 # React UI 基础组件
 │   ├── mobile-header-menu.tsx  # 移动端导航菜单 island
+│   ├── photo-wall.tsx          # 照片 Catalog、筛选与 URL 状态
+│   ├── photo-lightbox.tsx      # 照片大图浏览
 │   ├── search-dialog.tsx       # 搜索对话框
 │   └── signature-animation.tsx # 签名动画 island
 ├── layouts/
 │   └── SiteLayout.astro    # 站点布局与 SEO meta
 ├── lib/
 │   ├── astro-posts.ts      # Astro 文章查询与派生数据
-│   ├── covers.ts           # 封面 URL 映射（generate-covers.ts 生成）
+│   ├── covers.ts           # 封面稳定查询接口
+│   ├── generated/          # 图片生成器写入的纯数据 adapter
 │   ├── markdown.ts         # Markdown 纯函数
-│   ├── post-images.ts      # 插图 URL 映射（generate-post-images.ts 生成）
+│   ├── photo-catalog.ts    # 照片 Catalog 领域契约与校验
+│   ├── post-images.ts      # 文章插图稳定查询接口
 │   ├── post-schema.ts      # frontmatter zod schema 与校验
 │   ├── post-tags.ts        # tag 归档分组
-│   ├── projects.ts         # 工具箱项目数据
 │   ├── rehype-blog-content.ts  # 标题锚点、外链、响应式插图
 │   ├── seo.ts              # SEO meta 与 JSON-LD
 │   ├── search.ts           # 搜索功能
-│   ├── site.ts             # 站点配置
-│   ├── toc-active.ts       # 目录高亮逻辑
-│   └── utils.ts            # 工具函数
+│   └── site.ts             # 站点配置
 ├── pages/
 │   ├── index.astro         # 首页
 │   ├── about.astro         # 关于
+│   ├── photos.astro        # R2 照片墙
 │   ├── projects.astro      # 工具箱
-│   ├── 404.astro           # 404
 │   ├── posts/[slug].astro  # 文章详情页
 │   └── tags/[tag].astro    # tag 归档页
 └── content.config.ts       # 内容集合配置
@@ -72,7 +73,7 @@ src/
 ```yaml
 ---
 title: 文章标题
-date: 2025-01-01
+date: "2025-01-01"
 summary: 文章摘要
 tags: [tag1, tag2]
 cover: agent-friendly-tool.png
@@ -81,6 +82,9 @@ coverAlt: 封面图描述
 ```
 
 封面图片放在 `src/assets/cover/` 目录。
+
+文章插图母版放在 `src/assets/post-images/<文章 slug>/`。Markdown URL 继续写成
+`/posts/images/<文章 slug>/<文件名>`；生成器只将响应式 WebP 写入 `public/`。
 
 ### 构建命令
 
@@ -98,7 +102,7 @@ bun run deploy        # 构建并部署到 Cloudflare Pages
 
 ### 封面图片
 
-封面多尺寸 WebP 由 `scripts/generate-covers.ts`（sharp）写入 `public/cover/`，并生成 `src/lib/covers.ts` URL 映射。
+封面多尺寸 WebP 由 `scripts/generate-covers.ts`（sharp）写入 `public/cover/`，生成数据写入 `src/lib/generated/covers.json`；调用方只依赖稳定的 `src/lib/covers.ts` 接口。
 
 ## 代码风格
 
