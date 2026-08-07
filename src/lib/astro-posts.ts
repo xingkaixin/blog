@@ -25,8 +25,8 @@ export function toPostDetail(post: BlogPostEntry, headings: MarkdownHeading[]): 
   };
 }
 
-export async function getPublishedPosts() {
-  const posts = await getCollection("posts", (entry: BlogPostEntry) =>
+export async function getPublishedPosts(): Promise<BlogPostEntry[]> {
+  const posts: BlogPostEntry[] = await getCollection("posts", (entry: BlogPostEntry) =>
     isPublishedFrontmatter(entry.data),
   );
   return posts.toSorted((left, right) => comparePublishedPostsNewestFirst(left.data, right.data));
