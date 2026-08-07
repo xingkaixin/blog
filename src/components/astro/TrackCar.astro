@@ -18,7 +18,7 @@ const {
 >
   <div class="relative mx-auto flex h-full max-w-320 items-center justify-between gap-4 px-4 font-mono text-[10px] tracking-[0.08em] text-ink-400 sm:px-6 lg:px-8">
     <span class="max-w-[52vw] truncate">{label}</span>
-    <div class="track-lane pointer-events-none absolute inset-y-0 left-[35vw] right-[35vw] hidden overflow-hidden sm:block" aria-hidden="true">
+    <div class="track-lane pointer-events-none absolute inset-y-0 left-[35%] right-[35%] hidden overflow-hidden sm:block" aria-hidden="true">
       {mode === "progress" && <span class="track-trail absolute inset-x-0 top-0 h-px origin-left bg-accent/55" />}
       <span class="track-car absolute left-0 top-1" data-mode={mode}></span>
     </div>
@@ -46,6 +46,10 @@ const {
     animation-timeline: scroll(root block);
   }
 
+  .track-car[data-mode="progress"] {
+    will-change: left, transform;
+  }
+
   .track-trail {
     animation-name: track-trail-progress;
   }
@@ -60,8 +64,13 @@ const {
   }
 
   @keyframes track-car-progress {
+    from {
+      left: 0;
+      transform: translateX(0);
+    }
     to {
-      transform: translateX(calc(30vw - 86px));
+      left: 100%;
+      transform: translateX(-100%);
     }
   }
 
