@@ -18,7 +18,7 @@ import {
   type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
 import type { ProcessedPhoto } from "./photo-source";
-import { hashPhotoFile } from "./photo-source";
+import { snapshotPhotoFile, type PhotoSourceSnapshot } from "./photo-source";
 import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
 
 const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
@@ -91,20 +91,28 @@ type LoadedCatalog = {
   retiredObjects: Map<string, RetiredPhotoObjects>;
 };
 
-type IdentifiedFile = {
-  file: string;
-  id: string;
-};
+type IdentifiedFile = PhotoSourceSnapshot;
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
+  validateAlbum(options.album);
   const now = options.now?.() ?? new Date();
-  await collectPhotoGarbage({ store: options.store, now: () => now });
-  return retryCatalogMutation(() => publishPhotosOnce({ ...options, now: () => now }));
+  const identifiedFiles = await identifyFiles(options.files);
+  const processedPhotos = new Map<string, ProcessedPhoto>();
+  try {
+    await collectPhotoGarbage({ store: options.store, now: () => now });
+    return await retryCatalogMutation(() =>
+      publishPhotosOnce({ ...options, now: () => now }, identifiedFiles, processedPhotos),
+    );
+  } finally {
+    await Promise.all(identifiedFiles.map((file) => file.dispose()));
+  }
 }
 
-async function publishPhotosOnce(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
-  validateAlbum(options.album);
-  const identifiedFiles = await identifyFiles(options.files);
+async function publishPhotosOnce(
+  options: PublishPhotosOptions,
+  identifiedFiles: IdentifiedFile[],
+  processedPhotos: Map<string, ProcessedPhoto>,
+): Promise<PublishPhotosResult> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
   const catalog = await loadCatalog(options.store);
   await loadCatalogMonths(
@@ -135,16 +143,20 @@ async function publishPhotosOnce(options: PublishPhotosOptions): Promise<Publish
   }
 
   const processed = await mapLimit(pending, PROCESS_CONCURRENCY, async (identified, index) => {
-    options.onProgress?.({
-      type: "processing",
-      file: identified.file,
-      index: index + 1,
-      total: pending.length,
-    });
-    const photo = await options.processPhoto(identified.file, identified.id);
+    let photo = processedPhotos.get(identified.id);
+    if (!photo) {
+      options.onProgress?.({
+        type: "processing",
+        file: identified.file,
+        index: index + 1,
+        total: pending.length,
+      });
+      photo = await options.processPhoto(identified.source, identified.id);
+    }
     if (photo.id !== identified.id) {
       throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
     }
+    processedPhotos.set(photo.id, photo);
     const record = validateNewPhoto(photo, options.album?.id);
     return { file: identified.file, photo, record };
   });
@@ -377,10 +389,17 @@ function applyAlbum(albums: Map<string, PhotoAlbum>, album: PublishAlbum | undef
 }
 
 async function identifyFiles(files: string[]): Promise<IdentifiedFile[]> {
-  return mapLimit(files, READ_CONCURRENCY, async (file) => ({
-    file,
-    id: await hashPhotoFile(file),
-  }));
+  const snapshots: IdentifiedFile[] = [];
+  try {
+    return await mapLimit(files, READ_CONCURRENCY, async (file) => {
+      const snapshot = await snapshotPhotoFile(file);
+      snapshots.push(snapshot);
+      return snapshot;
+    });
+  } catch (error) {
+    await Promise.all(snapshots.map((snapshot) => snapshot.dispose()));
+    throw error;
+  }
 }
 
 function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {

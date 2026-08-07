@@ -79,9 +79,11 @@ bun run photos:gc -- --confirm
 如果原始文件已经不存在，可以先从月份 Catalog 中确认照片 ID，再使用本地脚本或
 Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏链接。
 
-支持 DNG、HEIC、HEIF、JPEG、PNG 与 WebP。在 macOS 上 HEIC 使用系统 `sips` 解码，并以
-`heif-convert --disable-limits` 作为后备；其他系统需要能从 `PATH` 调用
-`heif-convert`。中间 PNG 写在系统临时目录，并在单张照片处理完成后删除。
+支持 DNG、HEIC、HEIF、JPEG、PNG 与 WebP。发布器会先建立源文件快照，内容 ID、EXIF
+和像素衍生物始终来自同一文件状态。源文件上限为 256 MiB，解码上限为一亿像素。
+在 macOS 上 HEIC 优先使用系统 `sips`，再回退到保留安全限制的 `heif-convert`；其他
+系统需要能从 `PATH` 调用 `heif-convert`。每次外部解码最长运行 60 秒，中间文件与源
+快照都写在系统临时目录，并在单张照片处理完成后删除。
 
 ## 本地预览
 

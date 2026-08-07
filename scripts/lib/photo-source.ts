@@ -16,9 +16,19 @@ const SUPPORTED_EXTENSIONS = new Set([".dng", ".heic", ".heif", ".jpg", ".jpeg",
 const HEIC_EXTENSIONS = new Set([".heic", ".heif"]);
 const WEBP_QUALITY = 82;
 const WEBP_EFFORT = 4;
+const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
+const MAX_IMAGE_PIXELS = 100_000_000;
+const HEIC_DECODE_TIMEOUT_MS = 60_000;
 
 export type ProcessedPhoto = Omit<PhotoRecord, "albumIds"> & {
   variants: Map<PhotoVariantWidth, Uint8Array>;
+};
+
+export type PhotoSourceSnapshot = {
+  file: string;
+  source: string;
+  id: string;
+  dispose: () => Promise<void>;
 };
 
 export async function collectPhotoFiles(inputs: string[]): Promise<string[]> {
@@ -66,17 +76,32 @@ export async function hashPhotoFile(file: string): Promise<string> {
   return hash.digest("hex").slice(0, 32);
 }
 
+export async function snapshotPhotoFile(file: string): Promise<PhotoSourceSnapshot> {
+  await assertSourceSize(file);
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "photo-source-"));
+  const source = path.join(directory, `source${path.extname(file).toLowerCase()}`);
+  try {
+    await fs.copyFile(file, source);
+    const id = await hashPhotoFile(source);
+    return {
+      file,
+      source,
+      id,
+      dispose: () => fs.rm(directory, { force: true, recursive: true }),
+    };
+  } catch (error) {
+    await fs.rm(directory, { force: true, recursive: true });
+    throw error;
+  }
+}
+
 export function resolveCapturedAt(
   tags: Pick<Tags, "SubSecDateTimeOriginal" | "DateTimeOriginal">,
   fallbackTimezone?: string,
 ): string {
-  const value = tags.SubSecDateTimeOriginal ?? tags.DateTimeOriginal;
-  const capturedAt =
-    value instanceof ExifDateTime
-      ? value
-      : typeof value === "string"
-        ? ExifDateTime.from(value)
-        : null;
+  const capturedAt = [tags.SubSecDateTimeOriginal, tags.DateTimeOriginal]
+    .map(parseExifDateTime)
+    .find((candidate) => candidate?.isValid);
 
   if (!capturedAt?.isValid) {
     throw new Error("照片缺少有效的原始拍摄时间");
@@ -108,6 +133,7 @@ export async function processPhotoFile(
   exiftool: ExifTool,
   fallbackTimezone?: string,
 ): Promise<ProcessedPhoto> {
+  await assertSourceSize(file);
   const temporaryDirectory = HEIC_EXTENSIONS.has(path.extname(file).toLowerCase())
     ? await fs.mkdtemp(path.join(os.tmpdir(), "photo-publish-"))
     : null;
@@ -121,8 +147,12 @@ export async function processPhotoFile(
     const metadata = await sharp(decodedSource, {
       autoOrient: true,
       failOn: "warning",
+      limitInputPixels: MAX_IMAGE_PIXELS,
     }).metadata();
     const { width, height } = metadata.autoOrient;
+    if (!width || !height || width * height > MAX_IMAGE_PIXELS) {
+      throw new Error(`照片像素不能超过 ${MAX_IMAGE_PIXELS}`);
+    }
 
     const [placeholderColor, variants] = await Promise.all([
       readPlaceholderColor(decodedSource),
@@ -148,6 +178,7 @@ async function readPlaceholderColor(source: string): Promise<string> {
   const pixel = await sharp(source, {
     autoOrient: true,
     failOn: "warning",
+    limitInputPixels: MAX_IMAGE_PIXELS,
   })
     .resize(1, 1, { fit: "fill" })
     .removeAlpha()
@@ -166,6 +197,7 @@ async function buildVariants(source: string): Promise<Map<PhotoVariantWidth, Uin
     const data = await sharp(source, {
       autoOrient: true,
       failOn: "warning",
+      limitInputPixels: MAX_IMAGE_PIXELS,
     })
       .resize({
         width,
@@ -192,15 +224,15 @@ async function decodeHeic(file: string, temporaryDirectory: string): Promise<str
     process.platform === "darwin"
       ? [
           { command: "sips", args: ["-s", "format", "png", file, "--out", output] },
-          { command: "heif-convert", args: ["--disable-limits", file, output] },
+          { command: "heif-convert", args: [file, output] },
         ]
-      : [{ command: "heif-convert", args: ["--disable-limits", file, output] }];
+      : [{ command: "heif-convert", args: [file, output] }];
   const errors: string[] = [];
 
   for (const attempt of attempts) {
     try {
       await fs.rm(output, { force: true });
-      await runCommand(attempt.command, attempt.args);
+      await runPhotoCommand(attempt.command, attempt.args, HEIC_DECODE_TIMEOUT_MS);
       await fs.access(output);
       return output;
     } catch (error) {
@@ -211,26 +243,60 @@ async function decodeHeic(file: string, temporaryDirectory: string): Promise<str
   throw new Error(`无法解码 HEIC 照片 ${file}\n${errors.join("\n")}`);
 }
 
-function runCommand(command: string, args: string[]): Promise<void> {
+export function runPhotoCommand(command: string, args: string[], timeoutMs: number): Promise<void> {
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+    throw new Error("照片命令超时必须是正整数");
+  }
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       stdio: ["ignore", "ignore", "pipe"],
     });
     let stderr = "";
+    let finished = false;
+    const complete = (error?: Error) => {
+      if (finished) {
+        return;
+      }
+      finished = true;
+      clearTimeout(timeout);
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    };
+    const timeout = setTimeout(() => {
+      child.kill("SIGKILL");
+      complete(new Error(`执行 ${command} 超时（${timeoutMs}ms）`));
+    }, timeoutMs);
 
     child.stderr.setEncoding("utf8");
     child.stderr.on("data", (chunk: string) => {
       if (stderr.length < 32_000) {
-        stderr += chunk;
+        stderr = `${stderr}${chunk}`.slice(0, 32_000);
       }
     });
-    child.on("error", reject);
-    child.on("close", (code) => {
+    child.once("error", (error) => complete(error));
+    child.once("close", (code) => {
       if (code === 0) {
-        resolve();
+        complete();
       } else {
-        reject(new Error(stderr.trim() || `退出码 ${code ?? "unknown"}`));
+        complete(new Error(stderr.trim() || `退出码 ${code ?? "unknown"}`));
       }
     });
   });
+}
+
+function parseExifDateTime(value: unknown): ExifDateTime | null {
+  if (value instanceof ExifDateTime) {
+    return value;
+  }
+  return typeof value === "string" ? (ExifDateTime.from(value) ?? null) : null;
+}
+
+async function assertSourceSize(file: string): Promise<void> {
+  const stats = await fs.stat(file);
+  if (!stats.isFile() || stats.size > MAX_SOURCE_BYTES) {
+    throw new Error(`照片文件不能超过 ${MAX_SOURCE_BYTES} 字节: ${file}`);
+  }
 }

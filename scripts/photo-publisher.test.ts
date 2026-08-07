@@ -103,6 +103,8 @@ describe("photo publisher", () => {
     const firstId = await hashPhotoFile(firstFile);
     const secondId = await hashPhotoFile(secondFile);
     const store = new MemoryPhotoStore();
+    const processFirst = vi.fn(async () => processedPhoto(firstId));
+    const processSecond = vi.fn(async () => processedPhoto(secondId));
     let initialReads = 0;
     let releaseInitialReads: (() => void) | undefined;
     const initialReadsReady = new Promise<void>((resolve) => {
@@ -124,12 +126,12 @@ describe("photo publisher", () => {
       publishPhotos({
         files: [firstFile],
         store,
-        processPhoto: async () => processedPhoto(firstId),
+        processPhoto: processFirst,
       }),
       publishPhotos({
         files: [secondFile],
         store,
-        processPhoto: async () => processedPhoto(secondId),
+        processPhoto: processSecond,
       }),
     ]);
 
@@ -146,6 +148,8 @@ describe("photo publisher", () => {
     expect(month.photos.map((photo) => photo.id).toSorted()).toEqual(
       [firstId, secondId].toSorted(),
     );
+    expect(processFirst).toHaveBeenCalledTimes(1);
+    expect(processSecond).toHaveBeenCalledTimes(1);
   });
 
   it("publishes immutable assets and a content-addressed month before the index", async () => {
@@ -182,6 +186,28 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(index.periods[0].path))!.text),
     );
     expect(month.photos[0]?.albumIds).toEqual(["japan-2026"]);
+  });
+
+  it("hashes and processes the same stable source snapshot", async () => {
+    const file = await createSourceFile("original photo state");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    let processedPath = "";
+
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async (source, sourceId) => {
+        processedPath = source;
+        await fs.writeFile(file, "changed while publishing");
+        expect(await fs.readFile(source, "utf8")).toBe("original photo state");
+        expect(sourceId).toBe(id);
+        return processedPhoto(sourceId);
+      },
+    });
+
+    expect(processedPath).not.toBe(file);
+    await expect(fs.access(processedPath)).rejects.toThrow();
   });
 
   it("is idempotent and can add an existing photo to another logical album", async () => {
