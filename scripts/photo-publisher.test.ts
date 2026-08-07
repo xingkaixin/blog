@@ -8,7 +8,7 @@ import {
   parsePhotoMonthCatalog,
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
-import { deletePhotos, publishPhotos } from "./lib/photo-publisher";
+import { collectPhotoGarbage, deletePhotos, publishPhotos } from "./lib/photo-publisher";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import {
   PhotoStoreConflictError,
@@ -23,6 +23,7 @@ class MemoryPhotoStore implements PhotoObjectStore {
   readonly versions = new Map<string, string>();
   readonly writes: string[] = [];
   readonly deletes: string[] = [];
+  readonly deleteFailures = new Map<string, number>();
   nextVersion = 0;
 
   async getText(key: string): Promise<PhotoTextObject | null> {
@@ -49,6 +50,11 @@ class MemoryPhotoStore implements PhotoObjectStore {
   }
 
   async delete(key: string): Promise<void> {
+    const failures = this.deleteFailures.get(key) ?? 0;
+    if (failures > 0) {
+      this.deleteFailures.set(key, failures - 1);
+      throw new Error(`temporary delete failure: ${key}`);
+    }
     this.objects.delete(key);
     this.versions.delete(key);
     this.deletes.push(key);
@@ -227,7 +233,7 @@ describe("photo publisher", () => {
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
   });
 
-  it("updates the catalog before deleting a photo's assets", async () => {
+  it("keeps retired objects through the cache grace period and resumes partial cleanup", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
@@ -243,14 +249,57 @@ describe("photo publisher", () => {
     );
     const oldPeriodPath = index.periods[0].path;
 
-    const result = await deletePhotos({ photoIds: [id], store });
+    const deletedAt = new Date("2026-08-07T12:00:00.000Z");
+    const result = await deletePhotos({ photoIds: [id], store, now: () => deletedAt });
 
-    expect(result).toEqual({ deleted: 1, removedObjects: 4, updatedPeriods: 1 });
+    expect(result).toEqual({
+      deleted: 1,
+      alreadyRetired: 0,
+      retiredObjects: 4,
+      updatedPeriods: 1,
+    });
+    let updatedIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(updatedIndex).toEqual(
+      expect.objectContaining({ albums: [], periods: [], retiredObjects: [expect.any(Object)] }),
+    );
+    expect(store.objects.has(oldPeriodPath)).toBe(true);
+    expect(store.objects.has(`media/${id}/480.webp`)).toBe(true);
+
     expect(
-      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text)),
-    ).toEqual(expect.objectContaining({ albums: [], periods: [] }));
+      await collectPhotoGarbage({
+        store,
+        now: () => new Date("2026-08-08T12:00:00.000Z"),
+      }),
+    ).toEqual({ removedObjects: 0, failedObjects: 0, pendingPhotos: 1 });
+
+    store.deleteFailures.set(`media/${id}/960.webp`, 1);
+    expect(
+      await collectPhotoGarbage({
+        store,
+        now: () => new Date("2026-08-08T14:00:00.000Z"),
+      }),
+    ).toEqual({ removedObjects: 3, failedObjects: 1, pendingPhotos: 1 });
+    expect(store.objects.has(`media/${id}/960.webp`)).toBe(true);
+
+    expect(
+      await deletePhotos({
+        photoIds: [id],
+        store,
+        now: () => new Date("2026-08-08T14:01:00.000Z"),
+      }),
+    ).toEqual({
+      deleted: 0,
+      alreadyRetired: 1,
+      retiredObjects: 0,
+      updatedPeriods: 0,
+    });
+    updatedIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(updatedIndex.retiredObjects).toEqual([]);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
-    expect(store.objects.has(`media/${id}/480.webp`)).toBe(false);
-    expect(store.deletes).toContain(oldPeriodPath);
+    expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
   });
 });

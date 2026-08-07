@@ -13,7 +13,7 @@ media/<photo-id>/2048.webp
 ```
 
 - `photo-id` 是原始文件内容的 128 位 SHA-256 前缀，同一文件重复发布不会生成重复照片。
-- 月份分片和图片使用不可变缓存；`catalog/index.json` 使用短缓存，并且总是最后写入。
+- 月份分片和图片使用不可变缓存；`catalog/index.json` 使用短缓存，并通过条件写避免并发发布互相覆盖。
 - 相册是 Catalog 中的逻辑关系，不依赖 R2 目录。把同一照片再次发布到另一个相册，只会更新索引。
 - 当前发布器只生成公开展示版本，不上传原始文件。
 
@@ -60,12 +60,21 @@ bun run photos:publish -- ~/Pictures/Japan/favorite.heic \
   --album-title "喜欢"
 ```
 
-移除照片时必须提供原始照片文件，并显式添加 `--confirm`。发布器会先更新
-Catalog，再清理对应的 WebP 和旧月份索引：
+移除照片时必须提供原始照片文件，并显式添加 `--confirm`。发布器会先从公开
+Catalog 移除照片，再把对应 WebP 和旧月份索引记录为 Retired Photo。对象至少保留
+25 小时，确保仍持有旧 Catalog 缓存的访问者不会遇到 404：
 
 ```bash
 bun run photos:delete -- ~/Pictures/Japan/favorite.heic --confirm
 ```
+
+发布与删除会顺带回收到期对象，也可以显式运行：
+
+```bash
+bun run photos:gc -- --confirm
+```
+
+回收进度保存在 Catalog 中；即使某个对象暂时删除失败，重复运行也会从未完成记录继续。
 
 如果原始文件已经不存在，可以先从月份 Catalog 中确认照片 ID，再使用本地脚本或
 Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏链接。

@@ -29,3 +29,7 @@ _Avoid_: Upload month, shard
 **Album**:
 A named logical collection that references published photos without owning or duplicating their media.
 _Avoid_: Folder, directory
+
+**Retired Photo**:
+A photo removed from the live Photo Catalog whose immutable objects remain recorded until the cache grace period ends and garbage collection succeeds.
+_Avoid_: Deleted photo, orphan

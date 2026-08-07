@@ -21,6 +21,7 @@
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --type-aware --fix",
     "photos:delete": "bun scripts/delete-photos.ts",
+    "photos:gc": "bun scripts/collect-photo-garbage.ts",
     "photos:publish": "bun scripts/publish-photos.ts",
     "postinstall": "bun scripts/patch-smiley-font.ts",
     "preview": "astro preview",

@@ -16,6 +16,7 @@ const indexFixture: PhotoCatalogIndex = {
   generatedAt: "2026-07-30T12:00:00.000Z",
   albums: [{ id: "japan-2026", title: "日本旅行" }],
   photoMonths: { "0123456789abcdef0123456789abcdef": "2026-04" },
+  retiredObjects: [],
   periods: [
     {
       month: "2026-04",
@@ -108,8 +109,38 @@ describe("photo catalog", () => {
   it("accepts a legacy index without a locator for migration", () => {
     const legacy = structuredClone(indexFixture) as unknown as Record<string, unknown>;
     delete legacy.photoMonths;
+    delete legacy.retiredObjects;
 
     expect(parsePhotoCatalogIndex(legacy).photoMonths).toEqual({});
+    expect(parsePhotoCatalogIndex(legacy).retiredObjects).toEqual([]);
+  });
+
+  it("validates retired object tombstones", () => {
+    const photoId = "ffffffffffffffffffffffffffffffff";
+    expect(
+      parsePhotoCatalogIndex({
+        ...indexFixture,
+        retiredObjects: [
+          {
+            photoId,
+            objectKeys: [`media/${photoId}/960.webp`, indexFixture.periods[0].path],
+            deleteAfter: "2026-08-08T13:00:00.000Z",
+          },
+        ],
+      }).retiredObjects,
+    ).toHaveLength(1);
+    expect(() =>
+      parsePhotoCatalogIndex({
+        ...indexFixture,
+        retiredObjects: [
+          {
+            photoId: monthFixture.photos[0].id,
+            objectKeys: [`media/${monthFixture.photos[0].id}/960.webp`],
+            deleteAfter: "2026-08-08T13:00:00.000Z",
+          },
+        ],
+      }),
+    ).toThrow("不能同时");
   });
 
   it("derives catalog and media URLs from one base URL", () => {

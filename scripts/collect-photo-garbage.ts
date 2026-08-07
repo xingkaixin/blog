@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 
 import path from "node:path";
-import { deletePhotos } from "./lib/photo-publisher";
-import { collectPhotoFiles, hashPhotoFile } from "./lib/photo-source";
+import { collectPhotoGarbage } from "./lib/photo-publisher";
 import {
   createR2PhotoObjectStore,
   FilePhotoObjectStore,
@@ -10,19 +9,18 @@ import {
 } from "./lib/photo-store";
 
 type CliOptions = {
-  inputs: string[];
   output?: string;
   confirm: boolean;
   help: boolean;
 };
 
-const HELP = `从照片墙移除照片
+const HELP = `回收已超过缓存宽限期的照片对象
 
 用法:
-  bun run photos:delete -- <照片或目录...> --confirm
+  bun run photos:gc -- --confirm [选项]
 
 选项:
-  --confirm               确认删除 Catalog 记录与 R2 衍生图
+  --confirm               确认回收到期对象
   --output <目录>         操作本地目录；省略时操作 R2
   --help                  显示帮助
 `;
@@ -33,26 +31,19 @@ async function main(): Promise<void> {
     process.stdout.write(HELP);
     return;
   }
-  if (options.inputs.length === 0) {
-    throw new Error("至少需要提供一张照片或一个目录");
-  }
   if (!options.confirm) {
-    throw new Error("删除操作需要显式添加 --confirm；不执行任何修改");
-  }
-
-  const files = await collectPhotoFiles(options.inputs);
-  const photoIds = await Promise.all(files.map((file) => hashPhotoFile(file)));
-  console.log("将移除照片:");
-  for (const [index, photoId] of photoIds.entries()) {
-    console.log(`- ${path.basename(files[index])}: ${photoId}`);
+    throw new Error("回收操作需要显式添加 --confirm；不执行任何修改");
   }
 
   const store = createStore(options.output);
   try {
-    const result = await deletePhotos({ photoIds, store });
+    const result = await collectPhotoGarbage({ store });
     console.log(
-      `完成：移除 ${result.deleted} 张照片，已有 ${result.alreadyRetired} 张在回收队列，延迟回收 ${result.retiredObjects} 个对象，更新 ${result.updatedPeriods} 个月份`,
+      `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingPhotos} 张照片待回收`,
     );
+    if (result.failedObjects > 0) {
+      process.exitCode = 1;
+    }
   } finally {
     store.close?.();
   }
@@ -61,15 +52,14 @@ async function main(): Promise<void> {
 function createStore(output: string | undefined): PhotoObjectStore {
   if (output) {
     const directory = path.resolve(output);
-    console.log(`删除目标：${directory}`);
+    console.log(`回收目标：${directory}`);
     return new FilePhotoObjectStore(directory);
   }
-  console.log("删除目标：Cloudflare R2");
+  console.log("回收目标：Cloudflare R2");
   return createR2PhotoObjectStore();
 }
 
 function parseArguments(args: string[]): CliOptions {
-  const inputs: string[] = [];
   let output: string | undefined;
   let confirm = false;
   let help = false;
@@ -82,14 +72,12 @@ function parseArguments(args: string[]): CliOptions {
       confirm = true;
     } else if (argument === "--output") {
       output = readOptionValue(args, ++index, argument);
-    } else if (argument.startsWith("--")) {
-      throw new Error(`未知选项 ${argument}`);
     } else {
-      inputs.push(argument);
+      throw new Error(`未知参数 ${argument}`);
     }
   }
 
-  return { inputs, output, confirm, help };
+  return { output, confirm, help };
 }
 
 function readOptionValue(args: string[], index: number, option: string): string {

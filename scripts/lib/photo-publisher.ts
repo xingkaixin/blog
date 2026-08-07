@@ -14,6 +14,7 @@ import {
   type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
+  type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
 import type { ProcessedPhoto } from "./photo-source";
 import { hashPhotoFile } from "./photo-source";
@@ -25,6 +26,7 @@ const INDEX_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=86400";
 const PROCESS_CONCURRENCY = 2;
 const READ_CONCURRENCY = 8;
 const CATALOG_COMMIT_ATTEMPTS = 5;
+const RETIRED_OBJECT_GRACE_MS = 25 * 60 * 60 * 1_000;
 const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 export type PublishAlbum = {
@@ -62,8 +64,20 @@ export type DeletePhotosOptions = {
 
 export type DeletePhotosResult = {
   deleted: number;
-  removedObjects: number;
+  alreadyRetired: number;
+  retiredObjects: number;
   updatedPeriods: number;
+};
+
+export type CollectPhotoGarbageOptions = {
+  store: PhotoObjectStore;
+  now?: () => Date;
+};
+
+export type CollectPhotoGarbageResult = {
+  removedObjects: number;
+  failedObjects: number;
+  pendingPhotos: number;
 };
 
 type LoadedCatalog = {
@@ -73,6 +87,7 @@ type LoadedCatalog = {
   months: Map<string, PhotoMonthCatalog>;
   periodPaths: Map<string, string>;
   photoMonths: Map<string, string>;
+  retiredObjects: Map<string, RetiredPhotoObjects>;
 };
 
 type IdentifiedFile = {
@@ -81,7 +96,9 @@ type IdentifiedFile = {
 };
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
-  return retryCatalogMutation(() => publishPhotosOnce(options));
+  const now = options.now?.() ?? new Date();
+  await collectPhotoGarbage({ store: options.store, now: () => now });
+  return retryCatalogMutation(() => publishPhotosOnce({ ...options, now: () => now }));
 }
 
 async function publishPhotosOnce(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
@@ -95,6 +112,9 @@ async function publishPhotosOnce(options: PublishPhotosOptions): Promise<Publish
   let reused = identifiedFiles.length - uniqueFiles.length;
 
   for (const identified of uniqueFiles) {
+    if (catalog.retiredObjects.has(identified.id)) {
+      throw new Error(`照片 ${identified.id} 正在延迟回收，请在回收完成后重新发布`);
+    }
     const existingMonth = catalog.photoMonths.get(identified.id);
     if (!existingMonth) {
       pending.push(identified);
@@ -157,7 +177,10 @@ async function publishPhotosOnce(options: PublishPhotosOptions): Promise<Publish
 }
 
 export async function deletePhotos(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
-  return retryCatalogMutation(() => deletePhotosOnce(options));
+  const now = options.now?.() ?? new Date();
+  const result = await retryCatalogMutation(() => deletePhotosOnce({ ...options, now: () => now }));
+  await collectPhotoGarbage({ store: options.store, now: () => now });
+  return result;
 }
 
 async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
@@ -170,7 +193,9 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
   }
 
   const catalog = await loadCatalog(options.store);
-  const targets = photoIds.map((photoId) => {
+  const alreadyRetired = photoIds.filter((photoId) => catalog.retiredObjects.has(photoId));
+  const activePhotoIds = photoIds.filter((photoId) => !catalog.retiredObjects.has(photoId));
+  const targets = activePhotoIds.map((photoId) => {
     const month = catalog.photoMonths.get(photoId);
     const photo = month
       ? catalog.months.get(month)?.photos.find((item) => item.id === photoId)
@@ -180,12 +205,16 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
     }
     return { month, photo };
   });
-  const oldPeriodPaths = new Set(
-    targets
-      .map(({ month }) => catalog.periodPaths.get(month))
-      .filter((periodPath): periodPath is string => Boolean(periodPath)),
-  );
   const dirtyMonths = new Set(targets.map(({ month }) => month));
+
+  if (targets.length === 0) {
+    return {
+      deleted: 0,
+      alreadyRetired: alreadyRetired.length,
+      retiredObjects: 0,
+      updatedPeriods: 0,
+    };
+  }
 
   for (const { month, photo } of targets) {
     const monthCatalog = catalog.months.get(month);
@@ -196,20 +225,87 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
     catalog.photoMonths.delete(photo.id);
   }
   removeUnusedAlbums(catalog);
-  await writeCatalog(options.store, catalog, dirtyMonths, options.now?.() ?? new Date());
 
-  const objectKeys = new Set(oldPeriodPaths);
-  for (const photoId of photoIds) {
+  const deleteAfter = new Date(
+    (options.now?.() ?? new Date()).getTime() + RETIRED_OBJECT_GRACE_MS,
+  ).toISOString();
+  const objectKeys = new Set<string>();
+  for (const { month, photo } of targets) {
+    const photoObjectKeys = new Set<string>();
+    const oldPeriodPath = catalog.periodPaths.get(month);
+    if (oldPeriodPath) {
+      photoObjectKeys.add(oldPeriodPath);
+    }
     for (const width of PHOTO_VARIANT_WIDTHS) {
-      objectKeys.add(`media/${photoId}/${width}.webp`);
+      photoObjectKeys.add(`media/${photo.id}/${width}.webp`);
+    }
+    const retired: RetiredPhotoObjects = {
+      photoId: photo.id,
+      objectKeys: [...photoObjectKeys].toSorted(),
+      deleteAfter,
+    };
+    catalog.retiredObjects.set(photo.id, retired);
+    for (const key of photoObjectKeys) {
+      objectKeys.add(key);
     }
   }
-  await Promise.all([...objectKeys].map((key) => options.store.delete(key)));
+  await writeCatalog(options.store, catalog, dirtyMonths, options.now?.() ?? new Date());
 
   return {
-    deleted: photoIds.length,
-    removedObjects: objectKeys.size,
+    deleted: activePhotoIds.length,
+    alreadyRetired: alreadyRetired.length,
+    retiredObjects: objectKeys.size,
     updatedPeriods: dirtyMonths.size,
+  };
+}
+
+export async function collectPhotoGarbage(
+  options: CollectPhotoGarbageOptions,
+): Promise<CollectPhotoGarbageResult> {
+  return retryCatalogMutation(() => collectPhotoGarbageOnce(options));
+}
+
+async function collectPhotoGarbageOnce(
+  options: CollectPhotoGarbageOptions,
+): Promise<CollectPhotoGarbageResult> {
+  const now = options.now?.() ?? new Date();
+  const catalog = await loadCatalog(options.store);
+  const due = [...catalog.retiredObjects.values()].filter(
+    (entry) => Date.parse(entry.deleteAfter) <= now.getTime(),
+  );
+  if (due.length === 0) {
+    return {
+      removedObjects: 0,
+      failedObjects: 0,
+      pendingPhotos: catalog.retiredObjects.size,
+    };
+  }
+
+  const objectKeys = [...new Set(due.flatMap((entry) => entry.objectKeys))];
+  const deletionResults = new Map(
+    await mapLimit(objectKeys, READ_CONCURRENCY, async (key) => {
+      try {
+        await options.store.delete(key);
+        return [key, true] as const;
+      } catch {
+        return [key, false] as const;
+      }
+    }),
+  );
+  const completed = due.filter((entry) =>
+    entry.objectKeys.every((key) => deletionResults.get(key) === true),
+  );
+  for (const entry of completed) {
+    catalog.retiredObjects.delete(entry.photoId);
+  }
+  if (completed.length > 0) {
+    await writeCatalog(options.store, catalog, new Set(), now);
+  }
+
+  return {
+    removedObjects: [...deletionResults.values()].filter(Boolean).length,
+    failedObjects: [...deletionResults.values()].filter((deleted) => !deleted).length,
+    pendingPhotos: catalog.retiredObjects.size,
   };
 }
 
@@ -320,6 +416,7 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
       months: new Map(),
       periodPaths: new Map(),
       photoMonths: new Map(),
+      retiredObjects: new Map(),
     };
   }
 
@@ -345,6 +442,7 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
     months: validated.months,
     periodPaths: new Map(loadedMonths.map(({ period }) => [period.month, period.path])),
     photoMonths: validated.photoMonths,
+    retiredObjects: new Map(index.retiredObjects.map((entry) => [entry.photoId, entry])),
   };
 }
 
@@ -404,6 +502,11 @@ async function writeCatalog(
     periods,
     photoMonths: Object.fromEntries(
       [...catalog.photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
+    ),
+    retiredObjects: [...catalog.retiredObjects.values()].toSorted(
+      (left, right) =>
+        left.deleteAfter.localeCompare(right.deleteAfter) ||
+        left.photoId.localeCompare(right.photoId),
     ),
   };
 
