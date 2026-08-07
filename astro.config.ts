@@ -5,9 +5,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
 import { rehypeBlogContent } from "./src/lib/rehype-blog-content";
+import { siteConfig } from "./src/lib/site";
+
+const configuredPhotoUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
+const photoProxyTarget = configuredPhotoUrl.startsWith("http")
+  ? configuredPhotoUrl
+  : siteConfig.photoUrl;
 
 export default defineConfig({
-  site: "https://xingkaixin.me",
+  site: siteConfig.url,
   output: "static",
   trailingSlash: "always",
   integrations: [react()],
@@ -23,10 +29,10 @@ export default defineConfig({
       },
     },
     server: {
-      // 照片域名未开 CORS，dev 通过同源代理访问生产 R2 数据
+      // 开发服务器通过同源代理隔离远端缓存与跨域配置差异。
       proxy: {
         "/__photos": {
-          target: "https://photos.xingkaixin.me",
+          target: photoProxyTarget,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/__photos/, ""),
         },
