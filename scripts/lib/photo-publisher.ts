@@ -17,13 +17,14 @@ import {
 } from "../../src/lib/photo-catalog";
 import type { ProcessedPhoto } from "./photo-source";
 import { hashPhotoFile } from "./photo-source";
-import type { PhotoObjectStore } from "./photo-store";
+import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
 
 const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const SHARD_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const INDEX_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=86400";
 const PROCESS_CONCURRENCY = 2;
 const READ_CONCURRENCY = 8;
+const CATALOG_COMMIT_ATTEMPTS = 5;
 const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 export type PublishAlbum = {
@@ -67,6 +68,7 @@ export type DeletePhotosResult = {
 
 type LoadedCatalog = {
   index: PhotoCatalogIndex | null;
+  indexVersion: string | null;
   albums: Map<string, PhotoAlbum>;
   months: Map<string, PhotoMonthCatalog>;
   periodPaths: Map<string, string>;
@@ -79,6 +81,10 @@ type IdentifiedFile = {
 };
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
+  return retryCatalogMutation(() => publishPhotosOnce(options));
+}
+
+async function publishPhotosOnce(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
   validateAlbum(options.album);
   const catalog = await loadCatalog(options.store);
   const albumChanged = applyAlbum(catalog.albums, options.album);
@@ -151,6 +157,10 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
 }
 
 export async function deletePhotos(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
+  return retryCatalogMutation(() => deletePhotosOnce(options));
+}
+
+async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
   const photoIds = [...new Set(options.photoIds)];
   if (photoIds.length === 0) {
     throw new Error("至少需要指定一张照片");
@@ -301,10 +311,11 @@ async function uploadPhotoAssets(store: PhotoObjectStore, photo: ProcessedPhoto)
 }
 
 async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
-  const indexText = await store.getText(PHOTO_CATALOG_INDEX_KEY);
-  if (!indexText) {
+  const indexObject = await store.getText(PHOTO_CATALOG_INDEX_KEY);
+  if (!indexObject) {
     return {
       index: null,
+      indexVersion: null,
       albums: new Map(),
       months: new Map(),
       periodPaths: new Map(),
@@ -312,14 +323,14 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
     };
   }
 
-  const index = parsePhotoCatalogIndex(parseJson(indexText, PHOTO_CATALOG_INDEX_KEY));
+  const index = parsePhotoCatalogIndex(parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY));
 
   const loadedMonths = await mapLimit(index.periods, READ_CONCURRENCY, async (period) => {
-    const shardText = await store.getText(period.path);
-    if (!shardText) {
+    const shardObject = await store.getText(period.path);
+    if (!shardObject) {
       throw new Error(`Catalog 引用了不存在的月份索引 ${period.path}`);
     }
-    const shard = parsePhotoMonthCatalog(parseJson(shardText, period.path));
+    const shard = parsePhotoMonthCatalog(parseJson(shardObject.text, period.path));
     return { period, shard };
   });
   const validated = validatePhotoCatalog(
@@ -329,6 +340,7 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
 
   return {
     index,
+    indexVersion: indexObject.version,
     albums: new Map(index.albums.map((album) => [album.id, album])),
     months: validated.months,
     periodPaths: new Map(loadedMonths.map(({ period }) => [period.month, period.path])),
@@ -398,7 +410,21 @@ async function writeCatalog(
   await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
     contentType: "application/json; charset=utf-8",
     cacheControl: INDEX_CACHE_CONTROL,
+    expectedVersion: catalog.indexVersion,
   });
+}
+
+async function retryCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; attempt <= CATALOG_COMMIT_ATTEMPTS; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (!(error instanceof PhotoStoreConflictError) || attempt === CATALOG_COMMIT_ATTEMPTS) {
+        throw error;
+      }
+    }
+  }
+  throw new Error("照片 Catalog 提交重试次数耗尽");
 }
 
 function removeUnusedAlbums(catalog: LoadedCatalog): void {

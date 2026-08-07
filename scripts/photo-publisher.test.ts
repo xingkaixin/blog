@@ -10,28 +10,47 @@ import {
 } from "../src/lib/photo-catalog";
 import { deletePhotos, publishPhotos } from "./lib/photo-publisher";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
-import type { PhotoObjectBody, PhotoObjectStore, PutPhotoObjectOptions } from "./lib/photo-store";
+import {
+  PhotoStoreConflictError,
+  type PhotoObjectBody,
+  type PhotoObjectStore,
+  type PhotoTextObject,
+  type PutPhotoObjectOptions,
+} from "./lib/photo-store";
 
 class MemoryPhotoStore implements PhotoObjectStore {
   readonly objects = new Map<string, PhotoObjectBody>();
+  readonly versions = new Map<string, string>();
   readonly writes: string[] = [];
   readonly deletes: string[] = [];
+  nextVersion = 0;
 
-  async getText(key: string): Promise<string | null> {
+  async getText(key: string): Promise<PhotoTextObject | null> {
     const value = this.objects.get(key);
     if (value === undefined) {
       return null;
     }
-    return typeof value === "string" ? value : new TextDecoder().decode(value);
+    return {
+      text: typeof value === "string" ? value : new TextDecoder().decode(value),
+      version: this.versions.get(key)!,
+    };
   }
 
-  async put(key: string, body: PhotoObjectBody, _options: PutPhotoObjectOptions): Promise<void> {
+  async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
+    const currentVersion = this.versions.get(key) ?? null;
+    if (options.expectedVersion !== undefined && options.expectedVersion !== currentVersion) {
+      throw new PhotoStoreConflictError(key);
+    }
+    const version = `v${(this.nextVersion += 1)}`;
     this.objects.set(key, body);
+    this.versions.set(key, version);
     this.writes.push(key);
+    return version;
   }
 
   async delete(key: string): Promise<void> {
     this.objects.delete(key);
+    this.versions.delete(key);
     this.deletes.push(key);
   }
 }
@@ -46,11 +65,11 @@ afterEach(async () => {
   );
 });
 
-async function createSourceFile(): Promise<string> {
+async function createSourceFile(contents = "stable photo bytes"): Promise<string> {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "photo-publisher-test-"));
   temporaryDirectories.push(directory);
   const file = path.join(directory, "source.jpg");
-  await fs.writeFile(file, "stable photo bytes");
+  await fs.writeFile(file, contents);
   return file;
 }
 
@@ -70,6 +89,57 @@ function processedPhoto(id: string): ProcessedPhoto {
 }
 
 describe("photo publisher", () => {
+  it("preserves both updates when two publishers start from the same catalog", async () => {
+    const firstFile = await createSourceFile("first photo bytes");
+    const secondFile = await createSourceFile("second photo bytes");
+    const firstId = await hashPhotoFile(firstFile);
+    const secondId = await hashPhotoFile(secondFile);
+    const store = new MemoryPhotoStore();
+    let initialReads = 0;
+    let releaseInitialReads: (() => void) | undefined;
+    const initialReadsReady = new Promise<void>((resolve) => {
+      releaseInitialReads = resolve;
+    });
+    const originalGetText = store.getText.bind(store);
+    store.getText = async (key) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && initialReads < 2) {
+        initialReads += 1;
+        if (initialReads === 2) {
+          releaseInitialReads?.();
+        }
+        await initialReadsReady;
+      }
+      return originalGetText(key);
+    };
+
+    await Promise.all([
+      publishPhotos({
+        files: [firstFile],
+        store,
+        processPhoto: async () => processedPhoto(firstId),
+      }),
+      publishPhotos({
+        files: [secondFile],
+        store,
+        processPhoto: async () => processedPhoto(secondId),
+      }),
+    ]);
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.photoMonths).toEqual({
+      [firstId]: "2026-04",
+      [secondId]: "2026-04",
+    });
+    const month = parsePhotoMonthCatalog(
+      JSON.parse((await store.getText(index.periods[0].path))!.text),
+    );
+    expect(month.photos.map((photo) => photo.id).toSorted()).toEqual(
+      [firstId, secondId].toSorted(),
+    );
+  });
+
   it("publishes immutable assets and a content-addressed month before the index", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
@@ -94,13 +164,15 @@ describe("photo publisher", () => {
     expect(store.objects.has(`media/${id}/480.webp`)).toBe(true);
 
     const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!),
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(index.albums).toEqual([{ id: "japan-2026", title: "日本旅行" }]);
     expect(index.photoMonths[id]).toBe("2026-04");
     expect(index.periods[0]?.path).toMatch(/^catalog\/months\/2026-04\.[a-f0-9]{24}\.json$/);
 
-    const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(index.periods[0].path))!));
+    const month = parsePhotoMonthCatalog(
+      JSON.parse((await store.getText(index.periods[0].path))!.text),
+    );
     expect(month.photos[0]?.albumIds).toEqual(["japan-2026"]);
   });
 
@@ -147,9 +219,11 @@ describe("photo publisher", () => {
       catalogChanged: true,
     });
     const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!),
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
-    const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(index.periods[0].path))!));
+    const month = parsePhotoMonthCatalog(
+      JSON.parse((await store.getText(index.periods[0].path))!.text),
+    );
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
   });
 
@@ -165,7 +239,7 @@ describe("photo publisher", () => {
       processPhoto: async () => processedPhoto(id),
     });
     const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!),
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     const oldPeriodPath = index.periods[0].path;
 
@@ -173,7 +247,7 @@ describe("photo publisher", () => {
 
     expect(result).toEqual({ deleted: 1, removedObjects: 4, updatedPeriods: 1 });
     expect(
-      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!)),
+      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text)),
     ).toEqual(expect.objectContaining({ albums: [], periods: [] }));
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(`media/${id}/480.webp`)).toBe(false);
