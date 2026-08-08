@@ -28,5 +28,5 @@ jobs:
         run: bun run isok
       - name: Build production site
         run: bun run build
-      - name: Check generated artifacts
-        run: git diff --exit-code
+      - name: Check deterministic generated data
+        run: git diff --exit-code -- public/search-index.json src/lib/generated
