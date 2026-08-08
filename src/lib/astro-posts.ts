@@ -29,5 +29,10 @@ export async function getPublishedPosts(): Promise<BlogPostEntry[]> {
   const posts: BlogPostEntry[] = await getCollection("posts", (entry: BlogPostEntry) =>
     isPublishedFrontmatter(entry.data),
   );
-  return posts.toSorted((left, right) => comparePublishedPostsNewestFirst(left.data, right.data));
+  return posts.toSorted((left, right) =>
+    comparePublishedPostsNewestFirst(
+      { date: left.data.date, slug: left.id },
+      { date: right.data.date, slug: right.id },
+    ),
+  );
 }

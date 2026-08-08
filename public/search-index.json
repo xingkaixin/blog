@@ -465,6 +465,20 @@
     "coverAlt": "我用 AI 越用越爽，这件事让我有点害怕"
   },
   {
+    "slug": "agentic-workflow-waiting-revalued",
+    "title": "Agentic 工作流里，\"等待\"被重新定价了",
+    "date": "2026-04-17",
+    "summary": "Agent 跑任务时你不得不等，但切出去刷手机会冲走上下文，多 Agent 并行又带来冲突和审查瓶颈。等待期最值钱的东西，是你脑子里还热着的上下文——用来补漏洞、建预期、规划下一步，而不是切出去消遣。",
+    "tags": [
+      "Agentic",
+      "工作流",
+      "AI编程",
+      "专注力"
+    ],
+    "cover": "/posts/cover/agentic-workflow-waiting-revalued.png",
+    "coverAlt": "Agentic 工作流里，\"等待\"被重新定价了"
+  },
+  {
     "slug": "ai-wont-tire-but-you-will",
     "title": "你以为在审代码，其实在点合并",
     "date": "2026-04-17",
@@ -491,20 +505,6 @@
     ],
     "cover": "/posts/cover/best-ai-users-need-it-least.png",
     "coverAlt": "最好的 AI 使用者，是最不需要 AI 的人"
-  },
-  {
-    "slug": "agentic-workflow-waiting-revalued",
-    "title": "Agentic 工作流里，\"等待\"被重新定价了",
-    "date": "2026-04-17",
-    "summary": "Agent 跑任务时你不得不等，但切出去刷手机会冲走上下文，多 Agent 并行又带来冲突和审查瓶颈。等待期最值钱的东西，是你脑子里还热着的上下文——用来补漏洞、建预期、规划下一步，而不是切出去消遣。",
-    "tags": [
-      "Agentic",
-      "工作流",
-      "AI编程",
-      "专注力"
-    ],
-    "cover": "/posts/cover/agentic-workflow-waiting-revalued.png",
-    "coverAlt": "Agentic 工作流里，\"等待\"被重新定价了"
   },
   {
     "slug": "when-ai-bypasses-all-pitfalls",
@@ -563,20 +563,6 @@
     "coverAlt": "不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做"
   },
   {
-    "slug": "model-core-tools-shell",
-    "title": "我同时用Claude Code和Codex开发：工具是壳，模型才是核",
-    "date": "2026-04-02",
-    "summary": "Cursor、Claude Code、Codex 是交互界面（壳），背后的大模型才是核心（核）。通过 Fin-Agent 的开发实录，总结出多模型调度的决策逻辑：生态绑定优先，灵活切换次之，成本最后——Agentic 时代工程师的核心竞争力是调度能力，不是工具忠诚度。",
-    "tags": [
-      "Claude Code",
-      "Codex",
-      "模型调度",
-      "AI编程"
-    ],
-    "cover": "/posts/cover/model-core-tools-shell.png",
-    "coverAlt": "我同时用Claude Code和Codex开发：工具是壳，模型才是核"
-  },
-  {
     "slug": "assuming-x-agentic-era-engineers-survival-coordinates",
     "title": "假设X成真：你的手艺正在被重新定价",
     "date": "2026-04-02",
@@ -591,6 +577,20 @@
     "coverAlt": "假设X成真：你的手艺正在被重新定价"
   },
   {
+    "slug": "model-core-tools-shell",
+    "title": "我同时用Claude Code和Codex开发：工具是壳，模型才是核",
+    "date": "2026-04-02",
+    "summary": "Cursor、Claude Code、Codex 是交互界面（壳），背后的大模型才是核心（核）。通过 Fin-Agent 的开发实录，总结出多模型调度的决策逻辑：生态绑定优先，灵活切换次之，成本最后——Agentic 时代工程师的核心竞争力是调度能力，不是工具忠诚度。",
+    "tags": [
+      "Claude Code",
+      "Codex",
+      "模型调度",
+      "AI编程"
+    ],
+    "cover": "/posts/cover/model-core-tools-shell.png",
+    "coverAlt": "我同时用Claude Code和Codex开发：工具是壳，模型才是核"
+  },
+  {
     "slug": "vibe-coding-ai-code-backlash-openclaw",
     "title": "当Vibe Coding遇到百万行代码：OpenClaw教我的事",
     "date": "2026-04-02",
@@ -603,6 +603,20 @@
     ],
     "cover": "/posts/cover/vibe-coding-ai-code-backlash-openclaw.png",
     "coverAlt": "当Vibe Coding遇到百万行代码：OpenClaw教我的事"
+  },
+  {
+    "slug": "315-geo-ai-poisoning",
+    "title": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战",
+    "date": "2026-03-29",
+    "summary": "315晚会曝光GEO投毒案例：通过批量生成虚假产品内容并矩阵分发，两小时让虚构产品\"Apollo-9\"登上AI推荐榜首。文章从技术开发者视角分析RAG架构漏洞、历史轮回（SEO→GEO）、以及攻防对策。",
+    "tags": [
+      "GEO",
+      "RAG",
+      "AI安全",
+      "信息生态"
+    ],
+    "cover": "/posts/cover/315-geo-ai-poisoning.png",
+    "coverAlt": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战"
   },
   {
     "slug": "mcp-vs-a2a-protocol-comparison",
@@ -633,20 +647,6 @@
     "coverAlt": "Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？"
   },
   {
-    "slug": "315-geo-ai-poisoning",
-    "title": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战",
-    "date": "2026-03-29",
-    "summary": "315晚会曝光GEO投毒案例：通过批量生成虚假产品内容并矩阵分发，两小时让虚构产品\"Apollo-9\"登上AI推荐榜首。文章从技术开发者视角分析RAG架构漏洞、历史轮回（SEO→GEO）、以及攻防对策。",
-    "tags": [
-      "GEO",
-      "RAG",
-      "AI安全",
-      "信息生态"
-    ],
-    "cover": "/posts/cover/315-geo-ai-poisoning.png",
-    "coverAlt": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战"
-  },
-  {
     "slug": "beyond-the-3-day-clone",
     "title": "当开源想法三天就能被复制",
     "date": "2026-03-26",
@@ -659,20 +659,6 @@
     ],
     "cover": "/posts/cover/beyond-the-3-day-clone.png",
     "coverAlt": "当开源想法三天就能被复制"
-  },
-  {
-    "slug": "kv-cache-why-ai-replies-get-faster",
-    "title": "KV Cache：为什么 AI 回复越来越快？",
-    "date": "2026-03-24",
-    "summary": "KV Cache 是大模型能快速响应长对话的核心机制：将历史内容的中间计算结果缓存起来，避免每次生成新词都重新计算所有上文，以显存空间换取时间，同时大幅降低 API 调用成本。",
-    "tags": [
-      "KV Cache",
-      "大模型",
-      "AI基础",
-      "性能优化"
-    ],
-    "cover": "/posts/cover/kv-cache-why-ai-replies-get-faster.png",
-    "coverAlt": "KV Cache：为什么 AI 回复越来越快？"
   },
   {
     "slug": "coding-agent-almost-1-year",
@@ -689,6 +675,20 @@
     "coverAlt": "与 AI 共事一年，我从\"甩手掌柜\"变成了\"掌舵人\""
   },
   {
+    "slug": "kv-cache-why-ai-replies-get-faster",
+    "title": "KV Cache：为什么 AI 回复越来越快？",
+    "date": "2026-03-24",
+    "summary": "KV Cache 是大模型能快速响应长对话的核心机制：将历史内容的中间计算结果缓存起来，避免每次生成新词都重新计算所有上文，以显存空间换取时间，同时大幅降低 API 调用成本。",
+    "tags": [
+      "KV Cache",
+      "大模型",
+      "AI基础",
+      "性能优化"
+    ],
+    "cover": "/posts/cover/kv-cache-why-ai-replies-get-faster.png",
+    "coverAlt": "KV Cache：为什么 AI 回复越来越快？"
+  },
+  {
     "slug": "llm-only-getting-average",
     "title": "你用 LLM，只拿到了均值",
     "date": "2026-03-20",
@@ -703,20 +703,6 @@
     "coverAlt": "你用 LLM，只拿到了均值"
   },
   {
-    "slug": "spec-as-new-fig-leaf",
-    "title": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码",
-    "date": "2026-03-19",
-    "summary": "Spec Driven Development 并没有消灭软件工程的难题，足够细的 spec 本质上就是另一种语法的代码；它还会把团队带回瀑布流，把不确定性藏在文档的完整性幻觉里，spec 永远覆盖不到的地方才是系统真正的盲区。",
-    "tags": [
-      "SDD",
-      "工程实践",
-      "Coding Agent",
-      "软件设计"
-    ],
-    "cover": "/posts/cover/spec-as-new-fig-leaf.png",
-    "coverAlt": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码"
-  },
-  {
     "slug": "from-writing-code-to-reviewing-code",
     "title": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移",
     "date": "2026-03-19",
@@ -729,6 +715,20 @@
     ],
     "cover": "/posts/cover/from-writing-code-to-reviewing-code.png",
     "coverAlt": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移"
+  },
+  {
+    "slug": "spec-as-new-fig-leaf",
+    "title": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码",
+    "date": "2026-03-19",
+    "summary": "Spec Driven Development 并没有消灭软件工程的难题，足够细的 spec 本质上就是另一种语法的代码；它还会把团队带回瀑布流，把不确定性藏在文档的完整性幻觉里，spec 永远覆盖不到的地方才是系统真正的盲区。",
+    "tags": [
+      "SDD",
+      "工程实践",
+      "Coding Agent",
+      "软件设计"
+    ],
+    "cover": "/posts/cover/spec-as-new-fig-leaf.png",
+    "coverAlt": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码"
   },
   {
     "slug": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution",

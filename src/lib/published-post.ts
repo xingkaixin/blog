@@ -40,10 +40,16 @@ export function toPublishedPost(slug: string, post: PublishablePost): PublishedP
 }
 
 export function comparePublishedPostsNewestFirst(
-  left: Pick<PublishedPost, "date">,
-  right: Pick<PublishedPost, "date">,
+  left: Pick<PublishedPost, "date" | "slug">,
+  right: Pick<PublishedPost, "date" | "slug">,
 ): number {
-  return right.date.localeCompare(left.date);
+  if (left.date !== right.date) {
+    return left.date > right.date ? -1 : 1;
+  }
+  if (left.slug === right.slug) {
+    return 0;
+  }
+  return left.slug < right.slug ? -1 : 1;
 }
 
 export function parsePublishedPosts(value: unknown): PublishedPost[] {
