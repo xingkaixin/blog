@@ -1,13 +1,12 @@
 #!/usr/bin/env bun
 
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
 
 const SUPPORTED_SOURCE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
-const MANIFEST_VERSION = 1;
 const VARIANTS = [
   { key: "webp" as const, suffix: "", width: null as number | null, quality: 85 },
   { key: "mobile" as const, suffix: "-800w", width: 800, quality: 80 },
@@ -34,33 +33,27 @@ type ImageMapping = {
   desktop: string;
 };
 
-type ImageManifest = {
-  version: typeof MANIFEST_VERSION;
-  entries: Record<string, string>;
-};
-
 export async function generatePostImages(
   options: GeneratePostImagesOptions = defaultOptions(),
 ): Promise<GeneratePostImagesResult> {
   if (!fs.existsSync(options.sourceDirectory)) {
     throw new Error(`文章插图源目录不存在: ${options.sourceDirectory}`);
   }
-  fs.mkdirSync(options.outputDirectory, { recursive: true });
+  const sources = collectSourceFiles(options.sourceDirectory);
+  if (sources.length === 0) {
+    throw new Error(`文章插图源目录中没有图片: ${options.sourceDirectory}`);
+  }
 
-  const manifest = readManifest(options.manifestFile);
-  const nextManifest: ImageManifest = { version: MANIFEST_VERSION, entries: {} };
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
     JSON.stringify(VARIANTS),
     JSON.stringify(sharp.versions),
   ]);
   const mappings: Record<string, ImageMapping> = {};
-  const expectedOutputs = new Set<string>();
+  const plans: ArtifactPlan[] = [];
   const usedStems = new Set<string>();
-  let generated = 0;
-  let reused = 0;
 
-  for (const source of collectSourceFiles(options.sourceDirectory)) {
+  for (const source of sources) {
     const relativeSource = normalizePath(path.relative(options.sourceDirectory, source));
     const sourceUrl = `/posts/images/${relativeSource}`;
     const stem = relativeSource.slice(0, -path.extname(relativeSource).length);
@@ -71,21 +64,12 @@ export async function generatePostImages(
     const outputPaths = VARIANTS.map((variant) =>
       path.join(options.outputDirectory, `${stem}${variant.suffix}.webp`),
     );
-    for (const output of outputPaths) {
-      expectedOutputs.add(path.resolve(output));
-    }
-
-    const currentFingerprint = fingerprint([rendererFingerprint, fs.readFileSync(source)]);
-    nextManifest.entries[sourceUrl] = currentFingerprint;
-    if (
-      manifest.entries[sourceUrl] === currentFingerprint &&
-      outputPaths.every((output) => fs.existsSync(output))
-    ) {
-      reused += 1;
-    } else {
-      await writeVariants(source, outputPaths);
-      generated += 1;
-    }
+    plans.push({
+      key: sourceUrl,
+      fingerprintParts: [rendererFingerprint, fs.readFileSync(source)],
+      outputs: outputPaths,
+      generate: () => writeVariants(source, outputPaths),
+    });
 
     mappings[sourceUrl] = {
       src: sourceUrl,
@@ -95,10 +79,15 @@ export async function generatePostImages(
     };
   }
 
-  const removed = removeUnexpectedOutputs(options.outputDirectory, expectedOutputs);
+  const result = await reconcileArtifacts({
+    outputDirectory: options.outputDirectory,
+    manifestFile: options.manifestFile,
+    artifactExtension: ".webp",
+    plans,
+    recursive: true,
+  });
   writeDataFile(options.dataFile, mappings);
-  writeManifest(options.manifestFile, nextManifest);
-  return { generated, reused, removed };
+  return result;
 }
 
 async function writeVariants(source: string, outputs: string[]): Promise<void> {
@@ -129,32 +118,6 @@ function collectSourceFiles(directory: string): string[] {
   return files.toSorted();
 }
 
-function removeUnexpectedOutputs(directory: string, expected: Set<string>): number {
-  let removed = 0;
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      removed += removeUnexpectedOutputs(entryPath, expected);
-      if (fs.readdirSync(entryPath).length === 0) {
-        fs.rmdirSync(entryPath);
-      }
-      continue;
-    }
-    if (
-      entry.name === ".DS_Store" ||
-      (entry.name.endsWith(".webp") && !expected.has(path.resolve(entryPath)))
-    ) {
-      fs.rmSync(entryPath);
-      removed += 1;
-      continue;
-    }
-    if (!entry.name.endsWith(".webp")) {
-      throw new Error(`文章插图公开目录包含非生成文件: ${entryPath}`);
-    }
-  }
-  return removed;
-}
-
 function publicUrl(outputDirectory: string, output: string): string {
   return `/posts/images/${normalizePath(path.relative(outputDirectory, output))}`;
 }
@@ -162,31 +125,6 @@ function publicUrl(outputDirectory: string, output: string): string {
 function writeDataFile(file: string, mappings: Record<string, ImageMapping>): void {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(mappings, null, 2)}\n`, "utf8");
-}
-
-function readManifest(file: string): ImageManifest {
-  try {
-    const value = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<ImageManifest>;
-    if (value.version === MANIFEST_VERSION && value.entries && !Array.isArray(value.entries)) {
-      return value as ImageManifest;
-    }
-  } catch {
-    return { version: MANIFEST_VERSION, entries: {} };
-  }
-  return { version: MANIFEST_VERSION, entries: {} };
-}
-
-function writeManifest(file: string, manifest: ImageManifest): void {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-}
-
-function fingerprint(parts: Array<string | Buffer>): string {
-  const hash = createHash("sha256");
-  for (const part of parts) {
-    hash.update(part);
-  }
-  return hash.digest("hex");
 }
 
 function normalizePath(value: string): string {

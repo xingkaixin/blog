@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +7,7 @@ import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
 import { formatDisplayDate } from "../src/lib/markdown";
 import { siteConfig } from "../src/lib/site";
+import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
 import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
@@ -17,7 +17,6 @@ const OUTPUT_DIR = path.join(ROOT, "public", "og");
 const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
 const FONT_DIR = path.join(ROOT, "scripts", "assets", "fonts");
 const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
-const CACHE_VERSION = 1;
 // 每张 OG 图要经 satori 渲染 1200x630 SVG 再由 sharp 编码 PNG。冷缓存下全量并发的
 // 峰值内存随文章数线性增长，固定窗口把它压成常量。66 篇冷构建实测（10 核）：
 // 无上限 5.6s/900MB，8 并发 5.7s/656MB，6 并发 6.1s/546MB，4 并发 8.7s/501MB。
@@ -53,12 +52,6 @@ export type GenerateOgImagesResult = {
   removed: number;
 };
 
-type OgCacheManifest = {
-  version: typeof CACHE_VERSION;
-  site: string;
-  posts: Record<string, string>;
-};
-
 const colors = {
   paper: "#fafaf7",
   surface: "rgba(255,255,255,0.72)",
@@ -87,58 +80,11 @@ function text(content: string, style: Record<string, unknown>) {
   return el("div", { style }, content);
 }
 
-function emptyCacheManifest(): OgCacheManifest {
-  return { version: CACHE_VERSION, site: "", posts: {} };
-}
-
-function readCacheManifest(file: string): OgCacheManifest {
-  try {
-    const cache = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<OgCacheManifest>;
-    if (
-      cache.version !== CACHE_VERSION ||
-      typeof cache.site !== "string" ||
-      !isStringRecord(cache.posts)
-    ) {
-      return emptyCacheManifest();
-    }
-    return cache as OgCacheManifest;
-  } catch {
-    return emptyCacheManifest();
-  }
-}
-
-function isStringRecord(value: unknown): value is Record<string, string> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value) &&
-    Object.values(value).every((entry) => typeof entry === "string")
-  );
-}
-
-async function forEachWithConcurrency<T>(
-  items: T[],
-  limit: number,
-  worker: (item: T) => Promise<void>,
-) {
-  let cursor = 0;
-  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (cursor < items.length) {
-      await worker(items[cursor++]);
-    }
-  });
-  await Promise.all(runners);
-}
-
-function fingerprint(parts: Array<string | Buffer>) {
-  const hash = createHash("sha256");
-  for (const part of parts) {
-    hash.update(part);
-  }
-  return hash.digest("hex");
-}
-
-function postFingerprint(post: Post, rendererFingerprint: string, coverSource: Buffer) {
+function postFingerprintParts(
+  post: Post,
+  rendererFingerprint: string,
+  coverSource: Buffer,
+): Array<string | Buffer> {
   const renderInput = {
     title: post.title,
     date: post.date,
@@ -147,32 +93,15 @@ function postFingerprint(post: Post, rendererFingerprint: string, coverSource: B
     cover: post.cover,
     siteTitle: siteConfig.title,
   };
-  return fingerprint([rendererFingerprint, JSON.stringify(renderInput), coverSource]);
+  return [rendererFingerprint, JSON.stringify(renderInput), coverSource];
 }
 
-function siteFingerprint(rendererFingerprint: string) {
+function siteFingerprintParts(rendererFingerprint: string): string[] {
   const renderInput = {
     title: siteConfig.title,
     description: siteConfig.description,
   };
-  return fingerprint([rendererFingerprint, JSON.stringify(renderInput)]);
-}
-
-function removeOrphanImages(outputDirectory: string, posts: Post[]) {
-  const publishedSlugs = new Set(posts.map((post) => post.slug));
-  let removed = 0;
-
-  for (const file of fs.readdirSync(outputDirectory)) {
-    if (file === "site.png" || !file.endsWith(".png")) {
-      continue;
-    }
-    if (!publishedSlugs.has(file.slice(0, -4))) {
-      fs.rmSync(path.join(outputDirectory, file));
-      removed += 1;
-    }
-  }
-
-  return removed;
+  return [rendererFingerprint, JSON.stringify(renderInput)];
 }
 
 let fontsCache: SatoriOptions["fonts"] | null = null;
@@ -410,49 +339,37 @@ async function renderSite(output: string) {
 export async function generateOgImages(
   options: GenerateOgImagesOptions = defaultOptions(),
 ): Promise<GenerateOgImagesResult> {
-  fs.mkdirSync(options.outputDirectory, { recursive: true });
-  fs.mkdirSync(path.dirname(options.cacheFile), { recursive: true });
-
-  const cache = readCacheManifest(options.cacheFile);
-  const nextCache = emptyCacheManifest();
-  let rendered = 0;
-  let skipped = 0;
-
-  nextCache.site = siteFingerprint(options.rendererFingerprint);
   const siteOutput = path.join(options.outputDirectory, "site.png");
-  if (cache.site === nextCache.site && fs.existsSync(siteOutput)) {
-    skipped += 1;
-  } else {
-    await options.renderSite(siteOutput);
-    rendered += 1;
-  }
-
-  await forEachWithConcurrency(
-    options.posts,
-    options.concurrency ?? RENDER_CONCURRENCY,
-    async (post) => {
-      const output = path.join(options.outputDirectory, `${post.slug}.png`);
-      const currentFingerprint = postFingerprint(
-        post,
-        options.rendererFingerprint,
-        options.coverSource(post),
-      );
-      nextCache.posts[post.slug] = currentFingerprint;
-
-      if (cache.posts[post.slug] === currentFingerprint && fs.existsSync(output)) {
-        skipped += 1;
-        return;
-      }
-
-      await options.renderPost(post, output);
-      rendered += 1;
+  const plans: ArtifactPlan[] = [
+    {
+      key: "site",
+      fingerprintParts: siteFingerprintParts(options.rendererFingerprint),
+      outputs: [siteOutput],
+      generate: () => options.renderSite(siteOutput),
     },
-  );
+    ...options.posts.map((post): ArtifactPlan => {
+      const output = path.join(options.outputDirectory, `${post.slug}.png`);
+      return {
+        key: `post:${post.slug}`,
+        fingerprintParts: postFingerprintParts(
+          post,
+          options.rendererFingerprint,
+          options.coverSource(post),
+        ),
+        outputs: [output],
+        generate: () => options.renderPost(post, output),
+      };
+    }),
+  ];
+  const result = await reconcileArtifacts({
+    outputDirectory: options.outputDirectory,
+    manifestFile: options.cacheFile,
+    artifactExtension: ".png",
+    plans,
+    concurrency: options.concurrency ?? RENDER_CONCURRENCY,
+  });
 
-  const removed = removeOrphanImages(options.outputDirectory, options.posts);
-  fs.writeFileSync(options.cacheFile, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
-
-  return { rendered, skipped, removed };
+  return { rendered: result.generated, skipped: result.reused, removed: result.removed };
 }
 
 function defaultOptions(): GenerateOgImagesOptions {

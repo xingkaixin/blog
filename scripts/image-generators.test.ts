@@ -42,6 +42,18 @@ describe("image generators", () => {
     await expect(generatePostImages(options)).rejects.toThrow("非生成文件");
   });
 
+  it("preserves published post images when the source set is empty", async () => {
+    const options = createPostImageOptions();
+    fs.mkdirSync(options.sourceDirectory, { recursive: true });
+    fs.mkdirSync(options.outputDirectory, { recursive: true });
+    const published = path.join(options.outputDirectory, "published.webp");
+    fs.writeFileSync(published, "published");
+
+    await expect(generatePostImages(options)).rejects.toThrow("源目录中没有图片");
+    expect(fs.readFileSync(published, "utf8")).toBe("published");
+    expect(fs.existsSync(options.dataFile)).toBe(false);
+  });
+
   it("generates cover data behind the stable cover module", async () => {
     const options = createCoverOptions();
     const source = path.join(options.sourceDirectory, "demo.png");
