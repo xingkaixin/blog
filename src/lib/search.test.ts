@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { loadSearchIndex, resetSearchCache, type SearchIndexItem } from "@/lib/search";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadSearchIndex, rankPosts, resetSearchCache, type SearchIndexItem } from "@/lib/search";
 
 const posts: SearchIndexItem[] = [
   {
@@ -23,42 +23,19 @@ const posts: SearchIndexItem[] = [
 ];
 
 describe("search posts", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    resetSearchCache();
-  });
-
-  it("matches title and body terms", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => posts,
-    } as Response);
-
-    const { searchPosts } = await import("@/lib/search");
-    const results = await searchPosts({ query: "vite" });
+  it("matches title and body terms", () => {
+    const results = rankPosts(posts, { query: "vite" });
     expect(results[0]?.slug).toBe("alpha");
   });
 
-  it("matches tag terms", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => posts,
-    } as Response);
-
-    const { searchPosts } = await import("@/lib/search");
-    const results = await searchPosts({ query: "reading" });
+  it("matches tag terms", () => {
+    const results = rankPosts(posts, { query: "reading" });
     expect(results).toHaveLength(1);
     expect(results[0]?.slug).toBe("beta");
   });
 
-  it("requires every query term to match", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => posts,
-    } as Response);
-
-    const { searchPosts } = await import("@/lib/search");
-    await expect(searchPosts({ query: "vite missing" })).resolves.toEqual([]);
+  it("requires every query term to match", () => {
+    expect(rankPosts(posts, { query: "vite missing" })).toEqual([]);
   });
 });
 

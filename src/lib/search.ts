@@ -62,7 +62,3 @@ export function rankPosts(posts: SearchIndexItem[], { query }: SearchParams): Se
     )
     .map(({ post }) => post);
 }
-
-export async function searchPosts(params: SearchParams): Promise<SearchIndexItem[]> {
-  return rankPosts(await loadSearchIndex(), params);
-}
