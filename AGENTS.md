@@ -91,7 +91,8 @@ coverAlt: 封面图描述
 ```bash
 bun run dev           # 开发服务器
 bun run build         # 完整生产构建
-bun run isok          # 完整验证门：lint、格式、类型与测试
+bun run isok          # 完整验证门：源码检查、测试、生产构建与生成数据一致性
+bun run check:source  # 快速验证：lint、格式、类型与测试
 bun run test          # 运行测试
 bun run lint          # 代码检查
 bun run typecheck     # Astro 与 TypeScript 类型检查

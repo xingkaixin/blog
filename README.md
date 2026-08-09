@@ -58,7 +58,8 @@ bun run dev
 ## 常用命令
 
 ```bash
-bun run isok          # 完整验证：lint、格式、类型与测试
+bun run isok          # 完整验证：源码检查、测试、生产构建与生成数据一致性
+bun run check:source  # 快速验证：lint、格式、类型与测试
 bun run build         # 构建 dist/（含搜索、图片、OG、Feed 与 sitemap）
 bun run preview       # 本地预览生产构建
 bun run test          # 运行测试
