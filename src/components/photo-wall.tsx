@@ -1,25 +1,23 @@
-import { navigate } from "astro:transitions/client";
 import { ArrowLeftIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
+import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
 import {
-  overviewLocationHref,
+  applyPhotoNavigation,
+  planOverviewOpen,
   planPhotoClose,
-  PhotoCatalogBrowser,
-  photoHistoryState,
-  photoLocationHref,
-  photoLookupPeriods,
+  planPhotoOpen,
+  planPhotoSelection,
+  planTimelineOpen,
+  planTimelineSelection,
   readPhotoLocation,
-  timelineLocationHref,
   type PhotoView,
 } from "@/lib/photo-browser";
 import {
   monthFromCapturedAt,
   photoVariantUrl,
-  type PhotoCatalogIndex,
-  type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
 } from "@/lib/photo-catalog";
@@ -28,14 +26,6 @@ import { cn } from "@/lib/utils";
 type PhotoWallProps = {
   baseUrl: string;
 };
-
-type CatalogState =
-  | { status: "loading" }
-  | { status: "ready"; index: PhotoCatalogIndex }
-  | { status: "error" };
-
-type MonthCatalogs = Record<string, PhotoMonthCatalog>;
-type MonthErrors = Record<string, string>;
 
 type AlbumOverviewItem = {
   id: string | null;
@@ -66,113 +56,24 @@ function formatPeriodRange(periods: PhotoPeriod[]): string {
   return newestYear === oldestYear ? newestYear : `${oldestYear} – ${newestYear}`;
 }
 
-function readableError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
 export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
-  const browser = useMemo(() => new PhotoCatalogBrowser(normalizedBaseUrl), [normalizedBaseUrl]);
-  const [catalogState, setCatalogState] = useState<CatalogState>({ status: "loading" });
-  const [monthCatalogs, setMonthCatalogs] = useState<MonthCatalogs>({});
-  const [monthErrors, setMonthErrors] = useState<MonthErrors>({});
+  const {
+    state: catalogState,
+    index,
+    months: monthCatalogs,
+    monthErrors,
+    reload: loadCatalog,
+    loadMonth,
+    retryMonth,
+    resolvePhoto,
+  } = usePhotoCatalogSession(normalizedBaseUrl);
   const [photoView, setPhotoView] = useState<PhotoView>({ mode: "overview" });
   const [activeMonth, setActiveMonth] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoRecord | null>(null);
   const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
   const wallRef = useRef<HTMLDivElement>(null);
-  const monthCatalogsRef = useRef<MonthCatalogs>({});
-  const requestControllerRef = useRef<AbortController | null>(null);
-  const requestGenerationRef = useRef(0);
   const activeMonthLockedUntilRef = useRef(0);
-
-  const loadCatalog = useCallback(async () => {
-    requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    const generation = requestGenerationRef.current + 1;
-    requestControllerRef.current = controller;
-    requestGenerationRef.current = generation;
-    browser.reset();
-    monthCatalogsRef.current = {};
-    setMonthCatalogs({});
-    setMonthErrors({});
-    setSelectedPhoto(null);
-    setCatalogState({ status: "loading" });
-
-    try {
-      const index = await browser.loadIndex(controller.signal);
-      if (requestGenerationRef.current === generation) {
-        setCatalogState({ status: "ready", index });
-      }
-    } catch (error) {
-      if (controller.signal.aborted || requestGenerationRef.current !== generation) {
-        return;
-      }
-      console.error("加载照片 Catalog 失败", error);
-      setCatalogState({ status: "error" });
-    }
-  }, [browser]);
-
-  useEffect(() => {
-    void loadCatalog();
-    return () => requestControllerRef.current?.abort();
-  }, [loadCatalog]);
-
-  const index = catalogState.status === "ready" ? catalogState.index : null;
-
-  const loadMonth = useCallback(
-    (period: PhotoPeriod): Promise<PhotoMonthCatalog> => {
-      const loaded = monthCatalogsRef.current[period.month];
-      if (loaded) {
-        return Promise.resolve(loaded);
-      }
-      const generation = requestGenerationRef.current;
-      const request = (async () => {
-        try {
-          if (!index) {
-            throw new Error("照片主 Catalog 尚未加载");
-          }
-          const monthCatalog = await browser.loadMonth(
-            index,
-            period,
-            requestControllerRef.current?.signal,
-          );
-          if (requestGenerationRef.current !== generation) {
-            return monthCatalog;
-          }
-
-          setMonthCatalogs((current) => {
-            const next = { ...current, [period.month]: monthCatalog };
-            monthCatalogsRef.current = next;
-            return next;
-          });
-          setMonthErrors((current) => {
-            if (!(period.month in current)) {
-              return current;
-            }
-            const next = { ...current };
-            delete next[period.month];
-            return next;
-          });
-          return monthCatalog;
-        } catch (error) {
-          if (
-            requestGenerationRef.current === generation &&
-            !requestControllerRef.current?.signal.aborted
-          ) {
-            console.error(`加载照片月份 ${period.month} 失败`, error);
-            setMonthErrors((current) => ({
-              ...current,
-              [period.month]: readableError(error),
-            }));
-          }
-          throw error;
-        }
-      })();
-      return request;
-    },
-    [browser, index],
-  );
 
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
 
@@ -189,7 +90,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     };
     syncViewFromUrl();
     window.addEventListener("popstate", syncViewFromUrl);
-    return () => window.removeEventListener("popstate", syncViewFromUrl);
+    window.addEventListener("hashchange", syncViewFromUrl);
+    return () => {
+      window.removeEventListener("popstate", syncViewFromUrl);
+      window.removeEventListener("hashchange", syncViewFromUrl);
+    };
   }, [index]);
 
   const visiblePeriods = useMemo(() => {
@@ -358,23 +263,23 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       if (!index) {
         return;
       }
-      const currentIndex = index.periods.findIndex(
-        (period) => period.month === monthFromCapturedAt(photo.capturedAt),
-      );
+      const currentMonth = monthFromCapturedAt(photo.capturedAt);
+      const filteredIndex = visiblePeriods.findIndex((period) => period.month === currentMonth);
+      const periods = filteredIndex >= 0 ? visiblePeriods : index.periods;
+      const currentIndex = periods.findIndex((period) => period.month === currentMonth);
       for (const adjacentIndex of [currentIndex - 1, currentIndex + 1]) {
-        const period = index.periods[adjacentIndex];
+        const period = periods[adjacentIndex];
         if (period) {
           void loadMonth(period).catch(() => undefined);
         }
       }
     },
-    [index, loadMonth],
+    [index, loadMonth, visiblePeriods],
   );
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
-      const href = photoLocationHref(window.location.href, photo.id);
-      void navigate(href, { state: photoHistoryState(history.state, photo.id) });
+      applyPhotoNavigation(planPhotoOpen(window.location.href, history.state, photo.id), history);
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
@@ -383,11 +288,10 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
-      const href = photoLocationHref(window.location.href, photo.id);
-      void navigate(href, {
-        history: "replace",
-        state: photoHistoryState(history.state, photo.id),
-      });
+      applyPhotoNavigation(
+        planPhotoSelection(window.location.href, history.state, photo.id),
+        history,
+      );
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
@@ -397,13 +301,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const closeLightbox = useCallback(() => {
     // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
     setSelectedPhoto(null);
-    const navigation = planPhotoClose(window.location.href, history.state);
-    if (navigation.history === "back") {
-      history.back();
-      return;
-    }
-
-    history.replaceState(history.state, "", navigation.href);
+    applyPhotoNavigation(planPhotoClose(window.location.href, history.state), history);
   }, []);
 
   useEffect(() => {
@@ -421,27 +319,23 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         return;
       }
 
-      let photo = Object.values(monthCatalogsRef.current)
-        .flatMap((month) => month.photos)
-        .find((candidate) => candidate.id === photoId);
-
-      for (const period of photoLookupPeriods(index, photoId)) {
-        if (photo) {
-          break;
+      let photo: PhotoRecord | null;
+      try {
+        photo = await resolvePhoto(photoId);
+      } catch (error) {
+        if (!disposed && currentRequestId === requestId) {
+          console.error(`定位照片 ${photoId} 失败`, error);
         }
-        try {
-          const month = await loadMonth(period);
-          photo = month.photos.find((candidate) => candidate.id === photoId);
-        } catch {
-          continue;
-        }
+        return;
       }
 
       const currentPhotoId = readPhotoLocation(window.location.href, index).photoId;
       if (!disposed && currentRequestId === requestId && currentPhotoId === photoId) {
-        setSelectedPhoto(photo ?? null);
+        setSelectedPhoto(photo);
         if (photo) {
           preloadAdjacentPeriods(photo);
+        } else {
+          applyPhotoNavigation(planPhotoClose(window.location.href, history.state), history);
         }
       }
     };
@@ -451,48 +345,36 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     };
     void syncPhotoFromUrl();
     window.addEventListener("popstate", handlePopState);
+    window.addEventListener("hashchange", handlePopState);
     return () => {
       disposed = true;
       requestId += 1;
       window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("hashchange", handlePopState);
     };
-  }, [index, loadMonth, preloadAdjacentPeriods]);
+  }, [index, preloadAdjacentPeriods, resolvePhoto]);
 
   const openTimeline = (albumId: string | null) => {
     setPhotoView({ mode: "timeline", albumId });
-    void navigate(timelineLocationHref(window.location.href, albumId), {
-      state: history.state,
-    }).then(() => window.scrollTo(0, 0));
+    applyPhotoNavigation(planTimelineOpen(window.location.href, history.state, albumId), history);
+    window.scrollTo(0, 0);
   };
 
   const selectAlbum = (albumId: string | null) => {
     setPhotoView({ mode: "timeline", albumId });
-    void navigate(timelineLocationHref(window.location.href, albumId), {
-      history: "replace",
-      state: history.state,
-    }).then(() => window.scrollTo(0, 0));
+    applyPhotoNavigation(
+      planTimelineSelection(window.location.href, history.state, albumId),
+      history,
+    );
+    window.scrollTo(0, 0);
   };
 
   const returnToOverview = () => {
     setPhotoView({ mode: "overview" });
     setSelectedPhoto(null);
-    void navigate(overviewLocationHref(window.location.href), {
-      history: "replace",
-      state: history.state,
-    }).then(() => window.scrollTo(0, 0));
+    applyPhotoNavigation(planOverviewOpen(window.location.href, history.state), history);
+    window.scrollTo(0, 0);
   };
-
-  const retryMonth = useCallback(
-    (period: PhotoPeriod) => {
-      setMonthErrors((current) => {
-        const next = { ...current };
-        delete next[period.month];
-        return next;
-      });
-      void loadMonth(period).catch(() => undefined);
-    },
-    [loadMonth],
-  );
 
   const jumpToMonth = useCallback(
     async (month: string) => {
@@ -541,7 +423,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           >
             <div>
               <h2 className="text-lg font-medium text-ink-800">照片暂时无法加载</h2>
-              <p className="mt-2 text-sm leading-7 text-ink-500">请稍后重试。</p>
+              <p className="mt-2 text-sm leading-7 text-ink-500">{catalogState.message}</p>
             </div>
             <button
               type="button"

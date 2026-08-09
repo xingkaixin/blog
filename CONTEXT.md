@@ -38,6 +38,10 @@ _Avoid_: Upload month, shard
 A named logical collection that references published photos without owning or duplicating their media.
 _Avoid_: Folder, directory
 
+**Photo Browsing Session**:
+The same-page overview or timeline, optional Album filter, and open photo represented together by the URL and browser history.
+_Avoid_: Gallery state, modal state
+
 **Retired Photo**:
 A photo removed from the live Photo Catalog whose immutable objects remain recorded until the cache grace period ends and garbage collection succeeds.
 _Avoid_: Deleted photo, orphan

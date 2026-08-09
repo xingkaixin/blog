@@ -8,6 +8,7 @@ import {
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
+  type PhotoRecord,
 } from "./photo-catalog";
 
 export type PhotoView = { mode: "overview" } | { mode: "timeline"; albumId: string | null };
@@ -18,7 +19,18 @@ export type PhotoLocation = {
   view: PhotoView;
 };
 
-export type PhotoCloseNavigation = { history: "back" } | { history: "replace"; href: string };
+export type PhotoLocationNavigationPlan = {
+  history: "push" | "replace";
+  href: string;
+  state: Record<string, unknown>;
+};
+
+export type PhotoNavigationPlan = { history: "back" } | PhotoLocationNavigationPlan;
+
+type PhotoHistoryEntry = {
+  kind: "lightbox";
+  photoId: string;
+};
 
 export type PhotoCatalogRequest = (
   url: string,
@@ -105,18 +117,29 @@ export function readPhotoLocation(href: string, index: PhotoCatalogIndex): Photo
   }
 
   const requestedAlbumId = hash.get("album");
+  const albumId = index.albums.some((album) => album.id === requestedAlbumId)
+    ? requestedAlbumId
+    : null;
+  if (requestedAlbumId !== null && albumId === null && requestedAlbumId !== "") {
+    hash.set("album", "");
+    writeHash(url, hash);
+  }
   const view: PhotoView = hash.has("album")
     ? {
         mode: "timeline",
-        albumId: index.albums.some((album) => album.id === requestedAlbumId)
-          ? requestedAlbumId
-          : null,
+        albumId,
       }
     : { mode: "overview" };
   const requestedPhotoId = hash.get("photo");
+  const photoId =
+    requestedPhotoId && PHOTO_ID_PATTERN.test(requestedPhotoId) ? requestedPhotoId : null;
+  if (requestedPhotoId !== null && photoId === null) {
+    hash.delete("photo");
+    writeHash(url, hash);
+  }
   return {
     href: url.href,
-    photoId: requestedPhotoId && PHOTO_ID_PATTERN.test(requestedPhotoId) ? requestedPhotoId : null,
+    photoId,
     view,
   };
 }
@@ -145,30 +168,150 @@ export function overviewLocationHref(href: string): string {
 
 export function photoLookupPeriods(index: PhotoCatalogIndex, photoId: string): PhotoPeriod[] {
   const located = locatePhotoPeriod(index, photoId);
-  return located ? [located] : index.periods;
+  if (located) {
+    return [located];
+  }
+  return Object.keys(index.photoMonths).length === 0 ? index.periods : [];
 }
 
-export function photoHistoryState(current: unknown, photoId: string): Record<string, unknown> {
-  const state = typeof current === "object" && current !== null ? current : {};
-  return { ...state, photoWall: true, photoId };
+export async function resolveCatalogPhoto(
+  index: PhotoCatalogIndex,
+  photoId: string,
+  loadedMonths: Iterable<PhotoMonthCatalog>,
+  loadMonth: (period: PhotoPeriod) => Promise<PhotoMonthCatalog>,
+): Promise<PhotoRecord | null> {
+  for (const month of loadedMonths) {
+    const loaded = month.photos.find((photo) => photo.id === photoId);
+    if (loaded) {
+      return loaded;
+    }
+  }
+
+  const failures: unknown[] = [];
+  for (const period of photoLookupPeriods(index, photoId)) {
+    try {
+      const photo = (await loadMonth(period)).photos.find((candidate) => candidate.id === photoId);
+      if (photo) {
+        return photo;
+      }
+    } catch (error) {
+      failures.push(error);
+    }
+  }
+  if (failures.length > 0) {
+    throw new AggregateError(failures, `无法定位照片 ${photoId}`);
+  }
+  return null;
 }
 
-export function isPhotoHistoryState(value: unknown): boolean {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "photoWall" in value &&
-    value.photoWall === true &&
-    "photoId" in value &&
-    typeof value.photoId === "string" &&
-    PHOTO_ID_PATTERN.test(value.photoId)
-  );
+export function planPhotoOpen(
+  href: string,
+  state: unknown,
+  photoId: string,
+): PhotoLocationNavigationPlan {
+  return {
+    history: "push",
+    href: photoLocationHref(href, photoId),
+    state: {
+      ...withoutPhotoHistoryEntry(state),
+      photoWall: { kind: "lightbox", photoId } satisfies PhotoHistoryEntry,
+    },
+  };
 }
 
-export function planPhotoClose(href: string, state: unknown): PhotoCloseNavigation {
-  return isPhotoHistoryState(state)
+export function planPhotoSelection(
+  href: string,
+  state: unknown,
+  photoId: string,
+): PhotoLocationNavigationPlan {
+  const entry = readPhotoHistoryEntry(state);
+  return {
+    history: "replace",
+    href: photoLocationHref(href, photoId),
+    state: entry
+      ? {
+          ...withoutPhotoHistoryEntry(state),
+          photoWall: { ...entry, photoId } satisfies PhotoHistoryEntry,
+        }
+      : withoutPhotoHistoryEntry(state),
+  };
+}
+
+export function planPhotoClose(href: string, state: unknown): PhotoNavigationPlan {
+  const entry = readPhotoHistoryEntry(state);
+  return entry
     ? { history: "back" }
-    : { history: "replace", href: photoLocationHref(href, null) };
+    : {
+        history: "replace",
+        href: photoLocationHref(href, null),
+        state: withoutPhotoHistoryEntry(state),
+      };
+}
+
+export function planTimelineOpen(
+  href: string,
+  state: unknown,
+  albumId: string | null,
+): PhotoLocationNavigationPlan {
+  return {
+    history: "push",
+    href: timelineLocationHref(href, albumId),
+    state: withoutPhotoHistoryEntry(state),
+  };
+}
+
+export function planTimelineSelection(
+  href: string,
+  state: unknown,
+  albumId: string | null,
+): PhotoLocationNavigationPlan {
+  return {
+    history: "replace",
+    href: timelineLocationHref(href, albumId),
+    state: withoutPhotoHistoryEntry(state),
+  };
+}
+
+export function planOverviewOpen(href: string, state: unknown): PhotoLocationNavigationPlan {
+  return {
+    history: "replace",
+    href: overviewLocationHref(href),
+    state: withoutPhotoHistoryEntry(state),
+  };
+}
+
+export function applyPhotoNavigation(plan: PhotoNavigationPlan, target: History): void {
+  if (plan.history === "back") {
+    target.back();
+  } else if (plan.history === "push") {
+    target.pushState(plan.state, "", plan.href);
+  } else {
+    target.replaceState(plan.state, "", plan.href);
+  }
+}
+
+function readPhotoHistoryEntry(value: unknown): PhotoHistoryEntry | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const entry = Reflect.get(value, "photoWall");
+  if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+    return null;
+  }
+  const kind = Reflect.get(entry, "kind");
+  const photoId = Reflect.get(entry, "photoId");
+  return kind === "lightbox" && typeof photoId === "string" && PHOTO_ID_PATTERN.test(photoId)
+    ? { kind, photoId }
+    : null;
+}
+
+function withoutPhotoHistoryEntry(value: unknown): Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return {};
+  }
+  const state = { ...(value as Record<string, unknown>) };
+  delete state.photoWall;
+  return state;
 }
 
 function setHashParam(url: URL, key: "album" | "photo", value: string | null): void {

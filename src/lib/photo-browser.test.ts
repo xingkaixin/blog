@@ -3,10 +3,14 @@ import {
   PhotoCatalogBrowser,
   overviewLocationHref,
   planPhotoClose,
-  photoHistoryState,
+  planPhotoOpen,
+  planPhotoSelection,
+  planTimelineOpen,
+  planTimelineSelection,
   photoLocationHref,
   photoLookupPeriods,
   readPhotoLocation,
+  resolveCatalogPhoto,
   timelineLocationHref,
   type PhotoCatalogRequest,
 } from "@/lib/photo-browser";
@@ -79,7 +83,7 @@ describe("photo catalog browser", () => {
     expect(request).toHaveBeenCalledTimes(2);
   });
 
-  it("normalizes legacy album URLs and preserves explicit photo history", () => {
+  it("normalizes legacy and invalid photo wall URLs", () => {
     const location = readPhotoLocation(
       `https://example.com/photos/?album=trip#photo=${photoId}`,
       index,
@@ -92,22 +96,72 @@ describe("photo catalog browser", () => {
     expect(timelineLocationHref(location.href, null)).toBe("https://example.com/photos/#album=");
     expect(photoLocationHref(location.href, null)).toBe("https://example.com/photos/#album=trip");
     expect(overviewLocationHref(location.href)).toBe("https://example.com/photos/");
-    expect(photoHistoryState({ position: 3 }, photoId)).toEqual({
-      position: 3,
-      photoWall: true,
+    expect(readPhotoLocation("https://example.com/photos/#album=missing&photo=bad", index)).toEqual(
+      {
+        href: "https://example.com/photos/#album=",
+        photoId: null,
+        view: { mode: "timeline", albumId: null },
+      },
+    );
+  });
+
+  it("keeps pushed lightboxes separate from direct photo links", () => {
+    const opened = planPhotoOpen(
+      "https://example.com/photos/#album=trip",
+      { position: 3 },
       photoId,
+    );
+    expect(opened).toEqual({
+      history: "push",
+      href: `https://example.com/photos/#album=trip&photo=${photoId}`,
+      state: {
+        position: 3,
+        photoWall: { kind: "lightbox", photoId },
+      },
     });
-    expect(planPhotoClose(location.href, photoHistoryState(null, photoId))).toEqual({
+    expect(planPhotoClose(opened.href, opened.state)).toEqual({
       history: "back",
     });
-    expect(planPhotoClose(location.href, null)).toEqual({
+    const directSelection = planPhotoSelection(
+      `https://example.com/photos/#photo=${photoId}`,
+      null,
+      "ffffffffffffffffffffffffffffffff",
+    );
+    expect(directSelection.state).toEqual({});
+    expect(planPhotoClose(directSelection.href, directSelection.state)).toEqual({
+      history: "replace",
+      href: "https://example.com/photos/",
+      state: {},
+    });
+    expect(planTimelineOpen(opened.href, opened.state, null)).toEqual({
+      history: "push",
+      href: "https://example.com/photos/#album=",
+      state: { position: 3 },
+    });
+    expect(planTimelineSelection(opened.href, opened.state, "trip")).toEqual({
       history: "replace",
       href: "https://example.com/photos/#album=trip",
+      state: { position: 3 },
     });
   });
 
   it("uses the direct locator and falls back for a legacy catalog", () => {
     expect(photoLookupPeriods(index, photoId)).toEqual([period]);
     expect(photoLookupPeriods({ ...index, photoMonths: {} }, photoId)).toEqual([period]);
+    expect(photoLookupPeriods(index, "ffffffffffffffffffffffffffffffff")).toEqual([]);
+  });
+
+  it("resolves photos without scanning when the locator is authoritative", async () => {
+    const loadMonth = vi.fn(async () => month);
+    await expect(resolveCatalogPhoto(index, photoId, [], loadMonth)).resolves.toEqual(
+      month.photos[0],
+    );
+    expect(loadMonth).toHaveBeenCalledTimes(1);
+
+    loadMonth.mockClear();
+    await expect(
+      resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", [], loadMonth),
+    ).resolves.toBeNull();
+    expect(loadMonth).not.toHaveBeenCalled();
   });
 });
