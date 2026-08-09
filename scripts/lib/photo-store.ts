@@ -36,12 +36,14 @@ export class PhotoStoreConflictError extends Error {
   }
 }
 
-type R2PhotoStoreOptions = {
+export type R2PhotoStoreOptions = {
   accountId: string;
   accessKeyId: string;
   secretAccessKey: string;
   bucket: string;
 };
+
+export type R2PhotoClient = Pick<S3Client, "send" | "destroy">;
 
 type R2Environment = {
   R2_ACCOUNT_ID?: string;
@@ -71,7 +73,8 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
 
   async getText(key: string): Promise<PhotoTextObject | null> {
     try {
-      const text = await fs.readFile(resolveObjectPath(this.rootDirectory, key), "utf8");
+      const target = await resolveSafeObjectPath(this.rootDirectory, key, false);
+      const text = await fs.readFile(target, "utf8");
       return { text, version: objectVersion(text) };
     } catch (error) {
       if (isNodeError(error) && error.code === "ENOENT") {
@@ -82,39 +85,126 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
   }
 
   async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
-    const target = resolveObjectPath(this.rootDirectory, key);
-    await fs.mkdir(path.dirname(target), { recursive: true });
+    const target = await resolveSafeObjectPath(this.rootDirectory, key, true);
 
     if (options.expectedVersion !== undefined) {
       return withObjectLock(target, async () => {
-        const currentVersion = await readFileVersion(target);
+        const currentTarget = await resolveSafeObjectPath(this.rootDirectory, key, true);
+        const currentVersion = await readFileVersion(currentTarget);
         if (currentVersion !== options.expectedVersion) {
           throw new PhotoStoreConflictError(key);
         }
-        await writeAtomic(target, body);
+        await writeAtomic(this.rootDirectory, currentTarget, body);
         return objectVersion(body);
       });
     }
 
-    await writeAtomic(target, body);
+    await writeAtomic(this.rootDirectory, target, body);
     return objectVersion(body);
   }
 
   async delete(key: string): Promise<void> {
-    await fs.rm(resolveObjectPath(this.rootDirectory, key), { force: true });
+    const target = await resolveSafeObjectPath(this.rootDirectory, key, false).catch((error) => {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return null;
+      }
+      throw error;
+    });
+    if (target) {
+      await fs.rm(target, { force: true });
+    }
   }
 }
 
-async function writeAtomic(target: string, body: PhotoObjectBody): Promise<void> {
+async function writeAtomic(
+  rootDirectory: string,
+  target: string,
+  body: PhotoObjectBody,
+): Promise<void> {
   const temporary = path.join(
     path.dirname(target),
     `.${path.basename(target)}.${randomUUID()}.tmp`,
   );
   try {
     await fs.writeFile(temporary, body);
+    await assertSafeDirectory(rootDirectory, path.dirname(target), false);
+    await assertNotSymbolicLink(target);
     await fs.rename(temporary, target);
   } finally {
     await fs.rm(temporary, { force: true });
+  }
+}
+
+async function resolveSafeObjectPath(
+  rootDirectory: string,
+  key: string,
+  createParents: boolean,
+): Promise<string> {
+  const target = resolveObjectPath(rootDirectory, key);
+  await assertSafeDirectory(rootDirectory, path.dirname(target), createParents);
+  await assertNotSymbolicLink(target);
+  return target;
+}
+
+async function assertSafeDirectory(
+  rootDirectory: string,
+  directory: string,
+  create: boolean,
+): Promise<void> {
+  const root = path.resolve(rootDirectory);
+  await assertRootDirectory(root, create);
+
+  const relative = path.relative(root, directory);
+  let current = root;
+  for (const segment of relative.split(path.sep).filter(Boolean)) {
+    current = path.join(current, segment);
+    await assertDirectory(current, create);
+  }
+
+  const [realRoot, realDirectory] = await Promise.all([fs.realpath(root), fs.realpath(directory)]);
+  const realRelative = path.relative(realRoot, realDirectory);
+  if (realRelative.startsWith("..") || path.isAbsolute(realRelative)) {
+    throw new Error(`对象目录通过符号链接超出根目录: ${directory}`);
+  }
+}
+
+async function assertRootDirectory(root: string, create: boolean): Promise<void> {
+  if (create) {
+    await fs.mkdir(root, { recursive: true });
+  }
+  await assertDirectory(root, false);
+}
+
+async function assertDirectory(directory: string, create: boolean): Promise<void> {
+  let stats = await fs.lstat(directory).catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  });
+  if (!stats && create) {
+    await fs.mkdir(directory);
+    stats = await fs.lstat(directory);
+  }
+  if (!stats) {
+    const error = new Error(`对象目录不存在: ${directory}`) as NodeJS.ErrnoException;
+    error.code = "ENOENT";
+    throw error;
+  }
+  if (stats.isSymbolicLink() || !stats.isDirectory()) {
+    throw new Error(`对象目录不能是符号链接或非目录条目: ${directory}`);
+  }
+}
+
+async function assertNotSymbolicLink(target: string): Promise<void> {
+  const stats = await fs.lstat(target).catch((error) => {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  });
+  if (stats?.isSymbolicLink()) {
+    throw new Error(`对象不能是符号链接: ${target}`);
   }
 }
 
@@ -165,18 +255,20 @@ function objectVersion(body: PhotoObjectBody): string {
 
 export class R2PhotoObjectStore implements PhotoObjectStore {
   readonly bucket: string;
-  readonly client: S3Client;
+  readonly client: R2PhotoClient;
 
-  constructor(options: R2PhotoStoreOptions) {
+  constructor(options: R2PhotoStoreOptions, client?: R2PhotoClient) {
     this.bucket = options.bucket;
-    this.client = new S3Client({
-      endpoint: `https://${options.accountId}.r2.cloudflarestorage.com`,
-      region: "auto",
-      credentials: {
-        accessKeyId: options.accessKeyId,
-        secretAccessKey: options.secretAccessKey,
-      },
-    });
+    this.client =
+      client ??
+      new S3Client({
+        endpoint: `https://${options.accountId}.r2.cloudflarestorage.com`,
+        region: "auto",
+        credentials: {
+          accessKeyId: options.accessKeyId,
+          secretAccessKey: options.secretAccessKey,
+        },
+      });
   }
 
   async getText(key: string): Promise<PhotoTextObject | null> {
