@@ -148,6 +148,13 @@ describe("photo publisher", () => {
     expect(month.photos.map((photo) => photo.id).toSorted()).toEqual(
       [firstId, secondId].toSorted(),
     );
+    const livePeriodPaths = new Set(index.periods.map((period) => period.path));
+    const unreferencedPeriodPaths = [...store.objects.keys()].filter(
+      (key) => key.startsWith("catalog/months/") && !livePeriodPaths.has(key),
+    );
+    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
+      unreferencedPeriodPaths.toSorted(),
+    );
     expect(processFirst).toHaveBeenCalledTimes(1);
     expect(processSecond).toHaveBeenCalledTimes(1);
   });
@@ -385,7 +392,13 @@ describe("photo publisher", () => {
         store,
         now: () => new Date("2026-08-08T12:00:00.000Z"),
       }),
-    ).toEqual({ removedObjects: 0, failedObjects: 0, pendingPhotos: 1 });
+    ).toEqual({
+      removedObjects: 0,
+      failedObjects: 0,
+      pendingPhotos: 1,
+      pendingArtifacts: 1,
+      failures: [],
+    });
 
     store.deleteFailures.set(`media/${id}/960.webp`, 1);
     expect(
@@ -393,7 +406,18 @@ describe("photo publisher", () => {
         store,
         now: () => new Date("2026-08-08T14:00:00.000Z"),
       }),
-    ).toEqual({ removedObjects: 3, failedObjects: 1, pendingPhotos: 1 });
+    ).toEqual({
+      removedObjects: 3,
+      failedObjects: 1,
+      pendingPhotos: 1,
+      pendingArtifacts: 0,
+      failures: [
+        {
+          objectKey: `media/${id}/960.webp`,
+          message: `temporary delete failure: media/${id}/960.webp`,
+        },
+      ],
+    });
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(true);
 
     expect(
@@ -412,8 +436,100 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(updatedIndex.retiredObjects).toEqual([]);
+    expect(updatedIndex.retiredArtifacts).toEqual([]);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
+  });
+
+  it("retires replaced month shards and removes them only after the cache grace period", async () => {
+    const firstFile = await createSourceFile("first month revision");
+    const secondFile = await createSourceFile("second month revision");
+    const firstId = await hashPhotoFile(firstFile);
+    const secondId = await hashPhotoFile(secondFile);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [firstFile],
+      store,
+      processPhoto: async () => processedPhoto(firstId),
+      now: () => new Date("2026-08-01T12:00:00.000Z"),
+    });
+    const firstIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const replacedPath = firstIndex.periods[0].path;
+
+    await publishPhotos({
+      files: [secondFile],
+      store,
+      processPhoto: async () => processedPhoto(secondId),
+      now: () => new Date("2026-08-02T12:00:00.000Z"),
+    });
+    let index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.periods[0].path).not.toBe(replacedPath);
+    expect(index.retiredArtifacts).toEqual([
+      expect.objectContaining({ objectKeys: [replacedPath] }),
+    ]);
+    expect(store.objects.has(replacedPath)).toBe(true);
+
+    expect(
+      await collectPhotoGarbage({
+        store,
+        now: () => new Date("2026-08-03T12:00:00.000Z"),
+      }),
+    ).toMatchObject({ removedObjects: 0, pendingArtifacts: 1 });
+    expect(
+      await collectPhotoGarbage({
+        store,
+        now: () => new Date("2026-08-03T14:00:00.000Z"),
+      }),
+    ).toMatchObject({ removedObjects: 1, pendingArtifacts: 0 });
+
+    index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.retiredArtifacts).toEqual([]);
+    expect(store.objects.has(replacedPath)).toBe(false);
+  });
+
+  it("records artifacts written by a publish whose catalog commit never wins", async () => {
+    const file = await createSourceFile("failed catalog commit");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const originalPut = store.put.bind(store);
+    let conflictsRemaining = 5;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && conflictsRemaining > 0) {
+        conflictsRemaining -= 1;
+        throw new PhotoStoreConflictError(key);
+      }
+      return originalPut(key, body, options);
+    };
+
+    await expect(
+      publishPhotos({
+        files: [file],
+        store,
+        processPhoto: async () => processedPhoto(id),
+        now: () => new Date("2026-08-02T12:00:00.000Z"),
+      }),
+    ).rejects.toThrow(PhotoStoreConflictError);
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.periods).toEqual([]);
+    expect(index.photoMonths).toEqual({});
+    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
+      [
+        `media/${id}/480.webp`,
+        `media/${id}/960.webp`,
+        `media/${id}/2048.webp`,
+        ...[...store.objects.keys()].filter((key) => key.startsWith("catalog/months/")),
+      ].toSorted(),
+    );
   });
 });
 

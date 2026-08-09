@@ -41,3 +41,7 @@ _Avoid_: Folder, directory
 **Retired Photo**:
 A photo removed from the live Photo Catalog whose immutable objects remain recorded until the cache grace period ends and garbage collection succeeds.
 _Avoid_: Deleted photo, orphan
+
+**Retired Artifact**:
+An immutable Photo Catalog or media object that is no longer referenced by the live Photo Catalog and remains recorded until the cache grace period ends and garbage collection succeeds.
+_Avoid_: Orphan object, stale shard

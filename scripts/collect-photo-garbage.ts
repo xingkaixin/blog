@@ -39,8 +39,11 @@ async function main(): Promise<void> {
   try {
     const result = await collectPhotoGarbage({ store });
     console.log(
-      `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingPhotos} 张照片待回收`,
+      `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingPhotos} 张照片和 ${result.pendingArtifacts} 批产物待回收`,
     );
+    for (const failure of result.failures) {
+      console.error(`- ${failure.objectKey}: ${failure.message}`);
+    }
     if (result.failedObjects > 0) {
       process.exitCode = 1;
     }

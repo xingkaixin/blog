@@ -26,6 +26,7 @@ const index: PhotoCatalogIndex = {
   periods: [period],
   photoMonths: { [photoId]: "2026-04" },
   retiredObjects: [],
+  retiredArtifacts: [],
 };
 const month: PhotoMonthCatalog = {
   schemaVersion: 1,

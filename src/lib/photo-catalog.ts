@@ -31,6 +31,12 @@ export type RetiredPhotoObjects = {
   deleteAfter: string;
 };
 
+export type RetiredArtifactBatch = {
+  retirementId: string;
+  objectKeys: string[];
+  deleteAfter: string;
+};
+
 export type PhotoCatalogIndex = {
   schemaVersion: typeof PHOTO_CATALOG_SCHEMA_VERSION;
   generatedAt: string;
@@ -38,6 +44,7 @@ export type PhotoCatalogIndex = {
   periods: PhotoPeriod[];
   photoMonths: Record<string, string>;
   retiredObjects: RetiredPhotoObjects[];
+  retiredArtifacts: RetiredArtifactBatch[];
 };
 
 export type PhotoMonthCatalog = {
@@ -54,6 +61,7 @@ const ISO_TIMESTAMP_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
 const MEDIA_PATH_PATTERN = /^media\/([a-f0-9]{32})\/(?:480|960|2048)\.webp$/;
+const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
 const MAX_IMAGE_DIMENSION = 100_000;
 
 export class PhotoCatalogError extends Error {
@@ -240,6 +248,47 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
   return entries;
 }
 
+function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
+  if (value === undefined) {
+    return [];
+  }
+  if (!Array.isArray(value)) {
+    throw new PhotoCatalogError("catalog.retiredArtifacts 必须是数组");
+  }
+
+  const entries = value.map((item, index): RetiredArtifactBatch => {
+    const field = `catalog.retiredArtifacts[${index}]`;
+    const entry = readRecord(item, field);
+    const retirementId = readString(entry.retirementId, `${field}.retirementId`);
+    const objectKeys = readStringArray(entry.objectKeys, `${field}.objectKeys`);
+    if (!RETIREMENT_ID_PATTERN.test(retirementId)) {
+      throw new PhotoCatalogError(`${field}.retirementId 必须是 24 位十六进制 ID`);
+    }
+    if (objectKeys.length === 0) {
+      throw new PhotoCatalogError(`${field}.objectKeys 不能为空`);
+    }
+    assertUnique(objectKeys, `${field}.objectKeys`);
+    if (objectKeys.some((key) => !isPhotoArtifactKey(key))) {
+      throw new PhotoCatalogError(`${field}.objectKeys 包含无效对象路径`);
+    }
+    return {
+      retirementId,
+      objectKeys,
+      deleteAfter: readTimestamp(entry.deleteAfter, `${field}.deleteAfter`),
+    };
+  });
+
+  assertUnique(
+    entries.map((entry) => entry.retirementId),
+    "catalog.retiredArtifacts",
+  );
+  assertUnique(
+    entries.flatMap((entry) => entry.objectKeys),
+    "catalog.retiredArtifacts.objectKeys",
+  );
+  return entries;
+}
+
 function readPhoto(value: unknown, field: string): PhotoRecord {
   const photo = readRecord(value, field);
   const id = readString(photo.id, `${field}.id`);
@@ -303,6 +352,14 @@ export function monthFromCapturedAt(capturedAt: string): string {
   return capturedAt.slice(0, 7);
 }
 
+export function photoIdFromMediaObjectKey(key: string): string | null {
+  return MEDIA_PATH_PATTERN.exec(key)?.[1] ?? null;
+}
+
+export function isPhotoArtifactKey(key: string): boolean {
+  return PERIOD_PATH_PATTERN.test(key) || MEDIA_PATH_PATTERN.test(key);
+}
+
 export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   const input = readRecord(value, "catalog");
   if (input.schemaVersion !== PHOTO_CATALOG_SCHEMA_VERSION) {
@@ -320,6 +377,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   );
   const photoMonths = readPhotoMonths(input.photoMonths);
   const retiredObjects = readRetiredObjects(input.retiredObjects);
+  const retiredArtifacts = readRetiredArtifacts(input.retiredArtifacts);
 
   assertUnique(
     albums.map((album) => album.id),
@@ -354,6 +412,19 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
       throw new PhotoCatalogError(`照片 ${retired.photoId} 不能同时处于发布与待回收状态`);
     }
   }
+  const retiredPhotoKeys = new Set(retiredObjects.flatMap((entry) => entry.objectKeys));
+  const livePeriodPaths = new Set(periods.map((period) => period.path));
+  for (const retired of retiredArtifacts) {
+    for (const key of retired.objectKeys) {
+      const photoId = photoIdFromMediaObjectKey(key);
+      if (retiredPhotoKeys.has(key)) {
+        throw new PhotoCatalogError(`待回收对象 ${key} 不能同时属于照片与产物队列`);
+      }
+      if (livePeriodPaths.has(key) || (photoId !== null && photoMonths[photoId])) {
+        throw new PhotoCatalogError(`待回收产物 ${key} 仍被主 Catalog 引用`);
+      }
+    }
+  }
 
   return {
     schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
@@ -362,6 +433,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
     periods,
     photoMonths,
     retiredObjects,
+    retiredArtifacts,
   };
 }
 

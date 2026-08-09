@@ -17,6 +17,7 @@ const indexFixture: PhotoCatalogIndex = {
   albums: [{ id: "japan-2026", title: "日本旅行" }],
   photoMonths: { "0123456789abcdef0123456789abcdef": "2026-04" },
   retiredObjects: [],
+  retiredArtifacts: [],
   periods: [
     {
       month: "2026-04",
@@ -110,9 +111,41 @@ describe("photo catalog", () => {
     const legacy = structuredClone(indexFixture) as unknown as Record<string, unknown>;
     delete legacy.photoMonths;
     delete legacy.retiredObjects;
+    delete legacy.retiredArtifacts;
 
     expect(parsePhotoCatalogIndex(legacy).photoMonths).toEqual({});
     expect(parsePhotoCatalogIndex(legacy).retiredObjects).toEqual([]);
+    expect(parsePhotoCatalogIndex(legacy).retiredArtifacts).toEqual([]);
+  });
+
+  it("validates retired immutable artifacts", () => {
+    expect(
+      parsePhotoCatalogIndex({
+        ...indexFixture,
+        retiredArtifacts: [
+          {
+            retirementId: "abcdef0123456789abcdef01",
+            objectKeys: [
+              "catalog/months/2026-04.ffffffffffffffffffffffff.json",
+              "media/ffffffffffffffffffffffffffffffff/960.webp",
+            ],
+            deleteAfter: "2026-08-08T13:00:00.000Z",
+          },
+        ],
+      }).retiredArtifacts,
+    ).toHaveLength(1);
+    expect(() =>
+      parsePhotoCatalogIndex({
+        ...indexFixture,
+        retiredArtifacts: [
+          {
+            retirementId: "abcdef0123456789abcdef01",
+            objectKeys: [indexFixture.periods[0].path],
+            deleteAfter: "2026-08-08T13:00:00.000Z",
+          },
+        ],
+      }),
+    ).toThrow("仍被主 Catalog 引用");
   });
 
   it("validates retired object tombstones", () => {
