@@ -50,6 +50,16 @@ describe("search posts", () => {
     expect(results).toHaveLength(1);
     expect(results[0]?.slug).toBe("beta");
   });
+
+  it("requires every query term to match", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => posts,
+    } as Response);
+
+    const { searchPosts } = await import("@/lib/search");
+    await expect(searchPosts({ query: "vite missing" })).resolves.toEqual([]);
+  });
 });
 
 describe("loadSearchIndex", () => {
@@ -68,6 +78,23 @@ describe("loadSearchIndex", () => {
     expect(result).toEqual(posts);
   });
 
+  it("deduplicates concurrent loads", async () => {
+    let resolveResponse: ((response: Response) => void) | undefined;
+    const fetch = vi.spyOn(global, "fetch").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveResponse = resolve;
+        }),
+    );
+
+    const first = loadSearchIndex();
+    const second = loadSearchIndex();
+    resolveResponse?.({ ok: true, json: async () => posts } as Response);
+
+    await expect(Promise.all([first, second])).resolves.toEqual([posts, posts]);
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
   it("rejects on fetch failure", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
@@ -75,6 +102,17 @@ describe("loadSearchIndex", () => {
     } as Response);
 
     await expect(loadSearchIndex()).rejects.toThrow("Failed to load search index: 503");
+  });
+
+  it("retries after a failed request", async () => {
+    const fetch = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+      .mockResolvedValueOnce({ ok: true, json: async () => posts } as Response);
+
+    await expect(loadSearchIndex()).rejects.toThrow("503");
+    await expect(loadSearchIndex()).resolves.toEqual(posts);
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it("rejects malformed generated entries", async () => {

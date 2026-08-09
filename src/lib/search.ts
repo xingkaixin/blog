@@ -1,4 +1,5 @@
 import { parsePublishedPosts, type PublishedPost } from "@/lib/published-post";
+import { normalizeSearchText, searchTerms } from "@/lib/search-text";
 
 export type SearchIndexItem = PublishedPost;
 
@@ -6,53 +7,62 @@ type SearchParams = {
   query: string;
 };
 
-const normalize = (value: string) => value.trim().toLowerCase();
+let searchIndexRequest: Promise<SearchIndexItem[]> | null = null;
 
-let searchIndexCache: SearchIndexItem[] | null = null;
-
-export function resetSearchCache() {
-  searchIndexCache = null;
+export function resetSearchCache(): void {
+  searchIndexRequest = null;
 }
 
 export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
-  if (searchIndexCache) {
-    return searchIndexCache;
+  if (searchIndexRequest) {
+    return searchIndexRequest;
   }
 
-  const response = await fetch("/search-index.json");
-  if (!response.ok) {
-    throw new Error(`Failed to load search index: ${response.status}`);
+  const request = fetch("/search-index.json", { cache: "no-cache" }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(`Failed to load search index: ${response.status}`);
+    }
+    return parsePublishedPosts(await response.json());
+  });
+  searchIndexRequest = request;
+  try {
+    return await request;
+  } catch (error) {
+    if (searchIndexRequest === request) {
+      searchIndexRequest = null;
+    }
+    throw error;
   }
-
-  const index = parsePublishedPosts(await response.json());
-  searchIndexCache = index;
-  return index;
 }
 
-export function rankPosts(posts: SearchIndexItem[], { query }: SearchParams) {
-  const normalizedQuery = normalize(query);
-  const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+export function rankPosts(posts: SearchIndexItem[], { query }: SearchParams): SearchIndexItem[] {
+  const terms = searchTerms(query);
 
   return posts
     .map((post) => {
-      const haystack = `${post.title} ${post.summary} ${post.tags.join(" ")}`.toLowerCase();
-      const score = terms.reduce((total, term) => {
-        const titleBoost = post.title.toLowerCase().includes(term) ? 6 : 0;
-        const tagBoost = post.tags.some((tag) => tag.toLowerCase().includes(term)) ? 4 : 0;
-        const summaryBoost = post.summary.toLowerCase().includes(term) ? 3 : 0;
-        const bodyBoost = haystack.includes(term) ? 1 : 0;
-        return total + titleBoost + tagBoost + summaryBoost + bodyBoost;
-      }, 0);
+      const title = normalizeSearchText(post.title);
+      const summary = normalizeSearchText(post.summary);
+      const tags = post.tags.map(normalizeSearchText);
+      const termScores = terms.map((term) => {
+        const titleBoost = title.includes(term) ? 6 : 0;
+        const tagBoost = tags.some((tag) => tag.includes(term)) ? 4 : 0;
+        const summaryBoost = summary.includes(term) ? 3 : 0;
+        return titleBoost + tagBoost + summaryBoost;
+      });
 
-      return { post, score };
+      return {
+        post,
+        matched: termScores.every((score) => score > 0),
+        score: termScores.reduce((total, score) => total + score, 0),
+      };
     })
-    .filter(({ score }) => !terms.length || score > 0)
+    .filter(({ matched }) => matched)
     .toSorted(
       (left, right) => right.score - left.score || right.post.date.localeCompare(left.post.date),
     )
     .map(({ post }) => post);
 }
 
-export async function searchPosts(params: SearchParams) {
+export async function searchPosts(params: SearchParams): Promise<SearchIndexItem[]> {
   return rankPosts(await loadSearchIndex(), params);
 }

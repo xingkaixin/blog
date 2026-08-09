@@ -24,6 +24,16 @@ _Avoid_: Raw tag, display tag
 A public collection formed when the same Canonical Tag is referenced by at least two distinct Published Posts.
 _Avoid_: Tag page, tag occurrence
 
+## Projects
+
+**Maintained Project**:
+A public tool or application with a stable Project ID, searchable descriptive fields, and one primary destination even when it has multiple distribution links.
+_Avoid_: Project item, tool row
+
+**Project ID**:
+The stable lowercase ASCII identifier of a Maintained Project, independent of its display name.
+_Avoid_: Project name, array index
+
 ## Photos
 
 **Photo Catalog**:

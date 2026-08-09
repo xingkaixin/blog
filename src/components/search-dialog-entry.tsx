@@ -12,5 +12,13 @@ export function openSearchDialog(container: HTMLElement): void {
 
   const root = createRoot(container);
   roots.set(container, root);
+  document.addEventListener(
+    "astro:before-swap",
+    () => {
+      root.unmount();
+      roots.delete(container);
+    },
+    { once: true },
+  );
   root.render(<SearchDialog initialOpen />);
 }

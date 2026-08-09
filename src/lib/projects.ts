@@ -1,21 +1,25 @@
+import { normalizeSearchText, searchTerms } from "./search-text";
+
 export interface ProjectLink {
   label: string;
   url: string;
 }
 
 interface ProjectDetails {
+  id: string;
   name: string;
   kind: string;
   description: string;
   logo: string;
-  tags?: string[];
+  tags: string[];
 }
 
 export type Project = ProjectDetails &
-  ({ url: string; links?: never } | { url?: never; links: ProjectLink[] });
+  ({ url: string; links?: never } | { url?: never; links: [ProjectLink, ...ProjectLink[]] });
 
 export const projects: Project[] = [
   {
+    id: "quotecue",
     name: "QuoteCue",
     kind: "浏览器扩展",
     description:
@@ -35,6 +39,7 @@ export const projects: Project[] = [
     tags: ["AI", "Chrome", "Edge", "浏览器扩展"],
   },
   {
+    id: "yomitomo",
     name: "Yomitomo",
     kind: "桌面应用",
     description:
@@ -44,6 +49,7 @@ export const projects: Project[] = [
     tags: ["AI", "阅读工具"],
   },
   {
+    id: "voicen",
     name: "Voicen",
     kind: "iOS 应用",
     description:
@@ -53,6 +59,7 @@ export const projects: Project[] = [
     tags: ["AI", "iOS", "语音笔记"],
   },
   {
+    id: "codesesh",
     name: "CodeSesh",
     kind: "Web / CLI",
     description:
@@ -62,6 +69,7 @@ export const projects: Project[] = [
     tags: ["AI", "CLI", "开发者工具"],
   },
   {
+    id: "skills",
     name: "Skills",
     kind: "CLI",
     description:
@@ -71,6 +79,7 @@ export const projects: Project[] = [
     tags: ["AI", "SKILLS"],
   },
   {
+    id: "unquote",
     name: "Unquote",
     kind: "Web / 扩展",
     description:
@@ -90,6 +99,7 @@ export const projects: Project[] = [
     tags: ["工具", "JSON", "JSONL"],
   },
   {
+    id: "agent-dump",
     name: "Agent Dump",
     kind: "CLI",
     description:
@@ -99,6 +109,7 @@ export const projects: Project[] = [
     tags: ["AI", "CLI"],
   },
   {
+    id: "ddlbuilder",
     name: "DDLBuilder",
     kind: "Web 应用",
     description:
@@ -108,6 +119,7 @@ export const projects: Project[] = [
     tags: ["工具", "数据库"],
   },
   {
+    id: "db-ferry",
     name: "DB Ferry",
     kind: "CLI",
     description:
@@ -117,3 +129,38 @@ export const projects: Project[] = [
     tags: ["CLI", "数据库"],
   },
 ];
+
+export function primaryProjectUrl(project: Project): string {
+  return project.url ?? project.links[0].url;
+}
+
+export function rankProjects(items: Project[], query: string): Project[] {
+  const terms = searchTerms(query);
+  if (terms.length === 0) {
+    return items;
+  }
+
+  return items
+    .map((project, index) => {
+      const name = normalizeSearchText(project.name);
+      const kind = normalizeSearchText(project.kind);
+      const description = normalizeSearchText(project.description);
+      const tags = project.tags.map(normalizeSearchText);
+      const termScores = terms.map((term) => {
+        const nameBoost = name.includes(term) ? 8 : 0;
+        const tagBoost = tags.some((tag) => tag.includes(term)) ? 5 : 0;
+        const kindBoost = kind.includes(term) ? 3 : 0;
+        const descriptionBoost = description.includes(term) ? 1 : 0;
+        return nameBoost + tagBoost + kindBoost + descriptionBoost;
+      });
+      return {
+        project,
+        index,
+        matched: termScores.every((score) => score > 0),
+        score: termScores.reduce((sum, score) => sum + score, 0),
+      };
+    })
+    .filter((result) => result.matched)
+    .toSorted((left, right) => right.score - left.score || left.index - right.index)
+    .map((result) => result.project);
+}
