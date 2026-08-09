@@ -1,4 +1,4 @@
-import { buildHeadingId, normalizeHeadingText } from "./markdown";
+import { createHeadingIdAllocator } from "./markdown";
 import { resolvePostImage } from "./post-images";
 
 type HastNode = {
@@ -31,7 +31,7 @@ function isHeading(tagName: string | undefined) {
 
 export function rehypeBlogContent() {
   return (tree: HastNode) => {
-    const headingIds = new Set<string>();
+    const allocateHeadingId = createHeadingIdAllocator();
 
     walk(tree, (node) => {
       if (node.type !== "element") {
@@ -39,18 +39,9 @@ export function rehypeBlogContent() {
       }
 
       if (isHeading(node.tagName)) {
-        const text = normalizeHeadingText(textContent(node));
-        const baseId = buildHeadingId(text) || "section";
-        let id = baseId;
-        let suffix = 2;
-        while (headingIds.has(id)) {
-          id = `${baseId}-${suffix}`;
-          suffix += 1;
-        }
-        headingIds.add(id);
         node.properties = {
           ...node.properties,
-          id,
+          id: allocateHeadingId(textContent(node)),
         };
 
         if (node.tagName === "h1") {

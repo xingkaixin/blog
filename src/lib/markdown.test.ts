@@ -2,17 +2,46 @@ import { describe, expect, it } from "vitest";
 import { estimateReadingMetrics, formatDisplayDate, tocFromHeadings } from "@/lib/markdown";
 
 describe("tocFromHeadings", () => {
-  it("uses headings produced by the Markdown renderer", () => {
+  it("uses the same rendered depths as the content plugin", () => {
     expect(
       tocFromHeadings([
-        { depth: 1, text: "文章标题", slug: "文章标题" },
-        { depth: 2, text: "起点", slug: "起点" },
-        { depth: 3, text: "第二层", slug: "第二层" },
-        { depth: 4, text: "细节", slug: "细节" },
+        { depth: 1, text: "正文一级标题" },
+        { depth: 2, text: "起点" },
+        { depth: 3, text: "第二层" },
+        { depth: 4, text: "细节" },
       ]),
     ).toEqual([
+      { depth: 2, text: "正文一级标题", id: "正文一级标题" },
       { depth: 2, text: "起点", id: "起点" },
       { depth: 3, text: "第二层", id: "第二层" },
+    ]);
+  });
+
+  it("shares duplicate ids with the content renderer after excluding a leading title", () => {
+    expect(
+      tocFromHeadings(
+        [
+          { depth: 1, text: "✨ 重复标题" },
+          { depth: 2, text: "重复标题" },
+          { depth: 3, text: "重复标题" },
+        ],
+        { excludeLeadingTitle: true },
+      ),
+    ).toEqual([
+      { depth: 2, text: "重复标题", id: "重复标题-2" },
+      { depth: 3, text: "重复标题", id: "重复标题-3" },
+    ]);
+  });
+
+  it("allocates a fallback id for headings without letters or numbers", () => {
+    expect(
+      tocFromHeadings([
+        { depth: 2, text: "✨" },
+        { depth: 2, text: "✨" },
+      ]),
+    ).toEqual([
+      { depth: 2, text: "✨", id: "section" },
+      { depth: 2, text: "✨", id: "section-2" },
     ]);
   });
 });

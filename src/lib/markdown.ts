@@ -6,8 +6,11 @@ export type TocItem = {
 
 type RenderedHeading = {
   depth: number;
-  slug: string;
   text: string;
+};
+
+type TocOptions = {
+  excludeLeadingTitle?: boolean;
 };
 
 const slugify = (value: string) =>
@@ -27,6 +30,17 @@ export function normalizeHeadingText(value: string) {
 
 export function buildHeadingId(value: string) {
   return slugify(normalizeHeadingText(value));
+}
+
+export function createHeadingIdAllocator() {
+  const counts = new Map<string, number>();
+
+  return (text: string) => {
+    const baseId = buildHeadingId(text) || "section";
+    const count = (counts.get(baseId) ?? 0) + 1;
+    counts.set(baseId, count);
+    return count === 1 ? baseId : `${baseId}-${count}`;
+  };
 }
 
 export const removeFrontmatter = (source: string) => {
@@ -65,8 +79,18 @@ export function formatDisplayDate(value: string | Date) {
   }).format(new Date(value));
 }
 
-export function tocFromHeadings(headings: RenderedHeading[]): TocItem[] {
-  return headings
-    .filter(({ depth }) => depth === 2 || depth === 3)
-    .map(({ depth, slug, text }) => ({ depth, id: slug, text }));
+export function tocFromHeadings(
+  headings: RenderedHeading[],
+  { excludeLeadingTitle = false }: TocOptions = {},
+): TocItem[] {
+  const allocateId = createHeadingIdAllocator();
+
+  return headings.flatMap(({ depth, text }, index) => {
+    const id = allocateId(text);
+    const renderedDepth = depth === 1 ? 2 : depth;
+    if ((excludeLeadingTitle && index === 0) || (renderedDepth !== 2 && renderedDepth !== 3)) {
+      return [];
+    }
+    return [{ depth: renderedDepth, id, text }];
+  });
 }

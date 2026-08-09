@@ -36,7 +36,7 @@ const archivedTagSet = new Set(archivedTags);
 const readingMetrics = estimateReadingMetrics(post.body);
 const hasLeadingMarkdownTitle = /^#\s+/.test(removeFrontmatter(post.body).trimStart());
 const { Content, headings } = await render(post);
-const postMeta = toPostDetail(post, hasLeadingMarkdownTitle ? headings.slice(1) : headings);
+const postMeta = toPostDetail(post, headings, { excludeLeadingTitle: hasLeadingMarkdownTitle });
 const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
 const meta = {
   title: postMeta.title,

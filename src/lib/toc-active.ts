@@ -1,9 +1,9 @@
-export const TOC_ACTIVE_OFFSET = 112;
+const TOC_ANCHOR_OFFSET = 112;
+export const TOC_ACTIVE_OFFSET = TOC_ANCHOR_OFFSET + 1;
 
 export function resolveActiveTocId(
   tocIds: string[],
   visibleIds: Iterable<string>,
-  previousActiveId: string | null = null,
   isAtPageEnd = false,
 ) {
   if (!tocIds.length) {
@@ -21,10 +21,6 @@ export function resolveActiveTocId(
     if (visibleIdSet.has(tocId)) {
       return tocId;
     }
-  }
-
-  if (previousActiveId && tocIds.includes(previousActiveId)) {
-    return previousActiveId;
   }
 
   return tocIds[0];
