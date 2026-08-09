@@ -19,6 +19,7 @@ const WEBP_EFFORT = 4;
 const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 100_000_000;
 const HEIC_DECODE_TIMEOUT_MS = 60_000;
+const PROCESS_TERMINATION_GRACE_MS = 5_000;
 
 export type ProcessedPhoto = Omit<PhotoRecord, "albumIds"> & {
   variants: Map<PhotoVariantWidth, Uint8Array>;
@@ -139,10 +140,10 @@ export async function processPhotoFile(
     : null;
 
   try {
-    const [tags, decodedSource] = await Promise.all([
+    const [tags, decodedSource] = await settlePair(
       exiftool.read(file),
       temporaryDirectory ? decodeHeic(file, temporaryDirectory) : file,
-    ]);
+    );
     const capturedAt = resolveCapturedAt(tags, fallbackTimezone);
     const metadata = await sharp(decodedSource, {
       autoOrient: true,
@@ -154,10 +155,10 @@ export async function processPhotoFile(
       throw new Error(`照片像素不能超过 ${MAX_IMAGE_PIXELS}`);
     }
 
-    const [placeholderColor, variants] = await Promise.all([
+    const [placeholderColor, variants] = await settlePair(
       readPlaceholderColor(decodedSource),
       buildVariants(decodedSource),
-    ]);
+    );
 
     return {
       id,
@@ -253,12 +254,16 @@ export function runPhotoCommand(command: string, args: string[], timeoutMs: numb
     });
     let stderr = "";
     let finished = false;
+    let timedOut = false;
+    let spawnError: Error | null = null;
+    let terminationTimer: ReturnType<typeof setTimeout> | undefined;
     const complete = (error?: Error) => {
       if (finished) {
         return;
       }
       finished = true;
       clearTimeout(timeout);
+      clearTimeout(terminationTimer);
       if (error) {
         reject(error);
       } else {
@@ -266,8 +271,12 @@ export function runPhotoCommand(command: string, args: string[], timeoutMs: numb
       }
     };
     const timeout = setTimeout(() => {
+      timedOut = true;
       child.kill("SIGKILL");
-      complete(new Error(`执行 ${command} 超时（${timeoutMs}ms）`));
+      terminationTimer = setTimeout(
+        () => complete(new Error(`执行 ${command} 超时且进程未在宽限期内退出`)),
+        PROCESS_TERMINATION_GRACE_MS,
+      );
     }, timeoutMs);
 
     child.stderr.setEncoding("utf8");
@@ -276,8 +285,18 @@ export function runPhotoCommand(command: string, args: string[], timeoutMs: numb
         stderr = `${stderr}${chunk}`.slice(0, 32_000);
       }
     });
-    child.once("error", (error) => complete(error));
+    child.once("error", (error) => {
+      spawnError = error;
+    });
     child.once("close", (code) => {
+      if (timedOut) {
+        complete(new Error(`执行 ${command} 超时（${timeoutMs}ms）`));
+        return;
+      }
+      if (spawnError) {
+        complete(spawnError);
+        return;
+      }
       if (code === 0) {
         complete();
       } else {
@@ -285,6 +304,20 @@ export function runPhotoCommand(command: string, args: string[], timeoutMs: numb
       }
     });
   });
+}
+
+async function settlePair<First, Second>(
+  first: Promise<First>,
+  second: Promise<Second> | Second,
+): Promise<[First, Second]> {
+  const [firstResult, secondResult] = await Promise.allSettled([first, second]);
+  if (firstResult.status === "rejected") {
+    throw firstResult.reason;
+  }
+  if (secondResult.status === "rejected") {
+    throw secondResult.reason;
+  }
+  return [firstResult.value, secondResult.value];
 }
 
 function parseExifDateTime(value: unknown): ExifDateTime | null {

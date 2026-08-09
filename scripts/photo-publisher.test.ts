@@ -210,6 +210,47 @@ describe("photo publisher", () => {
     await expect(fs.access(processedPath)).rejects.toThrow();
   });
 
+  it("drains photo processing before disposing source snapshots", async () => {
+    const failingFile = await createSourceFile("failing photo");
+    const slowFile = await createSourceFile("slow photo");
+    const failingId = await hashPhotoFile(failingFile);
+    const store = new MemoryPhotoStore();
+    const slowStarted = deferred<void>();
+    const releaseSlow = deferred<void>();
+    const processedSources: string[] = [];
+    let settled = false;
+
+    const operation = publishPhotos({
+      files: [failingFile, slowFile],
+      store,
+      processPhoto: async (source, id) => {
+        processedSources.push(source);
+        if (id === failingId) {
+          await slowStarted.promise;
+          throw new Error("processing failed");
+        }
+        slowStarted.resolve(undefined);
+        await releaseSlow.promise;
+        expect(await fs.readFile(source, "utf8")).toBe("slow photo");
+        return processedPhoto(id);
+      },
+    }).finally(() => {
+      settled = true;
+    });
+
+    await slowStarted.promise;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(settled).toBe(false);
+    await Promise.all(processedSources.map((source) => fs.access(source)));
+
+    releaseSlow.resolve(undefined);
+    await expect(operation).rejects.toThrow("processing failed");
+    await Promise.all(
+      processedSources.map((source) => expect(fs.access(source)).rejects.toThrow()),
+    );
+    expect([...store.objects.keys()].some((key) => key.startsWith("media/"))).toBe(false);
+  });
+
   it("is idempotent and can add an existing photo to another logical album", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
@@ -375,3 +416,11 @@ describe("photo publisher", () => {
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
   });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}

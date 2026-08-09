@@ -17,6 +17,7 @@ import {
   type PhotoRecord,
   type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
+import { mapWithConcurrency } from "./concurrency";
 import type { ProcessedPhoto } from "./photo-source";
 import { snapshotPhotoFile, type PhotoSourceSnapshot } from "./photo-source";
 import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
@@ -142,31 +143,35 @@ async function publishPhotosOnce(
     }
   }
 
-  const processed = await mapLimit(pending, PROCESS_CONCURRENCY, async (identified, index) => {
-    let photo = processedPhotos.get(identified.id);
-    if (!photo) {
-      options.onProgress?.({
-        type: "processing",
-        file: identified.file,
-        index: index + 1,
-        total: pending.length,
-      });
-      photo = await options.processPhoto(identified.source, identified.id);
-    }
-    if (photo.id !== identified.id) {
-      throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
-    }
-    processedPhotos.set(photo.id, photo);
-    const record = validateNewPhoto(photo, options.album?.id);
-    return { file: identified.file, photo, record };
-  });
+  const processed = await mapWithConcurrency(
+    pending,
+    PROCESS_CONCURRENCY,
+    async (identified, index) => {
+      let photo = processedPhotos.get(identified.id);
+      if (!photo) {
+        options.onProgress?.({
+          type: "processing",
+          file: identified.file,
+          index: index + 1,
+          total: pending.length,
+        });
+        photo = await options.processPhoto(identified.source, identified.id);
+      }
+      if (photo.id !== identified.id) {
+        throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
+      }
+      processedPhotos.set(photo.id, photo);
+      const record = validateNewPhoto(photo, options.album?.id);
+      return { file: identified.file, photo, record };
+    },
+  );
 
   await loadCatalogMonths(
     options.store,
     catalog,
     processed.map(({ record }) => monthFromCapturedAt(record.capturedAt)),
   );
-  await mapLimit(processed, PROCESS_CONCURRENCY, async ({ file, photo }) => {
+  await mapWithConcurrency(processed, PROCESS_CONCURRENCY, async ({ file, photo }) => {
     await uploadPhotoAssets(options.store, photo);
     options.onProgress?.({
       type: "published",
@@ -312,7 +317,7 @@ async function collectPhotoGarbageOnce(
 
   const objectKeys = [...new Set(due.flatMap((entry) => entry.objectKeys))];
   const deletionResults = new Map(
-    await mapLimit(objectKeys, READ_CONCURRENCY, async (key) => {
+    await mapWithConcurrency(objectKeys, READ_CONCURRENCY, async (key) => {
       try {
         await options.store.delete(key);
         return [key, true] as const;
@@ -391,7 +396,7 @@ function applyAlbum(albums: Map<string, PhotoAlbum>, album: PublishAlbum | undef
 async function identifyFiles(files: string[]): Promise<IdentifiedFile[]> {
   const snapshots: IdentifiedFile[] = [];
   try {
-    return await mapLimit(files, READ_CONCURRENCY, async (file) => {
+    return await mapWithConcurrency(files, READ_CONCURRENCY, async (file) => {
       const snapshot = await snapshotPhotoFile(file);
       snapshots.push(snapshot);
       return snapshot;
@@ -503,7 +508,7 @@ async function readCatalogMonths(
   index: PhotoCatalogIndex,
   periods: PhotoPeriod[],
 ): Promise<Array<{ period: PhotoPeriod; shard: PhotoMonthCatalog }>> {
-  return mapLimit(periods, READ_CONCURRENCY, async (period) => {
+  return mapWithConcurrency(periods, READ_CONCURRENCY, async (period) => {
     const shardObject = await store.getText(period.path);
     if (!shardObject) {
       throw new Error(`Catalog 引用了不存在的月份索引 ${period.path}`);
@@ -626,27 +631,6 @@ function parseJson(value: string, key: string): unknown {
   } catch {
     throw new Error(`对象 ${key} 不是有效的 JSON`);
   }
-}
-
-async function mapLimit<T, R>(
-  values: T[],
-  concurrency: number,
-  mapper: (value: T, index: number) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = [];
-  results.length = values.length;
-  let nextIndex = 0;
-
-  const workers = Array.from({ length: Math.min(concurrency, values.length) }, async () => {
-    while (nextIndex < values.length) {
-      const index = nextIndex;
-      nextIndex += 1;
-      results[index] = await mapper(values[index], index);
-    }
-  });
-
-  await Promise.all(workers);
-  return results;
 }
 
 export function photoDisplayName(file: string): string {

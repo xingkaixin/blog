@@ -1,3 +1,6 @@
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { isSupportedPhoto, resolveCapturedAt, runPhotoCommand } from "./lib/photo-source";
 
@@ -26,8 +29,22 @@ describe("photo source", () => {
   });
 
   it("terminates photo decoder commands that exceed their timeout", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "photo-command-test-"));
+    const pidFile = path.join(directory, "pid");
     await expect(
-      runPhotoCommand(process.execPath, ["-e", "setTimeout(() => {}, 1000)"], 20),
+      runPhotoCommand(
+        process.execPath,
+        [
+          "-e",
+          'require("node:fs").writeFileSync(process.argv[1], String(process.pid)); setInterval(() => {}, 1000)',
+          pidFile,
+        ],
+        100,
+      ),
     ).rejects.toThrow("超时");
+
+    const pid = Number(await fs.readFile(pidFile, "utf8"));
+    expect(() => process.kill(pid, 0)).toThrow();
+    await fs.rm(directory, { force: true, recursive: true });
   });
 });
