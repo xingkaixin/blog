@@ -1,0 +1,68 @@
+---
+import Breadcrumb from "@/components/astro/Breadcrumb.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import { buildPostTaxonomy } from "@/lib/post-tags";
+import { siteConfig } from "@/lib/site";
+
+const posts = (await getPublishedPosts()).map(toPostListItem);
+const archives = buildPostTaxonomy(posts).archives
+  .map(({ tag, href, posts: taggedPosts }) => ({ tag, href, count: taggedPosts.length }))
+  .toSorted(
+    (left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"),
+  );
+const largestArchive = Math.max(...archives.map(({ count }) => count), 1);
+const meta = {
+  title: "标签索引",
+  description: `按主题浏览 ${siteConfig.title} 的 ${archives.length} 个文章标签。`,
+  url: `${siteConfig.url}/tags/`,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: "标签", url: `${siteConfig.url}/tags/` },
+  ],
+};
+---
+
+<SiteLayout meta={meta} status={`TAGS · ${archives.length} ARCHIVES`}>
+  <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
+    <header class="border-b border-line pb-5">
+      <Breadcrumb items={[{ name: "首页", url: "/" }, { name: "标签" }]} />
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">Tag index</p>
+          <h1 class="mt-2 font-display text-4xl leading-none text-ink-800 sm:text-5xl">主题索引</h1>
+        </div>
+        <p class="font-mono text-[10px] text-ink-400">
+          {archives.length} 个标签 · {posts.length} 篇文章
+        </p>
+      </div>
+    </header>
+
+    <ul class="grid gap-px overflow-hidden rounded-[10px] border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+      {
+        archives.map(({ tag, href, count }) => (
+          <li class="bg-paper">
+            <a
+              href={href}
+              class="group block min-h-28 bg-surface px-4 py-4 transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40"
+            >
+              <div class="flex items-start justify-between gap-4">
+                <span class="text-[15px] text-ink-800 transition-colors group-hover:text-accent">
+                  #{tag}
+                </span>
+                <span class="shrink-0 font-mono text-[10px] text-ink-400">{count} 篇</span>
+              </div>
+              <span class="mt-8 block h-px bg-ink-100" aria-hidden="true">
+                <span
+                  class="block h-full bg-accent/70"
+                  style={`width: ${Math.max(10, Math.round((count / largestArchive) * 100))}%`}
+                />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</SiteLayout>

@@ -5,6 +5,7 @@ import {
   MoonStarIcon,
   RocketIcon,
   RssIcon,
+  TagsIcon,
   UserIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -24,6 +25,7 @@ const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
   home: FileTextIcon,
   projects: RocketIcon,
   photos: ImagesIcon,
+  tags: TagsIcon,
   about: UserIcon,
   feed: RssIcon,
 };

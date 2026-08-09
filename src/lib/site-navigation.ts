@@ -1,4 +1,4 @@
-export type SiteRouteId = "home" | "projects" | "photos" | "about" | "feed";
+export type SiteRouteId = "home" | "projects" | "photos" | "tags" | "about" | "feed";
 
 type SiteRoute = {
   id: SiteRouteId;
@@ -9,6 +9,7 @@ type SiteRoute = {
   keywords: string;
   status: string;
   desktop: boolean;
+  mobile: boolean;
   sitemap: { changefreq: string; priority: string } | null;
 };
 
@@ -22,6 +23,7 @@ const routes: SiteRoute[] = [
     keywords: "首页 文章 日志 home posts",
     status: "HOME",
     desktop: false,
+    mobile: true,
     sitemap: { changefreq: "weekly", priority: "1.0" },
   },
   {
@@ -33,6 +35,7 @@ const routes: SiteRoute[] = [
     keywords: "工具 项目 projects",
     status: "PROJECTS",
     desktop: true,
+    mobile: true,
     sitemap: { changefreq: "monthly", priority: "0.7" },
   },
   {
@@ -44,7 +47,20 @@ const routes: SiteRoute[] = [
     keywords: "照片 摄影 相册 photos",
     status: "PHOTOS",
     desktop: true,
+    mobile: true,
     sitemap: { changefreq: "weekly", priority: "0.8" },
+  },
+  {
+    id: "tags",
+    href: "/tags/",
+    path: "/tags",
+    label: "标签",
+    searchTitle: "标签索引",
+    keywords: "标签 主题 分类 tags taxonomy",
+    status: "TAGS",
+    desktop: false,
+    mobile: false,
+    sitemap: { changefreq: "weekly", priority: "0.6" },
   },
   {
     id: "about",
@@ -55,6 +71,7 @@ const routes: SiteRoute[] = [
     keywords: "关于 联系 about",
     status: "ABOUT",
     desktop: true,
+    mobile: true,
     sitemap: { changefreq: "yearly", priority: "0.6" },
   },
   {
@@ -66,6 +83,7 @@ const routes: SiteRoute[] = [
     keywords: "订阅 rss feed",
     status: "SYSTEM",
     desktop: true,
+    mobile: true,
     sitemap: null,
   },
 ];
@@ -80,13 +98,17 @@ export function isSiteRouteActive(currentPath: string, routePath: string): boole
 
 export function siteStatus(currentPath: string): string {
   const path = normalizeSitePath(currentPath);
+  const routeStatus = routes.find((route) => route.path === path)?.status;
+  if (routeStatus) {
+    return routeStatus;
+  }
   if (path.startsWith("/posts/")) {
     return "READING";
   }
   if (path.startsWith("/tags/")) {
     return "TAG ARCHIVE";
   }
-  return routes.find((route) => route.path === path)?.status ?? "SYSTEM";
+  return "SYSTEM";
 }
 
 export function desktopNavigation() {
@@ -94,7 +116,14 @@ export function desktopNavigation() {
 }
 
 export function mobileNavigation() {
-  return routes.map(({ id, href, path, label }) => ({ id, href, path, label }));
+  return routes
+    .filter((route) => route.mobile)
+    .map(({ id, href, path, label }) => ({
+      id,
+      href,
+      path,
+      label,
+    }));
 }
 
 export function searchNavigation() {

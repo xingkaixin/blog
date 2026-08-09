@@ -4,6 +4,7 @@ import PostCover from "@/components/astro/PostCover.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
 import { buildPostTaxonomy, type TagArchive } from "@/lib/post-tags";
+import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
@@ -28,6 +29,7 @@ const meta = {
   type: "webpage" as const,
   breadcrumb: [
     { name: "首页", url: `${siteConfig.url}/` },
+    { name: "标签", url: `${siteConfig.url}/tags/` },
     { name: `#${tag}`, url },
   ],
 };
@@ -36,7 +38,13 @@ const meta = {
 <SiteLayout meta={meta} status={`TAG · ${tag} · ${posts.length}`}>
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <header class="border-b border-line pb-5">
-      <Breadcrumb items={[{ name: "首页", url: "/" }, { name: `#${tag}` }]} />
+      <Breadcrumb
+        items={[
+          { name: "首页", url: "/" },
+          { name: "标签", url: "/tags/" },
+          { name: `#${tag}` },
+        ]}
+      />
       <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">Tag archive</p>
@@ -50,7 +58,7 @@ const meta = {
       {
         posts.map((post) => (
           <a
-            href={`/posts/${post.slug}/`}
+            href={postHref(post.slug)}
             class="group -mx-1 block border-b border-ink-100 px-3 py-3.5 transition-[background-color,box-shadow] hover:bg-surface hover:shadow-[inset_3px_0_0_var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:flex lg:items-center lg:gap-5 lg:px-4 lg:py-3"
           >
             <span class="font-mono text-[10px] text-ink-400 lg:w-[76px] lg:shrink-0">
