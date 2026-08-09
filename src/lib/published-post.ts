@@ -1,4 +1,7 @@
+import { canonicalTags } from "./post-tag";
+
 const CALENDAR_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+const POST_SLUG_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export type PublishedPost = {
   slug: string;
@@ -27,9 +30,20 @@ export function isCalendarDate(value: string): boolean {
   );
 }
 
+export function parsePostSlug(value: string, field = "slug"): string {
+  if (!POST_SLUG_PATTERN.test(value)) {
+    throw new Error(`${field} must contain only ASCII letters, numbers, hyphens, and underscores`);
+  }
+  return value;
+}
+
+export function postHref(slug: string): string {
+  return `/posts/${encodeURIComponent(parsePostSlug(slug))}/`;
+}
+
 export function toPublishedPost(slug: string, post: PublishablePost): PublishedPost {
   return {
-    slug,
+    slug: parsePostSlug(slug),
     title: post.title,
     date: post.date,
     summary: post.summary,
@@ -72,7 +86,7 @@ function parsePublishedPost(value: unknown, field: string): PublishedPost {
   }
 
   return {
-    slug: readString(entry.slug, `${field}.slug`),
+    slug: parsePostSlug(readString(entry.slug, `${field}.slug`), `${field}.slug`),
     title: readString(entry.title, `${field}.title`),
     date,
     summary: readString(entry.summary, `${field}.summary`),
@@ -93,7 +107,7 @@ function readTags(value: unknown, field: string): string[] {
   if (!Array.isArray(value)) {
     throw new Error(`${field} must be an array`);
   }
-  const tags = value.map((tag, index) => readString(tag, `${field}[${index}]`));
+  const tags = canonicalTags(value.map((tag, index) => readString(tag, `${field}[${index}]`)));
   if (new Set(tags).size !== tags.length) {
     throw new Error(`${field} must contain unique values`);
   }

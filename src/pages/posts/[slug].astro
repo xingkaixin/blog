@@ -14,6 +14,7 @@ import {
 } from "@/lib/astro-posts";
 import { estimateReadingMetrics, formatDisplayDate, removeFrontmatter } from "@/lib/markdown";
 import { buildPostTaxonomy } from "@/lib/post-tags";
+import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
@@ -36,17 +37,18 @@ const readingMetrics = estimateReadingMetrics(post.body);
 const hasLeadingMarkdownTitle = /^#\s+/.test(removeFrontmatter(post.body).trimStart());
 const { Content, headings } = await render(post);
 const postMeta = toPostDetail(post, hasLeadingMarkdownTitle ? headings.slice(1) : headings);
+const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
 const meta = {
   title: postMeta.title,
   description: postMeta.summary,
-  url: `${siteConfig.url}/posts/${postMeta.slug}/`,
+  url: canonicalPostUrl,
   image: `${siteConfig.url}/og/${postMeta.slug}.png`,
   type: "article" as const,
   publishedTime: postMeta.date,
   tags: postMeta.tags,
   breadcrumb: [
     { name: "首页", url: `${siteConfig.url}/` },
-    { name: postMeta.title, url: `${siteConfig.url}/posts/${postMeta.slug}/` },
+    { name: postMeta.title, url: canonicalPostUrl },
   ],
 };
 ---
@@ -141,12 +143,12 @@ const meta = {
                   <dt class="font-mono text-[10px] text-ink-400">文章链接</dt>
                   <dd class="min-w-0">
                     <a
-                      href={`${siteConfig.url}/posts/${postMeta.slug}/`}
+                      href={canonicalPostUrl}
                       class="block truncate text-ink-800 underline decoration-line underline-offset-3 hover:text-accent"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {siteConfig.url}/posts/{postMeta.slug}/
+                      {canonicalPostUrl}
                     </a>
                   </dd>
                 </div>

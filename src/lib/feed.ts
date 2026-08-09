@@ -1,4 +1,5 @@
 import type { PublishedPost } from "@/lib/post-schema";
+import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
 const FEED_ITEM_LIMIT = 20;
@@ -17,7 +18,7 @@ function rssDate(value: string) {
 }
 
 function buildItem(post: PublishedPost) {
-  const url = `${siteConfig.url}/posts/${post.slug}/`;
+  const url = `${siteConfig.url}${postHref(post.slug)}`;
   const categories = post.tags.map((tag) => `      <category>${escapeXml(tag)}</category>`);
 
   return [

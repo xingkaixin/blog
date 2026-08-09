@@ -4,6 +4,7 @@ import { parseDocument } from "yaml";
 import { isPublishedFrontmatter, parseFrontmatter } from "../../src/lib/post-schema";
 import {
   comparePublishedPostsNewestFirst,
+  parsePostSlug,
   toPublishedPost,
   type PublishedPost,
 } from "../../src/lib/published-post";
@@ -12,13 +13,14 @@ const MAX_FRONTMATTER_CHARACTERS = 64 * 1024;
 const MAX_YAML_ALIAS_COUNT = 50;
 
 export function parsePublishedPost(slug: string, source: string): PublishedPost | null {
-  const frontmatter = parseFrontmatter(slug, parsePostFrontmatter(source));
+  const postSlug = parsePostSlug(slug, "post slug");
+  const frontmatter = parseFrontmatter(postSlug, parsePostFrontmatter(source));
 
   if (!isPublishedFrontmatter(frontmatter)) {
     return null;
   }
 
-  return toPublishedPost(slug, frontmatter);
+  return toPublishedPost(postSlug, frontmatter);
 }
 
 function parsePostFrontmatter(source: string): unknown {

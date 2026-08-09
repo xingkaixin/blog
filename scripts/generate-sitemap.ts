@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { PublishedPost } from "../src/lib/post-schema";
 import { buildPostTaxonomy } from "../src/lib/post-tags";
+import { parsePostSlug, postHref } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { sitemapNavigation } from "../src/lib/site-navigation";
 import { readPublishedPosts } from "./lib/post-catalog";
@@ -12,11 +13,20 @@ const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
 const DIST_DIR = path.join(ROOT, "dist");
 
+function escapeXml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
 export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | "tags">>) {
   const today = new Date().toISOString().slice(0, 10);
 
   const urlEntry = (loc: string, lastmod: string, changefreq: string, priority: string) =>
-    `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+    `  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 
   const entries = [
     ...sitemapNavigation().map((route) =>
@@ -25,7 +35,9 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | 
     ...buildPostTaxonomy(posts).archives.map(({ href }) =>
       urlEntry(`${siteConfig.url}${href}`, today, "weekly", "0.6"),
     ),
-    ...posts.map((p) => urlEntry(`${siteConfig.url}/posts/${p.slug}/`, p.date, "monthly", "0.8")),
+    ...posts.map((post) =>
+      urlEntry(`${siteConfig.url}${postHref(post.slug)}`, post.date, "monthly", "0.8"),
+    ),
   ];
 
   return [
@@ -45,7 +57,13 @@ export function buildRobotsTxt() {
 // 为每篇现存文章生成 301，把旧链接的权重转移到新地址；
 // 未迁移内容（旧 tag/分页/已删文章）不软重定向到首页，交由 catch-all 返回 404。
 export function buildRedirects(posts: Array<{ slug: string }>) {
-  const lines = [...posts.map((p) => `/${p.slug} /posts/${p.slug}/ 301`), "/* /404.html 404"];
+  const lines = [
+    ...posts.map(({ slug }) => {
+      const encodedSlug = encodeURIComponent(parsePostSlug(slug));
+      return `/${encodedSlug} ${postHref(slug)} 301`;
+    }),
+    "/* /404.html 404",
+  ];
   return `${lines.join("\n")}\n`;
 }
 

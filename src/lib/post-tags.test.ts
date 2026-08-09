@@ -25,6 +25,18 @@ describe("tag archives", () => {
     expect(taxonomy.archives).toEqual([]);
   });
 
+  it("groups equivalent tag labels under one canonical tag", () => {
+    const taxonomy = buildPostTaxonomy([
+      { slug: "one", tags: ["AI编程"] },
+      { slug: "two", tags: ["ＡＩ 编程"] },
+    ]);
+
+    expect(taxonomy.archives).toEqual([
+      { tag: "AI编程", href: "/tags/AI%E7%BC%96%E7%A8%8B/", posts: expect.any(Array) },
+    ]);
+    expect(taxonomy.isArchived("AI 编程")).toBe(true);
+  });
+
   it("finds related posts through the taxonomy", () => {
     const first = { slug: "one", tags: ["shared"] };
     const second = { slug: "two", tags: ["shared", "other"] };
@@ -36,5 +48,6 @@ describe("tag archives", () => {
 
   it("encodes tag route segments", () => {
     expect(tagHref("Claude Code")).toBe("/tags/Claude%20Code/");
+    expect(tagHref("AI 编程")).toBe("/tags/AI%E7%BC%96%E7%A8%8B/");
   });
 });

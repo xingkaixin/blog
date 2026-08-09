@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { buildPostTaxonomy } from "@/lib/post-tags";
+import { postHref } from "@/lib/published-post";
 import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
 import { searchNavigation } from "@/lib/site-navigation";
 import { cn } from "@/lib/utils";
@@ -70,7 +71,7 @@ function postItem(post: SearchIndexItem): LinkItem {
     glyph: "#",
     title: post.title,
     hint: post.date,
-    href: `/posts/${post.slug}/`,
+    href: postHref(post.slug),
     keywords: `${post.title} ${post.summary} ${post.tags.join(" ")}`,
   };
 }

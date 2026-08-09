@@ -1,4 +1,5 @@
 import type { PublishedPost } from "./post-schema";
+import { canonicalTag } from "./post-tag";
 
 const MIN_ARCHIVE_POSTS = 2;
 
@@ -24,14 +25,18 @@ export type PostTaxonomy<T extends TaggedPost = PublishedPost> = {
 };
 
 export function tagHref(tag: string): string {
-  return `/tags/${encodeURIComponent(tag)}/`;
+  const canonical = canonicalTag(tag);
+  if (!canonical) {
+    throw new Error("tag must not be empty");
+  }
+  return `/tags/${encodeURIComponent(canonical)}/`;
 }
 
 export function buildPostTaxonomy<T extends TaggedPost>(posts: T[]): PostTaxonomy<T> {
   const groups = new Map<string, T[]>();
 
   for (const post of posts) {
-    for (const tag of new Set(post.tags)) {
+    for (const tag of new Set(post.tags.map(canonicalTag))) {
       const group = groups.get(tag) ?? [];
       group.push(post);
       groups.set(tag, group);
@@ -53,13 +58,16 @@ export function buildPostTaxonomy<T extends TaggedPost>(posts: T[]): PostTaxonom
   return {
     archives,
     tags,
-    isArchived: (tag) => archivedTags.has(tag),
+    isArchived: (tag) => archivedTags.has(canonicalTag(tag)),
     relatedTo: (post, limit = Number.POSITIVE_INFINITY) =>
-      posts
-        .filter(
-          (candidate) =>
-            candidate.slug !== post.slug && candidate.tags.some((tag) => post.tags.includes(tag)),
-        )
-        .slice(0, limit),
+      relatedPosts(posts, post).slice(0, limit),
   };
+}
+
+function relatedPosts<T extends TaggedPost>(posts: T[], post: T): T[] {
+  const postTags = new Set(post.tags.map(canonicalTag));
+  return posts.filter(
+    (candidate) =>
+      candidate.slug !== post.slug && candidate.tags.some((tag) => postTags.has(canonicalTag(tag))),
+  );
 }

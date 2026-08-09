@@ -3,7 +3,7 @@ title: "聊了半天需求，Agent 还是只做了一个 MVP"
 date: '2026-07-27'
 summary: Agent 开工前先回读目标：交付什么、做到多深、哪些不做、如何证明完成，用十行复述提前暴露范围偏差。
 tags:
-  - AI 编程
+  - AI编程
   - Agentic Engineering
   - 需求管理
   - 软件交付

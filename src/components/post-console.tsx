@@ -4,6 +4,7 @@ import { resolveCover } from "@/lib/covers";
 import type { ReadingMetrics } from "@/lib/markdown";
 import type { PublishedPost } from "@/lib/post-schema";
 import { buildPostTaxonomy } from "@/lib/post-tags";
+import { postHref } from "@/lib/published-post";
 import { cn } from "@/lib/utils";
 
 export type PostConsoleItem = PublishedPost & ReadingMetrics;
@@ -11,10 +12,6 @@ export type PostConsoleItem = PublishedPost & ReadingMetrics;
 type PostConsoleProps = {
   posts: PostConsoleItem[];
 };
-
-function postHref(post: PostConsoleItem): string {
-  return `/posts/${post.slug}/`;
-}
 
 function PostPreview({ post, related }: { post: PostConsoleItem; related: PostConsoleItem[] }) {
   const cover = resolveCover(post.cover);
@@ -25,7 +22,7 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
         预览 · 悬停即换
       </p>
       <a
-        href={postHref(post)}
+        href={postHref(post.slug)}
         className="mt-3 block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       >
         {cover ? (
@@ -43,7 +40,7 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
         )}
       </a>
       <h2 className="mt-3.5 text-lg font-medium leading-7 text-ink-800">
-        <a href={postHref(post)} className="transition-colors hover:text-accent">
+        <a href={postHref(post.slug)} className="transition-colors hover:text-accent">
           {post.title}
         </a>
       </h2>
@@ -70,7 +67,7 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
             {related.map((item) => (
               <a
                 key={item.slug}
-                href={postHref(item)}
+                href={postHref(item.slug)}
                 className="line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent"
               >
                 {item.title}
@@ -272,7 +269,7 @@ export function PostConsole({ posts }: PostConsoleProps) {
                   <a
                     key={post.slug}
                     data-post-row={post.slug}
-                    href={postHref(post)}
+                    href={postHref(post.slug)}
                     onMouseEnter={() => setPreviewSlug(post.slug)}
                     onFocus={() => setPreviewSlug(post.slug)}
                     className={cn(

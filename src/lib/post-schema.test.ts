@@ -29,6 +29,10 @@ describe("post frontmatter", () => {
     expect(
       postFrontmatterSchema.safeParse({ ...validFrontmatter, tags: ["Astro", " Astro "] }).success,
     ).toBe(false);
+    expect(
+      postFrontmatterSchema.safeParse({ ...validFrontmatter, tags: ["AI编程", "ＡＩ 编程"] })
+        .success,
+    ).toBe(false);
   });
 
   it("rejects empty tags", () => {

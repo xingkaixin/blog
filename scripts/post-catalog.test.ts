@@ -30,6 +30,11 @@ describe("post catalog", () => {
     ).toBeNull();
   });
 
+  it("rejects unsafe post slugs before reading frontmatter", () => {
+    expect(() => parsePublishedPost("two words", publishedSource)).toThrow("post slug");
+    expect(() => parsePublishedPost("c&c", publishedSource)).toThrow("post slug");
+  });
+
   it("rejects missing or invalid required frontmatter", () => {
     expect(() =>
       parsePublishedPost("missing-date", publishedSource.replace("date: '2026-07-11'\n", "")),

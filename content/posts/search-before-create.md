@@ -3,7 +3,7 @@ title: "AI 又造了一个 helper：开工前先搜一遍仓库"
 date: '2026-07-30'
 summary: AI 新增 helper 前，先搜索仓库里的同职责实现，再说明复用或新增的理由，把重复抽象拦在代码生成之前。
 tags:
-  - AI 编程
+  - AI编程
   - Agentic Engineering
   - 代码质量
   - 软件架构

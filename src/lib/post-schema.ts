@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "astro/zod";
+import { canonicalTag } from "./post-tag";
 import { isCalendarDate } from "./published-post";
 
 const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
@@ -12,7 +13,7 @@ export const calendarDateSchema = z
   .refine(isCalendarDate, "date must be a valid calendar date");
 
 const tagsSchema = z
-  .array(z.string().trim().min(1))
+  .array(z.string().transform(canonicalTag).pipe(z.string().min(1)))
   .min(1)
   .refine((tags) => new Set(tags).size === tags.length, "tags must be unique within a post");
 
