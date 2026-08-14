@@ -1,5 +1,19 @@
 [
   {
+    "slug": "deepseek-harness-133-plugins",
+    "title": "DeepSeek Harness：我最想抄走的，不是它的插件系统",
+    "date": "2026-08-13",
+    "summary": "DeepSeek Harness 把主循环也做成插件，但我更想抄走“模型可见即有日志”这条规则。本文沿开发笔记还原它的取舍，以及它离日常工具还有多远。",
+    "tags": [
+      "Agent",
+      "Coding Agent",
+      "开源",
+      "系统设计"
+    ],
+    "cover": "/posts/cover/deepseek-harness-133-plugins.png",
+    "coverAlt": "DeepSeek Harness：我最想抄走的，不是它的插件系统"
+  },
+  {
     "slug": "agent-team-babel",
     "title": "Agent 让每个人都有了翻译器，但团队不再说同一种语言",
     "date": "2026-08-12",
