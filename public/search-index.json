@@ -1,5 +1,19 @@
 [
   {
+    "slug": "agent-team-babel",
+    "title": "Agent 让每个人都有了翻译器，但团队不再说同一种语言",
+    "date": "2026-08-12",
+    "summary": "Agent 能解释旧代码，却补不回当初的取舍。一次看不懂旧模块的经历，让我决定把困在 session 里的设计理由带回代码库。",
+    "tags": [
+      "Agent",
+      "AI编程",
+      "工程实践",
+      "知识管理"
+    ],
+    "cover": "/posts/cover/agent-team-babel.png",
+    "coverAlt": "Agent 让每个人都有了翻译器，但团队不再说同一种语言"
+  },
+  {
     "slug": "claude-text-watermark",
     "title": "这篇文章被判 70% 像 AI，Claude 水印却不看文风",
     "date": "2026-08-11",

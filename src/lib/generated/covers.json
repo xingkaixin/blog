@@ -104,6 +104,11 @@
     "desktop": "/cover/agent-stop-conditions-800.webp",
     "full": "/cover/agent-stop-conditions.webp"
   },
+  "agent-team-babel.png": {
+    "mobile": "/cover/agent-team-babel-400.webp",
+    "desktop": "/cover/agent-team-babel-800.webp",
+    "full": "/cover/agent-team-babel.webp"
+  },
   "agentic-workflow-waiting-revalued.png": {
     "mobile": "/cover/agentic-workflow-waiting-revalued-400.webp",
     "desktop": "/cover/agentic-workflow-waiting-revalued-800.webp",
