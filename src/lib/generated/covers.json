@@ -184,6 +184,11 @@
     "desktop": "/cover/beyond-the-3-day-clone-800.webp",
     "full": "/cover/beyond-the-3-day-clone.webp"
   },
+  "claude-text-watermark.png": {
+    "mobile": "/cover/claude-text-watermark-400.webp",
+    "desktop": "/cover/claude-text-watermark-800.webp",
+    "full": "/cover/claude-text-watermark.webp"
+  },
   "codesesh-ai-coding-sessions-disappearing.webp": {
     "mobile": "/cover/codesesh-ai-coding-sessions-disappearing-400.webp",
     "desktop": "/cover/codesesh-ai-coding-sessions-disappearing-800.webp",

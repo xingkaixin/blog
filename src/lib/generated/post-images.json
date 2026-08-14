@@ -527,6 +527,18 @@
     "mobile": "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-800w.webp",
     "desktop": "/posts/images/beyond-the-3-day-clone/beyond-the-3-day-clone-illustration-02-1200w.webp"
   },
+  "/posts/images/claude-text-watermark/claude-text-watermark-01.png": {
+    "src": "/posts/images/claude-text-watermark/claude-text-watermark-01.png",
+    "webp": "/posts/images/claude-text-watermark/claude-text-watermark-01.webp",
+    "mobile": "/posts/images/claude-text-watermark/claude-text-watermark-01-800w.webp",
+    "desktop": "/posts/images/claude-text-watermark/claude-text-watermark-01-1200w.webp"
+  },
+  "/posts/images/claude-text-watermark/claude-text-watermark-02.png": {
+    "src": "/posts/images/claude-text-watermark/claude-text-watermark-02.png",
+    "webp": "/posts/images/claude-text-watermark/claude-text-watermark-02.webp",
+    "mobile": "/posts/images/claude-text-watermark/claude-text-watermark-02-800w.webp",
+    "desktop": "/posts/images/claude-text-watermark/claude-text-watermark-02-1200w.webp"
+  },
   "/posts/images/coding-agent-almost-1-year/illustration-01.png": {
     "src": "/posts/images/coding-agent-almost-1-year/illustration-01.png",
     "webp": "/posts/images/coding-agent-almost-1-year/illustration-01.webp",
