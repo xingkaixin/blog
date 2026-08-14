@@ -1,5 +1,19 @@
 [
   {
+    "slug": "agent-first-action-layer",
+    "title": "给 App 加个聊天框，不叫 Agent-first",
+    "date": "2026-08-10",
+    "summary": "Agent-first 的关键不是在 App 里塞聊天框，而是让 UI、Agent 与 MCP 共用同一套业务 action。先改一个高频动作，再决定入口长什么样。",
+    "tags": [
+      "Agent",
+      "系统设计",
+      "MCP",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/agent-first-action-layer.png",
+    "coverAlt": "给 App 加个聊天框，不叫 Agent-first"
+  },
+  {
     "slug": "judgment-needs-a-deadline",
     "title": "2023 年我判断中国大模型没戏，三年后我发现少写了一个期限",
     "date": "2026-08-07",

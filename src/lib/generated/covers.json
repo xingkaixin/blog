@@ -74,6 +74,11 @@
     "desktop": "/cover/agent-daily-log-patrol-800.webp",
     "full": "/cover/agent-daily-log-patrol.webp"
   },
+  "agent-first-action-layer.png": {
+    "mobile": "/cover/agent-first-action-layer-400.webp",
+    "desktop": "/cover/agent-first-action-layer-800.webp",
+    "full": "/cover/agent-first-action-layer.webp"
+  },
   "agent-friendly-tool.png": {
     "mobile": "/cover/agent-friendly-tool-400.webp",
     "desktop": "/cover/agent-friendly-tool-800.webp",
