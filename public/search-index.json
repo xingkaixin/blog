@@ -1,5 +1,19 @@
 [
   {
+    "slug": "log-lock-in",
+    "title": "进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体",
+    "date": "2026-08-14",
+    "summary": "Claude Code 的进程挂掉后，resume 找回了对话，却丢了待批准的权限请求。要让 agent 真正恢复，持久化的不能只是一份 transcript，还要包括可重放的事件、工作区和副作用状态。",
+    "tags": [
+      "Agent",
+      "Claude Code",
+      "系统设计",
+      "工程实践"
+    ],
+    "cover": "/posts/cover/log-lock-in.png",
+    "coverAlt": "进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体"
+  },
+  {
     "slug": "deepseek-harness-133-plugins",
     "title": "DeepSeek Harness：我最想抄走的，不是它的插件系统",
     "date": "2026-08-13",

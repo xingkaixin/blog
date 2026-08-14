@@ -701,6 +701,24 @@
     "mobile": "/posts/images/llm-react-prompt/react-800w.webp",
     "desktop": "/posts/images/llm-react-prompt/react-1200w.webp"
   },
+  "/posts/images/log-lock-in/log-lock-in-01.png": {
+    "src": "/posts/images/log-lock-in/log-lock-in-01.png",
+    "webp": "/posts/images/log-lock-in/log-lock-in-01.webp",
+    "mobile": "/posts/images/log-lock-in/log-lock-in-01-800w.webp",
+    "desktop": "/posts/images/log-lock-in/log-lock-in-01-1200w.webp"
+  },
+  "/posts/images/log-lock-in/log-lock-in-02.png": {
+    "src": "/posts/images/log-lock-in/log-lock-in-02.png",
+    "webp": "/posts/images/log-lock-in/log-lock-in-02.webp",
+    "mobile": "/posts/images/log-lock-in/log-lock-in-02-800w.webp",
+    "desktop": "/posts/images/log-lock-in/log-lock-in-02-1200w.webp"
+  },
+  "/posts/images/log-lock-in/log-lock-in-03.png": {
+    "src": "/posts/images/log-lock-in/log-lock-in-03.png",
+    "webp": "/posts/images/log-lock-in/log-lock-in-03.webp",
+    "mobile": "/posts/images/log-lock-in/log-lock-in-03-800w.webp",
+    "desktop": "/posts/images/log-lock-in/log-lock-in-03-1200w.webp"
+  },
   "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png": {
     "src": "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.png",
     "webp": "/posts/images/mcp-vs-a2a-protocol-comparison/illustration-01.webp",

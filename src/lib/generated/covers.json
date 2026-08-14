@@ -249,6 +249,11 @@
     "desktop": "/cover/llm-react-prompt-800.webp",
     "full": "/cover/llm-react-prompt.webp"
   },
+  "log-lock-in.png": {
+    "mobile": "/cover/log-lock-in-400.webp",
+    "desktop": "/cover/log-lock-in-800.webp",
+    "full": "/cover/log-lock-in.webp"
+  },
   "macOS-now-supports-Netflix-Dolby-Vision.webp": {
     "mobile": "/cover/macOS-now-supports-Netflix-Dolby-Vision-400.webp",
     "desktop": "/cover/macOS-now-supports-Netflix-Dolby-Vision-800.webp",
