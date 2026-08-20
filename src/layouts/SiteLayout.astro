@@ -90,20 +90,65 @@ const pageTransition = {
     <meta name="theme-color" content="#fafaf7" />
     <script is:inline>
       (function () {
+        var storageKey = "site-theme";
         var colorScheme = matchMedia("(prefers-color-scheme: dark)");
+        var themeColors = { light: "#fafaf7", dark: "#131418" };
 
-        function applyTheme() {
-          var theme = colorScheme.matches ? "dark" : "light";
-          document.documentElement.dataset.theme = theme;
-          var themeColor = document.querySelector('meta[name="theme-color"]');
-          if (themeColor) {
-            themeColor.setAttribute("content", theme === "dark" ? "#131418" : "#fafaf7");
+        function readStoredTheme() {
+          try {
+            var storedTheme = localStorage.getItem(storageKey);
+            return storedTheme === "light" || storedTheme === "dark" ? storedTheme : null;
+          } catch {
+            return null;
           }
         }
 
-        applyTheme();
-        colorScheme.addEventListener("change", applyTheme);
-        document.addEventListener("astro:after-swap", applyTheme);
+        function writeStoredTheme(theme) {
+          try {
+            localStorage.setItem(storageKey, theme);
+          } catch {}
+        }
+
+        function preferredTheme() {
+          return readStoredTheme() || (colorScheme.matches ? "dark" : "light");
+        }
+
+        function applyTheme(theme) {
+          document.documentElement.dataset.theme = theme;
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) {
+            themeColor.setAttribute("content", themeColors[theme]);
+          }
+        }
+
+        function applyPreferredTheme() {
+          applyTheme(preferredTheme());
+        }
+
+        function toggleTheme() {
+          var nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+          var apply = function () {
+            writeStoredTheme(nextTheme);
+            applyTheme(nextTheme);
+          };
+          var canWipe =
+            typeof document.startViewTransition === "function" &&
+            !matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (!canWipe) {
+            apply();
+            return;
+          }
+
+          document.documentElement.classList.add("theme-wipe");
+          document.startViewTransition(apply).finished.finally(function () {
+            document.documentElement.classList.remove("theme-wipe");
+          });
+        }
+
+        applyPreferredTheme();
+        colorScheme.addEventListener("change", applyPreferredTheme);
+        document.addEventListener("astro:after-swap", applyPreferredTheme);
+        window.addEventListener("site:toggle-theme", toggleTheme);
       })();
     </script>
     <meta property="og:type" content={ogType(meta)} />
@@ -214,35 +259,10 @@ const pageTransition = {
         target instanceof HTMLElement &&
         (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
 
-      const toggleTheme = () => {
-        const root = document.documentElement;
-        const next = root.dataset.theme === "dark" ? "light" : "dark";
-        const apply = () => {
-          root.dataset.theme = next;
-          document
-            .querySelector('meta[name="theme-color"]')
-            ?.setAttribute("content", next === "dark" ? "#131418" : "#fafaf7");
-        };
-
-        const canWipe =
-          typeof document.startViewTransition === "function" &&
-          !matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (!canWipe) {
-          apply();
-          return;
-        }
-
-        root.classList.add("theme-wipe");
-        document.startViewTransition(apply).finished.finally(() => {
-          root.classList.remove("theme-wipe");
-        });
-      };
-
-      window.addEventListener("site:toggle-theme", toggleTheme);
       window.addEventListener("keydown", (event) => {
         if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "j" && !isTypingTarget(event.target)) {
           event.preventDefault();
-          toggleTheme();
+          window.dispatchEvent(new Event("site:toggle-theme"));
         }
       });
     </script>
