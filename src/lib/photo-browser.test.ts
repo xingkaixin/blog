@@ -62,7 +62,7 @@ describe("photo catalog browser", () => {
     expect(request).toHaveBeenCalledTimes(2);
   });
 
-  it("does not let a response from a reset session populate the new cache", async () => {
+  it("starts a new request after reset when the old request resolves later", async () => {
     let resolveFirst: ((value: unknown) => void) | undefined;
     const request = vi
       .fn<PhotoCatalogRequest>()

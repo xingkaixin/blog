@@ -42,8 +42,6 @@ const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
   readonly request: PhotoCatalogRequest;
-  private generation = 0;
-  private readonly months = new Map<string, PhotoMonthCatalog>();
   private readonly pendingMonths = new Map<string, Promise<PhotoMonthCatalog>>();
 
   constructor(baseUrl: string, request: PhotoCatalogRequest = requestJson) {
@@ -52,8 +50,6 @@ export class PhotoCatalogBrowser {
   }
 
   reset(): void {
-    this.generation += 1;
-    this.months.clear();
     this.pendingMonths.clear();
   }
 
@@ -73,27 +69,16 @@ export class PhotoCatalogBrowser {
     period: PhotoPeriod,
     signal?: AbortSignal,
   ): Promise<PhotoMonthCatalog> {
-    const loaded = this.months.get(period.month);
-    if (loaded) {
-      return Promise.resolve(loaded);
-    }
     const pending = this.pendingMonths.get(period.month);
     if (pending) {
       return pending;
     }
 
-    const generation = this.generation;
     const request = this.request(photoObjectUrl(this.baseUrl, period.path), {
       cache: "force-cache",
       signal,
     })
       .then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)))
-      .then((month) => {
-        if (this.generation === generation) {
-          this.months.set(period.month, month);
-        }
-        return month;
-      })
       .finally(() => {
         if (this.pendingMonths.get(period.month) === request) {
           this.pendingMonths.delete(period.month);

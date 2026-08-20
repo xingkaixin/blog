@@ -4,16 +4,14 @@ import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
+import { usePhotoLocation } from "@/hooks/use-photo-location";
 import {
-  applyPhotoNavigation,
   planOverviewOpen,
   planPhotoClose,
   planPhotoOpen,
   planPhotoSelection,
   planTimelineOpen,
   planTimelineSelection,
-  readPhotoLocation,
-  type PhotoView,
 } from "@/lib/photo-browser";
 import {
   monthFromCapturedAt,
@@ -68,7 +66,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     retryMonth,
     resolvePhoto,
   } = usePhotoCatalogSession(normalizedBaseUrl);
-  const [photoView, setPhotoView] = useState<PhotoView>({ mode: "overview" });
+  const { location: photoLocation, navigate } = usePhotoLocation(index);
+  const photoView = photoLocation?.view ?? ({ mode: "overview" } as const);
+  const locationPhotoId = photoLocation?.photoId;
   const [activeMonth, setActiveMonth] = useState("");
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoRecord | null>(null);
   const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
@@ -76,26 +76,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const activeMonthLockedUntilRef = useRef(0);
 
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
-
-  useEffect(() => {
-    if (!index) {
-      return undefined;
-    }
-    const syncViewFromUrl = () => {
-      const location = readPhotoLocation(window.location.href, index);
-      if (location.href !== window.location.href) {
-        history.replaceState(history.state, "", location.href);
-      }
-      setPhotoView(location.view);
-    };
-    syncViewFromUrl();
-    window.addEventListener("popstate", syncViewFromUrl);
-    window.addEventListener("hashchange", syncViewFromUrl);
-    return () => {
-      window.removeEventListener("popstate", syncViewFromUrl);
-      window.removeEventListener("hashchange", syncViewFromUrl);
-    };
-  }, [index]);
 
   const visiblePeriods = useMemo(() => {
     if (!index) {
@@ -279,41 +259,36 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
-      applyPhotoNavigation(planPhotoOpen(window.location.href, history.state, photo.id), history);
+      navigate(planPhotoOpen(window.location.href, history.state, photo.id));
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
-    [preloadAdjacentPeriods],
+    [navigate, preloadAdjacentPeriods],
   );
 
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
-      applyPhotoNavigation(
-        planPhotoSelection(window.location.href, history.state, photo.id),
-        history,
-      );
+      navigate(planPhotoSelection(window.location.href, history.state, photo.id));
       setSelectedPhoto(photo);
       preloadAdjacentPeriods(photo);
     },
-    [preloadAdjacentPeriods],
+    [navigate, preloadAdjacentPeriods],
   );
 
   const closeLightbox = useCallback(() => {
     // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
     setSelectedPhoto(null);
-    applyPhotoNavigation(planPhotoClose(window.location.href, history.state), history);
-  }, []);
+    navigate(planPhotoClose(window.location.href, history.state));
+  }, [navigate]);
 
   useEffect(() => {
-    if (!index) {
+    if (!index || locationPhotoId === undefined) {
       return undefined;
     }
-    let requestId = 0;
     let disposed = false;
+    const photoId = locationPhotoId;
 
-    const syncPhotoFromUrl = async () => {
-      const currentRequestId = ++requestId;
-      const photoId = readPhotoLocation(window.location.href, index).photoId;
+    const resolveSelectedPhoto = async () => {
       if (!photoId) {
         setSelectedPhoto(null);
         return;
@@ -323,56 +298,41 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       try {
         photo = await resolvePhoto(photoId);
       } catch (error) {
-        if (!disposed && currentRequestId === requestId) {
+        if (!disposed) {
           console.error(`定位照片 ${photoId} 失败`, error);
         }
         return;
       }
 
-      const currentPhotoId = readPhotoLocation(window.location.href, index).photoId;
-      if (!disposed && currentRequestId === requestId && currentPhotoId === photoId) {
+      if (!disposed) {
         setSelectedPhoto(photo);
         if (photo) {
           preloadAdjacentPeriods(photo);
         } else {
-          applyPhotoNavigation(planPhotoClose(window.location.href, history.state), history);
+          navigate(planPhotoClose(window.location.href, history.state));
         }
       }
     };
 
-    const handlePopState = () => {
-      void syncPhotoFromUrl();
-    };
-    void syncPhotoFromUrl();
-    window.addEventListener("popstate", handlePopState);
-    window.addEventListener("hashchange", handlePopState);
+    void resolveSelectedPhoto();
     return () => {
       disposed = true;
-      requestId += 1;
-      window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("hashchange", handlePopState);
     };
-  }, [index, preloadAdjacentPeriods, resolvePhoto]);
+  }, [index, locationPhotoId, navigate, preloadAdjacentPeriods, resolvePhoto]);
 
   const openTimeline = (albumId: string | null) => {
-    setPhotoView({ mode: "timeline", albumId });
-    applyPhotoNavigation(planTimelineOpen(window.location.href, history.state, albumId), history);
+    navigate(planTimelineOpen(window.location.href, history.state, albumId));
     window.scrollTo(0, 0);
   };
 
   const selectAlbum = (albumId: string | null) => {
-    setPhotoView({ mode: "timeline", albumId });
-    applyPhotoNavigation(
-      planTimelineSelection(window.location.href, history.state, albumId),
-      history,
-    );
+    navigate(planTimelineSelection(window.location.href, history.state, albumId));
     window.scrollTo(0, 0);
   };
 
   const returnToOverview = () => {
-    setPhotoView({ mode: "overview" });
     setSelectedPhoto(null);
-    applyPhotoNavigation(planOverviewOpen(window.location.href, history.state), history);
+    navigate(planOverviewOpen(window.location.href, history.state));
     window.scrollTo(0, 0);
   };
 
