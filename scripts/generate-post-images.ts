@@ -3,8 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
 import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
+import { bunImageRendererFingerprintParts, writeWebpVariants } from "./lib/bun-image";
 
 const SUPPORTED_SOURCE_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const VARIANTS = [
@@ -47,7 +47,7 @@ export async function generatePostImages(
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
     JSON.stringify(VARIANTS),
-    JSON.stringify(sharp.versions),
+    ...bunImageRendererFingerprintParts(),
   ]);
   const mappings: Record<string, ImageMapping> = {};
   const plans: ArtifactPlan[] = [];
@@ -91,15 +91,10 @@ export async function generatePostImages(
 }
 
 async function writeVariants(source: string, outputs: string[]): Promise<void> {
-  for (const [index, variant] of VARIANTS.entries()) {
-    const output = outputs[index];
+  for (const output of outputs) {
     fs.mkdirSync(path.dirname(output), { recursive: true });
-    let pipeline = sharp(source);
-    if (variant.width !== null) {
-      pipeline = pipeline.resize(variant.width, undefined, { withoutEnlargement: true });
-    }
-    await pipeline.webp({ quality: variant.quality }).toFile(output);
   }
+  await writeWebpVariants(source, outputs, VARIANTS);
 }
 
 function collectSourceFiles(directory: string): string[] {

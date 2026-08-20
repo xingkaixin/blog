@@ -12,7 +12,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "strict": true,
-    "types": ["node"],
+    "types": ["node", "bun"],
     "paths": {
       "@/*": ["./src/*"]
     }

@@ -58,12 +58,14 @@ describe("image generators", () => {
     const options = createCoverOptions();
     const source = path.join(options.sourceDirectory, "demo.png");
     fs.mkdirSync(options.sourceDirectory, { recursive: true });
-    await writeFixture(source, "#00ff00", "png");
+    await writeFixture(source, "#00ff00", "png", { width: 801, height: 343 });
 
     expect(await generateCovers(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
     expect(await generateCovers(options)).toEqual({ generated: 0, reused: 1, removed: 0 });
     expect(JSON.parse(fs.readFileSync(options.dataFile, "utf8"))).toHaveProperty("demo.png");
-    expect(fs.existsSync(path.join(options.outputDirectory, "demo-400.webp"))).toBe(true);
+    expect(
+      await new Bun.Image(path.join(options.outputDirectory, "demo-400.webp")).metadata(),
+    ).toEqual({ width: 400, height: 171, format: "webp" });
     expect(fs.existsSync(path.join(options.outputDirectory, "demo-800.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "demo.webp"))).toBe(true);
   });
@@ -141,11 +143,15 @@ function createTemporaryDirectory(): string {
   return directory;
 }
 
-async function writeFixture(file: string, background: string, format: "jpeg" | "png") {
+async function writeFixture(
+  file: string,
+  background: string,
+  format: "jpeg" | "png",
+  dimensions = { width: 24, height: 16 },
+) {
   const image = sharp({
     create: {
-      width: 24,
-      height: 16,
+      ...dimensions,
       channels: 3,
       background,
     },

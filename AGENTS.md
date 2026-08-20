@@ -103,7 +103,7 @@ bun run deploy        # 构建并部署到 Cloudflare Pages
 
 ### 封面图片
 
-封面多尺寸 WebP 由 `scripts/generate-covers.ts`（sharp）写入 `public/cover/`，生成数据写入 `src/lib/generated/covers.json`；调用方只依赖稳定的 `src/lib/covers.ts` 接口。
+封面多尺寸 WebP 由 `scripts/generate-covers.ts`（Bun.Image）写入 `public/cover/`，生成数据写入 `src/lib/generated/covers.json`；调用方只依赖稳定的 `src/lib/covers.ts` 接口。
 
 ## 代码风格
 

@@ -45,12 +45,13 @@ export type R2PhotoStoreOptions = {
 
 export type R2PhotoClient = Pick<S3Client, "send" | "destroy">;
 
-type R2Environment = {
-  R2_ACCOUNT_ID?: string;
-  R2_ACCESS_KEY_ID?: string;
-  R2_SECRET_ACCESS_KEY?: string;
-  R2_PHOTO_BUCKET?: string;
-};
+type R2Environment = Readonly<Record<string, string | undefined>>;
+
+type R2EnvironmentKey =
+  | "R2_ACCOUNT_ID"
+  | "R2_ACCESS_KEY_ID"
+  | "R2_SECRET_ACCESS_KEY"
+  | "R2_PHOTO_BUCKET";
 
 function resolveObjectPath(rootDirectory: string, key: string): string {
   const root = path.resolve(rootDirectory);
@@ -348,7 +349,7 @@ export function createR2PhotoObjectStore(
   });
 }
 
-function readEnvironmentVariable(environment: R2Environment, key: keyof R2Environment): string {
+function readEnvironmentVariable(environment: R2Environment, key: R2EnvironmentKey): string {
   const value = environment[key]?.trim();
   if (!value) {
     throw new Error(`缺少环境变量 ${key}`);

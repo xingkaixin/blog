@@ -45,9 +45,12 @@
 
 ## 快速开始
 
-项目固定使用 Bun 1.3.14，本地与 CI 都从 `package.json` 读取同一版本。
+项目使用 mise 和 `mise.lock` 固定 Bun 1.4.0，CI 从 `package.json` 读取同一版本。
 
 ```bash
+# 安装固定版本的 Bun
+mise install
+
 # 安装依赖
 bun install
 
