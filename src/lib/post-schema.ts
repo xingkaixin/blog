@@ -65,5 +65,3 @@ export function parseFrontmatter(slug: string, data: unknown): PostFrontmatter {
 export function isPublishedFrontmatter(frontmatter: PostFrontmatter): boolean {
   return frontmatter.draft !== true;
 }
-
-export type { PublishedPost } from "./published-post";

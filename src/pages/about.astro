@@ -1,6 +1,6 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
-import { projects } from "@/lib/projects";
+import { primaryProjectUrl, projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
 
 const meta = {
@@ -31,8 +31,8 @@ const contacts = [
   },
 ] as const;
 
-const featuredProjectNames = new Set(["Yomitomo", "CodeSesh"]);
-const featuredProjects = projects.filter((project) => featuredProjectNames.has(project.name));
+const featuredProjectIds = new Set(["yomitomo", "codesesh"]);
+const featuredProjects = projects.filter((project) => featuredProjectIds.has(project.id));
 const stack = [
   ["框架", "Astro 7 + TypeScript"],
   ["交互", "React 19 islands"],
@@ -91,7 +91,7 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
           {
             featuredProjects.map((project) => (
               <a
-                href={project.url}
+                href={primaryProjectUrl(project)}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="group grid gap-1 border-b border-ink-100 py-3.5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-4"

@@ -2,9 +2,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import type { PublishedPost } from "../src/lib/post-schema";
 import { buildPostTaxonomy } from "../src/lib/post-tags";
-import { parsePostSlug, postHref } from "../src/lib/published-post";
+import { parsePostSlug, postHref, type PublishedPost } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { sitemapNavigation } from "../src/lib/site-navigation";
 import { readPublishedPosts } from "./lib/post-catalog";

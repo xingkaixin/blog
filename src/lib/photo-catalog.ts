@@ -200,7 +200,7 @@ function readPhotoMonths(value: unknown): Record<string, string> {
   const input = readRecord(value, "catalog.photoMonths");
   const output: Record<string, string> = {};
   for (const [photoId, month] of Object.entries(input)) {
-    if (!PHOTO_ID_PATTERN.test(photoId)) {
+    if (!isPhotoId(photoId)) {
       throw new PhotoCatalogError("catalog.photoMonths 包含无效的照片 ID");
     }
     output[photoId] = readMonth(month, `catalog.photoMonths.${photoId}`);
@@ -221,7 +221,7 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
     const entry = readRecord(item, field);
     const photoId = readString(entry.photoId, `${field}.photoId`);
     const objectKeys = readStringArray(entry.objectKeys, `${field}.objectKeys`);
-    if (!PHOTO_ID_PATTERN.test(photoId)) {
+    if (!isPhotoId(photoId)) {
       throw new PhotoCatalogError(`${field}.photoId 必须是 32 位十六进制内容 ID`);
     }
     if (objectKeys.length === 0) {
@@ -296,7 +296,7 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
   const albumIds = readStringArray(photo.albumIds, `${field}.albumIds`);
   const placeholderColor = readString(photo.placeholderColor, `${field}.placeholderColor`);
 
-  if (!PHOTO_ID_PATTERN.test(id)) {
+  if (!isPhotoId(id)) {
     throw new PhotoCatalogError(`${field}.id 必须是 32 位十六进制内容 ID`);
   }
   if (!albumIds.every(isPhotoAlbumId)) {
@@ -346,6 +346,10 @@ function assertPhotosNewestFirst(photos: PhotoRecord[]): void {
 
 export function isPhotoAlbumId(value: string): boolean {
   return ALBUM_ID_PATTERN.test(value);
+}
+
+export function isPhotoId(value: string): boolean {
+  return PHOTO_ID_PATTERN.test(value);
 }
 
 export function monthFromCapturedAt(capturedAt: string): string {

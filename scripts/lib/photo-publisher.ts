@@ -6,6 +6,7 @@ import {
   PHOTO_VARIANT_WIDTHS,
   isPhotoAlbumId,
   isPhotoArtifactKey,
+  isPhotoId,
   monthFromCapturedAt,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
@@ -32,8 +33,6 @@ const PROCESS_CONCURRENCY = 2;
 const READ_CONCURRENCY = 8;
 const CATALOG_COMMIT_ATTEMPTS = 5;
 const RETIRED_OBJECT_GRACE_MS = 25 * 60 * 60 * 1_000;
-const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
-
 export type PublishAlbum = {
   id: string;
   title?: string;
@@ -272,7 +271,7 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
   if (photoIds.length === 0) {
     throw new Error("至少需要指定一张照片");
   }
-  if (photoIds.some((photoId) => !PHOTO_ID_PATTERN.test(photoId))) {
+  if (photoIds.some((photoId) => !isPhotoId(photoId))) {
     throw new Error("照片 ID 必须是 32 位小写十六进制内容 ID");
   }
 

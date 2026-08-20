@@ -3,10 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it } from "vitest";
+import type { PublishedPost } from "../src/lib/published-post";
 import { generateCovers, type GenerateCoversOptions } from "./generate-covers";
 import { generateOgImages, type GenerateOgImagesOptions } from "./generate-og-images";
 import { generatePostImages, type GeneratePostImagesOptions } from "./generate-post-images";
-import type { PublishedPost } from "./lib/post-catalog";
 
 const temporaryDirectories: string[] = [];
 

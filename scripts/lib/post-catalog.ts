@@ -75,5 +75,3 @@ export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
     .filter((post): post is PublishedPost => post !== null)
     .toSorted(comparePublishedPostsNewestFirst);
 }
-
-export type { PublishedPost } from "../../src/lib/published-post";

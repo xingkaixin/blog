@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   catalogIndexUrl,
+  isPhotoId,
   locatePhotoPeriod,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
@@ -44,6 +45,12 @@ const monthFixture: PhotoMonthCatalog = {
 };
 
 describe("photo catalog", () => {
+  it("recognizes content-addressed photo IDs", () => {
+    expect(isPhotoId("0123456789abcdef0123456789abcdef")).toBe(true);
+    expect(isPhotoId("0123456789ABCDEF0123456789ABCDEF")).toBe(false);
+    expect(isPhotoId("0123456789abcdef")).toBe(false);
+  });
+
   it("parses a valid index and month shard", () => {
     expect(parsePhotoCatalogIndex(indexFixture)).toEqual(indexFixture);
     expect(parsePhotoMonthCatalog(monthFixture)).toEqual(monthFixture);

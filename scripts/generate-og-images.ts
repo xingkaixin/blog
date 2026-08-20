@@ -6,9 +6,10 @@ import { fileURLToPath } from "node:url";
 import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
 import { formatDisplayDate } from "../src/lib/markdown";
+import type { PublishedPost } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
-import { readPublishedPosts, type PublishedPost } from "./lib/post-catalog";
+import { readPublishedPosts } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");

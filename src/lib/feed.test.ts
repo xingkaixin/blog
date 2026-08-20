@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildFeed } from "@/lib/feed";
-import type { PublishedPost } from "@/lib/post-schema";
+import type { PublishedPost } from "@/lib/published-post";
 
 function post(index: number): PublishedPost {
   return {

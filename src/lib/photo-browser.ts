@@ -1,5 +1,6 @@
 import {
   catalogIndexUrl,
+  isPhotoId,
   locatePhotoPeriod,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
@@ -36,8 +37,6 @@ export type PhotoCatalogRequest = (
   url: string,
   options: { cache: RequestCache; signal?: AbortSignal },
 ) => Promise<unknown>;
-
-const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
@@ -116,8 +115,7 @@ export function readPhotoLocation(href: string, index: PhotoCatalogIndex): Photo
       }
     : { mode: "overview" };
   const requestedPhotoId = hash.get("photo");
-  const photoId =
-    requestedPhotoId && PHOTO_ID_PATTERN.test(requestedPhotoId) ? requestedPhotoId : null;
+  const photoId = requestedPhotoId && isPhotoId(requestedPhotoId) ? requestedPhotoId : null;
   if (requestedPhotoId !== null && photoId === null) {
     hash.delete("photo");
     writeHash(url, hash);
@@ -285,7 +283,7 @@ function readPhotoHistoryEntry(value: unknown): PhotoHistoryEntry | null {
   }
   const kind = Reflect.get(entry, "kind");
   const photoId = Reflect.get(entry, "photoId");
-  return kind === "lightbox" && typeof photoId === "string" && PHOTO_ID_PATTERN.test(photoId)
+  return kind === "lightbox" && typeof photoId === "string" && isPhotoId(photoId)
     ? { kind, photoId }
     : null;
 }

@@ -1,5 +1,4 @@
-import type { PublishedPost } from "@/lib/post-schema";
-import { postHref } from "@/lib/published-post";
+import { postHref, type PublishedPost } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
 const FEED_ITEM_LIMIT = 20;

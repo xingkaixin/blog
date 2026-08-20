@@ -1,5 +1,5 @@
-import type { PublishedPost } from "./post-schema";
 import { canonicalTag } from "./post-tag";
+import type { PublishedPost } from "./published-post";
 
 const MIN_ARCHIVE_POSTS = 2;
 

@@ -2,9 +2,8 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { ProjectStickers } from "@/components/project-stickers";
 import { resolveCover } from "@/lib/covers";
 import type { ReadingMetrics } from "@/lib/markdown";
-import type { PublishedPost } from "@/lib/post-schema";
 import { buildPostTaxonomy } from "@/lib/post-tags";
-import { postHref } from "@/lib/published-post";
+import { postHref, type PublishedPost } from "@/lib/published-post";
 import { cn } from "@/lib/utils";
 
 export type PostConsoleItem = PublishedPost & ReadingMetrics;
