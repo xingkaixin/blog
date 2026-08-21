@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   photoVariantUrl,
   type PhotoMonthCatalog,
@@ -39,13 +40,6 @@ type PlaceholderStyle = CSSProperties & {
 function formatMonth(month: string): string {
   const [year, monthNumber] = month.split("-");
   return `${year} 年 ${Number(monthNumber)} 月`;
-}
-
-function formatCapturedAt(capturedAt: string): string {
-  const [date, timeWithOffset] = capturedAt.split("T");
-  const [year, month, day] = date.split("-");
-  const time = timeWithOffset.slice(0, 5);
-  return `${year}年${Number(month)}月${Number(day)}日 ${time}`;
 }
 
 export function PhotoPeriodSection({
@@ -201,7 +195,7 @@ function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
                   className="photo-tile group relative block overflow-hidden focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent active:opacity-90"
                   style={style}
                   data-photo-id={photo.id}
-                  aria-label={`查看${formatCapturedAt(photo.capturedAt)}拍摄的照片`}
+                  aria-label={`查看${formatPhotoCapturedAt(photo.capturedAt)}拍摄的照片`}
                   onClick={() => onOpenPhoto(photo)}
                 >
                   <img

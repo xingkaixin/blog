@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import { photoVariantUrl, type PhotoAlbum, type PhotoRecord } from "@/lib/photo-catalog";
 import { photoFromArrow, photoFromSwipe, planPhotoPreload } from "@/lib/photo-preload";
 
@@ -13,13 +14,6 @@ type PhotoLightboxProps = {
   onClose: () => void;
   onSelect: (photo: PhotoRecord) => void;
 };
-
-function formatCapturedAt(capturedAt: string): string {
-  const [date, timeWithOffset] = capturedAt.split("T");
-  const [year, month, day] = date.split("-");
-  const time = timeWithOffset.slice(0, 5);
-  return `${year}年${Number(month)}月${Number(day)}日 ${time}`;
-}
 
 function revealIfOutsideViewport(element: HTMLElement | null): void {
   if (!element) {
@@ -125,7 +119,7 @@ export function PhotoLightbox({
       <DialogContent
         hideClose
         title="照片大图"
-        description={formatCapturedAt(photo.capturedAt)}
+        description={formatPhotoCapturedAt(photo.capturedAt)}
         finalFocus={getPhotoTile}
         backdropClassName="bg-[#101114]/90 backdrop-blur-md"
         className="photo-lightbox fixed inset-0 left-0 top-0 flex h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 bg-[#101114] p-0 text-[#f0efea] shadow-none"
@@ -133,7 +127,7 @@ export function PhotoLightbox({
         <div className="flex h-16 shrink-0 items-center justify-between gap-4 px-3 sm:px-5">
           <div className="min-w-0">
             <p className="truncate font-mono text-xs text-[#deddd8]">
-              {formatCapturedAt(photo.capturedAt)}
+              {formatPhotoCapturedAt(photo.capturedAt)}
             </p>
             {albumTitles.length > 0 && (
               <p className="mt-1 truncate text-xs text-[#8b8c92]">{albumTitles.join("、")}</p>
