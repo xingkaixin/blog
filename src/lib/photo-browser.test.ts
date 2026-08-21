@@ -11,6 +11,7 @@ import {
   photoLookupPeriods,
   readPhotoLocation,
   resolveCatalogPhoto,
+  resolvePhotoSelection,
   timelineLocationHref,
   type PhotoCatalogRequest,
 } from "@/lib/photo-browser";
@@ -163,5 +164,21 @@ describe("photo catalog browser", () => {
       resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", [], loadMonth),
     ).resolves.toBeNull();
     expect(loadMonth).not.toHaveBeenCalled();
+  });
+
+  it("classifies retryable photo resolution failures", async () => {
+    const resolvePhoto = vi
+      .fn<(photoId: string) => Promise<PhotoMonthCatalog["photos"][number] | null>>()
+      .mockRejectedValueOnce(new Error("network unavailable"))
+      .mockResolvedValueOnce(month.photos[0]);
+
+    await expect(resolvePhotoSelection(photoId, resolvePhoto)).resolves.toMatchObject({
+      status: "error",
+      message: "network unavailable",
+    });
+    await expect(resolvePhotoSelection(photoId, resolvePhoto)).resolves.toEqual({
+      status: "ready",
+      photo: month.photos[0],
+    });
   });
 });

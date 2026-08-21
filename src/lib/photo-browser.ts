@@ -38,6 +38,11 @@ export type PhotoCatalogRequest = (
   options: { cache: RequestCache; signal?: AbortSignal },
 ) => Promise<unknown>;
 
+export type PhotoResolution =
+  | { status: "ready"; photo: PhotoRecord }
+  | { status: "missing" }
+  | { status: "error"; message: string; cause: unknown };
+
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
   readonly request: PhotoCatalogRequest;
@@ -185,6 +190,22 @@ export async function resolveCatalogPhoto(
     throw new AggregateError(failures, `无法定位照片 ${photoId}`);
   }
   return null;
+}
+
+export async function resolvePhotoSelection(
+  photoId: string,
+  resolvePhoto: (photoId: string) => Promise<PhotoRecord | null>,
+): Promise<PhotoResolution> {
+  try {
+    const photo = await resolvePhoto(photoId);
+    return photo ? { status: "ready", photo } : { status: "missing" };
+  } catch (cause) {
+    return {
+      status: "error",
+      message: cause instanceof Error ? cause.message : String(cause),
+      cause,
+    };
+  }
 }
 
 export function planPhotoOpen(

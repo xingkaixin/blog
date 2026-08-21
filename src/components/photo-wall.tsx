@@ -12,6 +12,7 @@ import {
   planPhotoSelection,
   planTimelineOpen,
   planTimelineSelection,
+  resolvePhotoSelection,
 } from "@/lib/photo-browser";
 import {
   monthFromCapturedAt,
@@ -32,6 +33,12 @@ type AlbumOverviewItem = {
   meta: string;
   photos: PhotoRecord[];
 };
+
+type PhotoSelectionState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; photo: PhotoRecord }
+  | { status: "error"; photoId: string; message: string };
 
 const INITIAL_PERIOD_COUNT = 2;
 const ALBUM_CHIP_CLASS_NAME =
@@ -70,12 +77,14 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const photoView = photoLocation?.view ?? ({ mode: "overview" } as const);
   const locationPhotoId = photoLocation?.photoId;
   const [activeMonth, setActiveMonth] = useState("");
-  const [selectedPhoto, setSelectedPhoto] = useState<PhotoRecord | null>(null);
+  const [photoSelection, setPhotoSelection] = useState<PhotoSelectionState>({ status: "idle" });
   const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
+  const photoResolutionGenerationRef = useRef(0);
   const wallRef = useRef<HTMLDivElement>(null);
   const activeMonthLockedUntilRef = useRef(0);
 
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
+  const selectedPhoto = photoSelection.status === "ready" ? photoSelection.photo : null;
 
   const visiblePeriods = useMemo(() => {
     if (!index) {
@@ -259,8 +268,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
+      photoResolutionGenerationRef.current += 1;
       navigate(planPhotoOpen(window.location.href, history.state, photo.id));
-      setSelectedPhoto(photo);
+      setPhotoSelection({ status: "ready", photo });
       preloadAdjacentPeriods(photo);
     },
     [navigate, preloadAdjacentPeriods],
@@ -268,8 +278,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
+      photoResolutionGenerationRef.current += 1;
       navigate(planPhotoSelection(window.location.href, history.state, photo.id));
-      setSelectedPhoto(photo);
+      setPhotoSelection({ status: "ready", photo });
       preloadAdjacentPeriods(photo);
     },
     [navigate, preloadAdjacentPeriods],
@@ -277,48 +288,58 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
 
   const closeLightbox = useCallback(() => {
     // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
-    setSelectedPhoto(null);
+    photoResolutionGenerationRef.current += 1;
+    setPhotoSelection({ status: "idle" });
     navigate(planPhotoClose(window.location.href, history.state));
   }, [navigate]);
 
+  const resolveSelectedPhoto = useCallback(
+    async (photoId: string) => {
+      const generation = photoResolutionGenerationRef.current + 1;
+      photoResolutionGenerationRef.current = generation;
+      setPhotoSelection((current) =>
+        current.status === "ready" && current.photo.id === photoId
+          ? current
+          : { status: "loading" },
+      );
+
+      const result = await resolvePhotoSelection(photoId, resolvePhoto);
+
+      if (photoResolutionGenerationRef.current !== generation) {
+        return;
+      }
+      if (result.status === "error") {
+        console.error(`定位照片 ${photoId} 失败`, result.cause);
+        setPhotoSelection({ status: "error", photoId, message: result.message });
+        return;
+      }
+      if (result.status === "missing") {
+        setPhotoSelection({ status: "idle" });
+        navigate(planPhotoClose(window.location.href, history.state));
+        return;
+      }
+      setPhotoSelection({ status: "ready", photo: result.photo });
+      preloadAdjacentPeriods(result.photo);
+    },
+    [navigate, preloadAdjacentPeriods, resolvePhoto],
+  );
+
   useEffect(() => {
-    if (!index || locationPhotoId === undefined) {
-      return undefined;
+    if (locationPhotoId === undefined) {
+      return;
     }
-    let disposed = false;
-    const photoId = locationPhotoId;
-
-    const resolveSelectedPhoto = async () => {
-      if (!photoId) {
-        setSelectedPhoto(null);
-        return;
-      }
-
-      let photo: PhotoRecord | null;
-      try {
-        photo = await resolvePhoto(photoId);
-      } catch (error) {
-        if (!disposed) {
-          console.error(`定位照片 ${photoId} 失败`, error);
-        }
-        return;
-      }
-
-      if (!disposed) {
-        setSelectedPhoto(photo);
-        if (photo) {
-          preloadAdjacentPeriods(photo);
-        } else {
-          navigate(planPhotoClose(window.location.href, history.state));
-        }
-      }
-    };
-
-    void resolveSelectedPhoto();
-    return () => {
-      disposed = true;
-    };
-  }, [index, locationPhotoId, navigate, preloadAdjacentPeriods, resolvePhoto]);
+    if (!index) {
+      photoResolutionGenerationRef.current += 1;
+      setPhotoSelection({ status: "idle" });
+      return;
+    }
+    if (!locationPhotoId) {
+      photoResolutionGenerationRef.current += 1;
+      setPhotoSelection({ status: "idle" });
+      return;
+    }
+    void resolveSelectedPhoto(locationPhotoId);
+  }, [index, locationPhotoId, resolveSelectedPhoto]);
 
   const openTimeline = (albumId: string | null) => {
     navigate(planTimelineOpen(window.location.href, history.state, albumId));
@@ -331,7 +352,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   };
 
   const returnToOverview = () => {
-    setSelectedPhoto(null);
+    photoResolutionGenerationRef.current += 1;
+    setPhotoSelection({ status: "idle" });
     navigate(planOverviewOpen(window.location.href, history.state));
     window.scrollTo(0, 0);
   };
@@ -560,6 +582,25 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
             onSelect={(month) => void jumpToMonth(month)}
           />
         )}
+
+      {photoSelection.status === "error" && (
+        <div
+          role="alert"
+          className="fixed bottom-11 left-1/2 z-20 flex w-[min(420px,calc(100vw-1.5rem))] -translate-x-1/2 items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3 shadow-lg"
+        >
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-ink-800">照片暂时无法打开</p>
+            <p className="mt-1 truncate text-xs text-ink-500">{photoSelection.message}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void resolveSelectedPhoto(photoSelection.photoId)}
+            className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          >
+            重试
+          </button>
+        </div>
+      )}
 
       {lightboxDisplayPhoto && index && (
         <PhotoLightbox
