@@ -5,6 +5,7 @@ import {
   locatePhotoPeriod,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
+  parsePhotoRecord,
   photoVariantUrl,
   validatePhotoCatalog,
   validatePhotoMonth,
@@ -54,6 +55,10 @@ describe("photo catalog", () => {
   it("parses a valid index and month shard", () => {
     expect(parsePhotoCatalogIndex(indexFixture)).toEqual(indexFixture);
     expect(parsePhotoMonthCatalog(monthFixture)).toEqual(monthFixture);
+  });
+
+  it("parses a photo without manufacturing a month shard", () => {
+    expect(parsePhotoRecord(monthFixture.photos[0])).toEqual(monthFixture.photos[0]);
   });
 
   it("rejects month shards whose photos belong to another month", () => {

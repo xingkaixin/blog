@@ -10,6 +10,7 @@ import {
   monthFromCapturedAt,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
+  parsePhotoRecord,
   photoIdFromMediaObjectKey,
   validatePhotoCatalog,
   validatePhotoMonth,
@@ -435,20 +436,14 @@ async function collectPhotoGarbageOnce(
 }
 
 function validateNewPhoto(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
-  const record: PhotoRecord = {
+  return parsePhotoRecord({
     id: photo.id,
     capturedAt: photo.capturedAt,
     width: photo.width,
     height: photo.height,
     albumIds: albumId ? [albumId] : [],
     placeholderColor: photo.placeholderColor,
-  };
-  const month = monthFromCapturedAt(record.capturedAt);
-  return parsePhotoMonthCatalog({
-    schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
-    month,
-    photos: [record],
-  }).photos[0];
+  });
 }
 
 function validateAlbum(album: PublishAlbum | undefined): void {

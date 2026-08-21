@@ -317,6 +317,10 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
   };
 }
 
+export function parsePhotoRecord(value: unknown): PhotoRecord {
+  return readPhoto(value, "photo");
+}
+
 function assertNewestFirst<T>(
   items: T[],
   readOrderValue: (item: T) => string,
