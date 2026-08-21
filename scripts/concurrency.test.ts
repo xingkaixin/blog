@@ -34,6 +34,12 @@ describe("bounded concurrency", () => {
     await expect(operation).rejects.toThrow("boom");
     expect(events).toEqual(["failed", "slow-finished"]);
   });
+
+  it("preserves an undefined rejection reason", async () => {
+    const operation = mapWithConcurrency(["failing"], 1, async () => Promise.reject(undefined));
+
+    await expect(operation).rejects.toBeUndefined();
+  });
 });
 
 function deferred<T>() {
