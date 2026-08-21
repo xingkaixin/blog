@@ -7,11 +7,9 @@ tags:
   - Coding Agent
   - 生态
   - AI编程
-cover: /posts/cover/beyond-the-3-day-clone.png
+cover: beyond-the-3-day-clone.png
 coverAlt: 当开源想法三天就能被复制
 ---
-
-# 当开源想法三天就能被复制
 
 大概一个月前，我在 GitHub 上偶然看到一个挺有意思的 CLI 工具。记不清具体名字了，应该是什么 `xx-tool` 之类的。作者用 Python 写的，解决了一个挺小众但真实存在的痛点——好像是某种数据格式转换的问题。
 

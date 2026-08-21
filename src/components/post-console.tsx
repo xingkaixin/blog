@@ -24,19 +24,15 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
         href={postHref(post.slug)}
         className="mt-3 block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       >
-        {cover ? (
-          <picture className="block">
-            <source srcSet={`${cover.mobile} 1x, ${cover.desktop} 2x`} />
-            <img
-              src={cover.desktop}
-              alt={post.coverAlt}
-              width={400}
-              className="block h-auto w-full"
-            />
-          </picture>
-        ) : (
-          <img src={post.cover} alt={post.coverAlt} width={400} className="block h-auto w-full" />
-        )}
+        <picture className="block">
+          <source srcSet={`${cover.mobile} 1x, ${cover.desktop} 2x`} />
+          <img
+            src={cover.desktop}
+            alt={post.coverAlt}
+            width={400}
+            className="block h-auto w-full"
+          />
+        </picture>
       </a>
       <h2 className="mt-3.5 text-lg font-medium leading-7 text-ink-800">
         <a href={postHref(post.slug)} className="transition-colors hover:text-accent">

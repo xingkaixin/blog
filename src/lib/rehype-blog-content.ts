@@ -39,14 +39,13 @@ export function rehypeBlogContent() {
       }
 
       if (isHeading(node.tagName)) {
+        if (node.tagName === "h1") {
+          throw new Error("文章正文不能包含一级标题，请使用 frontmatter title");
+        }
         node.properties = {
           ...node.properties,
           id: allocateHeadingId(textContent(node)),
         };
-
-        if (node.tagName === "h1") {
-          node.tagName = "h2";
-        }
         return;
       }
 

@@ -7,11 +7,9 @@ tags:
   - AI协作
   - 产品管理
   - 代码审查
-cover: /posts/cover/only-click-merge.png
+cover: only-click-merge.png
 coverAlt: 我只点 merge：Agent 全自动迭代半个月后，我把这套关了
 ---
-
-# 我只点 merge：Agent 全自动迭代半个月后，我把这套关了
 
 那半个月，我对那个项目做的唯一一件事，就是点 merge。
 

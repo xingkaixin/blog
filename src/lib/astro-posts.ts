@@ -14,22 +14,14 @@ export type BlogPostDetail = PublishedPost & {
   toc: TocItem[];
 };
 
-type PostDetailOptions = {
-  excludeLeadingTitle?: boolean;
-};
-
 export function toPostListItem(post: BlogPostEntry): PublishedPost {
   return toPublishedPost(post.id, post.data);
 }
 
-export function toPostDetail(
-  post: BlogPostEntry,
-  headings: MarkdownHeading[],
-  options: PostDetailOptions = {},
-): BlogPostDetail {
+export function toPostDetail(post: BlogPostEntry, headings: MarkdownHeading[]): BlogPostDetail {
   return {
     ...toPostListItem(post),
-    toc: tocFromHeadings(headings, options),
+    toc: tocFromHeadings(headings),
   };
 }
 

@@ -7,13 +7,9 @@ tags:
   - 多智能体
   - 软件工程
   - Cursor
-cover: /posts/cover/agent-swarm-context.png
+cover: agent-swarm-context.png
 coverAlt: 多开几个 agent 并行干活，为什么越干越乱
 ---
-
-# 多开几个 agent 并行干活，为什么越干越乱
-
-![封面：多开几个 agent 并行干活，为什么越干越乱](/posts/images/agent-swarm-context/agent-swarm-context-cover.png)
 
 前阵子我同时开了三个 Claude Code：一个改后端接口，一个补前端页面，一个写测试。三个窗口一起刷屏，看着确实很像多了三名队友。
 

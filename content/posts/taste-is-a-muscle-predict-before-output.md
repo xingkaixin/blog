@@ -6,11 +6,9 @@ tags:
   - AI编程
   - Agent
   - 判断力
-cover: /posts/cover/taste-is-a-muscle-predict-before-output.png
+cover: taste-is-a-muscle-predict-before-output.png
 coverAlt: 多数人不判断 agent，只是在吸收它的结论
 ---
-
-# 多数人不判断 agent，只是在吸收它的结论
 
 你让 agent 修一个 bug，三十秒它把 PR 甩了回来，描述写得头头是道，测试看着也跑过了。你扫一眼，觉得"应该没问题"，合并。
 

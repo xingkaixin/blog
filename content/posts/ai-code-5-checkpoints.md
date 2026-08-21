@@ -7,11 +7,9 @@ tags:
   - 代码审查
   - 工程实践
   - 安全
-cover: /posts/cover/ai-code-5-checkpoints.png
+cover: ai-code-5-checkpoints.png
 coverAlt: AI 写完代码后，我只看这 5 个地方
 ---
-
-# AI 写完代码后，我只看这 5 个地方
 
 AI 交上来的 PR，越来越难挑出毛病：命名规整，注释齐全，try-catch 层次清楚，测试全绿。你拿着传统 Review 清单从头过到尾，一条都没抓住，最后得出结论"写得挺好的"，点了合并。
 

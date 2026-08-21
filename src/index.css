@@ -205,12 +205,6 @@ body {
   content: "";
 }
 
-.article-prose-trim-leading > :first-child,
-.article-prose-trim-leading > :first-child + p:has(> picture:only-child),
-.article-prose-trim-leading > :first-child + p:has(> img:only-child) {
-  display: none;
-}
-
 .toc-link[aria-current="location"] {
   border-left-color: var(--accent);
   color: var(--ink-800);

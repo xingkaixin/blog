@@ -7,11 +7,9 @@ tags:
   - Agentic Engineering
   - AI编程
   - Karpathy
-cover: /posts/cover/vibe-coding-to-agentic-engineering.png
+cover: vibe-coding-to-agentic-engineering.png
 coverAlt: Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？
 ---
-
-# Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？
 
 2025 年 2 月 2 日，Andrej Karpathy 在 X 上发了一条帖子。他自己后来说那是"淋浴时的随手一写"。
 

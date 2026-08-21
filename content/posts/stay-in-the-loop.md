@@ -7,11 +7,9 @@ tags:
   - 工程实践
   - 用户体验
   - Agentic
-cover: /posts/cover/stay-in-the-loop.png
+cover: stay-in-the-loop.png
 coverAlt: Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键
 ---
-
-# Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键
 
 Agent 帮我接管了一个模块的 UI 细节。
 

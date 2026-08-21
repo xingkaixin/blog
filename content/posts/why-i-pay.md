@@ -4,7 +4,7 @@ date: '2013-07-12'
 summary: 在weibo上看到有批评使用优酷视频的广告屏蔽助手的用户，认为这是非常错误的行为且这个行为可能还对自己的隐私带来潜在的风险。
 tags:
   - 付费服务
-cover: /posts/cover/why-i-pay.webp
+cover: why-i-pay.webp
 coverAlt: why-i-pay
 ---
 

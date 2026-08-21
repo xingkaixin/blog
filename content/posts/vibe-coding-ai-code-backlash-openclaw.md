@@ -7,11 +7,9 @@ tags:
   - 开源
   - 安全
   - AI编程
-cover: /posts/cover/vibe-coding-ai-code-backlash-openclaw.png
+cover: vibe-coding-ai-code-backlash-openclaw.png
 coverAlt: 当Vibe Coding遇到百万行代码：OpenClaw教我的事
 ---
-
-# 当Vibe Coding遇到百万行代码：OpenClaw教我的事
 
 2025年11月的一个晚上，Peter Steinberger在手机上敲了几条消息。他没开电脑，没进IDE，只是对着WhatsApp和一个AI聊了几句："帮我搞个能在聊天软件里干活的私人助手。"
 

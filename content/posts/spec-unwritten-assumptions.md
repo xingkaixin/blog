@@ -7,11 +7,9 @@ tags:
   - AI编程
   - 工程实践
   - 经验
-cover: /posts/cover/spec-unwritten-assumptions.png
+cover: spec-unwritten-assumptions.png
 coverAlt: Spec 里最危险的，是你觉得不用写的部分
 ---
-
-# Spec 里最危险的，是你觉得不用写的部分
 
 上个月我在给自己做的一个工具加缓存。
 

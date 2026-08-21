@@ -6,7 +6,7 @@ tags:
   - OpenAI
   - Enterprise
   - AI
-cover: /posts/cover/the-state-of-enterprise-ai_2025-report.webp
+cover: the-state-of-enterprise-ai_2025-report.webp
 coverAlt: the-state-of-enterprise-ai_2025-report
 ---
 

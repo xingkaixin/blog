@@ -6,11 +6,9 @@ tags:
   - AI协作
   - Prompt工程
   - Agentic
-cover: /posts/cover/agent-blindspot-pass.png
+cover: agent-blindspot-pass.png
 coverAlt: 给 Agent 派活前，先让它找一次盲点
 ---
-
-# 给 Agent 派活前，先让它找一次盲点
 
 Thariq Shihipar 在一篇 Fable 使用记录里写过一条实际使用的提示：准备给陌生代码库增加一种登录方式时，他不会马上叫 Claude 开工，而是先告诉它，自己不了解这个项目的认证模块，请它做一次 `blindspot pass`。
 

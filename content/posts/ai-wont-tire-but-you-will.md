@@ -7,11 +7,9 @@ tags:
   - 代码审查
   - 工程效率
   - 认知负荷
-cover: /posts/cover/ai-wont-tire-but-you-will.png
+cover: ai-wont-tire-but-you-will.png
 coverAlt: 你以为在审代码，其实在点合并
 ---
-
-# 你以为在审代码，其实在点合并
 
 上周五下午四点，我已经合并了十二个 PR。
 

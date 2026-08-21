@@ -7,11 +7,9 @@ tags:
   - 代码审查
   - 重构
   - 工程实践
-cover: /posts/cover/ai-review-ai.png
+cover: ai-review-ai.png
 coverAlt: 我让 AI 审了自己的代码，审了 10 轮
 ---
-
-# 我让 AI 审了自己的代码，审了 10 轮
 
 3 月 28 日,周六上午 8:32,我跟 Codex 进行到第 4 轮代码 review。
 

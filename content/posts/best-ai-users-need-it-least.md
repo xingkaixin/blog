@@ -7,11 +7,9 @@ tags:
   - 工程师成长
   - 判断力
   - 学习
-cover: /posts/cover/best-ai-users-need-it-least.png
+cover: best-ai-users-need-it-least.png
 coverAlt: 最好的 AI 使用者，是最不需要 AI 的人
 ---
-
-# 最好的 AI 使用者，是最不需要 AI 的人
 
 前阵子在一个技术群里，有人抛了个问题：你们用 Codex 一天能写多少行代码？
 

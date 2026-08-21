@@ -6,7 +6,7 @@ tags:
   - 社会
   - 警察
   - 保安
-cover: /posts/cover/Follow-or-break-the-rules.webp
+cover: Follow-or-break-the-rules.webp
 coverAlt: Follow-or-break-the-rules
 ---
 

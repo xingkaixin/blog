@@ -7,11 +7,9 @@ tags:
   - Coding Agent
   - 开发者
   - 工程实践
-cover: /posts/cover/from-writing-code-to-reviewing-code.png
+cover: from-writing-code-to-reviewing-code.png
 coverAlt: 从"写代码"到"审代码"：AI 时代，开发者的能力迁移
 ---
-
-# 从"写代码"到"审代码"：AI 时代，开发者的能力迁移
 
 我从 2025 年 7 月在 Claude Code 里用上 Kimi K2，那时候就意识到一件事：**Coding Agent 带来的变化，不是把"写代码"提速，而是把"开发者职责"改写了。**
 

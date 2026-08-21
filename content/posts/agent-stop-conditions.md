@@ -6,13 +6,9 @@ tags:
   - AI编程
   - Agent
   - 工程实践
-cover: /posts/cover/agent-stop-conditions.png
+cover: agent-stop-conditions.png
 coverAlt: Agent 跑得越快，越要提前告诉它什么时候停
 ---
-
-# Agent 跑得越快，越要提前告诉它什么时候停
-
-![Agent 跑得越快，越要提前告诉它什么时候停](/posts/images/agent-stop-conditions/agent-stop-conditions-cover.png)
 
 Eric Zakariasson 会同时跑三到五个长任务 Agent。模型实验盯分数，前端任务跑 Playwright、看截图，后端重构跑测试，性能任务看 p95。Agent 在云端继续工作，完成或者需要决定时，通过 Slack 找他。
 

@@ -8,7 +8,10 @@ export type ResponsiveCover = {
 
 const covers: Record<string, ResponsiveCover> = coverData;
 
-export function resolveCover(assetPath: string): ResponsiveCover | null {
-  const filename = assetPath.split("/").pop();
-  return filename ? (covers[filename] ?? null) : null;
+export function resolveCover(filename: string): ResponsiveCover {
+  const cover = covers[filename];
+  if (!cover) {
+    throw new Error(`Cover image has no generated variants: ${filename}`);
+  }
+  return cover;
 }

@@ -4,7 +4,7 @@ date: '2014-08-17'
 summary: 今天在 Instgram 上看到 LBJ 在游艇上被人倒冰水，说是接受了KD的挑战，挑战前还讲了另外3个人名让他们来接受挑战，Obama 也在其中，看起来很酷啊，不过当时人在外面也就看一下就结束了。
 tags:
   - ALS
-cover: /posts/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp
+cover: ALS-Ice-Bucket-Challenge-and-Charity.webp
 coverAlt: ALS-Ice-Bucket-Challenge-and-Charity
 ---
 

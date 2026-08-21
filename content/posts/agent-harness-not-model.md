@@ -7,11 +7,9 @@ tags:
   - AI架构
   - Claude Code
   - 系统设计
-cover: /posts/cover/agent-harness-not-model.png
+cover: agent-harness-not-model.png
 coverAlt: 同一个 Claude，为什么在我手里是智障：agent 能力是乘法，不是加法
 ---
-
-# 同一个 Claude，为什么在我手里是智障：agent 能力是乘法，不是加法
 
 给自己的 MCP tool 接好项目管理 API 之后，我冒出一个更大的念头：Claude Code 能读文件、跑测试、看报错、回头改 bug，底层不也是 Claude 吗？我手上有 API key，自己搭个 agent 跑业务流程，应该不难。
 

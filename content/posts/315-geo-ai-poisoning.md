@@ -7,11 +7,9 @@ tags:
   - RAG
   - AI安全
   - 信息生态
-cover: /posts/cover/315-geo-ai-poisoning.png
+cover: 315-geo-ai-poisoning.png
 coverAlt: 两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战
 ---
-
-# 两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战
 
 315 晚会上演示了一个让我后背发凉的实验。
 

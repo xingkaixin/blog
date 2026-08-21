@@ -7,11 +7,9 @@ tags:
   - 工程实践
   - Coding Agent
   - 软件设计
-cover: /posts/cover/spec-as-new-fig-leaf.png
+cover: spec-as-new-fig-leaf.png
 coverAlt: SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码
 ---
-
-# SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码
 
 这半年，Spec Driven Development 很火。
 很多人相信一件事：先把 spec 写够细，再交给 coding agent，质量和效率就能一起上去。

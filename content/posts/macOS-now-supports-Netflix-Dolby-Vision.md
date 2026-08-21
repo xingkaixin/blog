@@ -6,7 +6,7 @@ tags:
   - macOS
   - Netflix
   - 杜比视界
-cover: /posts/cover/macOS-now-supports-Netflix-Dolby-Vision.webp
+cover: macOS-now-supports-Netflix-Dolby-Vision.webp
 coverAlt: macOS-now-supports-Netflix-Dolby-Vision
 ---
 

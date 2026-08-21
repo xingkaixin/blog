@@ -6,13 +6,9 @@ tags:
   - 大模型
   - 预测
   - 判断力
-cover: /posts/cover/judgment-needs-a-deadline.png
+cover: judgment-needs-a-deadline.png
 coverAlt: 2023 年我判断中国大模型没戏，三年后我发现少写了一个期限
 ---
-
-# 2023 年我判断中国大模型没戏，三年后我发现少写了一个期限
-
-![封面：2023 年我判断中国大模型没戏，三年后我发现少写了一个期限](/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-cover.png)
 
 2023 年，GPT-4 刚把能力差距摆到所有人面前时，我对中国大模型下过一个很重的判断：没戏，会被彻底甩开。
 

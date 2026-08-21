@@ -7,11 +7,9 @@ tags:
   - Coding Agent
   - 开源
   - 系统设计
-cover: /posts/cover/deepseek-harness-133-plugins.png
+cover: deepseek-harness-133-plugins.png
 coverAlt: DeepSeek Harness：我最想抄走的，不是它的插件系统
 ---
-
-# DeepSeek Harness：我最想抄走的，不是它的插件系统
 
 我跑起 `npx @deepseek-ai/dsh web`，进 Settings 打开 Plugins，页面列出 133 个插件。Bash、session、agent loop、sandbox、subagent、Web UI，全挂在同一棵树上。我的第一反应很直接：这也太重了。
 

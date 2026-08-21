@@ -6,11 +6,9 @@ tags:
   - Agent
   - 前端工程
   - 工程实践
-cover: /posts/cover/agent-browser-self-check.png
+cover: agent-browser-self-check.png
 coverAlt: Agent 写完前端，我要求它先自己点一遍
 ---
-
-# Agent 写完前端，我要求它先自己点一遍
 
 “改完了。”Agent 说。
 

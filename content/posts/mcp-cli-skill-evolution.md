@@ -7,11 +7,9 @@ tags:
   - CLI
   - AI工具
   - Agent
-cover: /posts/cover/mcp-cli-skill-evolution.png
+cover: mcp-cli-skill-evolution.png
 coverAlt: 工具的进化论：当 MCP 遇见 CLI，一场关于"上下文"的温柔革命
 ---
-
-# 工具的进化论：当 MCP 遇见 CLI，一场关于"上下文"的温柔革命
 
 ## 一、故事的开始：2024年11月
 

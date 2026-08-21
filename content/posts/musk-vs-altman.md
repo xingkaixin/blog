@@ -7,11 +7,9 @@ tags:
   - AI历史
   - Musk
   - Altman
-cover: /posts/cover/musk-vs-altman.png
+cover: musk-vs-altman.png
 coverAlt: 翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现
 ---
-
-# 翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现
 
 2017 年 6 月 12 日晚上 10 点 39 分，Ilya Sutskever 给 Greg Brockman 和 Elon Musk 发了一封双周汇报邮件。
 

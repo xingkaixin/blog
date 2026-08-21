@@ -7,11 +7,9 @@ tags:
   - 代码审查
   - 工程师责任
   - 元认知
-cover: /posts/cover/ai-code-responsibility-gap.png
+cover: ai-code-responsibility-gap.png
 coverAlt: AI 写的代码，你敢签你的名字吗？
 ---
-
-# AI 写的代码，你敢签你的名字吗？
 
 上周有人在我一个工具的 GitHub 上开了个 issue。
 

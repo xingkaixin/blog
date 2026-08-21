@@ -5,7 +5,7 @@ summary: 本文是对HBO电视剧《最后生还者》的观后感。本剧改�
 tags:
   - 游戏
   - 影视
-cover: /posts/cover/The-Last-of-Us-review.webp
+cover: The-Last-of-Us-review.webp
 coverAlt: The-Last-of-Us-review
 ---
 

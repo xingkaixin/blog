@@ -7,11 +7,9 @@ tags:
   - 工程师成长
   - 判断力
   - 学习
-cover: /posts/cover/when-ai-bypasses-all-pitfalls.png
+cover: when-ai-bypasses-all-pitfalls.png
 coverAlt: 当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？
 ---
-
-# 当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？
 
 去年十一月，我让 Claude Code 写一段处理并发请求的逻辑。
 

@@ -7,11 +7,9 @@ tags:
   - 工程师
   - AI时代
   - 职业发展
-cover: /posts/cover/assuming-x-agentic-era-engineers-survival-coordinates.png
+cover: assuming-x-agentic-era-engineers-survival-coordinates.png
 coverAlt: 假设X成真：你的手艺正在被重新定价
 ---
-
-# 假设X成真：你的手艺正在被重新定价
 
 ## 一、一封来自2027年的邮件
 

@@ -7,11 +7,9 @@ tags:
   - 代码审查
   - 测试
   - 工程实践
-cover: /posts/cover/ai-code-review-expensive-testing.png
+cover: ai-code-review-expensive-testing.png
 coverAlt: 跑一下试试，是 AI 时代最贵的验收方式
 ---
-
-# 跑一下试试，是 AI 时代最贵的验收方式
 
 AI 给我写了一个日期格式化函数。测试全过，我扫了一眼，合并了。
 

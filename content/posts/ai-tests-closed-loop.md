@@ -7,11 +7,9 @@ tags:
   - 测试
   - 代码审查
   - 工程实践
-cover: /posts/cover/ai-tests-closed-loop.png
+cover: ai-tests-closed-loop.png
 coverAlt: AI 写的测试全绿了？你在跟它一起自欺欺人
 ---
-
-# AI 写的测试全绿了？你在跟它一起自欺欺人
 
 上个月我让 AI 给一个 Chrome 扩展加个功能：把网页上选中的文本发到侧边栏做翻译。需求不复杂：监听选区变化，抓取文本，传给侧边栏组件渲染。
 

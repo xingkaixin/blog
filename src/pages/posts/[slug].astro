@@ -12,7 +12,7 @@ import {
   toPostListItem,
   type BlogPostEntry,
 } from "@/lib/astro-posts";
-import { estimateReadingMetrics, formatDisplayDate, removeFrontmatter } from "@/lib/markdown";
+import { estimateReadingMetrics, formatDisplayDate } from "@/lib/markdown";
 import { buildPostTaxonomy } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
@@ -34,9 +34,8 @@ export async function getStaticPaths() {
 const { post, archivedTags } = Astro.props as Props;
 const archivedTagSet = new Set(archivedTags);
 const readingMetrics = estimateReadingMetrics(post.body);
-const hasLeadingMarkdownTitle = /^#\s+/.test(removeFrontmatter(post.body).trimStart());
 const { Content, headings } = await render(post);
-const postMeta = toPostDetail(post, headings, { excludeLeadingTitle: hasLeadingMarkdownTitle });
+const postMeta = toPostDetail(post, headings);
 const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
 const meta = {
   title: postMeta.title,
@@ -91,11 +90,11 @@ const meta = {
           class="w-full max-w-full overflow-hidden rounded-[10px] border border-line"
           transition:name={`cover-${postMeta.slug}`}
         >
-          <PostCover src={postMeta.cover} alt={postMeta.coverAlt} priority />
+          <PostCover cover={postMeta.cover} alt={postMeta.coverAlt} priority />
         </figure>
 
         <div class="border-y border-line py-8 sm:px-2">
-          <div class:list={["article-prose", hasLeadingMarkdownTitle && "article-prose-trim-leading"]}>
+          <div class="article-prose">
             <Content />
           </div>
         </div>

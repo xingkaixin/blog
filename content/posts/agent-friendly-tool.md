@@ -7,11 +7,9 @@ tags:
   - CLI
   - Agent
   - lark-cli
-cover: /posts/cover/agent-friendly-tool.png
+cover: agent-friendly-tool.png
 coverAlt: 给 agent 做 CLI：你随手写的报错，是它的下一步指令
 ---
-
-# 给 agent 做 CLI：你随手写的报错，是它的下一步指令
 
 翻 agent 的 session 回放，我看到自己写的 CLI 吐了一条错：`Error: request failed`。然后 agent 把同一条命令原样重试了三次，三次拿到同一行字，最后开始换着花样编造根本不存在的 flag。
 

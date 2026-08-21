@@ -7,11 +7,9 @@ tags:
   - AI编程
   - 工程实践
   - Agentic
-cover: /posts/cover/spec-tell-ai-what-not-to-do.png
+cover: spec-tell-ai-what-not-to-do.png
 coverAlt: 不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做
 ---
-
-# 不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做
 
 上一篇我写了 SDD 的问题：spec 写得足够细，本质上就是在用另一种语法写代码，它没有消灭工程的复杂度，只是换了个地方藏起来。
 

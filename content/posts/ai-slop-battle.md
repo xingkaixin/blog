@@ -7,11 +7,9 @@ tags:
   - 工程文化
   - 代码质量
   - 判断力
-cover: /posts/cover/ai-slop-battle.png
+cover: ai-slop-battle.png
 coverAlt: AI泔水之争：同样的烂代码，有人当武器有人当毒药
 ---
-
-# AI泔水之争：同样的烂代码，有人当武器有人当毒药
 
 上周同一天，我的信息流里出现了两篇完全矛盾的东西。
 

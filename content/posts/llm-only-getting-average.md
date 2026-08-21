@@ -7,11 +7,9 @@ tags:
   - AI工具
   - 学习
   - 思考
-cover: /posts/cover/llm-only-getting-average.png
+cover: llm-only-getting-average.png
 coverAlt: 你用 LLM，只拿到了均值
 ---
-
-# 你用 LLM，只拿到了均值
 
 上周让 ChatGPT 写了个 Redis 分布式锁的实现。
 

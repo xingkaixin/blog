@@ -7,13 +7,9 @@ tags:
   - 模型评测
   - SWE-Bench
   - Benchmark
-cover: /posts/cover/benchmark-noise.png
+cover: benchmark-noise.png
 coverAlt: 看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的
 ---
-
-# 看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的
-
-![封面：SWE-Bench 的坏题与答案泄漏](/posts/images/benchmark-noise/benchmark-noise-cover.png)
 
 新模型发布那天，我干的事和大多数人一样：打开评测榜，看它在 SWE-Bench Pro 上比上一代高几个点，再决定要不要把手头的 Agent 切过去。这个动作我重复了两年，从没怀疑过分母。
 

@@ -5,11 +5,9 @@ summary: 大语言模型的 Prompt ，通过加入各类控制，让语言模型
 tags:
   - LLM
   - Prompt
-cover: /posts/cover/llm-react-prompt.webp
+cover: llm-react-prompt.webp
 coverAlt: llm-react-prompt
 ---
-
-# Reason Action 模式
 
 参考论文：
 

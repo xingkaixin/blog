@@ -7,11 +7,9 @@ tags:
   - 系统设计
   - MCP
   - 工程实践
-cover: /posts/cover/agent-first-action-layer.png
+cover: agent-first-action-layer.png
 coverAlt: 给 App 加个聊天框，不叫 Agent-first
 ---
-
-# 给 App 加个聊天框，不叫 Agent-first
 
 camelAI 最早给每个用户配一台虚拟机。Agent 有完整的 Linux、持久磁盘和 Bash，能装依赖、跑命令、部署应用，权限比大多数聊天机器人都大。
 

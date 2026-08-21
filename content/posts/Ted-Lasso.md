@@ -5,7 +5,7 @@ summary: NiceTry 播客最近推荐了 Apple TV+ 上的剧集《足球教练》�
 tags:
   - Apple TV
   - 影视
-cover: /posts/cover/Ted-Lasso.webp
+cover: Ted-Lasso.webp
 coverAlt: Ted-Lasso
 ---
 

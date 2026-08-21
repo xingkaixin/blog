@@ -7,11 +7,9 @@ tags:
   - 前端
   - Design System
   - Spec
-cover: /posts/cover/ai-frontend-design-system-handoff.png
+cover: ai-frontend-design-system-handoff.png
 coverAlt: AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统
 ---
-
-# AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统
 
 后端我一个下午能搭完：鉴权、数据层、API 路由，我描述需求，agent 全包了。前端是它垮掉的地方。每个页面单独看都能跑、都没毛病，凑到一起，像四个互不认识的人各做了一屏。
 

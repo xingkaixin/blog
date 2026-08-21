@@ -5,7 +5,7 @@ describe("rehype blog content", () => {
   it("normalizes headings and external links", () => {
     const heading = {
       type: "element",
-      tagName: "h1",
+      tagName: "h2",
       properties: {},
       children: [{ type: "text", value: "✨ 测试 Heading" }],
     };
@@ -25,13 +25,26 @@ describe("rehype blog content", () => {
 
     rehypeBlogContent()(tree);
 
-    expect(heading).toMatchObject({ tagName: "h2", properties: { id: "测试-heading" } });
+    expect(heading).toMatchObject({ properties: { id: "测试-heading" } });
     expect(externalLink.properties).toMatchObject({
       href: "https://example.com",
       target: "_blank",
       rel: "noreferrer",
     });
     expect(internalLink.properties).toEqual({ href: "/about/" });
+  });
+
+  it("rejects first-level headings owned by frontmatter", () => {
+    const heading = {
+      type: "element",
+      tagName: "h1",
+      properties: {},
+      children: [{ type: "text", value: "重复标题" }],
+    };
+
+    expect(() => rehypeBlogContent()({ type: "root", children: [heading] })).toThrow(
+      "frontmatter title",
+    );
   });
 
   it("assigns stable unique ids to repeated headings", () => {

@@ -7,11 +7,9 @@ tags:
   - Codex
   - 模型调度
   - AI编程
-cover: /posts/cover/model-core-tools-shell.png
+cover: model-core-tools-shell.png
 coverAlt: 我同时用Claude Code和Codex开发：工具是壳，模型才是核
 ---
-
-# 我同时用Claude Code和Codex开发：工具是壳，模型才是核
 
 **Agentic时代工程师生存手册 · 工具篇**
 

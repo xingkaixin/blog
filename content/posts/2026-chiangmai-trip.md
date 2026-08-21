@@ -6,7 +6,7 @@ tags:
   - 旅行
   - 清迈
   - 生活
-cover: /posts/cover/2026-chiangmai-trip.png
+cover: 2026-chiangmai-trip.png
 coverAlt: 2026-chiangmai-trip
 ---
 

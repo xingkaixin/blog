@@ -6,11 +6,9 @@ tags:
   - AI协作
   - 原型设计
   - 产品方法论
-cover: /posts/cover/three-small-prototypes.png
+cover: three-small-prototypes.png
 coverAlt: 说不清想要什么时，先让 AI 做三个小样
 ---
-
-# 说不清想要什么时，先让 AI 做三个小样
 
 Thariq Shihipar 用 Claude Code 剪 Fable 发布视频时，手里的工具很具体：Whisper 做转录，ffmpeg 根据时间点剪掉停顿，Remotion 把字幕和画面拼起来。
 

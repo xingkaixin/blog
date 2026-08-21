@@ -7,11 +7,9 @@ tags:
   - 大模型
   - Claude
   - 信息生态
-cover: /posts/cover/claude-text-watermark.png
+cover: claude-text-watermark.png
 coverAlt: 这篇文章被判 70% 像 AI，Claude 水印却不看文风
 ---
-
-# 这篇文章被判 70% 像 AI，Claude 水印却不看文风
 
 这篇文章的初稿写完后，我收到一份判断：AI 撰写概率约 60%–70%。
 

@@ -7,11 +7,9 @@ tags:
   - 工作流
   - AI编程
   - 专注力
-cover: /posts/cover/agentic-workflow-waiting-revalued.png
+cover: agentic-workflow-waiting-revalued.png
 coverAlt: Agentic 工作流里，"等待"被重新定价了
 ---
-
-# Agentic 工作流里，"等待"被重新定价了
 
 上周三下午，我让 Claude Code 重构一个数据导出模块。
 

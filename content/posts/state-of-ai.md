@@ -5,7 +5,7 @@ summary: 本报告旨在为行业专家、决策者及技术构建者提供一�
 tags:
   - openrouter
   - AI
-cover: /posts/cover/state-of-ai.webp
+cover: state-of-ai.webp
 coverAlt: state-of-ai
 ---
 

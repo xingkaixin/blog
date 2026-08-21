@@ -5,7 +5,7 @@ summary: 如果你使用Plex作为你的媒体库管理影片、剧集。那么�
 tags:
   - APP
   - 服务
-cover: /posts/cover/Infuse-subscription-migration.webp
+cover: Infuse-subscription-migration.webp
 coverAlt: Infuse-subscription-migration
 ---
 

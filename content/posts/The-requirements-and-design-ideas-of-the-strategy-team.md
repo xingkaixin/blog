@@ -5,7 +5,7 @@ summary: 本文旨在分享关于策略组的需求和设计思路，以适用�
 tags:
   - 策略组
   - 科学上网
-cover: /posts/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp
+cover: The-requirements-and-design-ideas-of-the-strategy-team.webp
 coverAlt: The-requirements-and-design-ideas-of-the-strategy-team
 ---
 

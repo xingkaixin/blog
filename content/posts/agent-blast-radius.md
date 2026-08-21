@@ -7,13 +7,9 @@ tags:
   - AI 编程
   - 安全
   - Sandbox
-cover: /posts/cover/agent-blast-radius.png
+cover: agent-blast-radius.png
 coverAlt: 我不再给 agent 逐条点“允许”了：安全管的是爆炸半径，不是权限弹窗
 ---
-
-# 我不再给 agent 逐条点“允许”了：安全管的是爆炸半径，不是权限弹窗
-
-![封面：安全管的是爆炸半径，不是权限弹窗](/posts/images/agent-blast-radius/agent-blast-radius-cover.png)
 
 agent 跑着任务，弹出确认框：要执行一条 shell 命令，允许吗？我扫了一眼，点允许。两分钟后又弹一个，再点。一下午下来我发现，大部分“允许”根本没过脑子——弹窗假设人在把关，实际上人只是一个延迟更高的自动确认器。
 

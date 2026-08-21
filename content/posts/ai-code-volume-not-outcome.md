@@ -6,11 +6,9 @@ tags:
   - AI编程
   - 工程度量
   - DORA
-cover: /posts/cover/ai-code-volume-not-outcome.png
+cover: ai-code-volume-not-outcome.png
 coverAlt: 「AI 写了我们 80% 的代码」，是代码行数换了个新公关
 ---
-
-# 「AI 写了我们 80% 的代码」，是代码行数换了个新公关
 
 群里有人转了条新闻：谷歌说自家 75% 的新代码是 AI 写的。下面立刻跟上一句：“我们的 AI 渗透率呢？”
 

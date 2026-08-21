@@ -7,7 +7,7 @@ tags:
   - 阅读
   - 开源
   - 独立开发
-cover: /posts/cover/yomitomo-ai-reading-companion.webp
+cover: yomitomo-ai-reading-companion.webp
 coverAlt: Yomitomo 阅读界面
 ---
 

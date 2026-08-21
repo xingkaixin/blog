@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { estimateReadingMetrics, formatDisplayDate, tocFromHeadings } from "@/lib/markdown";
 
 describe("tocFromHeadings", () => {
-  it("uses the same rendered depths as the content plugin", () => {
+  it("includes second- and third-level headings", () => {
     expect(
       tocFromHeadings([
         { depth: 1, text: "正文一级标题" },
@@ -11,25 +11,20 @@ describe("tocFromHeadings", () => {
         { depth: 4, text: "细节" },
       ]),
     ).toEqual([
-      { depth: 2, text: "正文一级标题", id: "正文一级标题" },
       { depth: 2, text: "起点", id: "起点" },
       { depth: 3, text: "第二层", id: "第二层" },
     ]);
   });
 
-  it("shares duplicate ids with the content renderer after excluding a leading title", () => {
+  it("shares duplicate ids with the content renderer", () => {
     expect(
-      tocFromHeadings(
-        [
-          { depth: 1, text: "✨ 重复标题" },
-          { depth: 2, text: "重复标题" },
-          { depth: 3, text: "重复标题" },
-        ],
-        { excludeLeadingTitle: true },
-      ),
+      tocFromHeadings([
+        { depth: 2, text: "重复标题" },
+        { depth: 3, text: "重复标题" },
+      ]),
     ).toEqual([
-      { depth: 2, text: "重复标题", id: "重复标题-2" },
-      { depth: 3, text: "重复标题", id: "重复标题-3" },
+      { depth: 2, text: "重复标题", id: "重复标题" },
+      { depth: 3, text: "重复标题", id: "重复标题-2" },
     ]);
   });
 
@@ -66,11 +61,7 @@ describe("formatDisplayDate", () => {
 
 describe("estimateReadingMetrics", () => {
   it("derives Chinese and Latin reading metrics from article text", () => {
-    const metrics = estimateReadingMetrics(`---
-title: 测试
----
-
-这是正文，包含 four English words here。
+    const metrics = estimateReadingMetrics(`这是正文，包含 four English words here。
 
 [可见链接](https://example.com)
 

@@ -5,7 +5,7 @@ summary: 回顾 2025 年，这是我在持续精进的同时，有意识拓展�
 tags:
   - 生活
   - Review
-cover: /posts/cover/2025-review.webp
+cover: 2025-review.webp
 coverAlt: 2025-review
 ---
 

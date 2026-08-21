@@ -10,7 +10,7 @@
       "Code Review",
       "软件设计"
     ],
-    "cover": "/posts/cover/control-ideas-not-code.png",
+    "cover": "control-ideas-not-code.png",
     "coverAlt": "我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用"
   },
   {
@@ -24,7 +24,7 @@
       "安全",
       "Sandbox"
     ],
-    "cover": "/posts/cover/agent-blast-radius.png",
+    "cover": "agent-blast-radius.png",
     "coverAlt": "我不再给 agent 逐条点“允许”了：安全管的是爆炸半径，不是权限弹窗"
   },
   {
@@ -38,7 +38,7 @@
       "软件工程",
       "Cursor"
     ],
-    "cover": "/posts/cover/agent-swarm-context.png",
+    "cover": "agent-swarm-context.png",
     "coverAlt": "多开几个 agent 并行干活，为什么越干越乱"
   },
   {
@@ -52,7 +52,7 @@
       "系统设计",
       "工程实践"
     ],
-    "cover": "/posts/cover/log-lock-in.png",
+    "cover": "log-lock-in.png",
     "coverAlt": "进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体"
   },
   {
@@ -66,7 +66,7 @@
       "开源",
       "系统设计"
     ],
-    "cover": "/posts/cover/deepseek-harness-133-plugins.png",
+    "cover": "deepseek-harness-133-plugins.png",
     "coverAlt": "DeepSeek Harness：我最想抄走的，不是它的插件系统"
   },
   {
@@ -80,7 +80,7 @@
       "工程实践",
       "知识管理"
     ],
-    "cover": "/posts/cover/agent-team-babel.png",
+    "cover": "agent-team-babel.png",
     "coverAlt": "Agent 让每个人都有了翻译器，但团队不再说同一种语言"
   },
   {
@@ -94,7 +94,7 @@
       "Claude",
       "信息生态"
     ],
-    "cover": "/posts/cover/claude-text-watermark.png",
+    "cover": "claude-text-watermark.png",
     "coverAlt": "这篇文章被判 70% 像 AI，Claude 水印却不看文风"
   },
   {
@@ -108,7 +108,7 @@
       "MCP",
       "工程实践"
     ],
-    "cover": "/posts/cover/agent-first-action-layer.png",
+    "cover": "agent-first-action-layer.png",
     "coverAlt": "给 App 加个聊天框，不叫 Agent-first"
   },
   {
@@ -121,7 +121,7 @@
       "预测",
       "判断力"
     ],
-    "cover": "/posts/cover/judgment-needs-a-deadline.png",
+    "cover": "judgment-needs-a-deadline.png",
     "coverAlt": "2023 年我判断中国大模型没戏，三年后我发现少写了一个期限"
   },
   {
@@ -135,7 +135,7 @@
       "SWE-Bench",
       "Benchmark"
     ],
-    "cover": "/posts/cover/benchmark-noise.png",
+    "cover": "benchmark-noise.png",
     "coverAlt": "看榜选模型？SWE-Bench 三成题目是坏的，六成答案是抄来的"
   },
   {
@@ -148,7 +148,7 @@
       "Agent",
       "开发者成长"
     ],
-    "cover": "/posts/cover/coding-joy-stolen.png",
+    "cover": "coding-joy-stolen.png",
     "coverAlt": "AI 五分钟解了你一周的 bug，然后你不开心了"
   },
   {
@@ -161,7 +161,7 @@
       "Agent",
       "工程实践"
     ],
-    "cover": "/posts/cover/agent-stop-conditions.png",
+    "cover": "agent-stop-conditions.png",
     "coverAlt": "Agent 跑得越快，越要提前告诉它什么时候停"
   },
   {
@@ -175,7 +175,7 @@
       "代码质量",
       "软件架构"
     ],
-    "cover": "/posts/cover/search-before-create.png",
+    "cover": "search-before-create.png",
     "coverAlt": "AI 又造了一个 helper：开工前先搜一遍仓库"
   },
   {
@@ -189,7 +189,7 @@
       "需求管理",
       "软件交付"
     ],
-    "cover": "/posts/cover/agent-restates-goal.png",
+    "cover": "agent-restates-goal.png",
     "coverAlt": "聊了半天需求，Agent 还是只做了一个 MVP"
   },
   {
@@ -202,7 +202,7 @@
       "Prompt工程",
       "Agentic"
     ],
-    "cover": "/posts/cover/agent-blindspot-pass.png",
+    "cover": "agent-blindspot-pass.png",
     "coverAlt": "给 Agent 派活前，先让它找一次盲点"
   },
   {
@@ -216,7 +216,7 @@
       "Claude Code",
       "系统设计"
     ],
-    "cover": "/posts/cover/agent-harness-not-model.png",
+    "cover": "agent-harness-not-model.png",
     "coverAlt": "同一个 Claude，为什么在我手里是智障：agent 能力是乘法，不是加法"
   },
   {
@@ -230,7 +230,7 @@
       "产品管理",
       "代码审查"
     ],
-    "cover": "/posts/cover/only-click-merge.png",
+    "cover": "only-click-merge.png",
     "coverAlt": "我只点 merge：Agent 全自动迭代半个月后，我把这套关了"
   },
   {
@@ -243,7 +243,7 @@
       "原型设计",
       "产品方法论"
     ],
-    "cover": "/posts/cover/three-small-prototypes.png",
+    "cover": "three-small-prototypes.png",
     "coverAlt": "说不清想要什么时，先让 AI 做三个小样"
   },
   {
@@ -256,7 +256,7 @@
       "Cloudflare",
       "自动化运维"
     ],
-    "cover": "/posts/cover/agent-daily-log-patrol.png",
+    "cover": "agent-daily-log-patrol.png",
     "coverAlt": "部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare"
   },
   {
@@ -269,7 +269,7 @@
       "前端工程",
       "工程实践"
     ],
-    "cover": "/posts/cover/agent-browser-self-check.png",
+    "cover": "agent-browser-self-check.png",
     "coverAlt": "Agent 写完前端，我要求它先自己点一遍"
   },
   {
@@ -282,7 +282,7 @@
       "工程度量",
       "DORA"
     ],
-    "cover": "/posts/cover/ai-code-volume-not-outcome.png",
+    "cover": "ai-code-volume-not-outcome.png",
     "coverAlt": "「AI 写了我们 80% 的代码」，是代码行数换了个新公关"
   },
   {
@@ -296,7 +296,7 @@
       "Design System",
       "Spec"
     ],
-    "cover": "/posts/cover/ai-frontend-design-system-handoff.png",
+    "cover": "ai-frontend-design-system-handoff.png",
     "coverAlt": "AI 写的前端总像四个人拼的？问题不在模型，在你没给它一套系统"
   },
   {
@@ -309,7 +309,7 @@
       "Agent",
       "判断力"
     ],
-    "cover": "/posts/cover/taste-is-a-muscle-predict-before-output.png",
+    "cover": "taste-is-a-muscle-predict-before-output.png",
     "coverAlt": "多数人不判断 agent，只是在吸收它的结论"
   },
   {
@@ -323,7 +323,7 @@
       "Agent",
       "lark-cli"
     ],
-    "cover": "/posts/cover/agent-friendly-tool.png",
+    "cover": "agent-friendly-tool.png",
     "coverAlt": "给 agent 做 CLI：你随手写的报错，是它的下一步指令"
   },
   {
@@ -337,7 +337,7 @@
       "Claude Code",
       "Context Engineering"
     ],
-    "cover": "/posts/cover/skill-is-a-folder.png",
+    "cover": "skill-is-a-folder.png",
     "coverAlt": "skill 越写越长，agent 反而越用越偏"
   },
   {
@@ -351,7 +351,7 @@
       "链路编排",
       "产品思考"
     ],
-    "cover": "/posts/cover/ai-travel-talk-vs-act.png",
+    "cover": "ai-travel-talk-vs-act.png",
     "coverAlt": "从\"能聊\"到\"能办\"：AI 旅行助手卡在哪里"
   },
   {
@@ -365,7 +365,7 @@
       "用户体验",
       "Agentic"
     ],
-    "cover": "/posts/cover/stay-in-the-loop.png",
+    "cover": "stay-in-the-loop.png",
     "coverAlt": "Agent 编程最隐蔽的盲区：你出了 loop，谁来替你摸 Tab 键"
   },
   {
@@ -379,7 +379,7 @@
       "工程实践",
       "安全"
     ],
-    "cover": "/posts/cover/ai-code-5-checkpoints.png",
+    "cover": "ai-code-5-checkpoints.png",
     "coverAlt": "AI 写完代码后，我只看这 5 个地方"
   },
   {
@@ -393,7 +393,7 @@
       "可观测性",
       "Agentic"
     ],
-    "cover": "/posts/cover/agent-guesses-not-debug.png",
+    "cover": "agent-guesses-not-debug.png",
     "coverAlt": "你以为 Agent 在 debug，其实它在猜"
   },
   {
@@ -407,7 +407,7 @@
       "知识管理",
       "Agentic"
     ],
-    "cover": "/posts/cover/session-as-asset.png",
+    "cover": "session-as-asset.png",
     "coverAlt": "每次跟 agent 聊完，你把最值钱的东西丢了"
   },
   {
@@ -421,7 +421,7 @@
       "代码审查",
       "工程实践"
     ],
-    "cover": "/posts/cover/ai-tests-closed-loop.png",
+    "cover": "ai-tests-closed-loop.png",
     "coverAlt": "AI 写的测试全绿了？你在跟它一起自欺欺人"
   },
   {
@@ -435,7 +435,7 @@
       "开源",
       "独立开发"
     ],
-    "cover": "/posts/cover/yomitomo-ai-reading-companion.webp",
+    "cover": "yomitomo-ai-reading-companion.webp",
     "coverAlt": "Yomitomo 阅读界面"
   },
   {
@@ -449,7 +449,7 @@
       "Anthropic",
       "硅谷"
     ],
-    "cover": "/posts/cover/karpathy-join-anthropic.png",
+    "cover": "karpathy-join-anthropic.png",
     "coverAlt": "Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体\"降级\""
   },
   {
@@ -462,7 +462,7 @@
       "开源",
       "开发工具"
     ],
-    "cover": "/posts/cover/codesesh-ai-coding-sessions-disappearing.webp",
+    "cover": "codesesh-ai-coding-sessions-disappearing.webp",
     "coverAlt": "codesesh-ai-coding-sessions-disappearing"
   },
   {
@@ -476,7 +476,7 @@
       "工程实践",
       "经验"
     ],
-    "cover": "/posts/cover/spec-unwritten-assumptions.png",
+    "cover": "spec-unwritten-assumptions.png",
     "coverAlt": "Spec 里最危险的，是你觉得不用写的部分"
   },
   {
@@ -490,7 +490,7 @@
       "代码质量",
       "判断力"
     ],
-    "cover": "/posts/cover/ai-slop-battle.png",
+    "cover": "ai-slop-battle.png",
     "coverAlt": "AI泔水之争：同样的烂代码，有人当武器有人当毒药"
   },
   {
@@ -504,7 +504,7 @@
       "Musk",
       "Altman"
     ],
-    "cover": "/posts/cover/musk-vs-altman.png",
+    "cover": "musk-vs-altman.png",
     "coverAlt": "翻遍 OpenAI 早期的内部邮件，没人预料到 GPT 会出现"
   },
   {
@@ -518,7 +518,7 @@
       "重构",
       "工程实践"
     ],
-    "cover": "/posts/cover/ai-review-ai.png",
+    "cover": "ai-review-ai.png",
     "coverAlt": "我让 AI 审了自己的代码，审了 10 轮"
   },
   {
@@ -532,7 +532,7 @@
       "独立开发",
       "工程实践"
     ],
-    "cover": "/posts/cover/rhythm-in-ai-coding.png",
+    "cover": "rhythm-in-ai-coding.png",
     "coverAlt": "8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松"
   },
   {
@@ -545,7 +545,7 @@
       "清迈",
       "生活"
     ],
-    "cover": "/posts/cover/2026-chiangmai-trip.png",
+    "cover": "2026-chiangmai-trip.png",
     "coverAlt": "2026-chiangmai-trip"
   },
   {
@@ -559,7 +559,7 @@
       "工程师责任",
       "元认知"
     ],
-    "cover": "/posts/cover/ai-code-responsibility-gap.png",
+    "cover": "ai-code-responsibility-gap.png",
     "coverAlt": "AI 写的代码，你敢签你的名字吗？"
   },
   {
@@ -573,7 +573,7 @@
       "独立开发",
       "认知"
     ],
-    "cover": "/posts/cover/enjoying-ai-too-much-scares-me.png",
+    "cover": "enjoying-ai-too-much-scares-me.png",
     "coverAlt": "我用 AI 越用越爽，这件事让我有点害怕"
   },
   {
@@ -587,7 +587,7 @@
       "AI编程",
       "专注力"
     ],
-    "cover": "/posts/cover/agentic-workflow-waiting-revalued.png",
+    "cover": "agentic-workflow-waiting-revalued.png",
     "coverAlt": "Agentic 工作流里，\"等待\"被重新定价了"
   },
   {
@@ -601,7 +601,7 @@
       "工程效率",
       "认知负荷"
     ],
-    "cover": "/posts/cover/ai-wont-tire-but-you-will.png",
+    "cover": "ai-wont-tire-but-you-will.png",
     "coverAlt": "你以为在审代码，其实在点合并"
   },
   {
@@ -615,7 +615,7 @@
       "判断力",
       "学习"
     ],
-    "cover": "/posts/cover/best-ai-users-need-it-least.png",
+    "cover": "best-ai-users-need-it-least.png",
     "coverAlt": "最好的 AI 使用者，是最不需要 AI 的人"
   },
   {
@@ -629,7 +629,7 @@
       "判断力",
       "学习"
     ],
-    "cover": "/posts/cover/when-ai-bypasses-all-pitfalls.png",
+    "cover": "when-ai-bypasses-all-pitfalls.png",
     "coverAlt": "当 AI 帮你绕过了所有坑——痛感消失之后，判断力从哪儿来？"
   },
   {
@@ -643,7 +643,7 @@
       "知识蒸馏",
       "技术概念"
     ],
-    "cover": "/posts/cover/persona-distillation.png",
+    "cover": "persona-distillation.png",
     "coverAlt": "别再叫「蒸馏」了——你写的就是一张角色卡"
   },
   {
@@ -657,7 +657,7 @@
       "测试",
       "工程实践"
     ],
-    "cover": "/posts/cover/ai-code-review-expensive-testing.png",
+    "cover": "ai-code-review-expensive-testing.png",
     "coverAlt": "跑一下试试，是 AI 时代最贵的验收方式"
   },
   {
@@ -671,7 +671,7 @@
       "工程实践",
       "Agentic"
     ],
-    "cover": "/posts/cover/spec-tell-ai-what-not-to-do.png",
+    "cover": "spec-tell-ai-what-not-to-do.png",
     "coverAlt": "不是不用 Spec，是你用错了——别告诉 AI 怎么做，告诉它什么不能做"
   },
   {
@@ -685,7 +685,7 @@
       "AI时代",
       "职业发展"
     ],
-    "cover": "/posts/cover/assuming-x-agentic-era-engineers-survival-coordinates.png",
+    "cover": "assuming-x-agentic-era-engineers-survival-coordinates.png",
     "coverAlt": "假设X成真：你的手艺正在被重新定价"
   },
   {
@@ -699,7 +699,7 @@
       "模型调度",
       "AI编程"
     ],
-    "cover": "/posts/cover/model-core-tools-shell.png",
+    "cover": "model-core-tools-shell.png",
     "coverAlt": "我同时用Claude Code和Codex开发：工具是壳，模型才是核"
   },
   {
@@ -713,7 +713,7 @@
       "安全",
       "AI编程"
     ],
-    "cover": "/posts/cover/vibe-coding-ai-code-backlash-openclaw.png",
+    "cover": "vibe-coding-ai-code-backlash-openclaw.png",
     "coverAlt": "当Vibe Coding遇到百万行代码：OpenClaw教我的事"
   },
   {
@@ -727,7 +727,7 @@
       "AI安全",
       "信息生态"
     ],
-    "cover": "/posts/cover/315-geo-ai-poisoning.png",
+    "cover": "315-geo-ai-poisoning.png",
     "coverAlt": "两小时让假产品登上 AI 推荐第一名：一个开发者眼中的 GEO 攻防战"
   },
   {
@@ -741,7 +741,7 @@
       "Agent协议",
       "AI架构"
     ],
-    "cover": "/posts/cover/mcp-vs-a2a-protocol-comparison.png",
+    "cover": "mcp-vs-a2a-protocol-comparison.png",
     "coverAlt": "MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？"
   },
   {
@@ -755,7 +755,7 @@
       "AI编程",
       "Karpathy"
     ],
-    "cover": "/posts/cover/vibe-coding-to-agentic-engineering.png",
+    "cover": "vibe-coding-to-agentic-engineering.png",
     "coverAlt": "Vibe Coding 已死：Karpathy 宣布的 Agentic Engineering，到底改变了什么？"
   },
   {
@@ -769,7 +769,7 @@
       "生态",
       "AI编程"
     ],
-    "cover": "/posts/cover/beyond-the-3-day-clone.png",
+    "cover": "beyond-the-3-day-clone.png",
     "coverAlt": "当开源想法三天就能被复制"
   },
   {
@@ -783,7 +783,7 @@
       "工程实践",
       "开发效率"
     ],
-    "cover": "/posts/cover/coding-agent-almost-1-year.png",
+    "cover": "coding-agent-almost-1-year.png",
     "coverAlt": "与 AI 共事一年，我从\"甩手掌柜\"变成了\"掌舵人\""
   },
   {
@@ -797,7 +797,7 @@
       "AI基础",
       "性能优化"
     ],
-    "cover": "/posts/cover/kv-cache-why-ai-replies-get-faster.png",
+    "cover": "kv-cache-why-ai-replies-get-faster.png",
     "coverAlt": "KV Cache：为什么 AI 回复越来越快？"
   },
   {
@@ -811,7 +811,7 @@
       "学习",
       "思考"
     ],
-    "cover": "/posts/cover/llm-only-getting-average.png",
+    "cover": "llm-only-getting-average.png",
     "coverAlt": "你用 LLM，只拿到了均值"
   },
   {
@@ -825,7 +825,7 @@
       "开发者",
       "工程实践"
     ],
-    "cover": "/posts/cover/from-writing-code-to-reviewing-code.png",
+    "cover": "from-writing-code-to-reviewing-code.png",
     "coverAlt": "从\"写代码\"到\"审代码\"：AI 时代，开发者的能力迁移"
   },
   {
@@ -839,7 +839,7 @@
       "Coding Agent",
       "软件设计"
     ],
-    "cover": "/posts/cover/spec-as-new-fig-leaf.png",
+    "cover": "spec-as-new-fig-leaf.png",
     "coverAlt": "SDD 最大的幻觉：你以为在写 Spec，其实在绕路写代码"
   },
   {
@@ -850,7 +850,7 @@
     "tags": [
       "AI Memory"
     ],
-    "cover": "/posts/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png",
+    "cover": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png",
     "coverAlt": "ai-memory-systems-from-log-retrieval-to-knowledge-evolution"
   },
   {
@@ -864,7 +864,7 @@
       "AI工具",
       "Agent"
     ],
-    "cover": "/posts/cover/mcp-cli-skill-evolution.png",
+    "cover": "mcp-cli-skill-evolution.png",
     "coverAlt": "工具的进化论：当 MCP 遇见 CLI，一场关于\"上下文\"的温柔革命"
   },
   {
@@ -876,7 +876,7 @@
       "生活",
       "Review"
     ],
-    "cover": "/posts/cover/2025-review.webp",
+    "cover": "2025-review.webp",
     "coverAlt": "2025-review"
   },
   {
@@ -888,7 +888,7 @@
       "openrouter",
       "AI"
     ],
-    "cover": "/posts/cover/state-of-ai.webp",
+    "cover": "state-of-ai.webp",
     "coverAlt": "state-of-ai"
   },
   {
@@ -901,7 +901,7 @@
       "Enterprise",
       "AI"
     ],
-    "cover": "/posts/cover/the-state-of-enterprise-ai_2025-report.webp",
+    "cover": "the-state-of-enterprise-ai_2025-report.webp",
     "coverAlt": "the-state-of-enterprise-ai_2025-report"
   },
   {
@@ -913,7 +913,7 @@
       "哲学",
       "科学"
     ],
-    "cover": "/posts/cover/the-chicken-or-the-egg.webp",
+    "cover": "the-chicken-or-the-egg.webp",
     "coverAlt": "the-chicken-or-the-egg"
   },
   {
@@ -925,7 +925,7 @@
       "影视",
       "新闻"
     ],
-    "cover": "/posts/cover/the-newsroom-time-tested-masterpieces.webp",
+    "cover": "the-newsroom-time-tested-masterpieces.webp",
     "coverAlt": "the-newsroom-time-tested-masterpieces"
   },
   {
@@ -937,7 +937,7 @@
       "LLM",
       "Prompt"
     ],
-    "cover": "/posts/cover/llm-react-prompt.webp",
+    "cover": "llm-react-prompt.webp",
     "coverAlt": "llm-react-prompt"
   },
   {
@@ -949,7 +949,7 @@
       "游戏",
       "影视"
     ],
-    "cover": "/posts/cover/The-Last-of-Us-review.webp",
+    "cover": "The-Last-of-Us-review.webp",
     "coverAlt": "The-Last-of-Us-review"
   },
   {
@@ -961,7 +961,7 @@
       "生活",
       "青春"
     ],
-    "cover": "/posts/cover/Memories-make-people-grow-old.webp",
+    "cover": "Memories-make-people-grow-old.webp",
     "coverAlt": "Memories-make-people-grow-old"
   },
   {
@@ -974,7 +974,7 @@
       "警察",
       "保安"
     ],
-    "cover": "/posts/cover/Follow-or-break-the-rules.webp",
+    "cover": "Follow-or-break-the-rules.webp",
     "coverAlt": "Follow-or-break-the-rules"
   },
   {
@@ -986,7 +986,7 @@
       "Apple TV",
       "影视"
     ],
-    "cover": "/posts/cover/Ted-Lasso.webp",
+    "cover": "Ted-Lasso.webp",
     "coverAlt": "Ted-Lasso"
   },
   {
@@ -999,7 +999,7 @@
       "Netflix",
       "杜比视界"
     ],
-    "cover": "/posts/cover/macOS-now-supports-Netflix-Dolby-Vision.webp",
+    "cover": "macOS-now-supports-Netflix-Dolby-Vision.webp",
     "coverAlt": "macOS-now-supports-Netflix-Dolby-Vision"
   },
   {
@@ -1011,7 +1011,7 @@
       "台湾",
       "香港"
     ],
-    "cover": "/posts/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp",
+    "cover": "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp",
     "coverAlt": "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong"
   },
   {
@@ -1023,7 +1023,7 @@
       "策略组",
       "科学上网"
     ],
-    "cover": "/posts/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp",
+    "cover": "The-requirements-and-design-ideas-of-the-strategy-team.webp",
     "coverAlt": "The-requirements-and-design-ideas-of-the-strategy-team"
   },
   {
@@ -1035,7 +1035,7 @@
       "APP",
       "服务"
     ],
-    "cover": "/posts/cover/Infuse-subscription-migration.webp",
+    "cover": "Infuse-subscription-migration.webp",
     "coverAlt": "Infuse-subscription-migration"
   },
   {
@@ -1046,7 +1046,7 @@
     "tags": [
       "ALS"
     ],
-    "cover": "/posts/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp",
+    "cover": "ALS-Ice-Bucket-Challenge-and-Charity.webp",
     "coverAlt": "ALS-Ice-Bucket-Challenge-and-Charity"
   },
   {
@@ -1057,7 +1057,7 @@
     "tags": [
       "生活"
     ],
-    "cover": "/posts/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp",
+    "cover": "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp",
     "coverAlt": "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers"
   },
   {
@@ -1068,7 +1068,7 @@
     "tags": [
       "付费服务"
     ],
-    "cover": "/posts/cover/why-i-pay.webp",
+    "cover": "why-i-pay.webp",
     "coverAlt": "why-i-pay"
   }
 ]

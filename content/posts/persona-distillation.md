@@ -7,11 +7,9 @@ tags:
   - 提示词工程
   - 知识蒸馏
   - 技术概念
-cover: /posts/cover/persona-distillation.png
+cover: persona-distillation.png
 coverAlt: 别再叫「蒸馏」了——你写的就是一张角色卡
 ---
-
-# 别再叫「蒸馏」了——你写的就是一张角色卡
 
 最近 GitHub 上「蒸馏」这个词快被用烂了。
 

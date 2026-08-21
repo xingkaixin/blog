@@ -9,10 +9,6 @@ type RenderedHeading = {
   text: string;
 };
 
-type TocOptions = {
-  excludeLeadingTitle?: boolean;
-};
-
 const slugify = (value: string) =>
   value
     .trim()
@@ -43,18 +39,13 @@ export function createHeadingIdAllocator() {
   };
 }
 
-export const removeFrontmatter = (source: string) => {
-  const match = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(source);
-  return match ? match[2] : source;
-};
-
 export type ReadingMetrics = {
   wordCount: number;
   readingMinutes: number;
 };
 
 export function estimateReadingMetrics(markdown: string): ReadingMetrics {
-  const text = removeFrontmatter(markdown)
+  const text = markdown
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/`[^`]*`/g, " ")
     .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
@@ -79,18 +70,14 @@ export function formatDisplayDate(value: string | Date) {
   }).format(new Date(value));
 }
 
-export function tocFromHeadings(
-  headings: RenderedHeading[],
-  { excludeLeadingTitle = false }: TocOptions = {},
-): TocItem[] {
+export function tocFromHeadings(headings: RenderedHeading[]): TocItem[] {
   const allocateId = createHeadingIdAllocator();
 
-  return headings.flatMap(({ depth, text }, index) => {
+  return headings.flatMap(({ depth, text }) => {
     const id = allocateId(text);
-    const renderedDepth = depth === 1 ? 2 : depth;
-    if ((excludeLeadingTitle && index === 0) || (renderedDepth !== 2 && renderedDepth !== 3)) {
+    if (depth !== 2 && depth !== 3) {
       return [];
     }
-    return [{ depth: renderedDepth, id, text }];
+    return [{ depth, id, text }];
   });
 }

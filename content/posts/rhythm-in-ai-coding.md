@@ -7,11 +7,9 @@ tags:
   - 工程节奏
   - 独立开发
   - 工程实践
-cover: /posts/cover/rhythm-in-ai-coding.png
+cover: rhythm-in-ai-coding.png
 coverAlt: 8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松
 ---
-
-# 8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松
 
 3 月 12 日凌晨，我提交了项目主体的最后一个 commit。代码不算多，大约 4000 行，从 3 月 5 日开工算起，跨度 8 天。
 
@@ -37,9 +35,9 @@ coverAlt: 8 天 + 16 天 + 1 天：我不打算把 AI 编程跑成马拉松
 一个使用 python 实现的数据查询命令行工具，需要做登录鉴权和 token 的管理。
 命令行的基本流程，首先需要用户登录，没有登录情况下，其他命令都提示用户登录。
 ...
-# 登录与账号
+## 登录与账号
 ds status, ds login, ds whoami, ds logout
-# 数据源
+## 数据源
 ## ds obj {objId/ObjName}
    - 条件查询 --where {field} {op} {value}
    ...

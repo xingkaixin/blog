@@ -7,11 +7,9 @@ tags:
   - Claude Code
   - 系统设计
   - 工程实践
-cover: /posts/cover/log-lock-in.png
+cover: log-lock-in.png
 coverAlt: 进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体
 ---
-
-# 进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体
 
 那天 Claude Code 跑着一个改动挺大的任务，停在权限确认上，等我按 y。我切出去处理别的事，回来发现 ssh 断了，进程没了。
 

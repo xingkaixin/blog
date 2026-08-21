@@ -7,13 +7,9 @@ tags:
   - Agentic Engineering
   - 代码质量
   - 软件架构
-cover: /posts/cover/search-before-create.png
+cover: search-before-create.png
 coverAlt: AI 又造了一个 helper：开工前先搜一遍仓库
 ---
-
-# AI 又造了一个 helper：开工前先搜一遍仓库
-
-![AI 又造了一个 helper：开工前先搜一遍仓库](/posts/images/search-before-create/search-before-create-cover.png)
 
 一个 TypeScript 项目跑久了，仓库里可能会出现这样的景象：`isObject`、`isPlainObject`、`isRecord`、`isDictionary`，名字不同，里面做的事差不多。它们散在四个目录，各自只有几行，单独看都挺合理。
 

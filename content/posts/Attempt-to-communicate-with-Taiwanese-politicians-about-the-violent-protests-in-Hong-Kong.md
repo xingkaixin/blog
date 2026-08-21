@@ -5,7 +5,7 @@ summary: 作者写了一封邮件给台北市议员邱威杰，表达了对香�
 tags:
   - 台湾
   - 香港
-cover: /posts/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp
+cover: Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp
 coverAlt: Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong
 ---
 

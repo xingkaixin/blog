@@ -7,11 +7,9 @@ tags:
   - 大模型
   - AI基础
   - 性能优化
-cover: /posts/cover/kv-cache-why-ai-replies-get-faster.png
+cover: kv-cache-why-ai-replies-get-faster.png
 coverAlt: KV Cache：为什么 AI 回复越来越快？
 ---
-
-# KV Cache：为什么 AI 回复越来越快？
 
 你有没有注意到，当你跟 AI 聊天时，它的第一个字往往需要等一会儿，但一旦开始输出，后面的内容就会源源不断地涌出来？这背后的关键技术叫做 **KV Cache**。
 

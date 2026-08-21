@@ -7,13 +7,9 @@ tags:
   - Agentic Engineering
   - 需求管理
   - 软件交付
-cover: /posts/cover/agent-restates-goal.png
+cover: agent-restates-goal.png
 coverAlt: 聊了半天需求，Agent 还是只做了一个 MVP
 ---
-
-# 聊了半天需求，Agent 还是只做了一个 MVP
-
-![聊了半天需求，Agent 还是只做了一个 MVP](/posts/images/agent-restates-goal/agent-restates-goal-cover.png)
 
 “先做一个 MVP，把注册主流程跑通。”
 

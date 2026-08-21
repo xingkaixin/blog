@@ -2,53 +2,40 @@
 import { resolveCover, type ResponsiveCover } from "@/lib/covers";
 
 type Props = {
-  src: string;
+  cover: string;
   alt: string;
   priority?: boolean;
   class?: string;
   imageClass?: string;
-  responsive?: ResponsiveCover | null;
 };
 
 const {
-  src,
+  cover,
   alt,
   priority = false,
   class: className,
   imageClass,
-  responsive = resolveCover(src),
 } = Astro.props;
+const responsive: ResponsiveCover = resolveCover(cover);
 const imageClassName = ["block h-auto w-full max-w-full", imageClass].filter(Boolean).join(" ");
 ---
 
 <div class:list={["w-full max-w-full overflow-hidden", className]}>
-  {
-    responsive ? (
-      <picture>
-        <source
-          srcset={`${responsive.mobile} 1x, ${responsive.desktop} 2x`}
-          media="(max-width: 639px)"
-        />
-        <source
-          srcset={`${responsive.desktop} 1x, ${responsive.full} 2x`}
-          media="(max-width: 1023px)"
-        />
-        <img
-          src={responsive.full}
-          alt={alt}
-          loading={priority ? "eager" : "lazy"}
-          fetchpriority={priority ? "high" : undefined}
-          class={imageClassName}
-        />
-      </picture>
-    ) : (
-      <img
-        src={src}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"}
-        fetchpriority={priority ? "high" : undefined}
-        class={imageClassName}
-      />
-    )
-  }
+  <picture>
+    <source
+      srcset={`${responsive.mobile} 1x, ${responsive.desktop} 2x`}
+      media="(max-width: 639px)"
+    />
+    <source
+      srcset={`${responsive.desktop} 1x, ${responsive.full} 2x`}
+      media="(max-width: 1023px)"
+    />
+    <img
+      src={responsive.full}
+      alt={alt}
+      loading={priority ? "eager" : "lazy"}
+      fetchpriority={priority ? "high" : undefined}
+      class={imageClassName}
+    />
+  </picture>
 </div>

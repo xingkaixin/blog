@@ -7,11 +7,9 @@ tags:
   - A2A
   - Agent协议
   - AI架构
-cover: /posts/cover/mcp-vs-a2a-protocol-comparison.png
+cover: mcp-vs-a2a-protocol-comparison.png
 coverAlt: MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？
 ---
-
-# MCP vs A2A：AI Agent 时代的两大协议之争，开发者该站哪边？
 
 上个月我写了一篇关于 MCP 协议的文章，聊了它如何成为 AI 的"USB-C 接口"。那篇发出去之后，后台收到最多的一个问题是：
 

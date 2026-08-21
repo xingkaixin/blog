@@ -6,6 +6,7 @@ import { isCalendarDate } from "./published-post";
 
 const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
 const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const COVER_FILENAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|webp)$/i;
 
 export const calendarDateSchema = z
   .string()
@@ -22,7 +23,7 @@ export const postFrontmatterSchema = z.object({
   date: calendarDateSchema,
   summary: z.string().trim().min(1),
   tags: tagsSchema,
-  cover: z.string().min(1),
+  cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
   coverAlt: z.string().trim().min(1),
   draft: z.boolean().optional(),
 });
@@ -32,7 +33,7 @@ export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
 export const COVER_MISSING_MESSAGE = "Cover image not found";
 
 export function coverExists(cover: string) {
-  return fs.existsSync(path.join(COVER_DIR, path.basename(cover)));
+  return fs.existsSync(path.join(COVER_DIR, cover));
 }
 
 type FrontmatterIssue = {

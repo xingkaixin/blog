@@ -7,13 +7,9 @@ tags:
   - AI编程
   - 工程实践
   - 开发效率
-cover: /posts/cover/coding-agent-almost-1-year.png
+cover: coding-agent-almost-1-year.png
 coverAlt: 与 AI 共事一年，我从"甩手掌柜"变成了"掌舵人"
 ---
-
-# 与 AI 共事一年，我从"甩手掌柜"变成了"掌舵人"
-
-![illustration-01](/posts/images/coding-agent-almost-1-year/illustration-01.png)
 
 去年12月的一个晚上，和几个朋友在视频会议里聊起 AI 编程。小陈兴奋地说他用 Claude Code 三天就写完了一个微服务，语气里带着"以后再也不用自己写代码了"的得意。小李却在另一边苦笑："我还是只敢让它补全几行，真让它写个完整函数，review 的时间比自己写还长。"
 

@@ -7,11 +7,9 @@ tags:
   - AI编程
   - 工程实践
   - 知识管理
-cover: /posts/cover/agent-team-babel.png
+cover: agent-team-babel.png
 coverAlt: Agent 让每个人都有了翻译器，但团队不再说同一种语言
 ---
-
-# Agent 让每个人都有了翻译器，但团队不再说同一种语言
 
 前阵子，我准备给一个旧项目加个小功能。点进三个月前写的模块后，我才发现：代码能跑，测试也在，我却说不出其中一层抽象为什么存在。
 

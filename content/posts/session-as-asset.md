@@ -7,11 +7,9 @@ tags:
   - 工程实践
   - 知识管理
   - Agentic
-cover: /posts/cover/session-as-asset.png
+cover: session-as-asset.png
 coverAlt: 每次跟 agent 聊完，你把最值钱的东西丢了
 ---
-
-# 每次跟 agent 聊完，你把最值钱的东西丢了
 
 上个月在搞一个 SQLite WAL 模式下的并发写入问题。查文档、试了几种锁策略、跟 Codex 来回几轮，最后找到方案：写操作串行化，加个队列，连接池设成单写多读。前后大概两小时，踩了三个坑。
 

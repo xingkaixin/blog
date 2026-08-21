@@ -7,11 +7,9 @@ tags:
   - Karpathy
   - Anthropic
   - 硅谷
-cover: /posts/cover/karpathy-join-anthropic.png
+cover: karpathy-join-anthropic.png
 coverAlt: Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体"降级"
 ---
-
-# Karpathy 加入 Anthropic 背后：硅谷 CTO 正在集体"降级"
 
 昨天 Karpathy 官宣加入 Anthropic，进了 pretraining team。OpenAI 联合创始人、Tesla AI 总监、Vibe Coding 的提出者，新头衔是 Member of Technical Staff——翻译过来就是"技术团队成员"。
 

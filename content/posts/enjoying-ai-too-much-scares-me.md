@@ -7,11 +7,9 @@ tags:
   - 工程师成长
   - 独立开发
   - 认知
-cover: /posts/cover/enjoying-ai-too-much-scares-me.png
+cover: enjoying-ai-too-much-scares-me.png
 coverAlt: 我用 AI 越用越爽，这件事让我有点害怕
 ---
-
-# 我用 AI 越用越爽，这件事让我有点害怕
 
 清迈，行程已经过半。一个咖啡馆里，我突然想到一个功能。
 

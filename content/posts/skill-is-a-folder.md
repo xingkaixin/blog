@@ -7,11 +7,9 @@ tags:
   - Agent
   - Claude Code
   - Context Engineering
-cover: /posts/cover/skill-is-a-folder.png
+cover: skill-is-a-folder.png
 coverAlt: skill 越写越长，agent 反而越用越偏
 ---
-
-# skill 越写越长，agent 反而越用越偏
 
 周日晚上，我打开那个管选题的 SKILL.md，准备再给它补几条规则。光标拉到底：312 行。三周前 Claude 刚生成它的时候，我记得很清楚，87 行。
 

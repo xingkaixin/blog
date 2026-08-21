@@ -6,7 +6,7 @@ const validFrontmatter = {
   date: "2026-08-07",
   summary: "测试摘要",
   tags: ["Astro", "TypeScript"],
-  cover: "/posts/cover/test.png",
+  cover: "test.png",
   coverAlt: "测试封面",
 };
 
@@ -40,4 +40,11 @@ describe("post frontmatter", () => {
       false,
     );
   });
+
+  it.each(["/posts/cover/test.png", "../test.png", "test.svg"])(
+    "rejects non-canonical cover filename %j",
+    (cover) => {
+      expect(postFrontmatterSchema.safeParse({ ...validFrontmatter, cover }).success).toBe(false);
+    },
+  );
 });

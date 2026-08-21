@@ -6,13 +6,9 @@ tags:
   - AI编程
   - Agent
   - 开发者成长
-cover: /posts/cover/coding-joy-stolen.png
+cover: coding-joy-stolen.png
 coverAlt: AI 五分钟解了你一周的 bug，然后你不开心了
 ---
-
-# AI 五分钟解了你一周的 bug，然后你不开心了
-
-![封面：AI 五分钟解了你一周的 bug，然后你不开心了](/posts/images/coding-joy-stolen/coding-joy-stolen-cover.png)
 
 onevcat 前阵子写了一篇文章，标题叫《当编程变得不再有趣》。
 

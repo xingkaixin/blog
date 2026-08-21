@@ -6,11 +6,9 @@ tags:
   - Agent
   - Cloudflare
   - 自动化运维
-cover: /posts/cover/agent-daily-log-patrol.png
+cover: agent-daily-log-patrol.png
 coverAlt: 部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare
 ---
-
-# 部署完就再没看过日志？我让 Agent 每天替我巡一遍 Cloudflare
 
 我有个小应用部署在 Cloudflare 上。上线那天，我盯着 dashboard 看了半小时，之后再也没打开过。
 

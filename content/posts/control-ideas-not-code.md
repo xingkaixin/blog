@@ -7,13 +7,9 @@ tags:
   - AI 编程
   - Code Review
   - 软件设计
-cover: /posts/cover/control-ideas-not-code.png
+cover: control-ideas-not-code.png
 coverAlt: 我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用
 ---
-
-# 我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用
-
-![封面：控制思想而不是逐行审 AI 代码](/posts/images/control-ideas-not-code/control-ideas-not-code-cover.png)
 
 三月我发过一篇《从写代码到审代码》。里面有个我当时很得意的切片：AI 两分钟生成 200 行，我花 40 分钟逐条推边界、修错误。我把那 40 分钟当作新职责的证明——写的价值在贬值，审的价值在上涨。
 

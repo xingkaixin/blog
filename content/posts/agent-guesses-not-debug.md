@@ -7,11 +7,9 @@ tags:
   - Debug
   - 可观测性
   - Agentic
-cover: /posts/cover/agent-guesses-not-debug.png
+cover: agent-guesses-not-debug.png
 coverAlt: 你以为 Agent 在 debug，其实它在猜
 ---
-
-# 你以为 Agent 在 debug，其实它在猜
 
 我第五次让 Agent 改同一个 bug。
 

@@ -5,7 +5,7 @@ summary: 数年后重新观看《新闻编辑室》，这部精心打造的剧�
 tags:
   - 影视
   - 新闻
-cover: /posts/cover/the-newsroom-time-tested-masterpieces.webp
+cover: the-newsroom-time-tested-masterpieces.webp
 coverAlt: the-newsroom-time-tested-masterpieces
 ---
 

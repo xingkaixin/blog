@@ -4,7 +4,7 @@ date: '2014-02-20'
 summary: 作为上海土著，不排外，身边有大量非上海朋友来回答下这个问题。
 tags:
   - 生活
-cover: /posts/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp
+cover: Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp
 coverAlt: Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers
 ---
 

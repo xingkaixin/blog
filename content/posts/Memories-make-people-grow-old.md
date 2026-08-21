@@ -5,7 +5,7 @@ summary: 本文讲述了作者在整理 Gmail 邮件时发现了过往和旧友�
 tags:
   - 生活
   - 青春
-cover: /posts/cover/Memories-make-people-grow-old.webp
+cover: Memories-make-people-grow-old.webp
 coverAlt: Memories-make-people-grow-old
 ---
 

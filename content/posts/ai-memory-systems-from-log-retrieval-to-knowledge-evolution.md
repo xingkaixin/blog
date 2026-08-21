@@ -4,7 +4,7 @@ date: '2026-03-16'
 summary: 本文讨论 AI 长期记忆系统的构建问题，并指出当前主流的向量数据库方案本质上只是日志检索机制，而不是真正意义上的记忆。文章从三个关键挑战展开分析：记忆压缩、记忆演化以及记忆冲突。记忆压缩关注如何将大量原始对话交互转化为更高层次的知识表示，避免信息无限增长；记忆演化强调系统需要理解事实随时间变化并更新状态；记忆冲突则涉及当不同记忆相互矛盾时如何进行判断与版本管理。
 tags:
   - AI Memory
-cover: /posts/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png
+cover: ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png
 coverAlt: ai-memory-systems-from-log-retrieval-to-knowledge-evolution
 ---
 
@@ -15,8 +15,6 @@ coverAlt: ai-memory-systems-from-log-retrieval-to-knowledge-evolution
 
 ---
 
-
-# AI 记忆系统构建：从日志检索到知识演化
 
 自从 ChatGPT 推出记忆功能以来，很多用户第一次体验到了"被记住"的感觉。你告诉它自己喜欢日式料理，几周后它居然主动推荐附近的寿司店——这种细微的变化，让 AI 助手从冰冷的工具变成了有"记忆"的伙伴。
 

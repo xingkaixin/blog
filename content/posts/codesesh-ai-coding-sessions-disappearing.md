@@ -6,7 +6,7 @@ tags:
   - AI 编码
   - 开源
   - 开发工具
-cover: /posts/cover/codesesh-ai-coding-sessions-disappearing.webp
+cover: codesesh-ai-coding-sessions-disappearing.webp
 coverAlt: codesesh-ai-coding-sessions-disappearing
 ---
 

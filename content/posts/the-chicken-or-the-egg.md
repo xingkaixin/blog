@@ -5,7 +5,7 @@ summary: 哲学上因果循环无解，但进化史与化石-基因证据表明�
 tags:
   - 哲学
   - 科学
-cover: /posts/cover/the-chicken-or-the-egg.webp
+cover: the-chicken-or-the-egg.webp
 coverAlt: the-chicken-or-the-egg
 ---
 
