@@ -8,6 +8,7 @@ import { postHref } from "@/lib/published-post";
 import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
 import { matchesSearchQuery, normalizeSearchText } from "@/lib/search-text";
 import { searchNavigation } from "@/lib/site-navigation";
+import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
 import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {
@@ -181,7 +182,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       return;
     }
     if (item.kind === "action") {
-      window.dispatchEvent(new Event("site:toggle-theme"));
+      window.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
       onOpenChange(false);
       return;
     }

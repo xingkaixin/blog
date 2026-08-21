@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
+import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
 import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {
@@ -107,7 +108,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
 
   const toggleTheme = () => {
     closeMenu();
-    window.dispatchEvent(new Event("site:toggle-theme"));
+    window.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
   };
 
   return (
