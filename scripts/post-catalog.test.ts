@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { siteConfig } from "../src/lib/site";
 import { buildRedirects, buildSitemap } from "./generate-sitemap";
 import { parsePublishedPost } from "./lib/post-catalog";
 
@@ -68,12 +69,25 @@ describe("post catalog", () => {
   it("builds sitemap and legacy redirects from the same catalog", () => {
     const posts = [
       { slug: "new-post", date: "2026-07-11", tags: ["shared", "single"] },
-      { slug: "older-post", date: "2026-07-10", tags: ["shared"] },
+      { slug: "older-post", date: "2026-07-10", tags: ["shared", "archive-only"] },
+      { slug: "oldest-post", date: "2026-07-09", tags: ["archive-only"] },
     ];
-    expect(buildSitemap(posts)).toContain("/posts/new-post/");
-    expect(buildSitemap(posts)).toContain("/tags/shared/");
-    expect(buildSitemap(posts)).toContain("/photos/");
-    expect(buildSitemap(posts)).not.toContain("/tags/single/");
+    const sitemap = buildSitemap(posts);
+    expect(sitemapEntry(sitemap, "/")).toContain("<lastmod>2026-07-11</lastmod>");
+    expect(sitemapEntry(sitemap, "/tags/")).toContain("<lastmod>2026-07-11</lastmod>");
+    expect(sitemapEntry(sitemap, "/tags/archive-only/")).toContain("<lastmod>2026-07-10</lastmod>");
+    expect(sitemapEntry(sitemap, "/posts/new-post/")).toContain("<lastmod>2026-07-11</lastmod>");
+    expect(sitemapEntry(sitemap, "/photos/")).not.toContain("<lastmod>");
+    expect(sitemap).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });
 });
+
+function sitemapEntry(sitemap: string, pathname: string): string {
+  const loc = `<loc>${siteConfig.url}${pathname}</loc>`;
+  const entry = sitemap.match(/  <url>[\s\S]*?  <\/url>/g)?.find((item) => item.includes(loc));
+  if (!entry) {
+    throw new Error(`Sitemap entry not found: ${pathname}`);
+  }
+  return entry;
+}

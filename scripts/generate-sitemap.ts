@@ -14,17 +14,34 @@ const POSTS_DIR = path.join(ROOT, "content", "posts");
 const DIST_DIR = path.join(ROOT, "dist");
 
 export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | "tags">>) {
-  const today = new Date().toISOString().slice(0, 10);
+  const latestContentDate = latestPostDate(posts);
 
-  const urlEntry = (loc: string, lastmod: string, changefreq: string, priority: string) =>
-    `  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+  const urlEntry = (
+    loc: string,
+    lastmod: string | undefined,
+    changefreq: string,
+    priority: string,
+  ) =>
+    [
+      "  <url>",
+      `    <loc>${escapeXml(loc)}</loc>`,
+      ...(lastmod ? [`    <lastmod>${lastmod}</lastmod>`] : []),
+      `    <changefreq>${changefreq}</changefreq>`,
+      `    <priority>${priority}</priority>`,
+      "  </url>",
+    ].join("\n");
 
   const entries = [
     ...sitemapNavigation().map((route) =>
-      urlEntry(`${siteConfig.url}${route.href}`, today, route.changefreq, route.priority),
+      urlEntry(
+        `${siteConfig.url}${route.href}`,
+        route.href === "/" || route.href === "/tags/" ? latestContentDate : undefined,
+        route.changefreq,
+        route.priority,
+      ),
     ),
-    ...buildPostTaxonomy(posts).archives.map(({ href }) =>
-      urlEntry(`${siteConfig.url}${href}`, today, "weekly", "0.6"),
+    ...buildPostTaxonomy(posts).archives.map(({ href, posts: taggedPosts }) =>
+      urlEntry(`${siteConfig.url}${href}`, latestPostDate(taggedPosts), "weekly", "0.6"),
     ),
     ...posts.map((post) =>
       urlEntry(`${siteConfig.url}${postHref(post.slug)}`, post.date, "monthly", "0.8"),
@@ -38,6 +55,13 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | 
     "</urlset>",
     "",
   ].join("\n");
+}
+
+function latestPostDate(posts: Array<Pick<PublishedPost, "date">>): string | undefined {
+  return posts.reduce<string | undefined>(
+    (latest, post) => (!latest || post.date > latest ? post.date : latest),
+    undefined,
+  );
 }
 
 export function buildRobotsTxt() {
