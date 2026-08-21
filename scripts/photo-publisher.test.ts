@@ -494,6 +494,43 @@ describe("photo publisher", () => {
     expect(store.objects.has(replacedPath)).toBe(false);
   });
 
+  it("removes a revived month shard from the retirement queue", async () => {
+    const firstFile = await createSourceFile("first live photo");
+    const secondFile = await createSourceFile("temporary second photo");
+    const firstId = await hashPhotoFile(firstFile);
+    const secondId = await hashPhotoFile(secondFile);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [firstFile],
+      store,
+      processPhoto: async () => processedPhoto(firstId),
+      now: () => new Date("2026-08-01T12:00:00.000Z"),
+    });
+    const firstIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const revivedPath = firstIndex.periods[0].path;
+
+    await publishPhotos({
+      files: [secondFile],
+      store,
+      processPhoto: async () => processedPhoto(secondId),
+      now: () => new Date("2026-08-01T13:00:00.000Z"),
+    });
+    await deletePhotos({
+      photoIds: [secondId],
+      store,
+      now: () => new Date("2026-08-01T14:00:00.000Z"),
+    });
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.periods[0].path).toBe(revivedPath);
+    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys)).not.toContain(revivedPath);
+  });
+
   it("records artifacts written by a publish whose catalog commit never wins", async () => {
     const file = await createSourceFile("failed catalog commit");
     const id = await hashPhotoFile(file);
@@ -530,6 +567,18 @@ describe("photo publisher", () => {
         ...[...store.objects.keys()].filter((key) => key.startsWith("catalog/months/")),
       ].toSorted(),
     );
+
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      now: () => new Date("2026-08-02T13:00:00.000Z"),
+    });
+    const recoveredIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(recoveredIndex.photoMonths[id]).toBe("2026-04");
+    expect(recoveredIndex.retiredArtifacts).toEqual([]);
   });
 });
 

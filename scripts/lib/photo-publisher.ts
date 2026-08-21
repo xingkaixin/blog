@@ -661,6 +661,7 @@ async function writeCatalog(
     new Set([...attemptedArtifacts, ...replacedPeriodPaths]),
     generatedAt,
   );
+  keepOnlyUnreferencedRetirements(catalog, nextPeriods);
 
   const referencedAlbums = new Set(
     [...nextPeriods.values()].flatMap((period) => Object.keys(period.albumCounts)),
@@ -676,7 +677,7 @@ async function writeCatalog(
   const periods = [...nextPeriods.values()].toSorted((left, right) =>
     right.month.localeCompare(left.month),
   );
-  const index: PhotoCatalogIndex = {
+  const index = parsePhotoCatalogIndex({
     schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
     generatedAt: generatedAt.toISOString(),
     albums,
@@ -694,7 +695,7 @@ async function writeCatalog(
         left.deleteAfter.localeCompare(right.deleteAfter) ||
         left.retirementId.localeCompare(right.retirementId),
     ),
-  };
+  });
 
   await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
     contentType: "application/json; charset=utf-8",
@@ -760,6 +761,33 @@ function retireUnreferencedArtifacts(
     objectKeys: candidates,
     deleteAfter,
   });
+}
+
+function keepOnlyUnreferencedRetirements(
+  catalog: LoadedCatalog,
+  periods: Map<string, PhotoPeriod>,
+): void {
+  for (const [photoId, entry] of catalog.retiredObjects) {
+    const objectKeys = entry.objectKeys.filter(
+      (key) => !isArtifactReferenced(periods, catalog.photoMonths, key),
+    );
+    if (objectKeys.length === 0 || catalog.photoMonths.has(photoId)) {
+      catalog.retiredObjects.delete(photoId);
+    } else if (objectKeys.length !== entry.objectKeys.length) {
+      catalog.retiredObjects.set(photoId, { ...entry, objectKeys });
+    }
+  }
+
+  for (const [retirementId, entry] of catalog.retiredArtifacts) {
+    const objectKeys = entry.objectKeys.filter(
+      (key) => !isArtifactReferenced(periods, catalog.photoMonths, key),
+    );
+    if (objectKeys.length === 0) {
+      catalog.retiredArtifacts.delete(retirementId);
+    } else if (objectKeys.length !== entry.objectKeys.length) {
+      catalog.retiredArtifacts.set(retirementId, { ...entry, objectKeys });
+    }
+  }
 }
 
 function allRetiredObjectKeys(catalog: LoadedCatalog): Set<string> {
