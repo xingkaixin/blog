@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadSearchIndex, rankPosts, resetSearchCache, type SearchIndexItem } from "@/lib/search";
+import { toSearchIndexItem } from "@/lib/search-index";
 
 const posts: SearchIndexItem[] = [
   {
@@ -8,8 +9,6 @@ const posts: SearchIndexItem[] = [
     date: "2026-03-11",
     summary: "讲 Markdown 扫描和构建期索引。",
     tags: ["vite", "content"],
-    cover: "alpha.jpg",
-    coverAlt: "alpha cover",
   },
   {
     slug: "beta",
@@ -17,10 +16,20 @@ const posts: SearchIndexItem[] = [
     date: "2026-03-10",
     summary: "关于长期阅读的笔记。",
     tags: ["reading"],
-    cover: "beta.jpg",
-    coverAlt: "beta cover",
   },
 ];
+
+describe("search index contract", () => {
+  it("omits fields that search does not consume", () => {
+    expect(
+      toSearchIndexItem({
+        ...posts[0],
+        cover: "alpha.jpg",
+        coverAlt: "alpha cover",
+      }),
+    ).toEqual(posts[0]);
+  });
+});
 
 describe("search posts", () => {
   it("matches title and body terms", () => {

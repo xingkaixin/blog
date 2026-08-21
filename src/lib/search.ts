@@ -1,7 +1,7 @@
-import { parsePublishedPosts, type PublishedPost } from "@/lib/published-post";
+import { parseSearchIndex, type SearchIndexItem } from "@/lib/search-index";
 import { normalizeSearchText, searchTerms } from "@/lib/search-text";
 
-export type SearchIndexItem = PublishedPost;
+export type { SearchIndexItem } from "@/lib/search-index";
 
 type SearchParams = {
   query: string;
@@ -22,7 +22,7 @@ export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
     if (!response.ok) {
       throw new Error(`Failed to load search index: ${response.status}`);
     }
-    return parsePublishedPosts(await response.json());
+    return parseSearchIndex(await response.json());
   });
   searchIndexRequest = request;
   try {

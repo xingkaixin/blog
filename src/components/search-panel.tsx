@@ -186,7 +186,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       onOpenChange(false);
       return;
     }
-    window.location.assign(item.href);
+    document.getElementById(item.id)?.click();
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {

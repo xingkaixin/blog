@@ -7,6 +7,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { toSearchIndexItem } from "../src/lib/search-index";
 import { readPublishedPosts } from "./lib/post-catalog";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
@@ -29,7 +30,7 @@ function generateSearchIndex(): void {
 
   console.log(`📁 找到 ${files.length} 篇文章`);
 
-  const searchIndex = readPublishedPosts(POSTS_DIR);
+  const searchIndex = readPublishedPosts(POSTS_DIR).map(toSearchIndexItem);
 
   // 写入 JSON 文件
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(searchIndex, null, 2), "utf8");

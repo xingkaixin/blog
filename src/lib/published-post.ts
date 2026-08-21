@@ -1,5 +1,3 @@
-import { canonicalTags } from "./post-tag";
-
 const CALENDAR_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const POST_SLUG_PATTERN = /^[A-Za-z0-9_-]+$/;
 
@@ -64,52 +62,4 @@ export function comparePublishedPostsNewestFirst(
     return 0;
   }
   return left.slug < right.slug ? -1 : 1;
-}
-
-export function parsePublishedPosts(value: unknown): PublishedPost[] {
-  if (!Array.isArray(value)) {
-    throw new Error("searchIndex must be an array");
-  }
-  return value.map((entry, index) => parsePublishedPost(entry, `searchIndex[${index}]`));
-}
-
-function parsePublishedPost(value: unknown, field: string): PublishedPost {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error(`${field} must be an object`);
-  }
-
-  const entry = value as Record<string, unknown>;
-  const tags = readTags(entry.tags, `${field}.tags`);
-  const date = readString(entry.date, `${field}.date`);
-  if (!isCalendarDate(date)) {
-    throw new Error(`${field}.date must be a valid YYYY-MM-DD calendar date`);
-  }
-
-  return {
-    slug: parsePostSlug(readString(entry.slug, `${field}.slug`), `${field}.slug`),
-    title: readString(entry.title, `${field}.title`),
-    date,
-    summary: readString(entry.summary, `${field}.summary`),
-    tags,
-    cover: readString(entry.cover, `${field}.cover`),
-    coverAlt: readString(entry.coverAlt, `${field}.coverAlt`),
-  };
-}
-
-function readString(value: unknown, field: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`${field} must be a non-empty string`);
-  }
-  return value;
-}
-
-function readTags(value: unknown, field: string): string[] {
-  if (!Array.isArray(value)) {
-    throw new Error(`${field} must be an array`);
-  }
-  const tags = canonicalTags(value.map((tag, index) => readString(tag, `${field}[${index}]`)));
-  if (new Set(tags).size !== tags.length) {
-    throw new Error(`${field} must contain unique values`);
-  }
-  return tags;
 }
