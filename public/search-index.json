@@ -1,5 +1,47 @@
 [
   {
+    "slug": "control-ideas-not-code",
+    "title": "我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用",
+    "date": "2026-08-21",
+    "summary": "AI Code Review 还要逐行做吗？Redis 之父 antirez 坦承逐行审查“基本没用”，主张把时间投向 QA、设计和 DESIGN.md。这不是定案，而是对我《从写代码到审代码》的一次追问。",
+    "tags": [
+      "Agent",
+      "AI编程",
+      "Code Review",
+      "软件设计"
+    ],
+    "cover": "/posts/cover/control-ideas-not-code.png",
+    "coverAlt": "我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用"
+  },
+  {
+    "slug": "agent-blast-radius",
+    "title": "我不再给 agent 逐条点“允许”了：安全管的是爆炸半径，不是权限弹窗",
+    "date": "2026-08-19",
+    "summary": "Agent 权限弹窗点多了，人很快只剩机械确认。把任务隔离在可重建的环境里，限制文件、身份和网络，才有条件放心开启 auto-accept。",
+    "tags": [
+      "Agent",
+      "AI编程",
+      "安全",
+      "Sandbox"
+    ],
+    "cover": "/posts/cover/agent-blast-radius.png",
+    "coverAlt": "我不再给 agent 逐条点“允许”了：安全管的是爆炸半径，不是权限弹窗"
+  },
+  {
+    "slug": "agent-swarm-context",
+    "title": "多开几个 agent 并行干活，为什么越干越乱",
+    "date": "2026-08-17",
+    "summary": "多 agent 并行开发常漏掉一件事：共享接口由谁拍板。Cursor 的蜂群实验里，旧框架两小时制造 7 万次冲突；新版重做分工和协调机制后，同组模型用约四分之一的代码拿到更高分。",
+    "tags": [
+      "Agent",
+      "多智能体",
+      "软件工程",
+      "Cursor"
+    ],
+    "cover": "/posts/cover/agent-swarm-context.png",
+    "coverAlt": "多开几个 agent 并行干活，为什么越干越乱"
+  },
+  {
     "slug": "log-lock-in",
     "title": "进程挂了 resume 回来，agent 却僵住了：log 才是 agent 本体",
     "date": "2026-08-14",

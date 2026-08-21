@@ -89,6 +89,24 @@
     "mobile": "/posts/images/315-geo-ai-poisoning/illustration-03-800w.webp",
     "desktop": "/posts/images/315-geo-ai-poisoning/illustration-03-1200w.webp"
   },
+  "/posts/images/agent-blast-radius/agent-blast-radius-01.png": {
+    "src": "/posts/images/agent-blast-radius/agent-blast-radius-01.png",
+    "webp": "/posts/images/agent-blast-radius/agent-blast-radius-01.webp",
+    "mobile": "/posts/images/agent-blast-radius/agent-blast-radius-01-800w.webp",
+    "desktop": "/posts/images/agent-blast-radius/agent-blast-radius-01-1200w.webp"
+  },
+  "/posts/images/agent-blast-radius/agent-blast-radius-02.png": {
+    "src": "/posts/images/agent-blast-radius/agent-blast-radius-02.png",
+    "webp": "/posts/images/agent-blast-radius/agent-blast-radius-02.webp",
+    "mobile": "/posts/images/agent-blast-radius/agent-blast-radius-02-800w.webp",
+    "desktop": "/posts/images/agent-blast-radius/agent-blast-radius-02-1200w.webp"
+  },
+  "/posts/images/agent-blast-radius/agent-blast-radius-cover.png": {
+    "src": "/posts/images/agent-blast-radius/agent-blast-radius-cover.png",
+    "webp": "/posts/images/agent-blast-radius/agent-blast-radius-cover.webp",
+    "mobile": "/posts/images/agent-blast-radius/agent-blast-radius-cover-800w.webp",
+    "desktop": "/posts/images/agent-blast-radius/agent-blast-radius-cover-1200w.webp"
+  },
   "/posts/images/agent-blindspot-pass/agent-blindspot-pass-01.png": {
     "src": "/posts/images/agent-blindspot-pass/agent-blindspot-pass-01.png",
     "webp": "/posts/images/agent-blindspot-pass/agent-blindspot-pass-01.webp",
@@ -262,6 +280,30 @@
     "webp": "/posts/images/agent-stop-conditions/source-eric-human-in-loop.webp",
     "mobile": "/posts/images/agent-stop-conditions/source-eric-human-in-loop-800w.webp",
     "desktop": "/posts/images/agent-stop-conditions/source-eric-human-in-loop-1200w.webp"
+  },
+  "/posts/images/agent-swarm-context/agent-swarm-context-01.png": {
+    "src": "/posts/images/agent-swarm-context/agent-swarm-context-01.png",
+    "webp": "/posts/images/agent-swarm-context/agent-swarm-context-01.webp",
+    "mobile": "/posts/images/agent-swarm-context/agent-swarm-context-01-800w.webp",
+    "desktop": "/posts/images/agent-swarm-context/agent-swarm-context-01-1200w.webp"
+  },
+  "/posts/images/agent-swarm-context/agent-swarm-context-02.png": {
+    "src": "/posts/images/agent-swarm-context/agent-swarm-context-02.png",
+    "webp": "/posts/images/agent-swarm-context/agent-swarm-context-02.webp",
+    "mobile": "/posts/images/agent-swarm-context/agent-swarm-context-02-800w.webp",
+    "desktop": "/posts/images/agent-swarm-context/agent-swarm-context-02-1200w.webp"
+  },
+  "/posts/images/agent-swarm-context/agent-swarm-context-03.png": {
+    "src": "/posts/images/agent-swarm-context/agent-swarm-context-03.png",
+    "webp": "/posts/images/agent-swarm-context/agent-swarm-context-03.webp",
+    "mobile": "/posts/images/agent-swarm-context/agent-swarm-context-03-800w.webp",
+    "desktop": "/posts/images/agent-swarm-context/agent-swarm-context-03-1200w.webp"
+  },
+  "/posts/images/agent-swarm-context/agent-swarm-context-cover.png": {
+    "src": "/posts/images/agent-swarm-context/agent-swarm-context-cover.png",
+    "webp": "/posts/images/agent-swarm-context/agent-swarm-context-cover.webp",
+    "mobile": "/posts/images/agent-swarm-context/agent-swarm-context-cover-800w.webp",
+    "desktop": "/posts/images/agent-swarm-context/agent-swarm-context-cover-1200w.webp"
   },
   "/posts/images/agent-team-babel/agent-team-babel-01.png": {
     "src": "/posts/images/agent-team-babel/agent-team-babel-01.png",
@@ -580,6 +622,24 @@
     "webp": "/posts/images/coding-joy-stolen/coding-joy-stolen-cover.webp",
     "mobile": "/posts/images/coding-joy-stolen/coding-joy-stolen-cover-800w.webp",
     "desktop": "/posts/images/coding-joy-stolen/coding-joy-stolen-cover-1200w.webp"
+  },
+  "/posts/images/control-ideas-not-code/control-ideas-not-code-01.png": {
+    "src": "/posts/images/control-ideas-not-code/control-ideas-not-code-01.png",
+    "webp": "/posts/images/control-ideas-not-code/control-ideas-not-code-01.webp",
+    "mobile": "/posts/images/control-ideas-not-code/control-ideas-not-code-01-800w.webp",
+    "desktop": "/posts/images/control-ideas-not-code/control-ideas-not-code-01-1200w.webp"
+  },
+  "/posts/images/control-ideas-not-code/control-ideas-not-code-02.png": {
+    "src": "/posts/images/control-ideas-not-code/control-ideas-not-code-02.png",
+    "webp": "/posts/images/control-ideas-not-code/control-ideas-not-code-02.webp",
+    "mobile": "/posts/images/control-ideas-not-code/control-ideas-not-code-02-800w.webp",
+    "desktop": "/posts/images/control-ideas-not-code/control-ideas-not-code-02-1200w.webp"
+  },
+  "/posts/images/control-ideas-not-code/control-ideas-not-code-cover.png": {
+    "src": "/posts/images/control-ideas-not-code/control-ideas-not-code-cover.png",
+    "webp": "/posts/images/control-ideas-not-code/control-ideas-not-code-cover.webp",
+    "mobile": "/posts/images/control-ideas-not-code/control-ideas-not-code-cover-800w.webp",
+    "desktop": "/posts/images/control-ideas-not-code/control-ideas-not-code-cover-1200w.webp"
   },
   "/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-01.png": {
     "src": "/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-01.png",

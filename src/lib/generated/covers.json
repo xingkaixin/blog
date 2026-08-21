@@ -59,6 +59,11 @@
     "desktop": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-800.webp",
     "full": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp"
   },
+  "agent-blast-radius.png": {
+    "mobile": "/cover/agent-blast-radius-400.webp",
+    "desktop": "/cover/agent-blast-radius-800.webp",
+    "full": "/cover/agent-blast-radius.webp"
+  },
   "agent-blindspot-pass.png": {
     "mobile": "/cover/agent-blindspot-pass-400.webp",
     "desktop": "/cover/agent-blindspot-pass-800.webp",
@@ -103,6 +108,11 @@
     "mobile": "/cover/agent-stop-conditions-400.webp",
     "desktop": "/cover/agent-stop-conditions-800.webp",
     "full": "/cover/agent-stop-conditions.webp"
+  },
+  "agent-swarm-context.png": {
+    "mobile": "/cover/agent-swarm-context-400.webp",
+    "desktop": "/cover/agent-swarm-context-800.webp",
+    "full": "/cover/agent-swarm-context.webp"
   },
   "agent-team-babel.png": {
     "mobile": "/cover/agent-team-babel-400.webp",
@@ -208,6 +218,11 @@
     "mobile": "/cover/coding-joy-stolen-400.webp",
     "desktop": "/cover/coding-joy-stolen-800.webp",
     "full": "/cover/coding-joy-stolen.webp"
+  },
+  "control-ideas-not-code.png": {
+    "mobile": "/cover/control-ideas-not-code-400.webp",
+    "desktop": "/cover/control-ideas-not-code-800.webp",
+    "full": "/cover/control-ideas-not-code.webp"
   },
   "deepseek-harness-133-plugins.png": {
     "mobile": "/cover/deepseek-harness-133-plugins-400.webp",
