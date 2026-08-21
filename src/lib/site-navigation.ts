@@ -3,7 +3,6 @@ export type SiteRouteId = "home" | "projects" | "photos" | "tags" | "about" | "f
 type SiteRoute = {
   id: SiteRouteId;
   href: string;
-  path: string;
   label: string;
   searchTitle: string;
   keywords: string;
@@ -17,7 +16,6 @@ const routes: SiteRoute[] = [
   {
     id: "home",
     href: "/",
-    path: "/",
     label: "文章",
     searchTitle: "文章日志",
     keywords: "首页 文章 日志 home posts",
@@ -29,7 +27,6 @@ const routes: SiteRoute[] = [
   {
     id: "projects",
     href: "/projects/",
-    path: "/projects",
     label: "工具箱",
     searchTitle: "工具箱",
     keywords: "工具 项目 projects",
@@ -41,7 +38,6 @@ const routes: SiteRoute[] = [
   {
     id: "photos",
     href: "/photos/",
-    path: "/photos",
     label: "照片",
     searchTitle: "照片墙",
     keywords: "照片 摄影 相册 photos",
@@ -53,7 +49,6 @@ const routes: SiteRoute[] = [
   {
     id: "tags",
     href: "/tags/",
-    path: "/tags",
     label: "标签",
     searchTitle: "标签索引",
     keywords: "标签 主题 分类 tags taxonomy",
@@ -65,7 +60,6 @@ const routes: SiteRoute[] = [
   {
     id: "about",
     href: "/about/",
-    path: "/about",
     label: "关于",
     searchTitle: "关于",
     keywords: "关于 联系 about",
@@ -77,7 +71,6 @@ const routes: SiteRoute[] = [
   {
     id: "feed",
     href: "/feed.xml",
-    path: "/feed.xml",
     label: "订阅 RSS",
     searchTitle: "订阅 RSS",
     keywords: "订阅 rss feed",
@@ -92,13 +85,17 @@ export function normalizeSitePath(pathname: string): string {
   return decodeURI(pathname.replace(/\/$/, "") || "/");
 }
 
+function routePath(href: string): string {
+  return normalizeSitePath(href);
+}
+
 export function isSiteRouteActive(currentPath: string, routePath: string): boolean {
   return normalizeSitePath(currentPath) === routePath;
 }
 
 export function siteStatus(currentPath: string): string {
   const path = normalizeSitePath(currentPath);
-  const routeStatus = routes.find((route) => route.path === path)?.status;
+  const routeStatus = routes.find((route) => routePath(route.href) === path)?.status;
   if (routeStatus) {
     return routeStatus;
   }
@@ -112,25 +109,27 @@ export function siteStatus(currentPath: string): string {
 }
 
 export function desktopNavigation() {
-  return routes.filter((route) => route.desktop).map(({ href, path }) => ({ href, path }));
+  return routes
+    .filter((route) => route.desktop)
+    .map(({ href }) => ({ href, path: routePath(href) }));
 }
 
 export function mobileNavigation() {
   return routes
     .filter((route) => route.mobile)
-    .map(({ id, href, path, label }) => ({
+    .map(({ id, href, label }) => ({
       id,
       href,
-      path,
+      path: routePath(href),
       label,
     }));
 }
 
 export function searchNavigation() {
-  return routes.map(({ id, href, path, searchTitle, keywords }) => ({
+  return routes.map(({ id, href, searchTitle, keywords }) => ({
     id: `route-${id}`,
     href,
-    hint: path,
+    hint: routePath(href),
     title: searchTitle,
     keywords,
   }));

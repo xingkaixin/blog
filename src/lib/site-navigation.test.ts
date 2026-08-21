@@ -19,6 +19,7 @@ describe("site navigation", () => {
     ]);
     expect(desktopNavigation().map((route) => route.path)).not.toContain("/");
     expect(searchNavigation().find((route) => route.id === "route-photos")?.href).toBe("/photos/");
+    expect(searchNavigation().find((route) => route.id === "route-photos")?.hint).toBe("/photos");
     expect(searchNavigation().find((route) => route.id === "route-tags")?.href).toBe("/tags/");
     expect(sitemapNavigation().map((route) => route.href)).not.toContain("/feed.xml");
     expect(sitemapNavigation().map((route) => route.href)).toContain("/tags/");
