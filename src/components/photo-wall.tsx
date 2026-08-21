@@ -81,7 +81,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
   const photoResolutionGenerationRef = useRef(0);
   const wallRef = useRef<HTMLDivElement>(null);
-  const activeMonthLockedUntilRef = useRef(0);
+  const activeMonthLockRef = useRef<string | null>(null);
 
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
   const selectedPhoto = photoSelection.status === "ready" ? photoSelection.photo : null;
@@ -121,6 +121,32 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     }
 
     const visibleEntries = new Map<Element, IntersectionObserverEntry>();
+    const selectVisibleMonth = () => {
+      if (window.scrollY <= 1) {
+        setActiveMonth(visiblePeriods[0].month);
+        return;
+      }
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1) {
+        setActiveMonth(visiblePeriods[visiblePeriods.length - 1].month);
+        return;
+      }
+      const nearest = [...visibleEntries.values()].toSorted(
+        (left, right) =>
+          Math.abs(left.boundingClientRect.top - 112) -
+          Math.abs(right.boundingClientRect.top - 112),
+      )[0];
+      const month = nearest?.target.getAttribute("data-photo-month");
+      if (month) {
+        setActiveMonth((current) => (current === month ? current : month));
+      }
+    };
+    const releaseActiveMonthLock = () => {
+      if (activeMonthLockRef.current === null) {
+        return;
+      }
+      activeMonthLockRef.current = null;
+      selectVisibleMonth();
+    };
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -130,26 +156,19 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
             visibleEntries.delete(entry.target);
           }
         }
-        if (Date.now() < activeMonthLockedUntilRef.current) {
+        const lockedMonth = activeMonthLockRef.current;
+        if (lockedMonth !== null) {
+          const targetIsVisible = [...visibleEntries.keys()].some(
+            (entry) => entry.getAttribute("data-photo-month") === lockedMonth,
+          );
+          if (!targetIsVisible) {
+            return;
+          }
+          activeMonthLockRef.current = null;
+          setActiveMonth(lockedMonth);
           return;
         }
-        if (window.scrollY <= 1) {
-          setActiveMonth(visiblePeriods[0].month);
-          return;
-        }
-        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1) {
-          setActiveMonth(visiblePeriods[visiblePeriods.length - 1].month);
-          return;
-        }
-        const nearest = [...visibleEntries.values()].toSorted(
-          (left, right) =>
-            Math.abs(left.boundingClientRect.top - 112) -
-            Math.abs(right.boundingClientRect.top - 112),
-        )[0];
-        const month = nearest?.target.getAttribute("data-photo-month");
-        if (month) {
-          setActiveMonth((current) => (current === month ? current : month));
-        }
+        selectVisibleMonth();
       },
       {
         rootMargin: "-90px 0px -68% 0px",
@@ -160,7 +179,12 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     for (const section of wall.querySelectorAll("[data-photo-month]")) {
       observer.observe(section);
     }
-    return () => observer.disconnect();
+    window.addEventListener("scrollend", releaseActiveMonthLock);
+    return () => {
+      activeMonthLockRef.current = null;
+      observer.disconnect();
+      window.removeEventListener("scrollend", releaseActiveMonthLock);
+    };
   }, [photoView.mode, visiblePeriods]);
 
   const allLoadedPhotos = useMemo(
@@ -369,14 +393,15 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       } catch {
         // 月份内的错误状态仍然是一个有效的跳转目标。
       }
-      activeMonthLockedUntilRef.current = Date.now() + 1_000;
+      const target = document.getElementById(`photo-month-${month}`);
       setActiveMonth(month);
-      document.getElementById(`photo-month-${month}`)?.scrollIntoView({
+      activeMonthLockRef.current = activeMonth === month ? null : month;
+      target?.scrollIntoView({
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
         block: "start",
       });
     },
-    [loadMonth, visiblePeriods],
+    [activeMonth, loadMonth, visiblePeriods],
   );
 
   const totalPhotoCount = visiblePeriods.reduce(
