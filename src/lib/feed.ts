@@ -1,16 +1,8 @@
 import { postHref, type PublishedPost } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
+import { escapeXml } from "@/lib/xml-escaping";
 
 const FEED_ITEM_LIMIT = 20;
-
-function escapeXml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
 
 function rssDate(value: string) {
   return new Date(`${value}T00:00:00Z`).toUTCString();

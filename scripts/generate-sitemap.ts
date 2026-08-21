@@ -6,20 +6,12 @@ import { buildPostTaxonomy } from "../src/lib/post-tags";
 import { parsePostSlug, postHref, type PublishedPost } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { sitemapNavigation } from "../src/lib/site-navigation";
+import { escapeXml } from "../src/lib/xml-escaping";
 import { readPublishedPosts } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");
 const DIST_DIR = path.join(ROOT, "dist");
-
-function escapeXml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;");
-}
 
 export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "date" | "tags">>) {
   const today = new Date().toISOString().slice(0, 10);
