@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   buildJsonLd,
   ogType,
@@ -31,6 +31,20 @@ const articleMeta: PageMeta = {
 };
 
 describe("SEO metadata", () => {
+  it("requires article fields only for article pages", () => {
+    type ArticlePageMeta = Extract<PageMeta, { type: "article" }>;
+    type NonArticlePageMeta = Exclude<PageMeta, { type: "article" }>;
+
+    expectTypeOf<ArticlePageMeta>().toExtend<{
+      publishedTime: string;
+      tags: string[];
+    }>();
+    expectTypeOf<NonArticlePageMeta>().toExtend<{
+      publishedTime?: never;
+      tags?: never;
+    }>();
+  });
+
   it("formats titles by page type", () => {
     expect(pageTitle(websiteMeta)).toBe(siteConfig.title);
     expect(pageTitle({ ...websiteMeta, type: "webpage", title: "关于" })).toBe(

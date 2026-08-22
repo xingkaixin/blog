@@ -8,16 +8,35 @@ export type BreadcrumbItem = {
   url: string;
 };
 
-export type PageMeta = {
+type BasePageMeta = {
   title: string;
   description: string;
   url: string;
   image?: string;
-  type: "website" | "webpage" | "article";
-  publishedTime?: string;
-  tags?: string[];
+};
+
+type WebsiteMeta = BasePageMeta & {
+  type: "website";
+  publishedTime?: never;
+  tags?: never;
+  breadcrumb?: never;
+};
+
+type WebpageMeta = BasePageMeta & {
+  type: "webpage";
+  publishedTime?: never;
+  tags?: never;
   breadcrumb?: BreadcrumbItem[];
 };
+
+type ArticleMeta = BasePageMeta & {
+  type: "article";
+  publishedTime: string;
+  tags: string[];
+  breadcrumb?: BreadcrumbItem[];
+};
+
+export type PageMeta = WebsiteMeta | WebpageMeta | ArticleMeta;
 
 export function pageTitle(meta: PageMeta) {
   return meta.type === "website" ? meta.title : `${meta.title} | ${siteConfig.title}`;
@@ -111,7 +130,7 @@ function buildGraph(meta: PageMeta) {
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": meta.url },
     isPartOf: { "@id": `${siteConfig.url}/#website` },
-    keywords: meta.tags ?? [],
+    keywords: meta.tags,
   });
   if (meta.breadcrumb) {
     graph.push(breadcrumbSchema(meta.breadcrumb));
