@@ -5,6 +5,7 @@ import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
 import { usePhotoLocation } from "@/hooks/use-photo-location";
+import { usePhotoSelection } from "@/hooks/use-photo-selection";
 import {
   planOverviewOpen,
   planPhotoClose,
@@ -12,7 +13,6 @@ import {
   planPhotoSelection,
   planTimelineOpen,
   planTimelineSelection,
-  resolvePhotoSelection,
 } from "@/lib/photo-browser";
 import {
   monthFromCapturedAt,
@@ -33,12 +33,6 @@ type AlbumOverviewItem = {
   meta: string;
   photos: PhotoRecord[];
 };
-
-type PhotoSelectionState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "ready"; photo: PhotoRecord }
-  | { status: "error"; photoId: string; message: string };
 
 const INITIAL_PERIOD_COUNT = 2;
 const ALBUM_CHIP_CLASS_NAME =
@@ -77,14 +71,10 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const photoView = photoLocation?.view ?? ({ mode: "overview" } as const);
   const locationPhotoId = photoLocation?.photoId;
   const [activeMonth, setActiveMonth] = useState("");
-  const [photoSelection, setPhotoSelection] = useState<PhotoSelectionState>({ status: "idle" });
-  const lastLightboxPhotoRef = useRef<PhotoRecord | null>(null);
-  const photoResolutionGenerationRef = useRef(0);
   const wallRef = useRef<HTMLDivElement>(null);
   const activeMonthLockRef = useRef<string | null>(null);
 
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
-  const selectedPhoto = photoSelection.status === "ready" ? photoSelection.photo : null;
 
   const visiblePeriods = useMemo(() => {
     if (!index) {
@@ -257,20 +247,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       ),
     [allLoadedPhotos, selectedAlbumId],
   );
-  useEffect(() => {
-    if (selectedPhoto) {
-      lastLightboxPhotoRef.current = selectedPhoto;
-    }
-  }, [selectedPhoto]);
-  // 关闭后继续渲染最后一张，退出淡出期间大图内容不能先消失
-  const lightboxDisplayPhoto = selectedPhoto ?? lastLightboxPhotoRef.current;
-
-  const lightboxPhotos =
-    lightboxDisplayPhoto &&
-    filteredLoadedPhotos.some((photo) => photo.id === lightboxDisplayPhoto.id)
-      ? filteredLoadedPhotos
-      : allLoadedPhotos;
-
   const preloadAdjacentPeriods = useCallback(
     (photo: PhotoRecord) => {
       if (!index) {
@@ -290,80 +266,50 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     [index, loadMonth, visiblePeriods],
   );
 
+  const closeMissingPhoto = useCallback(() => {
+    navigate(planPhotoClose(window.location.href, history.state));
+  }, [navigate]);
+  const {
+    state: photoSelection,
+    selectedPhoto,
+    displayPhoto: lightboxDisplayPhoto,
+    select: selectPhoto,
+    dismiss: dismissPhoto,
+    retry: retryPhotoSelection,
+  } = usePhotoSelection({
+    catalogReady: index !== null,
+    photoId: locationPhotoId,
+    resolvePhoto,
+    onMissing: closeMissingPhoto,
+    onResolved: preloadAdjacentPeriods,
+  });
+  const lightboxPhotos =
+    lightboxDisplayPhoto &&
+    filteredLoadedPhotos.some((photo) => photo.id === lightboxDisplayPhoto.id)
+      ? filteredLoadedPhotos
+      : allLoadedPhotos;
+
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
-      photoResolutionGenerationRef.current += 1;
       navigate(planPhotoOpen(window.location.href, history.state, photo.id));
-      setPhotoSelection({ status: "ready", photo });
-      preloadAdjacentPeriods(photo);
+      selectPhoto(photo);
     },
-    [navigate, preloadAdjacentPeriods],
+    [navigate, selectPhoto],
   );
 
   const selectLightboxPhoto = useCallback(
     (photo: PhotoRecord) => {
-      photoResolutionGenerationRef.current += 1;
       navigate(planPhotoSelection(window.location.href, history.state, photo.id));
-      setPhotoSelection({ status: "ready", photo });
-      preloadAdjacentPeriods(photo);
+      selectPhoto(photo);
     },
-    [navigate, preloadAdjacentPeriods],
+    [navigate, selectPhoto],
   );
 
   const closeLightbox = useCallback(() => {
     // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
-    photoResolutionGenerationRef.current += 1;
-    setPhotoSelection({ status: "idle" });
+    dismissPhoto();
     navigate(planPhotoClose(window.location.href, history.state));
-  }, [navigate]);
-
-  const resolveSelectedPhoto = useCallback(
-    async (photoId: string) => {
-      const generation = photoResolutionGenerationRef.current + 1;
-      photoResolutionGenerationRef.current = generation;
-      setPhotoSelection((current) =>
-        current.status === "ready" && current.photo.id === photoId
-          ? current
-          : { status: "loading" },
-      );
-
-      const result = await resolvePhotoSelection(photoId, resolvePhoto);
-
-      if (photoResolutionGenerationRef.current !== generation) {
-        return;
-      }
-      if (result.status === "error") {
-        console.error(`定位照片 ${photoId} 失败`, result.cause);
-        setPhotoSelection({ status: "error", photoId, message: result.message });
-        return;
-      }
-      if (result.status === "missing") {
-        setPhotoSelection({ status: "idle" });
-        navigate(planPhotoClose(window.location.href, history.state));
-        return;
-      }
-      setPhotoSelection({ status: "ready", photo: result.photo });
-      preloadAdjacentPeriods(result.photo);
-    },
-    [navigate, preloadAdjacentPeriods, resolvePhoto],
-  );
-
-  useEffect(() => {
-    if (locationPhotoId === undefined) {
-      return;
-    }
-    if (!index) {
-      photoResolutionGenerationRef.current += 1;
-      setPhotoSelection({ status: "idle" });
-      return;
-    }
-    if (!locationPhotoId) {
-      photoResolutionGenerationRef.current += 1;
-      setPhotoSelection({ status: "idle" });
-      return;
-    }
-    void resolveSelectedPhoto(locationPhotoId);
-  }, [index, locationPhotoId, resolveSelectedPhoto]);
+  }, [dismissPhoto, navigate]);
 
   const openTimeline = (albumId: string | null) => {
     navigate(planTimelineOpen(window.location.href, history.state, albumId));
@@ -376,8 +322,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   };
 
   const returnToOverview = () => {
-    photoResolutionGenerationRef.current += 1;
-    setPhotoSelection({ status: "idle" });
+    dismissPhoto();
     navigate(planOverviewOpen(window.location.href, history.state));
     window.scrollTo(0, 0);
   };
@@ -619,7 +564,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           </div>
           <button
             type="button"
-            onClick={() => void resolveSelectedPhoto(photoSelection.photoId)}
+            onClick={retryPhotoSelection}
             className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             重试
