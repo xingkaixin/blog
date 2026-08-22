@@ -329,15 +329,15 @@ function assertPhotosNewestFirst(photos: PhotoRecord[]): void {
   for (let index = 1; index < photos.length; index += 1) {
     const previous = photos[index - 1];
     const current = photos[index];
-    const previousTime = Date.parse(previous.capturedAt);
-    const currentTime = Date.parse(current.capturedAt);
-    const outOfOrder =
-      previousTime < currentTime || (previousTime === currentTime && previous.id < current.id);
-
-    if (outOfOrder) {
+    if (comparePhotosNewestFirst(previous, current) > 0) {
       throw new PhotoCatalogError("monthCatalog.photos 必须按拍摄时间从新到旧排列");
     }
   }
+}
+
+export function comparePhotosNewestFirst(left: PhotoRecord, right: PhotoRecord): number {
+  const timeDifference = Date.parse(right.capturedAt) - Date.parse(left.capturedAt);
+  return timeDifference || right.id.localeCompare(left.id);
 }
 
 export function isPhotoAlbumId(value: string): boolean {
@@ -495,7 +495,7 @@ export function validatePhotoMonth(
     throw new PhotoCatalogError(`月份索引 ${period.path} 与主 Catalog 不一致`);
   }
 
-  const actualAlbumCounts = countAlbums(shard.photos);
+  const actualAlbumCounts = photoAlbumCounts(shard.photos);
   if (!sameCounts(actualAlbumCounts, period.albumCounts)) {
     throw new PhotoCatalogError(`月份索引 ${period.path} 的相册计数与主 Catalog 不一致`);
   }
@@ -560,14 +560,16 @@ export function locatePhotoPeriod(index: PhotoCatalogIndex, photoId: string): Ph
   return month ? (index.periods.find((period) => period.month === month) ?? null) : null;
 }
 
-function countAlbums(photos: PhotoRecord[]): Record<string, number> {
-  const counts: Record<string, number> = {};
+export function photoAlbumCounts(photos: PhotoRecord[]): Record<string, number> {
+  const counts = new Map<string, number>();
   for (const photo of photos) {
     for (const albumId of photo.albumIds) {
-      counts[albumId] = (counts[albumId] ?? 0) + 1;
+      counts.set(albumId, (counts.get(albumId) ?? 0) + 1);
     }
   }
-  return counts;
+  return Object.fromEntries(
+    [...counts.entries()].toSorted(([left], [right]) => left.localeCompare(right)),
+  );
 }
 
 function sameCounts(left: Record<string, number>, right: Record<string, number>): boolean {
