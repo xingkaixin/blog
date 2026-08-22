@@ -25,7 +25,7 @@ const period = {
   path: "catalog/months/2026-04.0123456789abcdef01234567.json",
 };
 const index: PhotoCatalogIndex = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: "2026-08-07T12:00:00.000Z",
   albums: [{ id: "trip", title: "旅行" }],
   periods: [period],
@@ -146,9 +146,9 @@ describe("photo catalog browser", () => {
     });
   });
 
-  it("uses the direct locator and falls back for a legacy catalog", () => {
+  it("uses the authoritative locator without scanning unrelated months", () => {
     expect(photoLookupPeriods(index, photoId)).toEqual([period]);
-    expect(photoLookupPeriods({ ...index, photoMonths: {} }, photoId)).toEqual([period]);
+    expect(photoLookupPeriods({ ...index, photoMonths: {} }, photoId)).toEqual([]);
     expect(photoLookupPeriods(index, "ffffffffffffffffffffffffffffffff")).toEqual([]);
   });
 

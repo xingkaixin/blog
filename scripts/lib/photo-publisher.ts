@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import {
   PHOTO_CATALOG_INDEX_KEY,
-  PHOTO_CATALOG_SCHEMA_VERSION,
+  PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
+  PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   isPhotoAlbumId,
   isPhotoArtifactKey,
@@ -12,7 +13,6 @@ import {
   parsePhotoMonthCatalog,
   parsePhotoRecord,
   photoIdFromMediaObjectKey,
-  validatePhotoCatalog,
   validatePhotoMonth,
   type PhotoAlbum,
   type PhotoCatalogIndex,
@@ -224,7 +224,7 @@ async function publishPhotosOnce(
   for (const { record } of processed) {
     const month = monthFromCapturedAt(record.capturedAt);
     const monthCatalog = catalog.months.get(month) ?? {
-      schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
+      schemaVersion: PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
       month,
       photos: [],
     };
@@ -564,16 +564,6 @@ async function loadCatalog(store: PhotoObjectStore): Promise<LoadedCatalog> {
     retiredObjects: new Map(index.retiredObjects.map((entry) => [entry.photoId, entry])),
     retiredArtifacts: new Map(index.retiredArtifacts.map((entry) => [entry.retirementId, entry])),
   };
-  const photoCount = index.periods.reduce((sum, period) => sum + period.count, 0);
-  if (photoCount > 0 && Object.keys(index.photoMonths).length === 0) {
-    const loadedMonths = await readCatalogMonths(store, index, index.periods);
-    const validated = validatePhotoCatalog(
-      index,
-      loadedMonths.map(({ shard }) => shard),
-    );
-    catalog.months = validated.months;
-    catalog.photoMonths = validated.photoMonths;
-  }
   return catalog;
 }
 
@@ -673,7 +663,7 @@ async function writeCatalog(
     right.month.localeCompare(left.month),
   );
   const index = parsePhotoCatalogIndex({
-    schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
+    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
     generatedAt: generatedAt.toISOString(),
     albums,
     periods,

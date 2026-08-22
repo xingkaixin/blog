@@ -1,4 +1,5 @@
-export const PHOTO_CATALOG_SCHEMA_VERSION = 1 as const;
+export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 2 as const;
+export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 1 as const;
 export const PHOTO_VARIANT_WIDTHS = [480, 960, 2048] as const;
 export const PHOTO_CATALOG_INDEX_KEY = "catalog/index.json";
 
@@ -38,7 +39,7 @@ export type RetiredArtifactBatch = {
 };
 
 export type PhotoCatalogIndex = {
-  schemaVersion: typeof PHOTO_CATALOG_SCHEMA_VERSION;
+  schemaVersion: typeof PHOTO_CATALOG_INDEX_SCHEMA_VERSION;
   generatedAt: string;
   albums: PhotoAlbum[];
   periods: PhotoPeriod[];
@@ -48,7 +49,7 @@ export type PhotoCatalogIndex = {
 };
 
 export type PhotoMonthCatalog = {
-  schemaVersion: typeof PHOTO_CATALOG_SCHEMA_VERSION;
+  schemaVersion: typeof PHOTO_MONTH_CATALOG_SCHEMA_VERSION;
   month: string;
   photos: PhotoRecord[];
 };
@@ -63,6 +64,7 @@ const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]
 const MEDIA_PATH_PATTERN = /^media\/([a-f0-9]{32})\/(?:480|960|2048)\.webp$/;
 const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
 const MAX_IMAGE_DIMENSION = 100_000;
+const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 1;
 
 export class PhotoCatalogError extends Error {
   constructor(message: string) {
@@ -193,10 +195,6 @@ function readPeriod(value: unknown, field: string): PhotoPeriod {
 }
 
 function readPhotoMonths(value: unknown): Record<string, string> {
-  if (value === undefined) {
-    return {};
-  }
-
   const input = readRecord(value, "catalog.photoMonths");
   const output: Record<string, string> = {};
   for (const [photoId, month] of Object.entries(input)) {
@@ -209,9 +207,6 @@ function readPhotoMonths(value: unknown): Record<string, string> {
 }
 
 function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
-  if (value === undefined) {
-    return [];
-  }
   if (!Array.isArray(value)) {
     throw new PhotoCatalogError("catalog.retiredObjects 必须是数组");
   }
@@ -249,9 +244,6 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
 }
 
 function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
-  if (value === undefined) {
-    return [];
-  }
   if (!Array.isArray(value)) {
     throw new PhotoCatalogError("catalog.retiredArtifacts 必须是数组");
   }
@@ -370,7 +362,10 @@ export function isPhotoArtifactKey(key: string): boolean {
 
 export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   const input = readRecord(value, "catalog");
-  if (input.schemaVersion !== PHOTO_CATALOG_SCHEMA_VERSION) {
+  if (
+    input.schemaVersion !== LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
+    input.schemaVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION
+  ) {
     throw new PhotoCatalogError("不支持的照片 Catalog 版本");
   }
 
@@ -435,7 +430,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   }
 
   return {
-    schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
+    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
     generatedAt,
     albums,
     periods,
@@ -447,7 +442,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
 
 export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
   const input = readRecord(value, "monthCatalog");
-  if (input.schemaVersion !== PHOTO_CATALOG_SCHEMA_VERSION) {
+  if (input.schemaVersion !== PHOTO_MONTH_CATALOG_SCHEMA_VERSION) {
     throw new PhotoCatalogError("不支持的照片月份 Catalog 版本");
   }
   if (!Array.isArray(input.photos)) {
@@ -472,7 +467,7 @@ export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
   }
 
   return {
-    schemaVersion: PHOTO_CATALOG_SCHEMA_VERSION,
+    schemaVersion: PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
     month,
     photos,
   };

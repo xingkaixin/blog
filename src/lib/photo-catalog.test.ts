@@ -14,7 +14,7 @@ import {
 } from "@/lib/photo-catalog";
 
 const indexFixture: PhotoCatalogIndex = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: "2026-07-30T12:00:00.000Z",
   albums: [{ id: "japan-2026", title: "日本旅行" }],
   photoMonths: { "0123456789abcdef0123456789abcdef": "2026-04" },
@@ -119,15 +119,16 @@ describe("photo catalog", () => {
     expect(locatePhotoPeriod(indexFixture, "ffffffffffffffffffffffffffffffff")).toBeNull();
   });
 
-  it("accepts a legacy index without a locator for migration", () => {
-    const legacy = structuredClone(indexFixture) as unknown as Record<string, unknown>;
-    delete legacy.photoMonths;
-    delete legacy.retiredObjects;
-    delete legacy.retiredArtifacts;
+  it("normalizes the complete version 1 index used in production", () => {
+    expect(parsePhotoCatalogIndex({ ...indexFixture, schemaVersion: 1 })).toEqual(indexFixture);
+  });
 
-    expect(parsePhotoCatalogIndex(legacy).photoMonths).toEqual({});
-    expect(parsePhotoCatalogIndex(legacy).retiredObjects).toEqual([]);
-    expect(parsePhotoCatalogIndex(legacy).retiredArtifacts).toEqual([]);
+  it("rejects incomplete version 1 indexes instead of enabling runtime fallbacks", () => {
+    const incomplete = structuredClone(indexFixture) as unknown as Record<string, unknown>;
+    incomplete.schemaVersion = 1;
+    delete incomplete.photoMonths;
+
+    expect(() => parsePhotoCatalogIndex(incomplete)).toThrow("catalog.photoMonths 必须是对象");
   });
 
   it("validates retired immutable artifacts", () => {

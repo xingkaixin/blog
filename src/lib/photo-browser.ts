@@ -156,10 +156,7 @@ export function overviewLocationHref(href: string): string {
 
 export function photoLookupPeriods(index: PhotoCatalogIndex, photoId: string): PhotoPeriod[] {
   const located = locatePhotoPeriod(index, photoId);
-  if (located) {
-    return [located];
-  }
-  return Object.keys(index.photoMonths).length === 0 ? index.periods : [];
+  return located ? [located] : [];
 }
 
 export async function resolveCatalogPhoto(
