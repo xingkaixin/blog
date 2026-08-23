@@ -13,31 +13,27 @@ import { readPublishedPosts } from "./lib/post-catalog";
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const OUTPUT_FILE = path.join(process.cwd(), "public", "search-index.json");
 
-function generateSearchIndex(): void {
-  if (!fs.existsSync(POSTS_DIR)) {
-    console.error(`❌ 文章目录不存在: ${POSTS_DIR}`);
-    process.exit(1);
+export function generateSearchIndex(
+  postsDirectory: string = POSTS_DIR,
+  outputFile: string = OUTPUT_FILE,
+): void {
+  if (!fs.existsSync(postsDirectory)) {
+    throw new Error(`文章目录不存在: ${postsDirectory}`);
   }
 
-  const files = fs.readdirSync(POSTS_DIR).filter((file) => file.endsWith(".md"));
+  const posts = readPublishedPosts(postsDirectory);
+  const searchIndex = posts.map(toSearchIndexItem);
 
-  if (files.length === 0) {
-    console.log(`⚠️  在 ${POSTS_DIR} 中没有找到文章`);
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify([], null, 2), "utf8");
-    console.log(`✅ 生成空的搜索索引: ${OUTPUT_FILE}`);
-    return;
+  if (posts.length === 0) {
+    console.log(`⚠️  在 ${postsDirectory} 中没有找到已发布文章`);
   }
 
-  console.log(`📁 找到 ${files.length} 篇文章`);
+  fs.writeFileSync(outputFile, JSON.stringify(searchIndex, null, 2), "utf8");
 
-  const searchIndex = readPublishedPosts(POSTS_DIR).map(toSearchIndexItem);
-
-  // 写入 JSON 文件
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(searchIndex, null, 2), "utf8");
-
-  console.log(`✅ 成功生成搜索索引: ${OUTPUT_FILE}`);
+  console.log(`✅ 成功生成搜索索引: ${outputFile}`);
   console.log(`   - 包含 ${searchIndex.length} 篇文章`);
 }
 
-// 执行生成
-generateSearchIndex();
+if (import.meta.main) {
+  generateSearchIndex();
+}
