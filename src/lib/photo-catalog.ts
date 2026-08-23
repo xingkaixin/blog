@@ -53,51 +53,44 @@ const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]
 const MAX_IMAGE_DIMENSION = 100_000;
 const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSIONS = new Set<unknown>([1, 2]);
 
-export class PhotoCatalogError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "PhotoCatalogError";
-  }
-}
-
 function readRecord(value: unknown, field: string): Record<string, unknown> {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new PhotoCatalogError(`${field} 必须是对象`);
+    throw new Error(`${field} 必须是对象`);
   }
   return value as Record<string, unknown>;
 }
 
 function readString(value: unknown, field: string): string {
   if (typeof value !== "string") {
-    throw new PhotoCatalogError(`${field} 必须是字符串`);
+    throw new Error(`${field} 必须是字符串`);
   }
   return value;
 }
 
 function readInteger(value: unknown, field: string, minimum: number, maximum: number): number {
   if (!Number.isSafeInteger(value) || (value as number) < minimum || (value as number) > maximum) {
-    throw new PhotoCatalogError(`${field} 必须是 ${minimum} 到 ${maximum} 之间的整数`);
+    throw new Error(`${field} 必须是 ${minimum} 到 ${maximum} 之间的整数`);
   }
   return value as number;
 }
 
 function readStringArray(value: unknown, field: string): string[] {
   if (!Array.isArray(value)) {
-    throw new PhotoCatalogError(`${field} 必须是数组`);
+    throw new Error(`${field} 必须是数组`);
   }
   return value.map((item, index) => readString(item, `${field}[${index}]`));
 }
 
 function assertUnique(values: string[], field: string): void {
   if (new Set(values).size !== values.length) {
-    throw new PhotoCatalogError(`${field} 不能包含重复值`);
+    throw new Error(`${field} 不能包含重复值`);
   }
 }
 
 function readTimestamp(value: unknown, field: string): string {
   const timestamp = readString(value, field);
   if (!isPhotoTimestamp(timestamp)) {
-    throw new PhotoCatalogError(`${field} 必须是包含时区的 ISO 时间`);
+    throw new Error(`${field} 必须是包含时区的 ISO 时间`);
   }
   return timestamp;
 }
@@ -105,7 +98,7 @@ function readTimestamp(value: unknown, field: string): string {
 function readMonth(value: unknown, field: string): string {
   const month = readString(value, field);
   if (!MONTH_PATTERN.test(month)) {
-    throw new PhotoCatalogError(`${field} 必须是 YYYY-MM`);
+    throw new Error(`${field} 必须是 YYYY-MM`);
   }
   return month;
 }
@@ -116,10 +109,10 @@ function readAlbum(value: unknown, field: string): PhotoAlbum {
   const title = readString(album.title, `${field}.title`).trim();
 
   if (!isPhotoAlbumId(id)) {
-    throw new PhotoCatalogError(`${field}.id 只能包含小写字母、数字和连字符`);
+    throw new Error(`${field}.id 只能包含小写字母、数字和连字符`);
   }
   if (title.length === 0 || title.length > 80) {
-    throw new PhotoCatalogError(`${field}.title 长度必须在 1 到 80 之间`);
+    throw new Error(`${field}.title 长度必须在 1 到 80 之间`);
   }
 
   return { id, title };
@@ -131,7 +124,7 @@ function readAlbumCounts(value: unknown, field: string, count: number): Record<s
 
   for (const [albumId, albumCount] of Object.entries(input)) {
     if (!isPhotoAlbumId(albumId)) {
-      throw new PhotoCatalogError(`${field} 包含无效的相册 ID`);
+      throw new Error(`${field} 包含无效的相册 ID`);
     }
     output[albumId] = readInteger(albumCount, `${field}.${albumId}`, 0, count);
   }
@@ -146,7 +139,7 @@ function readPeriod(value: unknown, field: string): PhotoPeriod {
   const path = readString(period.path, `${field}.path`);
 
   if (!PERIOD_PATH_PATTERN.test(path) || !path.includes(`/${month}.`)) {
-    throw new PhotoCatalogError(`${field}.path 不是有效的月份索引路径`);
+    throw new Error(`${field}.path 不是有效的月份索引路径`);
   }
 
   return {
@@ -162,7 +155,7 @@ function readPhotoMonths(value: unknown): Record<string, string> {
   const output: Record<string, string> = {};
   for (const [photoId, month] of Object.entries(input)) {
     if (!isPhotoId(photoId)) {
-      throw new PhotoCatalogError("catalog.photoMonths 包含无效的照片 ID");
+      throw new Error("catalog.photoMonths 包含无效的照片 ID");
     }
     output[photoId] = readMonth(month, `catalog.photoMonths.${photoId}`);
   }
@@ -177,14 +170,14 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
   const placeholderColor = readString(photo.placeholderColor, `${field}.placeholderColor`);
 
   if (!isPhotoId(id)) {
-    throw new PhotoCatalogError(`${field}.id 必须是 32 位十六进制内容 ID`);
+    throw new Error(`${field}.id 必须是 32 位十六进制内容 ID`);
   }
   if (!albumIds.every(isPhotoAlbumId)) {
-    throw new PhotoCatalogError(`${field}.albumIds 包含无效的相册 ID`);
+    throw new Error(`${field}.albumIds 包含无效的相册 ID`);
   }
   assertUnique(albumIds, `${field}.albumIds`);
   if (!COLOR_PATTERN.test(placeholderColor)) {
-    throw new PhotoCatalogError(`${field}.placeholderColor 必须是小写十六进制颜色`);
+    throw new Error(`${field}.placeholderColor 必须是小写十六进制颜色`);
   }
 
   return {
@@ -208,7 +201,7 @@ function assertNewestFirst<T>(
 ): void {
   for (let index = 1; index < items.length; index += 1) {
     if (readOrderValue(items[index - 1]) < readOrderValue(items[index])) {
-      throw new PhotoCatalogError(`${field} 必须按时间从新到旧排列`);
+      throw new Error(`${field} 必须按时间从新到旧排列`);
     }
   }
 }
@@ -218,7 +211,7 @@ function assertPhotosNewestFirst(photos: PhotoRecord[]): void {
     const previous = photos[index - 1];
     const current = photos[index];
     if (comparePhotosNewestFirst(previous, current) > 0) {
-      throw new PhotoCatalogError("monthCatalog.photos 必须按拍摄时间从新到旧排列");
+      throw new Error("monthCatalog.photos 必须按拍摄时间从新到旧排列");
     }
   }
 }
@@ -246,12 +239,12 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
     input.schemaVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
     !LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSIONS.has(input.schemaVersion)
   ) {
-    throw new PhotoCatalogError("不支持的照片 Catalog 版本");
+    throw new Error("不支持的照片 Catalog 版本");
   }
 
   const generatedAt = readTimestamp(input.generatedAt, "catalog.generatedAt");
   if (!Array.isArray(input.albums) || !Array.isArray(input.periods)) {
-    throw new PhotoCatalogError("catalog.albums 和 catalog.periods 必须是数组");
+    throw new Error("catalog.albums 和 catalog.periods 必须是数组");
   }
 
   const albums = input.albums.map((album, index) => readAlbum(album, `catalog.albums[${index}]`));
@@ -275,18 +268,18 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   for (const period of periods) {
     for (const albumId of Object.keys(period.albumCounts)) {
       if (!albumIds.has(albumId)) {
-        throw new PhotoCatalogError(`月份 ${period.month} 引用了不存在的相册 ${albumId}`);
+        throw new Error(`月份 ${period.month} 引用了不存在的相册 ${albumId}`);
       }
     }
   }
   for (const [photoId, month] of Object.entries(photoMonths)) {
     if (!periodMonths.has(month)) {
-      throw new PhotoCatalogError(`照片 ${photoId} 指向不存在的月份 ${month}`);
+      throw new Error(`照片 ${photoId} 指向不存在的月份 ${month}`);
     }
   }
   const totalPhotoCount = periods.reduce((sum, period) => sum + period.count, 0);
   if (Object.keys(photoMonths).length !== totalPhotoCount) {
-    throw new PhotoCatalogError("catalog.photoMonths 必须完整覆盖所有照片");
+    throw new Error("catalog.photoMonths 必须完整覆盖所有照片");
   }
 
   return {
@@ -301,10 +294,10 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
 export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
   const input = readRecord(value, "monthCatalog");
   if (input.schemaVersion !== PHOTO_MONTH_CATALOG_SCHEMA_VERSION) {
-    throw new PhotoCatalogError("不支持的照片月份 Catalog 版本");
+    throw new Error("不支持的照片月份 Catalog 版本");
   }
   if (!Array.isArray(input.photos)) {
-    throw new PhotoCatalogError("monthCatalog.photos 必须是数组");
+    throw new Error("monthCatalog.photos 必须是数组");
   }
 
   const month = readMonth(input.month, "monthCatalog.month");
@@ -320,7 +313,7 @@ export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
 
   for (const photo of photos) {
     if (monthFromCapturedAt(photo.capturedAt) !== month) {
-      throw new PhotoCatalogError(`照片 ${photo.id} 的拍摄月份与月份 Catalog 不一致`);
+      throw new Error(`照片 ${photo.id} 的拍摄月份与月份 Catalog 不一致`);
     }
   }
 
@@ -341,27 +334,27 @@ export function validatePhotoMonth(
       (candidate) => candidate.month === period.month && candidate.path === period.path,
     )
   ) {
-    throw new PhotoCatalogError(`月份 ${period.month} 不属于主 Catalog`);
+    throw new Error(`月份 ${period.month} 不属于主 Catalog`);
   }
   if (period.month !== shard.month || period.count !== shard.photos.length) {
-    throw new PhotoCatalogError(`月份索引 ${period.path} 与主 Catalog 不一致`);
+    throw new Error(`月份索引 ${period.path} 与主 Catalog 不一致`);
   }
 
   const actualAlbumCounts = photoAlbumCounts(shard.photos);
   if (!sameCounts(actualAlbumCounts, period.albumCounts)) {
-    throw new PhotoCatalogError(`月份索引 ${period.path} 的相册计数与主 Catalog 不一致`);
+    throw new Error(`月份索引 ${period.path} 的相册计数与主 Catalog 不一致`);
   }
 
   const albumIds = new Set(index.albums.map((album) => album.id));
   for (const photo of shard.photos) {
     for (const albumId of photo.albumIds) {
       if (!albumIds.has(albumId)) {
-        throw new PhotoCatalogError(`照片 ${photo.id} 引用了不存在的相册 ${albumId}`);
+        throw new Error(`照片 ${photo.id} 引用了不存在的相册 ${albumId}`);
       }
     }
     const locatedMonth = index.photoMonths[photo.id];
     if (locatedMonth !== shard.month) {
-      throw new PhotoCatalogError(`照片 ${photo.id} 的定位月份与月份 Catalog 不一致`);
+      throw new Error(`照片 ${photo.id} 的定位月份与月份 Catalog 不一致`);
     }
   }
   return shard;
