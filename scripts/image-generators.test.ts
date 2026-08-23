@@ -70,6 +70,17 @@ describe("image generators", () => {
     expect(fs.existsSync(path.join(options.outputDirectory, "demo.webp"))).toBe(true);
   });
 
+  it("rejects responsive image sources that share an output stem", async () => {
+    const options = createCoverOptions();
+    fs.mkdirSync(options.sourceDirectory, { recursive: true });
+    await Promise.all([
+      writeFixture(path.join(options.sourceDirectory, "demo.png"), "#00ff00", "png"),
+      writeFixture(path.join(options.sourceDirectory, "demo.jpg"), "#ff0000", "jpeg"),
+    ]);
+
+    await expect(generateCovers(options)).rejects.toThrow("多个封面源文件会生成同名输出: demo");
+  });
+
   it("invalidates and cleans OG artifacts from content fingerprints", async () => {
     const root = createTemporaryDirectory();
     const outputDirectory = path.join(root, "public", "og");
