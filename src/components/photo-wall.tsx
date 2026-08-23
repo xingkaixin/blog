@@ -1,20 +1,10 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoOverview, PhotoWallError, PhotoWallLoading } from "@/components/photo-overview";
 import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
+import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
-import { usePhotoLocation } from "@/hooks/use-photo-location";
-import { usePhotoSelection } from "@/hooks/use-photo-selection";
-import { monthFromCapturedAt, type PhotoRecord } from "@/lib/photo-catalog";
-import {
-  planOverviewOpen,
-  planPhotoClose,
-  planPhotoOpen,
-  planPhotoSelection,
-  planTimelineOpen,
-  planTimelineSelection,
-} from "@/lib/photo-location";
 import { buildPhotoWallLoadedModel, buildPhotoWallPeriodModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
@@ -22,7 +12,6 @@ type PhotoWallProps = {
 };
 
 const INITIAL_PERIOD_COUNT = 2;
-const OVERVIEW_VIEW = { mode: "overview" } as const;
 
 export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
@@ -36,8 +25,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     retryMonth,
     resolvePhoto,
   } = usePhotoCatalogSession(normalizedBaseUrl);
-  const { location: photoLocation, navigate } = usePhotoLocation(index);
-  const photoView = photoLocation?.view ?? OVERVIEW_VIEW;
+  const browsing = usePhotoBrowsingSession({ index, loadMonth, resolvePhoto });
+  const photoView = browsing.view;
   const periodModel = useMemo(
     () => buildPhotoWallPeriodModel(index, photoView),
     [index, photoView],
@@ -67,82 +56,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     periodModel.visiblePeriods,
     loadMonth,
   );
-  const preloadAdjacentPeriods = useCallback(
-    (photo: PhotoRecord) => {
-      if (!index) {
-        return;
-      }
-      const currentMonth = monthFromCapturedAt(photo.capturedAt);
-      const filteredIndex = periodModel.visiblePeriods.findIndex(
-        (period) => period.month === currentMonth,
-      );
-      const periods = filteredIndex >= 0 ? periodModel.visiblePeriods : index.periods;
-      const currentIndex = periods.findIndex((period) => period.month === currentMonth);
-      for (const adjacentIndex of [currentIndex - 1, currentIndex + 1]) {
-        const period = periods[adjacentIndex];
-        if (period) {
-          void loadMonth(period).catch(() => undefined);
-        }
-      }
-    },
-    [index, loadMonth, periodModel.visiblePeriods],
-  );
-
-  const closeMissingPhoto = useCallback(() => {
-    navigate(planPhotoClose(window.location.href, history.state));
-  }, [navigate]);
-  const {
-    state: photoSelection,
-    selectedPhoto,
-    displayPhoto,
-    select: selectPhoto,
-    dismiss: dismissPhoto,
-    retry: retryPhotoSelection,
-  } = usePhotoSelection({
-    catalogReady: index !== null,
-    photoId: photoLocation?.photoId,
-    resolvePhoto,
-    onMissing: closeMissingPhoto,
-    onResolved: preloadAdjacentPeriods,
-  });
+  const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
   const lightboxPhotos =
     displayPhoto && loadedModel.filteredPhotos.some((photo) => photo.id === displayPhoto.id)
       ? loadedModel.filteredPhotos
       : loadedModel.allPhotos;
-
-  const openPhoto = useCallback(
-    (photo: PhotoRecord) => {
-      navigate(planPhotoOpen(window.location.href, history.state, photo.id));
-      selectPhoto(photo);
-    },
-    [navigate, selectPhoto],
-  );
-  const selectLightboxPhoto = useCallback(
-    (photo: PhotoRecord) => {
-      navigate(planPhotoSelection(window.location.href, history.state, photo.id));
-      selectPhoto(photo);
-    },
-    [navigate, selectPhoto],
-  );
-  const closeLightbox = useCallback(() => {
-    // 先本地关闭让退出动画立即起播，history 清理异步跟上（popstate 的同步是幂等的）
-    dismissPhoto();
-    navigate(planPhotoClose(window.location.href, history.state));
-  }, [dismissPhoto, navigate]);
-
-  const openTimeline = (albumId: string | null) => {
-    navigate(planTimelineOpen(window.location.href, history.state, albumId));
-    window.scrollTo(0, 0);
-  };
-  const selectAlbum = (albumId: string | null) => {
-    navigate(planTimelineSelection(window.location.href, history.state, albumId));
-    window.scrollTo(0, 0);
-  };
-  const returnToOverview = () => {
-    dismissPhoto();
-    navigate(planOverviewOpen(window.location.href, history.state));
-    window.scrollTo(0, 0);
-  };
 
   return (
     <section className="pb-20">
@@ -155,7 +73,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           baseUrl={normalizedBaseUrl}
           albumCount={catalogState.index.albums.length}
           items={loadedModel.overviewItems}
-          onOpenAlbum={openTimeline}
+          onOpenAlbum={browsing.openTimeline}
         />
       )}
       {catalogState.status === "ready" && photoView.mode === "timeline" && (
@@ -166,11 +84,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           monthErrors={monthErrors}
           activeMonth={activeMonth}
           wallRef={wallRef}
-          onReturn={returnToOverview}
-          onSelectAlbum={selectAlbum}
+          onReturn={browsing.returnToOverview}
+          onSelectAlbum={browsing.selectAlbum}
           onLoadMonth={(period) => void loadMonth(period).catch(() => undefined)}
           onRetryMonth={retryMonth}
-          onOpenPhoto={openPhoto}
+          onOpenPhoto={browsing.openPhoto}
           onJumpMonth={(month) => void jumpToMonth(month)}
         />
       )}
@@ -186,7 +104,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           </div>
           <button
             type="button"
-            onClick={retryPhotoSelection}
+            onClick={browsing.retryPhoto}
             className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             重试
@@ -201,8 +119,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           photo={displayPhoto}
           photos={lightboxPhotos}
           albums={index.albums}
-          onClose={closeLightbox}
-          onSelect={selectLightboxPhoto}
+          onClose={browsing.closePhoto}
+          onSelect={browsing.selectPhoto}
         />
       )}
     </section>
