@@ -46,7 +46,10 @@ export type PhotoResolution =
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
   readonly request: PhotoCatalogRequest;
-  private readonly pendingMonths = new Map<string, Promise<PhotoMonthCatalog>>();
+  private readonly pendingMonths = new Map<
+    string,
+    { signal: AbortSignal | undefined; request: Promise<PhotoMonthCatalog> }
+  >();
 
   constructor(baseUrl: string, request: PhotoCatalogRequest = requestJson) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
@@ -70,8 +73,8 @@ export class PhotoCatalogBrowser {
     signal?: AbortSignal,
   ): Promise<PhotoMonthCatalog> {
     const pending = this.pendingMonths.get(period.path);
-    if (pending) {
-      return pending;
+    if (pending && pending.signal === signal) {
+      return pending.request;
     }
 
     const request = this.request(photoObjectUrl(this.baseUrl, period.path), {
@@ -80,11 +83,11 @@ export class PhotoCatalogBrowser {
     })
       .then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)))
       .finally(() => {
-        if (this.pendingMonths.get(period.path) === request) {
+        if (this.pendingMonths.get(period.path)?.request === request) {
           this.pendingMonths.delete(period.path);
         }
       });
-    this.pendingMonths.set(period.path, request);
+    this.pendingMonths.set(period.path, { signal, request });
     return request;
   }
 }

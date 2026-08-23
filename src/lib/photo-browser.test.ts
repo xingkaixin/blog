@@ -86,6 +86,32 @@ describe("photo catalog browser", () => {
     expect(request).toHaveBeenCalledTimes(2);
   });
 
+  it("does not reuse an aborted request in a new catalog session", async () => {
+    const request = vi.fn<PhotoCatalogRequest>((_url, { signal }) => {
+      if (signal?.aborted) {
+        return Promise.reject(new DOMException("aborted", "AbortError"));
+      }
+      return new Promise((resolve, reject) => {
+        const complete = () => resolve(month);
+        signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), {
+          once: true,
+        });
+        setTimeout(complete, 0);
+      });
+    });
+    const browser = new PhotoCatalogBrowser("https://photos.example.com", request);
+    const oldSession = new AbortController();
+    const newSession = new AbortController();
+
+    const stale = browser.loadMonth(index, period, oldSession.signal);
+    oldSession.abort();
+    const current = browser.loadMonth(index, period, newSession.signal);
+
+    await expect(stale).rejects.toThrow("aborted");
+    await expect(current).resolves.toEqual(month);
+    expect(request).toHaveBeenCalledTimes(2);
+  });
+
   it("normalizes legacy and invalid photo wall URLs", () => {
     const location = readPhotoLocation(
       `https://example.com/photos/?album=trip#photo=${photoId}`,
