@@ -7,7 +7,7 @@ import {
   serializeJsonLd,
   type PageMeta,
 } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, siteContacts } from "@/lib/site";
 
 const websiteMeta: PageMeta = {
   title: siteConfig.title,
@@ -64,9 +64,14 @@ describe("SEO metadata", () => {
 
   it("builds article and breadcrumb JSON-LD nodes", () => {
     const graph = buildJsonLd(articleMeta)["@graph"] as Array<Record<string, unknown>>;
+    const person = graph.find((node) => node["@type"] === "Person");
     const article = graph.find((node) => node["@type"] === "BlogPosting");
     const breadcrumb = graph.find((node) => node["@type"] === "BreadcrumbList");
 
+    expect(person).toMatchObject({
+      email: siteContacts.email.href,
+      sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],
+    });
     expect(article).toMatchObject({
       headline: articleMeta.title,
       datePublished: articleMeta.publishedTime,

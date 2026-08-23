@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { siteConfig, siteContacts } from "@/lib/site";
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
@@ -52,9 +52,9 @@ function personSchema() {
     "@id": `${siteConfig.url}/#person`,
     name: siteConfig.author,
     url: `${siteConfig.url}/about/`,
-    email: `mailto:${siteConfig.email}`,
+    email: siteContacts.email.href,
     description: siteConfig.about,
-    sameAs: siteConfig.sameAs,
+    sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],
   };
 }
 

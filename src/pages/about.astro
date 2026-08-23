@@ -1,7 +1,7 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { primaryProjectUrl, projects } from "@/lib/projects";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, siteContacts, type SiteContactId } from "@/lib/site";
 
 const meta = {
   title: "关于",
@@ -14,22 +14,40 @@ const meta = {
   ],
 };
 
-const contacts = [
-  { id: "email", label: "邮箱", value: siteConfig.email, href: `mailto:${siteConfig.email}` },
-  {
-    id: "github",
-    label: "GitHub",
-    value: "github.com/xingkaixin",
-    href: "https://github.com/xingkaixin",
+const contacts = Object.values(siteContacts);
+const contactPresentations = {
+  email: {
+    icon: {
+      fill: false,
+      path: "M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm18 3-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7",
+    },
+    artifact: "envelope",
   },
-  { id: "x", label: "X", value: "@xingkaixin", href: "https://x.com/xingkaixin" },
-  {
-    id: "telegram",
-    label: "Telegram",
-    value: "@xingkaixin",
-    href: "https://t.me/xingkaixin",
+  github: {
+    icon: {
+      fill: true,
+      path: "M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.1 11.1 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z",
+    },
+    artifact: "github",
   },
-] as const;
+  x: {
+    icon: {
+      fill: true,
+      path: "M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z",
+    },
+    artifact: "x",
+  },
+  telegram: {
+    icon: {
+      fill: false,
+      path: "M22 2 11 13m11-11-7 20-4-9-9-4Z",
+    },
+    artifact: "telegram",
+  },
+} as const satisfies Record<
+  SiteContactId,
+  { icon: { fill: boolean; path: string }; artifact: "envelope" | "github" | "x" | "telegram" }
+>;
 
 const featuredProjectIds = new Set(["yomitomo", "codesesh"]);
 const featuredProjects = projects.filter((project) => featuredProjectIds.has(project.id));
@@ -140,36 +158,27 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
       <p class="mt-2 text-[13px] leading-6 text-ink-500">聊 AI、工具、摄影，或者只是来打个招呼。</p>
       <div class="mt-4 border-t border-line">
         {
-          contacts.map((contact) => (
-            <div class="contact-anchor border-b border-ink-100">
+          contacts.map((contact) => {
+            const presentation = contactPresentations[contact.id];
+            return (
+              <div class="contact-anchor border-b border-ink-100">
               <a
                 href={contact.href}
                 class="group flex items-center gap-2 py-3 text-ink-500 focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {contact.id === "email" && (
-                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="4" width="20" height="16" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
-                )}
-                {contact.id === "github" && (
-                  <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11.1 11.1 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.2.67.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-                  </svg>
-                )}
-                {contact.id === "x" && (
-                  <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z" />
-                  </svg>
-                )}
-                {contact.id === "telegram" && (
-                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 2 11 13" />
-                    <path d="M22 2 15 22l-4-9-9-4Z" />
-                  </svg>
-                )}
+                <svg
+                  class="contact-icon"
+                  viewBox="0 0 24 24"
+                  fill={presentation.icon.fill ? "currentColor" : "none"}
+                  stroke={presentation.icon.fill ? "none" : "currentColor"}
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d={presentation.icon.path} />
+                </svg>
                 <span class="min-w-0 flex-1">
                   <span class="block text-[12px] text-ink-700 group-hover:text-accent">{contact.label}</span>
                   <span class="mt-0.5 block truncate font-mono text-[9px] text-ink-400">{contact.value}</span>
@@ -177,7 +186,7 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
                 <span aria-hidden="true" class="font-mono text-[11px] text-ink-300 group-hover:text-accent">↗</span>
               </a>
 
-              {contact.id === "email" && (
+              {presentation.artifact === "envelope" && (
                 <div class="artifact envelope" aria-hidden="true">
                   <div class="stamp">
                     <div class="stamp-paper" />
@@ -189,21 +198,21 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
                   </div>
                   <div class="env-lines">
                     <p class="env-to">TO</p>
-                    <p class="env-value">{siteConfig.email}</p>
+                    <p class="env-value">{contact.value}</p>
                   </div>
                 </div>
               )}
 
-              {contact.id === "github" && (
+              {presentation.artifact === "github" && (
                 <div class="artifact gh-card" aria-hidden="true">
                   <div class="gh-bar">
                     <span class="gh-dot" />
                     <span class="gh-dot" />
                     <span class="gh-dot" />
-                    <span class="gh-path">~/xingkaixin</span>
+                    <span class="gh-path">~/{siteConfig.author.toLowerCase()}</span>
                   </div>
                   <p class="gh-cmd">
-                    <span class="gh-prompt">$</span> git clone github.com/xingkaixin
+                    <span class="gh-prompt">$</span> git clone {contact.value}
                   </p>
                   <div class="gh-graph">
                     {ghCells.map((level) => <span class={`gh-cell gh-l${level}`} />)}
@@ -211,21 +220,21 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
                 </div>
               )}
 
-              {contact.id === "x" && (
+              {presentation.artifact === "x" && (
                 <div class="artifact x-card" aria-hidden="true">
                   <span class="x-logo">𝕏</span>
                   <div class="x-head">
                     <img src="/avatar.webp" alt="" class="x-avatar" />
                     <div>
-                      <p class="x-name">XingKaiXin</p>
-                      <p class="x-handle">@xingkaixin</p>
+                      <p class="x-name">{siteConfig.author}</p>
+                      <p class="x-handle">{contact.value}</p>
                     </div>
                   </div>
                   <p class="x-post">人生不该只有一种体验。</p>
                 </div>
               )}
 
-              {contact.id === "telegram" && (
+              {presentation.artifact === "telegram" && (
                 <div class="artifact tg-card" aria-hidden="true">
                   <span class="tg-plane">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -234,13 +243,14 @@ const ghCells = Array.from({ length: 70 }, (_, i) => ((i * 37 + 11) % 19) % 5);
                     </svg>
                   </span>
                   <div class="tg-bubble">
-                    <p class="tg-handle">@xingkaixin</p>
+                    <p class="tg-handle">{contact.value}</p>
                     <p class="tg-msg">随时来聊：AI、摄影、数码。</p>
                   </div>
                 </div>
               )}
               </div>
-          ))
+            );
+          })
         }
       </div>
     </aside>

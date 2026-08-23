@@ -1,3 +1,32 @@
+export const siteContacts = {
+  email: {
+    id: "email",
+    label: "邮箱",
+    value: "me@xingkaixin.me",
+    href: "mailto:me@xingkaixin.me",
+  },
+  github: {
+    id: "github",
+    label: "GitHub",
+    value: "github.com/xingkaixin",
+    href: "https://github.com/xingkaixin",
+  },
+  x: {
+    id: "x",
+    label: "X",
+    value: "@xingkaixin",
+    href: "https://x.com/xingkaixin",
+  },
+  telegram: {
+    id: "telegram",
+    label: "Telegram",
+    value: "@xingkaixin",
+    href: "https://t.me/xingkaixin",
+  },
+} as const;
+
+export type SiteContactId = keyof typeof siteContacts;
+
 export const siteConfig = {
   title: "行开心的颠倒世界",
   description:
@@ -6,8 +35,6 @@ export const siteConfig = {
   photoUrl: "https://photos.xingkaixin.me",
   author: "XingKaiXin",
   language: "zh-CN",
-  email: "me@xingkaixin.me",
-  sameAs: ["https://github.com/xingkaixin", "https://x.com/xingkaixin", "https://t.me/xingkaixin"],
   about:
     "Hey，我是 XingKaiXin，我在上海工作。工作、学习之余，我还是一个摄影爱好者，同时也非常喜欢折腾各类数码产品。",
   motto:
