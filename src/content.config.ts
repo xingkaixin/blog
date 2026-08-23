@@ -1,6 +1,6 @@
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
-import { COVER_MISSING_MESSAGE, coverExists, postFrontmatterSchema } from "@/lib/post-schema";
+import { postFrontmatterSchema } from "@/lib/post-schema";
 import { parsePostSlug } from "@/lib/published-post";
 
 const posts = defineCollection({
@@ -10,10 +10,7 @@ const posts = defineCollection({
     base: "./content/posts",
     generateId: ({ entry }) => parsePostSlug(entry.replace(/\.md$/, ""), "post filename"),
   }),
-  schema: postFrontmatterSchema.refine(({ cover }) => coverExists(cover), {
-    message: COVER_MISSING_MESSAGE,
-    path: ["cover"],
-  }),
+  schema: postFrontmatterSchema,
 });
 
 export const collections = { posts };

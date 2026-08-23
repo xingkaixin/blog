@@ -6,7 +6,7 @@ const validFrontmatter = {
   date: "2026-08-07",
   summary: "测试摘要",
   tags: ["Astro", "TypeScript"],
-  cover: "test.png",
+  cover: "agent-friendly-tool.png",
   coverAlt: "测试封面",
 };
 
@@ -47,4 +47,10 @@ describe("post frontmatter", () => {
       expect(postFrontmatterSchema.safeParse({ ...validFrontmatter, cover }).success).toBe(false);
     },
   );
+
+  it("rejects a cover without a matching source asset", () => {
+    expect(
+      postFrontmatterSchema.safeParse({ ...validFrontmatter, cover: "missing.png" }).success,
+    ).toBe(false);
+  });
 });

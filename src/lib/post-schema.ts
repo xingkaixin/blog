@@ -7,6 +7,7 @@ import { isCalendarDate } from "./published-post";
 const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
 const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const COVER_FILENAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|webp)$/i;
+const COVER_MISSING_MESSAGE = "Cover image not found";
 
 export const calendarDateSchema = z
   .string()
@@ -18,21 +19,24 @@ const tagsSchema = z
   .min(1)
   .refine((tags) => new Set(tags).size === tags.length, "tags must be unique within a post");
 
-export const postFrontmatterSchema = z.object({
-  title: z.string().trim().min(1),
-  date: calendarDateSchema,
-  summary: z.string().trim().min(1),
-  tags: tagsSchema,
-  cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
-  coverAlt: z.string().trim().min(1),
-  draft: z.boolean().optional(),
-});
+export const postFrontmatterSchema = z
+  .object({
+    title: z.string().trim().min(1),
+    date: calendarDateSchema,
+    summary: z.string().trim().min(1),
+    tags: tagsSchema,
+    cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
+    coverAlt: z.string().trim().min(1),
+    draft: z.boolean().optional(),
+  })
+  .refine(({ cover }) => coverExists(cover), {
+    message: COVER_MISSING_MESSAGE,
+    path: ["cover"],
+  });
 
 export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
 
-export const COVER_MISSING_MESSAGE = "Cover image not found";
-
-export function coverExists(cover: string) {
+function coverExists(cover: string) {
   return fs.existsSync(path.join(COVER_DIR, cover));
 }
 
@@ -48,16 +52,10 @@ export function frontmatterError(slug: string, issues: FrontmatterIssue[]) {
   return new Error(`Invalid frontmatter for ${slug}: ${details}`);
 }
 
-// 校验规则的唯一入口：schema 之外只多一条"封面文件必须存在"。
-// content collection、构建脚本与 vite 插件都经由此处，规则改一次即可全线生效。
 export function parseFrontmatter(slug: string, data: unknown): PostFrontmatter {
   const result = postFrontmatterSchema.safeParse(data);
   if (!result.success) {
     throw frontmatterError(slug, result.error.issues);
-  }
-
-  if (!coverExists(result.data.cover)) {
-    throw frontmatterError(slug, [{ path: ["cover"], message: COVER_MISSING_MESSAGE }]);
   }
 
   return result.data;
