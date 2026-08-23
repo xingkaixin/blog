@@ -1,12 +1,9 @@
 import { createHash } from "node:crypto";
 import {
-  PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
   PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   monthFromCapturedAt,
-  parsePhotoCatalogIndex,
   type PhotoAlbum,
-  type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
@@ -294,19 +291,6 @@ export class PhotoCatalogState {
       throw new Error("照片 Catalog 尚未初始化");
     }
     return this.buildControl(this.#periods, this.#generatedAt);
-  }
-
-  currentIndex(): PhotoCatalogIndex {
-    if (this.#generatedAt === null) {
-      throw new Error("照片 Catalog 尚未初始化");
-    }
-    return parsePhotoCatalogIndex({
-      schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-      generatedAt: this.#generatedAt,
-      albums: [...this.#albums.values()],
-      periods: [...this.#periods.values()],
-      photoMonths: Object.fromEntries(this.#photoMonths),
-    });
   }
 
   recordControlWrite(version: string, control: PhotoCatalogControl): void {

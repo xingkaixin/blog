@@ -242,7 +242,8 @@ async function loadPhotoCatalogMonths(
     .filter((month) => !catalog.hasLoadedMonth(month))
     .map((month) => catalog.period(month))
     .filter((period): period is PhotoPeriod => Boolean(period));
-  const loadedMonths = await readPhotoCatalogMonths(store, catalog.currentIndex(), periods);
+  const index = photoCatalogIndexFromControl(catalog.currentControl());
+  const loadedMonths = await readPhotoCatalogMonths(store, index, periods);
   for (const { shard } of loadedMonths) {
     catalog.loadMonth(shard);
   }
@@ -316,7 +317,8 @@ async function writePhotoCatalogIndex(
   if (catalog.controlVersion === null) {
     await writeControlDocument(store, catalog, catalog.currentControl());
   }
-  await writePublicIndex(store, catalog, catalog.currentIndex());
+  const index = photoCatalogIndexFromControl(catalog.currentControl());
+  await writePublicIndex(store, catalog, index);
 }
 
 export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
