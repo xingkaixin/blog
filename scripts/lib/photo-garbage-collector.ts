@@ -4,7 +4,7 @@ import type { RetiredArtifactBatch, RetiredPhotoObjects } from "./photo-catalog-
 import {
   loadPhotoCatalog,
   retryPhotoCatalogMutation,
-  writePhotoCatalog,
+  writePhotoCatalogControl,
 } from "./photo-catalog-store";
 import type { PhotoObjectStore } from "./photo-store";
 
@@ -84,7 +84,7 @@ export async function collectPhotoGarbage(
     ),
   );
   return retryPhotoCatalogMutation(() =>
-    finishPhotoGarbageCollection(options.store, claim, deletionResults, now),
+    finishPhotoGarbageCollection(options.store, claim, deletionResults),
   );
 }
 
@@ -117,7 +117,7 @@ async function claimPhotoGarbage(
     entry.deletion = { id: claimId, expiresAt };
   }
   if (photos.length > 0 || artifacts.length > 0) {
-    await writePhotoCatalog(options.store, catalog, new Set(), now);
+    await writePhotoCatalogControl(options.store, catalog);
   }
   return {
     id: claimId,
@@ -132,7 +132,6 @@ async function finishPhotoGarbageCollection(
   store: PhotoObjectStore,
   claim: GarbageClaim,
   deletionResults: Map<string, GarbageDeletionResult>,
-  now: Date,
 ): Promise<CollectPhotoGarbageResult> {
   const catalog = await loadPhotoCatalog(store);
   finishClaimedEntries(
@@ -149,7 +148,7 @@ async function finishPhotoGarbageCollection(
     claim.id,
     deletionResults,
   );
-  await writePhotoCatalog(store, catalog, new Set(), now);
+  await writePhotoCatalogControl(store, catalog);
   const failures: PhotoGarbageFailure[] = [];
   for (const [objectKey, result] of deletionResults) {
     if (result.status === "failed") {

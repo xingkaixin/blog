@@ -469,6 +469,8 @@ describe("photo publisher", () => {
     const updatedIndex = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
+    const publicIndexBody = store.objects.get(PHOTO_CATALOG_INDEX_KEY);
+    const publicIndexVersion = store.versions.get(PHOTO_CATALOG_INDEX_KEY);
     let control = await readControl(store);
     expect(updatedIndex).toEqual(expect.objectContaining({ albums: [], periods: [] }));
     expect(control.retiredObjects).toEqual([expect.any(Object)]);
@@ -523,6 +525,8 @@ describe("photo publisher", () => {
     control = await readControl(store);
     expect(control.retiredObjects).toEqual([]);
     expect(control.retiredArtifacts).toEqual([]);
+    expect(store.objects.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexBody);
+    expect(store.versions.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexVersion);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
   });

@@ -178,15 +178,23 @@ export async function writePhotoCatalog(
   keepOnlyUnreferencedPhotoRetirements(catalog, nextPeriods);
   removeEmptyAlbums(catalog, nextPeriods);
 
-  const control = buildControl(catalog, nextPeriods, generatedAt.toISOString());
-  catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
-    contentType: "application/json; charset=utf-8",
-    cacheControl: CONTROL_CACHE_CONTROL,
-    expectedVersion: catalog.controlVersion,
-  });
-  catalog.generatedAt = control.generatedAt;
-  catalog.periods = nextPeriods;
+  const control = await writeControlDocument(
+    store,
+    catalog,
+    nextPeriods,
+    generatedAt.toISOString(),
+  );
   await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+}
+
+export async function writePhotoCatalogControl(
+  store: PhotoObjectStore,
+  catalog: LoadedPhotoCatalog,
+): Promise<void> {
+  if (catalog.generatedAt === null) {
+    throw new Error("无法写入空的照片 Catalog 控制状态");
+  }
+  await writeControlDocument(store, catalog, catalog.periods, catalog.generatedAt);
 }
 
 export async function writePhotoCatalogIndex(
@@ -196,15 +204,10 @@ export async function writePhotoCatalogIndex(
   if (catalog.generatedAt === null) {
     throw new Error("无法发布空的照片 Catalog 投影");
   }
-  const control = buildControl(catalog, catalog.periods, catalog.generatedAt);
   if (catalog.controlVersion === null) {
-    catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
-      contentType: "application/json; charset=utf-8",
-      cacheControl: CONTROL_CACHE_CONTROL,
-      expectedVersion: null,
-    });
+    await writeControlDocument(store, catalog, catalog.periods, catalog.generatedAt);
   }
-  await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+  await writePublicIndex(store, catalog, catalogIndex(catalog));
 }
 
 export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
@@ -232,6 +235,23 @@ async function writePublicIndex(
     expectedVersion: catalog.publicIndexVersion,
   });
   catalog.publicIndexCurrent = true;
+}
+
+async function writeControlDocument(
+  store: PhotoObjectStore,
+  catalog: LoadedPhotoCatalog,
+  periods: Map<string, PhotoPeriod>,
+  generatedAt: string,
+): Promise<PhotoCatalogControl> {
+  const control = buildControl(catalog, periods, generatedAt);
+  catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
+    contentType: "application/json; charset=utf-8",
+    cacheControl: CONTROL_CACHE_CONTROL,
+    expectedVersion: catalog.controlVersion,
+  });
+  catalog.generatedAt = control.generatedAt;
+  catalog.periods = periods;
+  return control;
 }
 
 export async function retryPhotoCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
