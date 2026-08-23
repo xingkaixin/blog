@@ -116,12 +116,15 @@ export class PhotoCatalogEditor {
     return this.state.retirePhotos(photoIds, deleteAfter);
   }
 
-  assertArtifactsWritable(photoId: string): void {
-    const claimedKey = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photoId}/${width}.webp`).find(
-      (key) => this.state.isArtifactDeletionClaimed(key),
-    );
-    if (claimedKey) {
-      throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
+  assertArtifactsWritable(photoIds: Iterable<string>): void {
+    const claimedKeys = this.state.claimedArtifactKeys();
+    for (const photoId of photoIds) {
+      for (const width of PHOTO_VARIANT_WIDTHS) {
+        const key = `media/${photoId}/${width}.webp`;
+        if (claimedKeys.has(key)) {
+          throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
+        }
+      }
     }
   }
 
@@ -253,6 +256,7 @@ async function writePhotoCatalog(
   writtenArtifacts: Set<string> = new Set(),
 ): Promise<void> {
   const nextPeriods = catalog.periods();
+  const claimedArtifactKeys = catalog.claimedArtifactKeys();
 
   await mapWithConcurrency(catalog.dirtyMonths(), WRITE_CONCURRENCY, async (month) => {
     const shard = catalog.monthForWrite(month);
@@ -268,7 +272,7 @@ async function writePhotoCatalog(
     const body = serializeJson(validatedShard);
     const hash = createHash("sha256").update(body).digest("hex").slice(0, 24);
     const key = `catalog/months/${month}.${hash}.json`;
-    if (catalog.isArtifactDeletionClaimed(key)) {
+    if (claimedArtifactKeys.has(key)) {
       throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
     }
     if (!writtenArtifacts.has(key)) {

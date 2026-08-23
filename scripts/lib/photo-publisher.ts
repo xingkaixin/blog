@@ -115,6 +115,7 @@ async function publishPhotosOnce(
       await catalog.addPhotoToAlbum(identified.id, options.album.id);
     }
   }
+  catalog.assertArtifactsWritable(pending.map((photo) => photo.id));
 
   const processed = await mapWithConcurrency(
     pending,
@@ -122,7 +123,6 @@ async function publishPhotosOnce(
     async (identified, index) => {
       const published = publishedPhotos.get(identified.id);
       if (published) {
-        catalog.assertArtifactsWritable(published.id);
         return published;
       }
       options.onProgress?.({
@@ -136,7 +136,7 @@ async function publishPhotosOnce(
         throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
       }
       const record = validateNewPhoto(photo, options.album?.id);
-      await uploadPhotoAssets(options.store, catalog, photo, attemptedArtifacts, writtenArtifacts);
+      await uploadPhotoAssets(options.store, photo, attemptedArtifacts, writtenArtifacts);
       publishedPhotos.set(photo.id, record);
       options.onProgress?.({
         type: "published",
@@ -232,12 +232,10 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
-  catalog: PhotoCatalogEditor,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
   writtenArtifacts: Set<string>,
 ): Promise<void> {
-  catalog.assertArtifactsWritable(photo.id);
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
     const body = photo.variants.get(width);
     if (!body) {

@@ -256,14 +256,17 @@ export class PhotoCatalogState {
     objectKeys: Iterable<string>,
   ): boolean {
     const retiredKeys = this.allRetiredObjectKeys();
+    const livePeriodPaths = periodPaths(periods);
     return [...objectKeys].some(
-      (key) => !retiredKeys.has(key) && !this.isArtifactReferenced(periods, key),
+      (key) => !retiredKeys.has(key) && !this.isArtifactReferenced(livePeriodPaths, key),
     );
   }
 
-  isArtifactDeletionClaimed(key: string): boolean {
-    return [...this.#retiredObjects.values(), ...this.#retiredArtifacts.values()].some(
-      (entry) => entry.deletion !== undefined && entry.objectKeys.includes(key),
+  claimedArtifactKeys(): Set<string> {
+    return new Set(
+      [...this.#retiredObjects.values(), ...this.#retiredArtifacts.values()]
+        .filter((entry) => entry.deletion !== undefined)
+        .flatMap((entry) => entry.objectKeys),
     );
   }
 
@@ -272,15 +275,16 @@ export class PhotoCatalogState {
     generatedAt: Date,
     attemptedArtifacts: Iterable<string>,
   ): PhotoCatalogControl {
+    const livePeriodPaths = periodPaths(periods);
     const replacedPeriodPaths = [...this.#periods]
       .filter(([month, period]) => periods.get(month)?.path !== period.path)
       .map(([, period]) => period.path);
     this.retireUnreferencedArtifacts(
-      periods,
+      livePeriodPaths,
       new Set([...attemptedArtifacts, ...replacedPeriodPaths]),
       generatedAt,
     );
-    this.keepOnlyUnreferencedRetirements(periods);
+    this.keepOnlyUnreferencedRetirements(livePeriodPaths);
     this.removeEmptyAlbums(periods);
     return this.buildControl(periods, generatedAt.toISOString());
   }
@@ -365,7 +369,7 @@ export class PhotoCatalogState {
   }
 
   private retireUnreferencedArtifacts(
-    periods: Map<string, PhotoPeriod>,
+    livePeriodPaths: Set<string>,
     objectKeys: Iterable<string>,
     retiredAt: Date,
   ): void {
@@ -375,7 +379,7 @@ export class PhotoCatalogState {
         if (!isPhotoArtifactKey(key)) {
           throw new Error(`无法回收未知的照片对象路径 ${key}`);
         }
-        return !retiredKeys.has(key) && !this.isArtifactReferenced(periods, key);
+        return !retiredKeys.has(key) && !this.isArtifactReferenced(livePeriodPaths, key);
       })
       .toSorted();
     if (candidates.length === 0) {
@@ -394,9 +398,11 @@ export class PhotoCatalogState {
     this.#domainChanged = true;
   }
 
-  private keepOnlyUnreferencedRetirements(periods: Map<string, PhotoPeriod>): void {
+  private keepOnlyUnreferencedRetirements(livePeriodPaths: Set<string>): void {
     for (const [photoId, entry] of this.#retiredObjects) {
-      const objectKeys = entry.objectKeys.filter((key) => !this.isArtifactReferenced(periods, key));
+      const objectKeys = entry.objectKeys.filter(
+        (key) => !this.isArtifactReferenced(livePeriodPaths, key),
+      );
       if (objectKeys.length === 0 || this.#photoMonths.has(photoId)) {
         this.#retiredObjects.delete(photoId);
       } else if (objectKeys.length !== entry.objectKeys.length) {
@@ -404,7 +410,9 @@ export class PhotoCatalogState {
       }
     }
     for (const [retirementId, entry] of this.#retiredArtifacts) {
-      const objectKeys = entry.objectKeys.filter((key) => !this.isArtifactReferenced(periods, key));
+      const objectKeys = entry.objectKeys.filter(
+        (key) => !this.isArtifactReferenced(livePeriodPaths, key),
+      );
       if (objectKeys.length === 0) {
         this.#retiredArtifacts.delete(retirementId);
       } else if (objectKeys.length !== entry.objectKeys.length) {
@@ -451,8 +459,8 @@ export class PhotoCatalogState {
     });
   }
 
-  private isArtifactReferenced(periods: Map<string, PhotoPeriod>, key: string): boolean {
-    if ([...periods.values()].some((period) => period.path === key)) {
+  private isArtifactReferenced(livePeriodPaths: Set<string>, key: string): boolean {
+    if (livePeriodPaths.has(key)) {
       return true;
     }
     const photoId = photoIdFromMediaObjectKey(key);
@@ -487,6 +495,10 @@ export class PhotoCatalogState {
       }
     }
   }
+}
+
+function periodPaths(periods: Map<string, PhotoPeriod>): Set<string> {
+  return new Set([...periods.values()].map((period) => period.path));
 }
 
 export function photoRetirementDeadline(retiredAt: Date): string {
