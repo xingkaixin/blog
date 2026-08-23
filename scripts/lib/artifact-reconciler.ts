@@ -3,11 +3,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
 
-const MANIFEST_VERSION = 1;
+const MANIFEST_VERSION = 2;
+
+type ArtifactManifestEntry = {
+  fingerprint: string;
+  outputFingerprints: string[];
+};
 
 type ArtifactManifest = {
   version: typeof MANIFEST_VERSION;
-  entries: Record<string, string>;
+  entries: Record<string, ArtifactManifestEntry>;
 };
 
 export type ArtifactPlan = {
@@ -49,15 +54,30 @@ export async function reconcileArtifacts(
     options.concurrency ?? 1,
     async (plan): Promise<"generated" | "reused"> => {
       const currentFingerprint = fingerprint(plan.fingerprintParts);
-      nextManifest.entries[plan.key] = currentFingerprint;
+      const currentEntry = manifest.entries[plan.key];
       if (
-        manifest.entries[plan.key] === currentFingerprint &&
-        plan.outputs.every((output) => fs.existsSync(output))
+        currentEntry?.fingerprint === currentFingerprint &&
+        currentEntry.outputFingerprints.length === plan.outputs.length &&
+        plan.outputs.every(
+          (output, index) =>
+            fs.existsSync(output) &&
+            fingerprint([fs.readFileSync(output)]) === currentEntry.outputFingerprints[index],
+        )
       ) {
+        nextManifest.entries[plan.key] = currentEntry;
         return "reused";
       }
 
       await plan.generate();
+      nextManifest.entries[plan.key] = {
+        fingerprint: currentFingerprint,
+        outputFingerprints: plan.outputs.map((output) => {
+          if (!fs.existsSync(output)) {
+            throw new Error(`生成计划未写入声明的输出: ${output}`);
+          }
+          return fingerprint([fs.readFileSync(output)]);
+        }),
+      };
       return "generated";
     },
   );
@@ -153,7 +173,7 @@ function removeUnexpectedArtifacts(
 function readManifest(file: string): ArtifactManifest {
   try {
     const value = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<ArtifactManifest>;
-    if (value.version === MANIFEST_VERSION && isStringRecord(value.entries)) {
+    if (value.version === MANIFEST_VERSION && isManifestEntries(value.entries)) {
       return value as ArtifactManifest;
     }
   } catch {
@@ -166,12 +186,24 @@ function emptyManifest(): ArtifactManifest {
   return { version: MANIFEST_VERSION, entries: {} };
 }
 
-function isStringRecord(value: unknown): value is Record<string, string> {
+function isManifestEntries(value: unknown): value is Record<string, ArtifactManifestEntry> {
   return (
     typeof value === "object" &&
     value !== null &&
     !Array.isArray(value) &&
-    Object.values(value).every((entry) => typeof entry === "string")
+    Object.values(value).every(isManifestEntry)
+  );
+}
+
+function isManifestEntry(value: unknown): value is ArtifactManifestEntry {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return false;
+  }
+  const entry = value as Partial<ArtifactManifestEntry>;
+  return (
+    typeof entry.fingerprint === "string" &&
+    Array.isArray(entry.outputFingerprints) &&
+    entry.outputFingerprints.every((outputFingerprint) => typeof outputFingerprint === "string")
   );
 }
 

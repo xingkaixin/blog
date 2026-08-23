@@ -1,0 +1,645 @@
+{
+  "version": 2,
+  "entries": {
+    "2025-review.webp": {
+      "fingerprint": "59011abb8d0143d9fccce940db7b100ddcc911ee1c085c08e9f7aa5dfff42a23",
+      "outputFingerprints": [
+        "4ead5d2a493e120c2aef3f6c0baf2fc09419f6f2cafae3e781e97f43d95127f8",
+        "5659ba078e77427447f150cf9354db5705c995974d8c29317f56211d5cb70370",
+        "5da3bca19419d2364f3bd787183e77afa1e75f052467a45f4c1b135d07bf65ce"
+      ]
+    },
+    "2026-chiangmai-trip.png": {
+      "fingerprint": "7d5f7bcce9f112564bc595a823bed3fdd4f006381c44b9b234e1a6086fd59373",
+      "outputFingerprints": [
+        "11e5268bd7206016974d2e0fc7821824af8439b1dacd1ee0de4f86051b26269f",
+        "575586abc76cdb28cca18787b8644401c50ca3488f663a73d4f91c70d64112e7",
+        "53817373bae65260f4448e884925ff9ba1b12eafb25c91b89314426703134bde"
+      ]
+    },
+    "315-geo-ai-poisoning.png": {
+      "fingerprint": "ce6d5390eae72624be751277596b501f4c8843aae7e0bbab9331d9d49c363e23",
+      "outputFingerprints": [
+        "84df4e598de2926122607dcf17f09a569f1af66ebdc9bad0dd91a93de50fe6fa",
+        "ba072e8a299775f36d19709ef91449225b007cae5939ee9268b10f93015afe91",
+        "a24a39be30741683d4c109720c985e1ba788b3fb89eb34e66b7dbb496d1528b3"
+      ]
+    },
+    "ALS-Ice-Bucket-Challenge-and-Charity.webp": {
+      "fingerprint": "1ad6d5ba4f139a014247d8a5f9ba90d6643cccf2cbb150c8d963397f7343fb2d",
+      "outputFingerprints": [
+        "d197a5ef621d91584f8ce894ddfc31d0b7523db631e9f42e52b503c1cd5d1e4a",
+        "4d2a7a9d4425fa9585733dc73c1d41c07aa4fd11fde1042021a421a61b078a10",
+        "c127c31c5fb9e7ee7e2b94e701fe342dace76cf63d46dc6573323913eb790783"
+      ]
+    },
+    "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp": {
+      "fingerprint": "328831a45297d72c1c7a92051453bf6b9753c245c481088de23120ac27d64900",
+      "outputFingerprints": [
+        "9d7e9721b83c80351c4318d772dc6c51d1d35597bb7afbc564509da26ff0ce0e",
+        "56dc56fa858b5eb51f02ea49866e212827781947d746c541f1b7b2e7b774183a",
+        "6b4a123baa05ee9344b135b4195a29da9b979747eae9ffe4b97230c8a84bad22"
+      ]
+    },
+    "Follow-or-break-the-rules.webp": {
+      "fingerprint": "be75d3ea7c786091166c27fddf108607848eb19860b716e0c1ce305e6edc8251",
+      "outputFingerprints": [
+        "b3cf3af15d0e83c0e43e6f0eadb9eab2d2c67adad11c6c20078d76e542dc2dc7",
+        "846737570313c44be20a3373eeea25866083b25a9236eb5cd3d7f3f9eae97531",
+        "a5a28092a0c0f4d32dfe728c24ce32d48ba51dbe61431f8357359d5e02d7a096"
+      ]
+    },
+    "Infuse-subscription-migration.webp": {
+      "fingerprint": "d0ca9161867b7c57992383cc74b1af623029a810bd02ed901a24c78044926dc4",
+      "outputFingerprints": [
+        "320ca5f53943d7287b9ff100444bee2bfa2dd7e79191a82b2c16669b5da2b827",
+        "a0e09a937e5f3c62191e3a537ea66ebd0c5be15bb30d7db2520c391addedc558",
+        "99f5a8ab43c7e35a5250d4bfaf500e2ebed2b2517225b75b6ed6073c8ff9fe54"
+      ]
+    },
+    "Memories-make-people-grow-old.webp": {
+      "fingerprint": "f9f6a8932dbf82629c19ca73a2fafc72ea402c7792acac7b440a3155dd6f4c46",
+      "outputFingerprints": [
+        "71ca2ea7f166d8d3db4a674423604d1bf58b7f461dd4877aea749157ccb06deb",
+        "efdf8bdd1ab47d4046eeac2f545268df9bec7c1efccb30fe08b38333280f6331",
+        "9f0b046a275d8eaddb4dd7bacded813dda7e82bb0d54dbe88ebe6675d3690ce6"
+      ]
+    },
+    "Ted-Lasso.webp": {
+      "fingerprint": "59886c4b13b7d03aaf0a412345c65dc57a6bcd399bbfafc5c085d1a8d55a8072",
+      "outputFingerprints": [
+        "4a7c90106ccad85c22bba578af7f5bbdfed28ed04c21c038be6fd296e49606a0",
+        "ed5fffe61bfc503d10bdb4b499cc9c7cf95c3d60119011d15eaa516e3b1e19ae",
+        "4b7b45378b2a4d6f56cfc9f27f05f03d511914935885a1537227c4b103c4030e"
+      ]
+    },
+    "The-Last-of-Us-review.webp": {
+      "fingerprint": "a82f9b1f6b6730182b83eb236a7dc57a7624b1937a74d4ff461483360cb304a6",
+      "outputFingerprints": [
+        "cc34b6a94c28b02f6e1e267d19fab0135736a1f5788de3cbf89645c448d8228b",
+        "f1545e2d07e8f88101d57368b7521f45b296a96e4e328f6dfda3fd08bb1cc6c1",
+        "c6c51841f39ebf0473de15b66d0ea0e18e531f26de43d61e7c5cd3f1a67e3f57"
+      ]
+    },
+    "The-requirements-and-design-ideas-of-the-strategy-team.webp": {
+      "fingerprint": "8d15d0fa8d81d815f65963250a4b8bc21578b490ca215bb7f2a70689bad961e5",
+      "outputFingerprints": [
+        "5e2543c154d849b7673b01b681b68df3e870f6fe7617752c0622757bb63fc8f6",
+        "4cf04e73edb3e1161fb6a7459c7a88b7ae559252bb44f59759d43d9a6f163224",
+        "55720ccc285f589141a8d6f7704e97a4f7682155594cdc616d91a25f49cfdc53"
+      ]
+    },
+    "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp": {
+      "fingerprint": "8d33e1b441543ce12d475b886f396dae14fe22049e82fa5599af86da73fa1981",
+      "outputFingerprints": [
+        "0da09c2ac42c7d1c9b7861608b40358b0755d934fd3a8f360328e96b485af112",
+        "a7c7e11df1f5ee858296843e55a3e1116e12cc58bfb55f826af6767ce0b54cae",
+        "53d6b014663aac7c0973702b746d0930eb7193ff70d1b864854bb50dbf596338"
+      ]
+    },
+    "agent-blast-radius.png": {
+      "fingerprint": "b36669cd89e24d9daa9997b3b48fe6e97ff3a4e451a0fe2916e84556d3803541",
+      "outputFingerprints": [
+        "6fd33dd7898e127fb7dea23462a39a727cca6052510e933fbbeb1e4fb802754c",
+        "b25c5e28c158071a374cfba4880e7ef028406b21aa7edc4cfc47386bd88196f4",
+        "77a51732739916b6759c41489a1a8bd7df98898e81efbfca1fa38162474878f0"
+      ]
+    },
+    "agent-blindspot-pass.png": {
+      "fingerprint": "5133a5bc89e5b24e47cbd2b99c5339c1b04cf8963544f24c40a25d8343ec7c65",
+      "outputFingerprints": [
+        "7ece6d78fba102b6be0c1be47d562594550019510d072faf0dbb103615c0b8f9",
+        "19c005ee0c22d355306b82e0024356c967d01aa5c07925c7ba8ff6d463e03f12",
+        "eae1e9202d4214701fdf2598c2d4678478f34a169840e90602e61183f1ecf866"
+      ]
+    },
+    "agent-browser-self-check.png": {
+      "fingerprint": "2f71f3a1e306d8c3a4caec368141a7f7126f7c4e255c2f85ad95c64dd4112764",
+      "outputFingerprints": [
+        "d323214c333b4e237fa46e49628348de3a3fdd92d45eb4982d159d7a53d3627d",
+        "97394595f0ce2b4fab465b44af4a6b1315294edeb881c42582bf99678f2fb85e",
+        "8ab084b80cf0e977b777e2add11498e516e254826d8384b61de6febc5eaf3254"
+      ]
+    },
+    "agent-daily-log-patrol.png": {
+      "fingerprint": "c624bb2efa291ddb3b9c1471f5f7af33bfba946278b5ac9c6c969841641b585e",
+      "outputFingerprints": [
+        "bec0b50213a35956f5e508c924f8859a075532f6383df358169f60f50e8222c7",
+        "17747962f7dee58ee0975fa34165f86a3e9fcb6c610eaa8ed77db6a4edc8570f",
+        "bb384b7330b573e1526d74bb37e4b318cd6f4c3484da1e5526368567c1938205"
+      ]
+    },
+    "agent-first-action-layer.png": {
+      "fingerprint": "aec404bd6eeb4fea9adb9e90e5e186291bd1ff1589f8e4bebefc8995ed7421c0",
+      "outputFingerprints": [
+        "0051f1a4f5822cde5d86c9f443088766e0df262903105f86954acd24db289767",
+        "3a99529a968a68a51cbac049ca740a9babb8e8be0da49d49fdaa37b719a2fb19",
+        "78dcb7b6860d8b4015ea3a1819b2efb63374e5a63665146adcfc49318d2130ba"
+      ]
+    },
+    "agent-friendly-tool.png": {
+      "fingerprint": "a7504a24c9277f08405a2bdd73cc7e819e8b332d8a9ab15447479fd1ab916f6d",
+      "outputFingerprints": [
+        "101d1e9944647f02ce81e6d1459d5863caeec801c4e8e1809f2124f795951972",
+        "e6fd5ff75c22c34bc81b0eb171d798e4f379acc9f065387e483d14342a14d70a",
+        "876a0ce17e3914b137bc1064817d92b80286e06cff9bccde127ecdfc93ca3ace"
+      ]
+    },
+    "agent-guesses-not-debug.png": {
+      "fingerprint": "80566dc4448538d0beed74bd08b97e1f5ff30bc4c86b3c51725d599ca8442df9",
+      "outputFingerprints": [
+        "0ba108a84679e80dfb819c9c10f17c86ce4854f857deb5db67c31ac13fdfc576",
+        "6b10decf71993c13a6effeb562d42bdf47964271d144adc82395798e370308e4",
+        "5d63b37e2c5f929bdfe53e4aa6c5c5b10fd10845895ac07e943646d4b729e661"
+      ]
+    },
+    "agent-harness-not-model.png": {
+      "fingerprint": "d485d3cdddea0dccb70575b487b87928362e1061625b83479d802578293e14ef",
+      "outputFingerprints": [
+        "3ed1c532d2a1797e21b6f5594c84b00433ae45d7499f4dab9fcc5d3b8a694808",
+        "a22073ec6c04929e21c110180aef71290a75cc34c38aea2475f2e6c2ff2f2c01",
+        "a6aee1f8a3d115309c5f2485594797046911a9291c49bc75a8061b1e45a056a7"
+      ]
+    },
+    "agent-restates-goal.png": {
+      "fingerprint": "3883e36013086e7d1beb7388f0f66a1c2b43007e652ed8d33d3613b22916eb99",
+      "outputFingerprints": [
+        "4e2d9c36fea36df2a38983b63dc7796929035a25f4909c577c018250c01f21f4",
+        "b8b30d66015eab0bd86e4044292dce00216d2a3b99663597004549a9a5bd2e5e",
+        "838001c45641fa05f2cd735acfceea853bd27837f0f7505f939e27d866e36eb0"
+      ]
+    },
+    "agent-stop-conditions.png": {
+      "fingerprint": "aed70cba6a80e4755403fb42e14f8d44499e08fa58f3409fc8f6d12e8ade2031",
+      "outputFingerprints": [
+        "ba8d6e5cc5cfa6bd795591d37d0fa210d04c965e2427ad5db15357011dbfa3e1",
+        "bcb08297bff2558c9d66454cfe5c5d23976f93ad5f410f2ec27641b4b421a797",
+        "173653fdd8175d7a18be88123f820834662f2a4d976f2d8d5ee70484a2558ab7"
+      ]
+    },
+    "agent-swarm-context.png": {
+      "fingerprint": "617bb18d72e787792e49d222a8e055040b72afeaef5f66adcbfce5af3cf60bcb",
+      "outputFingerprints": [
+        "025db6e74e104b20fe0c7e04759ecbbb4f7ab4be866cd7a1cfc36170e8c870bc",
+        "271f933c4f1d7ecaa2a72de8a99d47607977ab10b18ee9f5e514d1ed75f86190",
+        "8e801ddba1660730f3ee85f4322a7b9c5da4872269ea73fcc2b6f7de67a00116"
+      ]
+    },
+    "agent-team-babel.png": {
+      "fingerprint": "686beea5c03b2144524b7b7e89095398a8276c4e770de64a1ce27b17af88ef10",
+      "outputFingerprints": [
+        "3826b78a13f1a5efe2bbae4258eb2cbe86494e759998a11e4c2e83011ccc5f69",
+        "dfff1a60eb6efcd3f36d119daa80c41232bb238b30dea9d851342154710d340a",
+        "bf486305e2a9b2f28f10ebea246f2fb67f94ef9c1a5c9c6acda14a44a4ea6f5e"
+      ]
+    },
+    "agentic-workflow-waiting-revalued.png": {
+      "fingerprint": "6b2b6b08251130600d12eb7724e7e3ef51c97b987072045a9a5040c4457ad74b",
+      "outputFingerprints": [
+        "381a59bc2a94820d4e4c2446be1ebfa7b1d9c2f38da8d291815308c6ac886879",
+        "fece5d7476604cf5858f129ae96736f72297ddb002d8dfd8289a32f4d3632b1c",
+        "7900dbf4777c595dacfa7d8f58c28a742bb0d824ee8bc616e4c11b16c4f9ec3d"
+      ]
+    },
+    "ai-code-5-checkpoints.png": {
+      "fingerprint": "22958bdf7672a7d49fed0a9818ffc00783238b0b31a6a923624d773cf6be2b42",
+      "outputFingerprints": [
+        "84ac60ca9624c60da2666e1bdfcc05272b460428591342664d2bbbd1b947de18",
+        "c0afe074cb42d3dd058e7a5f87dcd1ac78146f2454d5095beddb02f0f2bbb1dd",
+        "a755bdd85cf4501ec77f5f34b7ac4eaff54c6eba1774b1fd011d4a4bb7a86230"
+      ]
+    },
+    "ai-code-responsibility-gap.png": {
+      "fingerprint": "53d93ec4c26545acc55aa7923f1ea3899f99d160fc7c752c906a372068952a93",
+      "outputFingerprints": [
+        "43c88933480a09ee6e721aef07236c14a1204443434b0e93b23dcbd31213306a",
+        "b7741fa23959fc1238a8938cc0f8d28e5255ee7a8ba5979d2518ed2a2422383f",
+        "6a191898dfbcee0044c6176ed733c76983714e1b19f222577f9cfc04f086332f"
+      ]
+    },
+    "ai-code-review-expensive-testing.png": {
+      "fingerprint": "474ce5bb6da1c068b347e8cbb675435ddf1727b93a523811883fad131728f039",
+      "outputFingerprints": [
+        "8e41153aea4c6989d711dc459fc5f279e75b35ca54348af1f5d5ecc3baf83fe5",
+        "66c0f2c5216cf30270ce1a683e197924ffa9d8d6196dafcf4626e188b693a280",
+        "a2f7d2ba09f86a40a78351bd8138856359f78b410783a7a8868954f62b86cd0e"
+      ]
+    },
+    "ai-code-volume-not-outcome.png": {
+      "fingerprint": "29111501ca3fe4b66104eb46075542749159c12300f2853cdfe58815797aa681",
+      "outputFingerprints": [
+        "a2150e2cad06df4c015b9df6a475e53d2ba5d9efa69d229a83ae1486c46ea5e3",
+        "d2cd2d3e4e28b18c0aae1adbda2cd5381a69ea8cb3fe72abfd15c4a01a2d12dc",
+        "a6e65ebefa995ce495ea4c8864ce72f78f8bccafab05c5b0f0644d927d79d049"
+      ]
+    },
+    "ai-frontend-design-system-handoff.png": {
+      "fingerprint": "0b19e3dfe02df642f4eb68cfaa30b3d01edff2f143592e51762319642267f260",
+      "outputFingerprints": [
+        "953db3e4190039328b505bd313a26c6e7df3bc8c37f58d5fa3e1f237c1d987f4",
+        "e13893303bfc5bfa24653eaf871c06b41a80388ca453e9a0b63f09eb819e8249",
+        "e62c949d9dadd60af2b093a156fd7ff4847afc42cfe312ed6ee9404508c40691"
+      ]
+    },
+    "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png": {
+      "fingerprint": "8f9d0f13f6f866943e71a9b605f09a01cc83f27c55c862b5f6252dba02fce632",
+      "outputFingerprints": [
+        "3adf2792c89958b53bc8198f35d320e936942debc14e8748667f38bef3a542f7",
+        "a39c5b5621630ea0b0623c2d092b62afa6b29815281ae77bd3d98f05bfa121c6",
+        "c7349464a3f2d555bd5a9b70ec5fbd6d4863fac572f6be5c27dcfe610dcc224e"
+      ]
+    },
+    "ai-review-ai.png": {
+      "fingerprint": "043c19ac7e6363e007a042cf928a91180ea8fe6bdb058aa6fd686aefa2c2f810",
+      "outputFingerprints": [
+        "d2274888fc9421ad9496aa9e10af8c60c07eebf06d425b58864ec11d39c7948f",
+        "1f8a5e1e248ed3955c2be872fafc7b1deb3c216aaa39ae1a98819d9eb76ca109",
+        "d8b6a7055c1f11b58cd3b28285b632d479f7cbf99191294911d292297d667a46"
+      ]
+    },
+    "ai-slop-battle.png": {
+      "fingerprint": "2337d74f5a52e8d19e38ed974d3fc0dfb6b3b7b9c364107aa972aa52aee1f464",
+      "outputFingerprints": [
+        "6d514d166cc61d1b3479b4c810ba5da1413f8cb3f988a7e0ca71da70dbbdf6e7",
+        "142002e6781e1576541ddb4cfac5f15ce407034c7018967cba58d1d5078b5d9b",
+        "607ef30095d3095fc0c8875685bad21aaea33048b9128a9333e9c48653e23c94"
+      ]
+    },
+    "ai-tests-closed-loop.png": {
+      "fingerprint": "5632a97c53062d744fbecf43b62137b44fb0c3143fcaa5c612909d4d5091bef2",
+      "outputFingerprints": [
+        "779c2f23512bc69dd0fdd5923cd79c9a6af347364afcb4d99b64aee9f46c4d5f",
+        "ad2d1fd4d94b947354e97ca9a6e05d04bf33df75607448174935d529187ac2b4",
+        "7eac4e14fb498ae995d34913cbf49a8cf684f3435b1e83ed328a9fc374a5cf2e"
+      ]
+    },
+    "ai-travel-talk-vs-act.png": {
+      "fingerprint": "2c855468572d6db49a64c04991c5769a15ef8d70d8322629c47ad0dbfdc707c0",
+      "outputFingerprints": [
+        "4239dad53a880a1d1df08d9f54fe6dd7fd1d5177e4a4e4c4680c3cfe880b429d",
+        "469452768f3e6e5408624bdaf49df88b82facc078a4edd46576bd14089e728e6",
+        "baded1ed07179e693465e07deb73a8609a6a49853f2295b5887dc5ff2f46fa09"
+      ]
+    },
+    "ai-wont-tire-but-you-will.png": {
+      "fingerprint": "5114be3ff16a32df387aba28aaa7d9fd0a2a2d7f3010a355d4d037fbf44058f9",
+      "outputFingerprints": [
+        "31d06bad6b45ff344f0da0ad20d5ea5aaa306f7fd892672988edac12a029d84e",
+        "c4556df7a146c12954e31351fca892f553242950bd7befa80088bd4e9fb65ec1",
+        "4519ed373ecf7e7417556a49c650dbe4e793ef98273dd2bfbdcd1b81ef65a773"
+      ]
+    },
+    "assuming-x-agentic-era-engineers-survival-coordinates.png": {
+      "fingerprint": "2fa132990c0bc14c1f367641c23314f39e1b44aa2ae7909ad38150fc966685cb",
+      "outputFingerprints": [
+        "fc50b1e929c8578a9952d6679cb296ee773c4bc37e3918b22cd32b1bb20048f0",
+        "51bff41e2fcd018671bc71180b78adc47982bba6ada003f8b48f7245f75f1dc3",
+        "a1f07cd824885e646901c1f17e24825d896a7fec51f61db9909c31d779a384fb"
+      ]
+    },
+    "benchmark-noise.png": {
+      "fingerprint": "aeedfb521a5d8f7ddea3357c2d809d79bbd164eca47140c8971c33020d2b1516",
+      "outputFingerprints": [
+        "2c8479460ffc843fdb1dc1c0c0775d2aedd37dad8a1a77d39e63470c0960cff6",
+        "9f9a396909d639c531d7224486d558fe220764475e7c8fb761b0e6d17a10b715",
+        "631e6f3356b3de4f1d6869fc8a96de96fdf14386e42e0f6af6344676eec57f44"
+      ]
+    },
+    "best-ai-users-need-it-least.png": {
+      "fingerprint": "2dd2d3887c2d421617cb57b2f3d72a8107b9ca4387536c9af57e3e0032e609a4",
+      "outputFingerprints": [
+        "78108b1a6873793a17bb0bf4c70e33f2234eb583ba44b00755c11587ba6cf4f5",
+        "e1ef093ee877b0802b4778bb3a8a2f5561f10fa161554c8afe2950f1ede7497a",
+        "6b7c76523ad9ba69e0ff0a2a3a30515af1371bc1bd1f9acbee4a4c58208d9963"
+      ]
+    },
+    "beyond-the-3-day-clone.png": {
+      "fingerprint": "f00e18192f4f8bb082bef150fa834121d5d4b27fe1d8d540dbbe028c1e886b76",
+      "outputFingerprints": [
+        "633e15034517545956e5ccec113acab38e0d79a149c1477160becc6a1c4c2aa7",
+        "f55c5736e58994da9b4fe39d81ee2e460b87a1e194e30434ae5de5829112d7e6",
+        "546bc31af0135d11d9d71eb9c55c23884c4eb2a4c00775937e4cbee9de07f1ce"
+      ]
+    },
+    "claude-text-watermark.png": {
+      "fingerprint": "b256f60d7c972d507c94bc06108067956de882130b2c714ceb510a87b42d7f89",
+      "outputFingerprints": [
+        "a5fef4b71685d0b059e77c8bed801beae3b3ca84865096e03f6bc275490048d4",
+        "0ec8bbbd81df3c72171a2491dfc246eec8f828f9321bb4b2c286e7c06a673ec5",
+        "f0754d5d2b9fe273f73e4db8c87c7ac81bba275d22ec12351ba3ab8442953358"
+      ]
+    },
+    "codesesh-ai-coding-sessions-disappearing.webp": {
+      "fingerprint": "74098e26ba92557e60f2d7a4a4751df27bc70b110b4a4be241f6726d820d89b9",
+      "outputFingerprints": [
+        "28918425b8c48dcd931e6dfb54841b9de597b0cd384a6ae1447e58eefb41a79a",
+        "81a99f6ee7d01f705b2ebe3902d271c3995d4a0c69a2a4057b9d1c23cff85f07",
+        "9b2d9aa61ac0f03b274b174621cefde5ea5ad33019229f10e0a001f1e2618891"
+      ]
+    },
+    "coding-agent-almost-1-year.png": {
+      "fingerprint": "85a02fc73754f6b098c88bbc60b3115cd894aba602f2cb01f5e615e29f748b36",
+      "outputFingerprints": [
+        "462f6c28f3b7a955220f5b3d31fb9a396d9f1a5106aacfa2532997b0c144106d",
+        "92e45d6276414d1156d4e3df09010e1625cd13c22231ee922502a3df1b8b5778",
+        "db76e6b4263c1a9e68427274aff8d17ffbd818c64bc7e5ff416316e8a6dfbd18"
+      ]
+    },
+    "coding-joy-stolen.png": {
+      "fingerprint": "49bc6ee8636cd16bb5edbfe322755d937804196caddce6cbfcb3abb6a3945ef8",
+      "outputFingerprints": [
+        "be57bb865cc9b56f36e1e0fa5ab9ee5f0ce294ef1256ecfb10addbe21d931263",
+        "61a06d8e1bee945556a90433dfab77a5187bf4e4327a8c4fb0b83b05182110cc",
+        "90171508622ab1b24ed6200dbef60997c171173d4b7ed9574e557afd85b44349"
+      ]
+    },
+    "control-ideas-not-code.png": {
+      "fingerprint": "a8beb04687580f84a85940caab57e81112746699f58f8cf90f5ef3e7bfa90718",
+      "outputFingerprints": [
+        "b7b7f57b0e2441c7c799b4746ea3b78f36195f56b95bd067b187bc844a8ed5ef",
+        "0a03ae14ffab22b3ca76a66f8165fbf407174ef14d05f0d34b46171df157400a",
+        "7c1cb68f08cf7a91b00bb96a6451184a0b38ac171f190077a84928b79da0208f"
+      ]
+    },
+    "deepseek-harness-133-plugins.png": {
+      "fingerprint": "74faf1d68ca71a32e4b39b87b69260ad4413210cc2ff0e32ef0612eb8422ffbe",
+      "outputFingerprints": [
+        "41e821be130c85cdbd5df819f8324c9f98e11c05462a47f17909bdde61a0f661",
+        "5e472d7a6cfbb6642769a5232f9f07cfd72e3081ba3fe3f49a54668d98e5673b",
+        "e02b23c06f07db5d47fd0fad21b587c0435447dbb4185353f18470d54b41d015"
+      ]
+    },
+    "enjoying-ai-too-much-scares-me.png": {
+      "fingerprint": "bb3bb2d383f500f215d263a71ac99411862973cb0ffc7be91b54f0f10048b45a",
+      "outputFingerprints": [
+        "edd6f27071c7b9a9143a689c6576a5b059583971b4827ef1285acbea2b9ece5d",
+        "79a587ed8ca80d24799ff7c85a4bb71c575adcdc09d907f3bc7855c8307c376b",
+        "dce6bfa1cb4434cbc9b938673c936acf0bbd719b990a4ed2d69ef9e0a9ec0440"
+      ]
+    },
+    "from-writing-code-to-reviewing-code.png": {
+      "fingerprint": "3d6f2d78f06ea1bcde99dc2627870cff0b50f0191ef02df5d27a5a1b5028fcae",
+      "outputFingerprints": [
+        "2d4544463debe619608f7782af2fad3012a4524e95ff4b36392e3e50171e6c47",
+        "949f45caf9de1a90550ce07d7e2bc2816a20b3f9c6666b8d07dd1d3c7459c151",
+        "ddb13119be477786737e826616d0934ee487db786734cc523d5ddfcf2f4f4f6a"
+      ]
+    },
+    "judgment-needs-a-deadline.png": {
+      "fingerprint": "6eca6f556e20af6f39249a30118df894cd453aca31935a3252be5e526fb6d46b",
+      "outputFingerprints": [
+        "ef71ba7bc77190441104a96414a2676cdd53a810632cbc76e3c20df8b86d6277",
+        "342d40dab9fee81672feabbe42d8f23261de7f453158545be13a52eecbe8a371",
+        "7335be910e7f772c2268e6ab71dac38d4e19674697e88795ad1a16f452e03604"
+      ]
+    },
+    "karpathy-join-anthropic.png": {
+      "fingerprint": "c5e24ed6ff664aaa3ea5c50bffe6ae014d8593fb625c248be89d69fd13deae84",
+      "outputFingerprints": [
+        "43d6d88cb1a299260917f6f6333b9ac12c65ec12732c44a5ea143fc4b715ce43",
+        "c135e82ff7f1cf06f5c68f4053d9ee2dfde159f157b4fccc918dcbffdf518e71",
+        "201898b6dc8a6d52db91694d55a9adbc62bb535668ee4728b1f42b589d063279"
+      ]
+    },
+    "kv-cache-why-ai-replies-get-faster.png": {
+      "fingerprint": "326d8429a10b2ce942db25ffc0b749fc4e4a61f34361d6b7853d144276e631bc",
+      "outputFingerprints": [
+        "cefd91e230325ee2f6420f86ea6399d150613a294fb0cf5532b1f76e15a4a2c2",
+        "0ae47184a83360427eadc17a09e56896ac5f03807345646c4ea85db2f3243370",
+        "d6ec604b247e2c99c9ce19a74ece44a75d2483a08758af139bc4e13321095ccd"
+      ]
+    },
+    "llm-only-getting-average.png": {
+      "fingerprint": "bdb174b5affb0512e257c72b3ab3bd7398ed1c9f8f7a7a52acb89e7cd8cb77c8",
+      "outputFingerprints": [
+        "4edbfca6b622cb0c1fbd6ccaedff60a30f1f70fc67153fc08349be9576291c3e",
+        "79ad4a3a2cfcdf20cb88b4486620881784f8d4fe1ad23978a198804eaf617a14",
+        "c091b58ab64b5d1638bd923725c123974c04b4c35dd92a4fd4d63e8dd0c731ac"
+      ]
+    },
+    "llm-react-prompt.webp": {
+      "fingerprint": "43a0f63c1d10cb0fc011252b7cd30b10176ed6b5809eb727965a06701c304b24",
+      "outputFingerprints": [
+        "3ec1778ed553f8aa0609ec11a61f84d5b2348b31a9285e3a86bddafd4420c5a4",
+        "401fd73008de3c46598eb636c1dcf9e7f7d22fce7714f0f0ae52d97922cccb22",
+        "032b8cc229b7212d35cde5e8342af922feb82de90146547462b4fb9136ae8d53"
+      ]
+    },
+    "log-lock-in.png": {
+      "fingerprint": "3dd279abf26942bb7fe141f30fd2afdbe0ec29faeb46d37e26ca1b4b46ab838b",
+      "outputFingerprints": [
+        "d4e738f4c4b16f0a1ceeea3e1f137a75ae83a0936edaa2d3702fbc9dbfbc6d82",
+        "06ae778ae7d8d1bba48a7a9548bb29323ef89517b05ccda69ed097eda80cefb2",
+        "bd5b29f6d0cb28b43ccad1bfa5b2b9a8c75d8e1da02d3f4bdac33b9861d7c10f"
+      ]
+    },
+    "macOS-now-supports-Netflix-Dolby-Vision.webp": {
+      "fingerprint": "ab97c4fbe9289c37604ac24b39c993734aa3484b61a920c51ca5b32b2434fac9",
+      "outputFingerprints": [
+        "06223ce84f734dc9209d994a5248aaea6a35fa9c1792a2725a045e61aff8e091",
+        "5b881d866671ab131c4078cd0b7de272ab85afc8f3dbf2c46d165594da79505f",
+        "41c75c0b6fd3f7e565a2665245482d47db755e43d6747874b5438f46a1929424"
+      ]
+    },
+    "mcp-cli-skill-evolution.png": {
+      "fingerprint": "5d9330f9efd6a810bc7cd74f3d6d1af211fb5ade33e12279a4d8c404ff6016c7",
+      "outputFingerprints": [
+        "b413bafd6869bc3767d374351e74fba18c4daf0445782a4cd278f3946bf185d5",
+        "30b0f6edfa229d8233fdca0c99b2deecdbb7f5f5e9a260bb1ca13f28e0221098",
+        "60fc83571220814acfeeca45a47f1a43e1ccbd3dfa7f6a0a85594c9a553fa5c0"
+      ]
+    },
+    "mcp-vs-a2a-protocol-comparison.png": {
+      "fingerprint": "3f32fa7f68e74c8a267498646c315b56bc78d21afc71b85b17c32d8b6b6249c2",
+      "outputFingerprints": [
+        "cb830c47b854d3b995194d8662610726dc3e43f9434425304ac23a47dfd95c70",
+        "d052d6957d8f392a0ca4257a6e07722a8bc2251d8f4e2c2b225c355de97658ab",
+        "c3721b19edd886e8be2bf07f83639a1b4ad41f1ad96240120892dc68db6f4638"
+      ]
+    },
+    "model-core-tools-shell.png": {
+      "fingerprint": "5d2e75d87a9f3a20f30ff002c8bab951d9d9b4b0b04f35c566021422553f5b7d",
+      "outputFingerprints": [
+        "17ef3ed8c7da7b54072120ae7655e2649b8e05647962e65a04b787f94b0d338e",
+        "86deaf09bd6bac1865a25bcf6797f287dab28a7f3fbc14eedb2f878c5942ac61",
+        "d717c3df5444cf98464aaab2b04b0465e3131024027ad25f1a68e58bfbbc0487"
+      ]
+    },
+    "musk-vs-altman.png": {
+      "fingerprint": "d64a5b3c3cb42c4e695e98694e9d70130eb1514d30414d97303c5cd9c4004691",
+      "outputFingerprints": [
+        "88a25e7f3ba42eeaf3fb21c71892ea889dac1ef108e6b8f1f231021d9dfa1696",
+        "f32bb310d969683082abd2391195006d3a1d23b2b0874ea02c20dd592c0a2f30",
+        "5b07629c6bea7c7c6b1a003aa677595b9ee58ed6e1389b5fa60ed5b4082913c4"
+      ]
+    },
+    "only-click-merge.png": {
+      "fingerprint": "52d9949dee0801b804c3e16b502253f77aa6e43589ab32e9309958ee1f4cfd0d",
+      "outputFingerprints": [
+        "381125c78e2517f2205d2e3365197dfb402af3dab9bda300c61a8224fb057c90",
+        "cb19cacc54792444b000707ef5710cf579386cbda069c5f3578a446890c1a6da",
+        "f179f98d70823246918f6595647b36a34e4f0e74bad958e16df97b6206467b7d"
+      ]
+    },
+    "persona-distillation.png": {
+      "fingerprint": "4ca0cc1072ab4b00c20ff1841bc42fa5bb90ae741e660317cfc43163f2f41f33",
+      "outputFingerprints": [
+        "d302c0c916dd6b6ec4fea7a4bbff695895bf99c902e0f6f5d3627461b8f711bd",
+        "c0f5037878595d297041cd3bd1bf100ce22e765ac6056d801dff1fba86d08990",
+        "d71a47dcbe7c62c7968f6a06365e5bc59451288efc9edf217137c6b62daea19a"
+      ]
+    },
+    "rhythm-in-ai-coding.png": {
+      "fingerprint": "20326ba5513f7bff35143a0b8f5a89e604c8aea23a496698ad93eb772fe3ee67",
+      "outputFingerprints": [
+        "fa7f61868a8a32aa5f3afb58b218be23d83566e11d1dd178b41a7fd40c706460",
+        "a6c4fc1aa8963e58b01f72520fa20ae4cde89fdad14099bd1663662b5070bc36",
+        "26e9ef6c912f0e3ccd09aabf8fe3e06ba006132528cabd693a0f11b9e2ffd9d2"
+      ]
+    },
+    "search-before-create.png": {
+      "fingerprint": "60d088611e86e653c140ae3236d5f2bb35e72433f4d0fbe1ddabe255a0e9817c",
+      "outputFingerprints": [
+        "af608ed8c9e57e38508988560a36ff8486522d6ec15ba2fa924edade9cc65a57",
+        "055cd4abdb2166aca1434406213c7de992ffe0dd140fae17fd39ed892b16dc60",
+        "65e9506b98b41d7e771ccf68fd909d08ed92fa8b9ffa13a49c961980d1417886"
+      ]
+    },
+    "session-as-asset.png": {
+      "fingerprint": "912252f3dad010280c0522584750230f26c00e1622d9b07dd69ecdb621bdb93f",
+      "outputFingerprints": [
+        "2024eb6f56e7d5eec3a0860c5edff3b9514f4605ff987d46dc481ca1b6306fd5",
+        "3db2ed4cf19911823efde83ed320271bf7bbf85d3892eec1d5173a66abe66c7e",
+        "026004d5ff311415158df4259f3bca22f624d4cc1e41e402f7cb50cbd3a5d463"
+      ]
+    },
+    "skill-is-a-folder.png": {
+      "fingerprint": "288ed82fbb2b8ae118e3f7bdf9c6faef9b9dd770af88fb11f6452c6f8b437725",
+      "outputFingerprints": [
+        "2c37646bc4bc0ec25892909b1d49490ae9c4f99f9f890e4d549baedea25e490d",
+        "362a720378f23a757707d18f224a5a897557e36656e56306d2b49ad18ae221dc",
+        "9e64910f16a9b63dab2a7e2f5abb0a7b6fd68708b9a9a9b0de2c485364920a75"
+      ]
+    },
+    "spec-as-new-fig-leaf.png": {
+      "fingerprint": "7351068674b830a6fd49dc6b2e18fa8933386cffa325c41e65d1202dc5ba8a67",
+      "outputFingerprints": [
+        "41828f0f63600da27f4be0400e4fc1c03d0a740ea36939da5724a4de1d1918cc",
+        "81aafeecbed5900bc46e771a455f1fba7a64b132eef190c94dad5faca79bd54f",
+        "5712f3346e89137486a33258d3186e693b200fb41f37ee9e3a3fbf6a9a00b81f"
+      ]
+    },
+    "spec-tell-ai-what-not-to-do.png": {
+      "fingerprint": "2f2edd6094cce0e8c5216cd12bdaf69f3e2a1846da9f2dc0d827d6131832a2ba",
+      "outputFingerprints": [
+        "27fe629a664bcdb166139588a24fb1fb333ddeffd372d893a52a737d44368030",
+        "3e1be3e67ba917e02c885b85ec9357e45576a1d1a81fefb8c810db86659019b1",
+        "28a1d7d3a93b43e311d473c9c1880eb140f535893077ca13425167da0d4160d7"
+      ]
+    },
+    "spec-unwritten-assumptions.png": {
+      "fingerprint": "74f125f95e841ea4dca19c6fb368489b703ca6763f5802c350acce8f8c8d2045",
+      "outputFingerprints": [
+        "874a52c4b8c37438e80caa998c4f52cb9b3f15d5b249ce93e1e5555dc17156dd",
+        "d195a39aab7c91728291b34d0e764a3faff41ee809639efd76535d6637f167b8",
+        "f3720ae281ce406427e4a4aea33e18940c3ee3662475e24361ddbaf7be06aec6"
+      ]
+    },
+    "state-of-ai.webp": {
+      "fingerprint": "4c82bde1b3a3d705e2921b712e280b2e5399f87de4cb22531d3c85e8ec21df1f",
+      "outputFingerprints": [
+        "641242a31a10b9a92ba523e789c57a30767d524b5a34a0bd5779e36716cb679b",
+        "07645eaafe8fb60ac5a03369cec47d719c865763e0edb16ac6b82291e1c178a7",
+        "bae003fa8837c147a6abf18af65f10b8af2646713d72c06a0d70830ec79b8277"
+      ]
+    },
+    "stay-in-the-loop.png": {
+      "fingerprint": "4103abc8e3e7a32258847912fe7f6da5af0df48db63f5911947f525b113b97d0",
+      "outputFingerprints": [
+        "5abfd5a0d1c29803681675e4caf27c8554f3d6d0f7d192a36df7077e82052a35",
+        "2d11db9cd9c6bd803126f3c5ea3f03ddbecaff9109e038e8fa0a28916fb78bb2",
+        "e548c9b144d2bc7aadc96c79654199d3b039351b1f900dfda4e10f0fbc6f5c22"
+      ]
+    },
+    "taste-is-a-muscle-predict-before-output.png": {
+      "fingerprint": "5b0f659cdd917397714116f042c356f0a3ed52de86912dadaa9bf6ec4202c1bc",
+      "outputFingerprints": [
+        "a97c9ee6b46f12e38838eed5fa2e376086d233ae48f6bf30d8ff4796be3c9475",
+        "33802d67df0aaffdd08a6ded508ad62bcc4495608635e187fcb07a2ad8a3039e",
+        "cefae4099571049d4d3e907c4963cf56948a71ddcb6cc32a1608b4bf2c4ca708"
+      ]
+    },
+    "the-chicken-or-the-egg.webp": {
+      "fingerprint": "76f7c048f80e7f36f78f112005703b4d7ee5b6b9bd0ac939aba2cab70f3b3f16",
+      "outputFingerprints": [
+        "24dc305a9c1d872b9ba63fd0911515a97b280867340f37037dfc2bc9b559dc77",
+        "5a745db2228a4c2dff7a3b246ba9d76bac1db397a618b473003f12c2355e22ba",
+        "407533435a920a6bb14794b053e28979a38e2566a77a93283b8a865771d5b0b9"
+      ]
+    },
+    "the-newsroom-time-tested-masterpieces.webp": {
+      "fingerprint": "f3feb776f09df77a063c4b5330e06ab2dffc35159df15816cccdea87ecd4b1ca",
+      "outputFingerprints": [
+        "ba05fbad68cd8d0ad0efd0acae1b960544d839cd6c39444434a6907c4d2e5044",
+        "034469b5e293475e67bdd06d1f81734c7c7098f43aa6bc3fa142a47d2abf82a3",
+        "e215b59ac6b91c63fb96abaf77654780220864b2bb9c957f1ab5f97384aa781a"
+      ]
+    },
+    "the-state-of-enterprise-ai_2025-report.webp": {
+      "fingerprint": "c8b846b1f96c7e6825a5722891a35f6a5d4ce6d08825e60a328821849bec2521",
+      "outputFingerprints": [
+        "59a1d3d7d92d9af91f544ca5816749c88034fef2189a0f1209c8e3af2f23962e",
+        "04d7845516c879e4dd0fbbf4ab7e1c9e6fa612e5ec0b0ea10e9f11d1540bf4c3",
+        "a3f49f5a05d973711d5a9fc351949fbcaf77810837bad6c252d2d242f789a468"
+      ]
+    },
+    "three-small-prototypes.png": {
+      "fingerprint": "7c22dbcb9d223ebe734f6a38b1e7d097f90fe47ff3157f10bb6a72cc22beda0e",
+      "outputFingerprints": [
+        "e6728e309da3d135dcd9c007628522972f80202a8f01d9a2715ea57276331568",
+        "a05d65bb8ec3ae75eb307ad636b51e7f9a170c08f0d3f7eb881e747e3d5e557a",
+        "5ac4b41edb2ea1023f622c78a8e6cf12aed6beb83b6a1483873ec59b27c666a7"
+      ]
+    },
+    "vibe-coding-ai-code-backlash-openclaw.png": {
+      "fingerprint": "ef1deac5e1f8c390d678bb030e1d7dfae2382dd47f117372803f4ccb5154b95a",
+      "outputFingerprints": [
+        "aafa88fd4e4ff1b8ddb3844d6182feceb2385c97c8b4820c38d0446a5df6c593",
+        "a51b61cfec58f986efc169c37c191087fa7152a397a85cb92710055c6285b615",
+        "d67e265e4dbd0d39950751beb32c4168d77953a0e9d50811f9ef54f42bbbb264"
+      ]
+    },
+    "vibe-coding-to-agentic-engineering.png": {
+      "fingerprint": "354b43925b24c53fcc580a6d7344ba8491f88bb24bc10e8eeb31da1927e182df",
+      "outputFingerprints": [
+        "fa08bf669a9d3301013440ace6c47b9780a713fc6de31a5e4b20691e15310162",
+        "985059e85657cfbfcd0d83e8f7a3a1f85a1cf2b2a260b311052954124f31f24e",
+        "6f5ccfc08fe93e6e67979a581fd87d11f884f4c79e06763b9a77611e4cc1af18"
+      ]
+    },
+    "when-ai-bypasses-all-pitfalls.png": {
+      "fingerprint": "af3e1c748194982c354d927fd89bc0de1704ceb73e3f7a4e6e2ba5886bd6357c",
+      "outputFingerprints": [
+        "590ebc8ced296b3b2b85adfe6131c85f2404d7d8b694cea17873f18caada6da7",
+        "f4c3637b273b20747896b50da18c2f93fa037b504c59c32923e29342e58a29ee",
+        "39232499c2581d156a3e2c5c5a1276f5427f49ca19204388ee0553579ead118d"
+      ]
+    },
+    "why-i-pay.webp": {
+      "fingerprint": "d0242175eb8253ef54a35cd6c1a810b3dfade45a7d131f59b7f4511ff9478b3f",
+      "outputFingerprints": [
+        "c57db4334fd1a36efb6d50040339b14992e9b9cd81b43a2d822afd609bcb4ea9",
+        "9987ef29ed2443f161d645ef7f737b2206d78b7bc82897e92dda51673cfc9b93",
+        "c48179e06cc9e3b9c32ca362c6ccf9270ee468ec5366f5bbb33938e28a18a554"
+      ]
+    },
+    "yomitomo-ai-reading-companion.webp": {
+      "fingerprint": "fac70b72d503a9d9812b078d39ca4109c8835f56ae6d19628134e266cbc323f1",
+      "outputFingerprints": [
+        "c534350c7d1c22b1f6eb677d9917321c45764123ff6bf2c98e2c0858b4f3e93d",
+        "f3de6b72470259444f92ffc535f8fae48c33d9d6e86f6ccad18ffd2ddfc1b216",
+        "4ae2ba05d23630adf468064a0694b6ed600fd3f301d2c91ff3d4471cacd57d04"
+      ]
+    }
+  }
+}

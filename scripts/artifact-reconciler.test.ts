@@ -50,6 +50,22 @@ describe("artifact reconciliation", () => {
       }),
     ).toEqual({ generated: 0, reused: 1, removed: 1 });
     expect(renders).toBe(1);
+
+    fs.writeFileSync(output, "corrupted");
+    expect(
+      await reconcileArtifacts({
+        outputDirectory,
+        manifestFile,
+        artifactExtension: ".webp",
+        plans,
+      }),
+    ).toEqual({ generated: 1, reused: 0, removed: 0 });
+    expect(fs.readFileSync(output, "utf8")).toBe("rendered");
+    expect(renders).toBe(2);
+
+    const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+    expect(manifest.version).toBe(2);
+    expect(manifest.entries.demo.outputFingerprints).toHaveLength(1);
   });
 });
 

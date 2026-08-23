@@ -132,7 +132,7 @@ function defaultOptions(): GeneratePostImagesOptions {
     sourceDirectory: path.join(root, "src", "assets", "post-images"),
     outputDirectory: path.join(root, "public", "posts", "images"),
     dataFile: path.join(root, "src", "lib", "generated", "post-images.json"),
-    manifestFile: path.join(root, ".astro", "post-images-manifest.json"),
+    manifestFile: path.join(root, "src", "lib", "generated", "post-images-manifest.json"),
   };
 }
 

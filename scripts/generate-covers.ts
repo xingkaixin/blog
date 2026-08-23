@@ -109,7 +109,7 @@ function defaultOptions(): GenerateCoversOptions {
     sourceDirectory: path.join(root, "src", "assets", "cover"),
     outputDirectory: path.join(root, "public", "cover"),
     dataFile: path.join(root, "src", "lib", "generated", "covers.json"),
-    manifestFile: path.join(root, ".astro", "cover-manifest.json"),
+    manifestFile: path.join(root, "src", "lib", "generated", "covers-manifest.json"),
   };
 }
 
