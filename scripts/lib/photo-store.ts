@@ -310,7 +310,10 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
     };
     try {
       const response = await this.client.send(new PutObjectCommand(input));
-      return response.ETag ?? objectVersion(body);
+      if (!response.ETag) {
+        throw new Error(`R2 对象 ${key} 写入响应缺少 ETag`);
+      }
+      return response.ETag;
     } catch (error) {
       if (isConditionalWriteConflict(error)) {
         throw new PhotoStoreConflictError(key);

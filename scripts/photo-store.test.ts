@@ -95,13 +95,13 @@ describe("R2 photo store", () => {
       IfNoneMatch: undefined,
     });
 
-    expect(
-      await store.put("catalog/new.json", "new", {
+    await expect(
+      store.put("catalog/new.json", "new", {
         contentType: "application/json",
         cacheControl: "no-cache",
         expectedVersion: null,
       }),
-    ).toMatch(/^[a-f0-9]{64}$/);
+    ).rejects.toThrow("写入响应缺少 ETag");
     expect((send.mock.calls[2][0] as PutObjectCommand).input).toMatchObject({
       IfMatch: undefined,
       IfNoneMatch: "*",
