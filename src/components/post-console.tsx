@@ -12,6 +12,91 @@ type PostConsoleProps = {
   posts: PostConsoleItem[];
 };
 
+type FilterLayout = "mobile" | "desktop";
+
+type FilterOption = {
+  value: string;
+  label: string;
+  count?: number;
+};
+
+function PostFilter({
+  layout,
+  label,
+  options,
+  allLabel,
+  totalCount,
+  showCounts,
+  toggle,
+  selected,
+  onSelect,
+}: {
+  layout: FilterLayout;
+  label: string;
+  options: FilterOption[];
+  allLabel: string;
+  totalCount?: number;
+  showCounts?: boolean;
+  toggle?: boolean;
+  selected: string | null;
+  onSelect: (value: string | null) => void;
+}) {
+  const buttons = [{ value: null, label: allLabel, count: totalCount }, ...options].map(
+    ({ value, label: optionLabel, count }) => (
+      <button
+        key={value ?? "all"}
+        type="button"
+        aria-pressed={selected === value}
+        onClick={() => onSelect(toggle && selected === value ? null : value)}
+        className={cn(
+          layout === "mobile"
+            ? "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+            : showCounts
+              ? "flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
+              : "rounded-[5px] border border-line bg-surface px-1.5 py-1 font-mono text-[10px] tracking-[0.03em] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white",
+          value === null &&
+            layout === "mobile" &&
+            "aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
+        )}
+      >
+        <span>{optionLabel}</span>
+        {layout === "desktop" && showCounts && (
+          <span className="font-mono text-[10px] text-ink-400">{count}</span>
+        )}
+      </button>
+    ),
+  );
+
+  if (layout === "mobile") {
+    return (
+      <div
+        role="group"
+        aria-label={`按${label}筛选文章`}
+        className={cn(
+          "flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          showCounts && "mb-2",
+        )}
+      >
+        {buttons}
+      </div>
+    );
+  }
+  return (
+    <div>
+      <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+        {label}
+      </p>
+      <div
+        role="group"
+        aria-label={`按${label}筛选文章`}
+        className={showCounts ? "space-y-0.5" : "flex flex-wrap gap-1.5"}
+      >
+        {buttons}
+      </div>
+    </div>
+  );
+}
+
 function PostPreview({ post, related }: { post: PostConsoleItem; related: PostConsoleItem[] }) {
   const cover = resolveCover(post.cover);
 
@@ -76,7 +161,14 @@ function PostPreview({ post, related }: { post: PostConsoleItem; related: PostCo
 }
 
 export function PostConsole({ posts }: PostConsoleProps) {
-  const years = useMemo(() => [...new Set(posts.map((post) => post.date.slice(0, 4)))], [posts]);
+  const years = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const post of posts) {
+      const year = post.date.slice(0, 4);
+      counts.set(year, (counts.get(year) ?? 0) + 1);
+    }
+    return [...counts].map(([year, count]) => ({ value: year, label: year, count }));
+  }, [posts]);
   const taxonomy = useMemo(() => buildPostTaxonomy(posts), [posts]);
   const popularTags = useMemo(
     () =>
@@ -125,110 +217,48 @@ export function PostConsole({ posts }: PostConsoleProps) {
   return (
     <section className="mx-auto max-w-320">
       <div className="border-b border-line px-3 py-2 lg:hidden">
-        <div
-          role="group"
-          aria-label="按年份筛选文章"
-          className="mb-2 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            aria-pressed={selectedYear === null}
-            onClick={() => setSelectedYear(null)}
-            className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper"
-          >
-            全部年份
-          </button>
-          {years.map((year) => (
-            <button
-              key={year}
-              type="button"
-              aria-pressed={selectedYear === year}
-              onClick={() => setSelectedYear(year)}
-              className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
-            >
-              {year}
-            </button>
-          ))}
-        </div>
-        <div
-          role="group"
-          aria-label="按标签筛选文章"
-          className="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            aria-pressed={selectedTag === null}
-            onClick={() => setSelectedTag(null)}
-            className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper"
-          >
-            全部
-          </button>
-          {popularTags.slice(0, 6).map(({ tag }) => (
-            <button
-              key={tag}
-              type="button"
-              aria-pressed={selectedTag === tag}
-              onClick={() => setSelectedTag((current) => (current === tag ? null : tag))}
-              className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
+        <PostFilter
+          layout="mobile"
+          label="年份"
+          options={years}
+          allLabel="全部年份"
+          totalCount={posts.length}
+          showCounts
+          selected={selectedYear}
+          onSelect={setSelectedYear}
+        />
+        <PostFilter
+          layout="mobile"
+          label="标签"
+          options={popularTags.slice(0, 6).map(({ tag }) => ({ value: tag, label: tag }))}
+          allLabel="全部"
+          toggle
+          selected={selectedTag}
+          onSelect={setSelectedTag}
+        />
       </div>
 
       <div className="lg:grid lg:min-h-[calc(100dvh-90px)] lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)_300px]">
         <aside className="hidden border-r border-line px-[18px] py-5 lg:flex lg:flex-col lg:gap-6">
-          <div>
-            <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
-              年份
-            </p>
-            <div className="space-y-0.5">
-              <button
-                type="button"
-                aria-pressed={selectedYear === null}
-                onClick={() => setSelectedYear(null)}
-                className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
-              >
-                <span>全部</span>
-                <span className="font-mono text-[10px] text-ink-400">{posts.length}</span>
-              </button>
-              {years.map((year) => {
-                const count = posts.filter((post) => post.date.startsWith(year)).length;
-                return (
-                  <button
-                    key={year}
-                    type="button"
-                    aria-pressed={selectedYear === year}
-                    onClick={() => setSelectedYear(year)}
-                    className="flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
-                  >
-                    <span>{year}</span>
-                    <span className="font-mono text-[10px] text-ink-400">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
-              标签
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {popularTags.map(({ tag }) => (
-                <button
-                  key={tag}
-                  type="button"
-                  aria-pressed={selectedTag === tag}
-                  onClick={() => setSelectedTag((current) => (current === tag ? null : tag))}
-                  className="rounded-[5px] border border-line bg-surface px-1.5 py-1 font-mono text-[10px] tracking-[0.03em] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
+          <PostFilter
+            layout="desktop"
+            label="年份"
+            options={years}
+            allLabel="全部"
+            totalCount={posts.length}
+            showCounts
+            selected={selectedYear}
+            onSelect={setSelectedYear}
+          />
+          <PostFilter
+            layout="desktop"
+            label="标签"
+            options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
+            allLabel="全部"
+            toggle
+            selected={selectedTag}
+            onSelect={setSelectedTag}
+          />
 
           <div className="mt-auto border-t border-line pt-4">
             <p className="font-mono text-[10px] leading-5 text-ink-400">
