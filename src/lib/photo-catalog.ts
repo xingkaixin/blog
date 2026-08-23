@@ -1,14 +1,22 @@
+import {
+  PHOTO_VARIANT_WIDTHS,
+  isPhotoId,
+  isPhotoMonth,
+  monthFromPhotoMonthCatalogObjectKey,
+  photoMediaObjectKey,
+  type PhotoVariantWidth,
+} from "./photo-artifact";
 import { isPhotoTimestamp } from "./photo-timestamp";
+
+export { PHOTO_VARIANT_WIDTHS, isPhotoId } from "./photo-artifact";
+export type { PhotoVariantWidth } from "./photo-artifact";
 
 export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 3 as const;
 export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 1 as const;
-export const PHOTO_VARIANT_WIDTHS = [480, 960, 2048] as const;
 export const PHOTO_THUMBNAIL_WIDTH = PHOTO_VARIANT_WIDTHS[0];
 export const PHOTO_DISPLAY_WIDTH = PHOTO_VARIANT_WIDTHS[1];
 export const PHOTO_FULL_WIDTH = PHOTO_VARIANT_WIDTHS[2];
 export const PHOTO_CATALOG_INDEX_KEY = "catalog/index.json";
-
-export type PhotoVariantWidth = (typeof PHOTO_VARIANT_WIDTHS)[number];
 
 export type PhotoAlbum = {
   id: string;
@@ -49,10 +57,7 @@ export type PhotoMonthCatalog = {
 };
 
 const ALBUM_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
-const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
-const MONTH_PATTERN = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 const COLOR_PATTERN = /^#[a-f0-9]{6}$/;
-const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
 const MAX_IMAGE_DIMENSION = 100_000;
 const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSIONS = [1, 2] as const;
 
@@ -109,7 +114,7 @@ function readTimestamp(value: unknown, field: string): string {
 
 function readMonth(value: unknown, field: string): string {
   const month = readString(value, field);
-  if (!MONTH_PATTERN.test(month)) {
+  if (!isPhotoMonth(month)) {
     throw new Error(`${field} 必须是 YYYY-MM`);
   }
   return month;
@@ -150,7 +155,7 @@ function readPeriod(value: unknown, field: string): PhotoPeriod {
   const count = readInteger(period.count, `${field}.count`, 0, Number.MAX_SAFE_INTEGER);
   const path = readString(period.path, `${field}.path`);
 
-  if (!PERIOD_PATH_PATTERN.test(path) || !path.includes(`/${month}.`)) {
+  if (monthFromPhotoMonthCatalogObjectKey(path) !== month) {
     throw new Error(`${field}.path 不是有效的月份索引路径`);
   }
 
@@ -235,10 +240,6 @@ export function comparePhotosNewestFirst(left: PhotoRecord, right: PhotoRecord):
 
 export function isPhotoAlbumId(value: string): boolean {
   return ALBUM_ID_PATTERN.test(value);
-}
-
-export function isPhotoId(value: string): boolean {
-  return PHOTO_ID_PATTERN.test(value);
 }
 
 export function monthFromCapturedAt(capturedAt: string): string {
@@ -430,7 +431,7 @@ export function photoVariantUrl(
   photoId: string,
   width: PhotoVariantWidth,
 ): string {
-  return photoObjectUrl(baseUrl, `media/${photoId}/${width}.webp`);
+  return photoObjectUrl(baseUrl, photoMediaObjectKey(photoId, width));
 }
 
 export function photoVariantSrcSet(

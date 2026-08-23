@@ -1,5 +1,10 @@
 import { createHash } from "node:crypto";
 import {
+  isPhotoArtifactKey,
+  photoIdFromMediaObjectKey,
+  photoMediaObjectKey,
+} from "../../src/lib/photo-artifact";
+import {
   PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   monthFromCapturedAt,
@@ -10,9 +15,7 @@ import {
 } from "../../src/lib/photo-catalog";
 import {
   PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
-  isPhotoArtifactKey,
   parsePhotoCatalogControl,
-  photoIdFromMediaObjectKey,
   type PhotoCatalogControl,
   type PhotoDeletionClaim,
   type RetiredArtifactBatch,
@@ -229,8 +232,8 @@ export class PhotoCatalogState {
       if (oldPeriodPath) {
         objectKeys.add(oldPeriodPath);
       }
-      const photoObjectKeys = PHOTO_VARIANT_WIDTHS.map(
-        (width) => `media/${photo.id}/${width}.webp`,
+      const photoObjectKeys = PHOTO_VARIANT_WIDTHS.map((width) =>
+        photoMediaObjectKey(photo.id, width),
       ).toSorted();
       this.#retiredObjects.set(photo.id, {
         photoId: photo.id,

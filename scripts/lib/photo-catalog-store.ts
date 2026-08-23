@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { photoMediaObjectKey, photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
@@ -121,7 +122,7 @@ export class PhotoCatalogEditor {
     const claimedKeys = this.state.claimedArtifactKeys();
     for (const photoId of photoIds) {
       for (const width of PHOTO_VARIANT_WIDTHS) {
-        const key = `media/${photoId}/${width}.webp`;
+        const key = photoMediaObjectKey(photoId, width);
         if (claimedKeys.has(key)) {
           throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
         }
@@ -272,7 +273,7 @@ async function writePhotoCatalog(
     const validatedShard = parsePhotoMonthCatalog(shard);
     const body = serializeJson(validatedShard);
     const hash = createHash("sha256").update(body).digest("hex").slice(0, 24);
-    const key = `catalog/months/${month}.${hash}.json`;
+    const key = photoMonthCatalogObjectKey(month, hash);
     if (claimedArtifactKeys.has(key)) {
       throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
     }

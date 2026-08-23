@@ -1,4 +1,5 @@
 import path from "node:path";
+import { photoMediaObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_VARIANT_WIDTHS,
   isPhotoAlbumId,
@@ -241,7 +242,7 @@ async function uploadPhotoAssets(
     if (!body) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
-    const key = `media/${photo.id}/${width}.webp`;
+    const key = photoMediaObjectKey(photo.id, width);
     if (writtenArtifacts.has(key)) {
       return;
     }

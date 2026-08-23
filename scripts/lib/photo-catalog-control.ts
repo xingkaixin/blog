@@ -1,6 +1,10 @@
 import {
+  isPhotoArtifactKey,
+  monthFromPhotoMonthCatalogObjectKey,
+  photoIdFromMediaObjectKey,
+} from "../../src/lib/photo-artifact";
+import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-  PHOTO_VARIANT_WIDTHS,
   isPhotoId,
   parsePhotoCatalogContents,
   type PhotoAlbum,
@@ -42,10 +46,6 @@ export type PhotoCatalogControl = {
   retiredArtifacts: RetiredArtifactBatch[];
 };
 
-const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
-const MEDIA_PATH_PATTERN = new RegExp(
-  `^media/([a-f0-9]{32})/(?:${PHOTO_VARIANT_WIDTHS.join("|")})\\.webp$`,
-);
 const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
 
 export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
@@ -72,14 +72,6 @@ export function photoCatalogIndexFromControl(control: PhotoCatalogControl): Phot
     periods: control.periods,
     photoMonths: control.photoMonths,
   };
-}
-
-export function photoIdFromMediaObjectKey(key: string): string | null {
-  return MEDIA_PATH_PATTERN.exec(key)?.[1] ?? null;
-}
-
-export function isPhotoArtifactKey(key: string): boolean {
-  return PERIOD_PATH_PATTERN.test(key) || MEDIA_PATH_PATTERN.test(key);
 }
 
 function parseControlFields(input: Record<string, unknown>): PhotoCatalogControl {
@@ -117,7 +109,7 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
     }
     for (const key of objectKeys) {
       const mediaPhotoId = photoIdFromMediaObjectKey(key);
-      if (mediaPhotoId !== photoId && !PERIOD_PATH_PATTERN.test(key)) {
+      if (mediaPhotoId !== photoId && monthFromPhotoMonthCatalogObjectKey(key) === null) {
         throw new Error(`${field}.objectKeys 包含不属于照片 ${photoId} 的对象路径`);
       }
     }
