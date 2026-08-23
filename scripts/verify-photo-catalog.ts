@@ -24,13 +24,17 @@ export async function verifyPublishedPhotoCatalog(
       `照片 Catalog 仍是 schema v${String(publishedVersion)}，请先运行 bun run photos:migrate -- --confirm`,
     );
   }
-  const compactBytes = new TextEncoder().encode(JSON.stringify(value)).byteLength;
+  const compactBytes = compactCatalogBytes(value);
   if (compactBytes > MAX_COMPACT_CATALOG_BYTES) {
     throw new Error(
       `照片 Catalog 索引为 ${compactBytes.toLocaleString("en-US")} 字节，超过 ${MAX_COMPACT_CATALOG_BYTES.toLocaleString("en-US")} 字节预算；请先拆分照片定位表`,
     );
   }
   return catalog;
+}
+
+function compactCatalogBytes(value: unknown): number {
+  return new TextEncoder().encode(JSON.stringify(value)).byteLength;
 }
 
 async function loadJson(url: string): Promise<unknown> {
@@ -44,7 +48,11 @@ async function loadJson(url: string): Promise<unknown> {
 if (import.meta.main) {
   verifyPublishedPhotoCatalog()
     .then((catalog) => {
-      console.log(`✅ 照片 Catalog schema v${catalog.schemaVersion} 可部署`);
+      const photoCount = Object.keys(catalog.photoMonths).length;
+      const compactBytes = compactCatalogBytes(catalog);
+      console.log(
+        `✅ 照片 Catalog schema v${catalog.schemaVersion} 可部署：${photoCount.toLocaleString("zh-CN")} 张照片，主索引 ${compactBytes.toLocaleString("en-US")} 字节`,
+      );
     })
     .catch((error: unknown) => {
       console.error(error instanceof Error ? error.message : String(error));
