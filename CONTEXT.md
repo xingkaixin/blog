@@ -37,8 +37,12 @@ _Avoid_: Project name, array index
 ## Photos
 
 **Photo Catalog**:
-The public, authoritative record of published photos, their capture months, and their Album membership.
+The authoritative public view of published photos, their Capture Months, and their Album membership.
 _Avoid_: Photo index, gallery JSON
+
+**Photo Catalog Control**:
+The authoritative publishing record of live and retired photos and artifacts from which the public Photo Catalog is derived.
+_Avoid_: Backend catalog, private index
 
 **Capture Month**:
 The calendar month encoded by a photo's timezone-aware capture date and used to group it in the Photo Catalog.

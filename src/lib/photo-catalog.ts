@@ -31,12 +31,15 @@ export type PhotoPeriod = {
   path: string;
 };
 
-export type PhotoCatalogIndex = {
-  schemaVersion: typeof PHOTO_CATALOG_INDEX_SCHEMA_VERSION;
+export type PhotoCatalogContents = {
   generatedAt: string;
   albums: PhotoAlbum[];
   periods: PhotoPeriod[];
   photoMonths: Record<string, string>;
+};
+
+export type PhotoCatalogIndex = PhotoCatalogContents & {
+  schemaVersion: typeof PHOTO_CATALOG_INDEX_SCHEMA_VERSION;
 };
 
 export type PhotoMonthCatalog = {
@@ -150,14 +153,14 @@ function readPeriod(value: unknown, field: string): PhotoPeriod {
   };
 }
 
-function readPhotoMonths(value: unknown): Record<string, string> {
-  const input = readRecord(value, "catalog.photoMonths");
+function readPhotoMonths(value: unknown, field: string): Record<string, string> {
+  const input = readRecord(value, field);
   const output: Record<string, string> = {};
   for (const [photoId, month] of Object.entries(input)) {
     if (!isPhotoId(photoId)) {
-      throw new Error("catalog.photoMonths 包含无效的照片 ID");
+      throw new Error(`${field} 包含无效的照片 ID`);
     }
-    output[photoId] = readMonth(month, `catalog.photoMonths.${photoId}`);
+    output[photoId] = readMonth(month, `${field}.${photoId}`);
   }
   return output;
 }
@@ -242,26 +245,34 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
     throw new Error("不支持的照片 Catalog 版本");
   }
 
-  const generatedAt = readTimestamp(input.generatedAt, "catalog.generatedAt");
+  return {
+    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
+    ...parsePhotoCatalogContents(input, "catalog"),
+  };
+}
+
+export function parsePhotoCatalogContents(value: unknown, field: string): PhotoCatalogContents {
+  const input = readRecord(value, field);
+  const generatedAt = readTimestamp(input.generatedAt, `${field}.generatedAt`);
   if (!Array.isArray(input.albums) || !Array.isArray(input.periods)) {
-    throw new Error("catalog.albums 和 catalog.periods 必须是数组");
+    throw new Error(`${field}.albums 和 ${field}.periods 必须是数组`);
   }
 
-  const albums = input.albums.map((album, index) => readAlbum(album, `catalog.albums[${index}]`));
+  const albums = input.albums.map((album, index) => readAlbum(album, `${field}.albums[${index}]`));
   const periods = input.periods.map((period, index) =>
-    readPeriod(period, `catalog.periods[${index}]`),
+    readPeriod(period, `${field}.periods[${index}]`),
   );
-  const photoMonths = readPhotoMonths(input.photoMonths);
+  const photoMonths = readPhotoMonths(input.photoMonths, `${field}.photoMonths`);
 
   assertUnique(
     albums.map((album) => album.id),
-    "catalog.albums",
+    `${field}.albums`,
   );
   assertUnique(
     periods.map((period) => period.month),
-    "catalog.periods",
+    `${field}.periods`,
   );
-  assertNewestFirst(periods, (period) => period.month, "catalog.periods");
+  assertNewestFirst(periods, (period) => period.month, `${field}.periods`);
 
   const albumIds = new Set(albums.map((album) => album.id));
   const periodMonths = new Set(periods.map((period) => period.month));
@@ -279,11 +290,10 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   }
   const totalPhotoCount = periods.reduce((sum, period) => sum + period.count, 0);
   if (Object.keys(photoMonths).length !== totalPhotoCount) {
-    throw new Error("catalog.photoMonths 必须完整覆盖所有照片");
+    throw new Error(`${field}.photoMonths 必须完整覆盖所有照片`);
   }
 
   return {
-    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
     generatedAt,
     albums,
     periods,

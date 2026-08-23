@@ -37,6 +37,13 @@ describe("photo catalog control", () => {
     });
   });
 
+  it("parses its own persisted contract without a public index version", () => {
+    expect(parsePhotoCatalogControl(controlFixture)).toEqual(controlFixture);
+    expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 3 })).toThrow(
+      "后台控制文档版本",
+    );
+  });
+
   it.each([1, 2])("migrates combined catalog version %i", (version) => {
     expect(parseLegacyPhotoCatalogControl({ ...controlFixture, schemaVersion: version })).toEqual(
       controlFixture,

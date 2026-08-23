@@ -2,8 +2,11 @@ import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   isPhotoId,
-  parsePhotoCatalogIndex,
+  parsePhotoCatalogContents,
+  type PhotoAlbum,
+  type PhotoCatalogContents,
   type PhotoCatalogIndex,
+  type PhotoPeriod,
 } from "../../src/lib/photo-catalog";
 import { isPhotoTimestamp } from "../../src/lib/photo-timestamp";
 
@@ -29,8 +32,12 @@ export type RetiredArtifactBatch = {
   deletion?: PhotoDeletionClaim;
 };
 
-export type PhotoCatalogControl = Omit<PhotoCatalogIndex, "schemaVersion"> & {
+export type PhotoCatalogControl = {
   schemaVersion: typeof PHOTO_CATALOG_CONTROL_SCHEMA_VERSION;
+  generatedAt: string;
+  albums: PhotoAlbum[];
+  periods: PhotoPeriod[];
+  photoMonths: Record<string, string>;
   retiredObjects: RetiredPhotoObjects[];
   retiredArtifacts: RetiredArtifactBatch[];
 };
@@ -76,16 +83,21 @@ export function isPhotoArtifactKey(key: string): boolean {
 }
 
 function parseControlFields(input: Record<string, unknown>): PhotoCatalogControl {
-  const index = parsePhotoCatalogIndex({
-    ...input,
-    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-  });
+  const contents = parsePhotoCatalogContents(
+    {
+      generatedAt: input.generatedAt,
+      albums: input.albums,
+      periods: input.periods,
+      photoMonths: input.photoMonths,
+    },
+    "catalogControl",
+  );
   const retiredObjects = readRetiredObjects(input.retiredObjects);
   const retiredArtifacts = readRetiredArtifacts(input.retiredArtifacts);
-  validateRetirements(index, retiredObjects, retiredArtifacts);
+  validateRetirements(contents, retiredObjects, retiredArtifacts);
   return {
-    ...index,
     schemaVersion: PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
+    ...contents,
     retiredObjects,
     retiredArtifacts,
   };
@@ -157,7 +169,7 @@ function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
 }
 
 function validateRetirements(
-  index: PhotoCatalogIndex,
+  index: PhotoCatalogContents,
   retiredObjects: RetiredPhotoObjects[],
   retiredArtifacts: RetiredArtifactBatch[],
 ): void {
