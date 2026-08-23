@@ -23,7 +23,7 @@ const secondPhoto = {
   placeholderColor: "#445566",
 };
 const index: PhotoCatalogIndex = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   generatedAt: "2026-08-20T12:00:00.000Z",
   albums: [
     { id: "daily", title: "日常" },
@@ -44,8 +44,6 @@ const index: PhotoCatalogIndex = {
     },
   ],
   photoMonths: { [firstPhoto.id]: "2026-08", [secondPhoto.id]: "2026-07" },
-  retiredObjects: [],
-  retiredArtifacts: [],
 };
 const months: Record<string, PhotoMonthCatalog> = {
   "2026-08": { schemaVersion: 1, month: "2026-08", photos: [firstPhoto] },
@@ -54,7 +52,10 @@ const months: Record<string, PhotoMonthCatalog> = {
 
 describe("photo wall model", () => {
   it("derives timeline periods and totals from the selected album", () => {
-    const model = buildPhotoWallPeriodModel(index, { mode: "timeline", albumId: "travel" });
+    const model = buildPhotoWallPeriodModel(index, {
+      mode: "timeline",
+      albumId: "travel",
+    });
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");

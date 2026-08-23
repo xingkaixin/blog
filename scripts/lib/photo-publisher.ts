@@ -9,15 +9,15 @@ import {
   parsePhotoRecord,
   type PhotoAlbum,
   type PhotoRecord,
-  type RetiredArtifactBatch,
-  type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
+import type { RetiredArtifactBatch, RetiredPhotoObjects } from "./photo-catalog-control";
 import {
   loadPhotoCatalog,
   loadPhotoCatalogMonths,
   retryPhotoCatalogMutation,
   writePhotoCatalog,
+  writePhotoCatalogIndex,
   type LoadedPhotoCatalog,
 } from "./photo-catalog-store";
 import {
@@ -227,11 +227,12 @@ async function publishPhotosOnce(
     dirtyMonths.add(month);
   }
 
-  const catalogChanged =
+  const domainChanged =
     albumChanged ||
     dirtyMonths.size > 0 ||
     hasUnreferencedPhotoArtifacts(catalog, catalog.periods, attemptedArtifacts);
-  if (catalogChanged) {
+  const catalogChanged = domainChanged || !catalog.publicIndexCurrent;
+  if (domainChanged) {
     await writePhotoCatalog(
       options.store,
       catalog,
@@ -239,6 +240,8 @@ async function publishPhotosOnce(
       options.now?.() ?? new Date(),
       attemptedArtifacts,
     );
+  } else if (!catalog.publicIndexCurrent) {
+    await writePhotoCatalogIndex(options.store, catalog);
   }
 
   return {
@@ -475,7 +478,11 @@ function finishClaimedEntries<Entry extends RetiredPhotoObjects | RetiredArtifac
     if (failedKeys.length === 0) {
       currentEntries.delete(id);
     } else {
-      currentEntries.set(id, { ...current, objectKeys: failedKeys, deletion: undefined });
+      currentEntries.set(id, {
+        ...current,
+        objectKeys: failedKeys,
+        deletion: undefined,
+      });
     }
   }
 }

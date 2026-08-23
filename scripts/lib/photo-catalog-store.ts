@@ -11,10 +11,18 @@ import {
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
-  type RetiredArtifactBatch,
-  type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
+import {
+  PHOTO_CATALOG_CONTROL_KEY,
+  PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
+  parseLegacyPhotoCatalogControl,
+  parsePhotoCatalogControl,
+  photoCatalogIndexFromControl,
+  type PhotoCatalogControl,
+  type RetiredArtifactBatch,
+  type RetiredPhotoObjects,
+} from "./photo-catalog-control";
 import {
   isPhotoArtifactDeletionClaimed,
   keepOnlyUnreferencedPhotoRetirements,
@@ -24,13 +32,16 @@ import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
 
 const SHARD_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const INDEX_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=86400";
+const CONTROL_CACHE_CONTROL = "no-store";
 const READ_CONCURRENCY = 8;
 const WRITE_CONCURRENCY = 2;
 const CATALOG_COMMIT_ATTEMPTS = 5;
 
 export type LoadedPhotoCatalog = {
-  index: PhotoCatalogIndex | null;
-  indexVersion: string | null;
+  generatedAt: string | null;
+  controlVersion: string | null;
+  publicIndexVersion: string | null;
+  publicIndexCurrent: boolean;
   albums: Map<string, PhotoAlbum>;
   months: Map<string, PhotoMonthCatalog>;
   periods: Map<string, PhotoPeriod>;
@@ -40,11 +51,33 @@ export type LoadedPhotoCatalog = {
 };
 
 export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<LoadedPhotoCatalog> {
-  const indexObject = await store.getText(PHOTO_CATALOG_INDEX_KEY);
-  if (!indexObject) {
+  const [controlObject, indexObject] = await Promise.all([
+    store.getText(PHOTO_CATALOG_CONTROL_KEY),
+    store.getText(PHOTO_CATALOG_INDEX_KEY),
+  ]);
+  const rawIndex = indexObject ? parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY) : null;
+  const control = controlObject
+    ? parsePhotoCatalogControl(parseJson(controlObject.text, PHOTO_CATALOG_CONTROL_KEY))
+    : rawIndex
+      ? parseLegacyPhotoCatalogControl(rawIndex)
+      : null;
+  let publicIndex: PhotoCatalogIndex | null = null;
+  if (rawIndex) {
+    try {
+      publicIndex = parsePhotoCatalogIndex(rawIndex);
+    } catch (error) {
+      if (!controlObject) {
+        throw error;
+      }
+    }
+  }
+
+  if (!control) {
     return {
-      index: null,
-      indexVersion: null,
+      generatedAt: null,
+      controlVersion: null,
+      publicIndexVersion: null,
+      publicIndexCurrent: true,
       albums: new Map(),
       months: new Map(),
       periods: new Map(),
@@ -54,16 +87,21 @@ export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<LoadedP
     };
   }
 
-  const index = parsePhotoCatalogIndex(parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY));
+  const expectedPublicIndex = photoCatalogIndexFromControl(control);
   return {
-    index,
-    indexVersion: indexObject.version,
-    albums: new Map(index.albums.map((album) => [album.id, album])),
+    generatedAt: control.generatedAt,
+    controlVersion: controlObject?.version ?? null,
+    publicIndexVersion: indexObject?.version ?? null,
+    publicIndexCurrent:
+      (rawIndex as { schemaVersion?: unknown } | null)?.schemaVersion ===
+        PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
+      JSON.stringify(publicIndex) === JSON.stringify(expectedPublicIndex),
+    albums: new Map(control.albums.map((album) => [album.id, album])),
     months: new Map(),
-    periods: new Map(index.periods.map((period) => [period.month, period])),
-    photoMonths: new Map(Object.entries(index.photoMonths)),
-    retiredObjects: new Map(index.retiredObjects.map((entry) => [entry.photoId, entry])),
-    retiredArtifacts: new Map(index.retiredArtifacts.map((entry) => [entry.retirementId, entry])),
+    periods: new Map(control.periods.map((period) => [period.month, period])),
+    photoMonths: new Map(Object.entries(control.photoMonths)),
+    retiredObjects: new Map(control.retiredObjects.map((entry) => [entry.photoId, entry])),
+    retiredArtifacts: new Map(control.retiredArtifacts.map((entry) => [entry.retirementId, entry])),
   };
 }
 
@@ -72,14 +110,14 @@ export async function loadPhotoCatalogMonths(
   catalog: LoadedPhotoCatalog,
   months: Iterable<string>,
 ): Promise<void> {
-  if (!catalog.index) {
+  if (catalog.generatedAt === null) {
     return;
   }
   const periods = [...new Set(months)]
     .filter((month) => !catalog.months.has(month))
     .map((month) => catalog.periods.get(month))
     .filter((period): period is PhotoPeriod => Boolean(period));
-  const loadedMonths = await readPhotoCatalogMonths(store, catalog.index, periods);
+  const loadedMonths = await readPhotoCatalogMonths(store, catalogIndex(catalog), periods);
   for (const { period, shard } of loadedMonths) {
     catalog.months.set(period.month, shard);
   }
@@ -136,33 +174,46 @@ export async function writePhotoCatalog(
   keepOnlyUnreferencedPhotoRetirements(catalog, nextPeriods);
   removeEmptyAlbums(catalog, nextPeriods);
 
-  const index = parsePhotoCatalogIndex({
-    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-    generatedAt: generatedAt.toISOString(),
-    albums: [...catalog.albums.values()].toSorted((left, right) => left.id.localeCompare(right.id)),
-    periods: [...nextPeriods.values()].toSorted((left, right) =>
-      right.month.localeCompare(left.month),
-    ),
-    photoMonths: Object.fromEntries(
-      [...catalog.photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
-    ),
-    retiredObjects: [...catalog.retiredObjects.values()].toSorted(
-      (left, right) =>
-        left.deleteAfter.localeCompare(right.deleteAfter) ||
-        left.photoId.localeCompare(right.photoId),
-    ),
-    retiredArtifacts: [...catalog.retiredArtifacts.values()].toSorted(
-      (left, right) =>
-        left.deleteAfter.localeCompare(right.deleteAfter) ||
-        left.retirementId.localeCompare(right.retirementId),
-    ),
+  const control = buildControl(catalog, nextPeriods, generatedAt.toISOString());
+  catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
+    contentType: "application/json; charset=utf-8",
+    cacheControl: CONTROL_CACHE_CONTROL,
+    expectedVersion: catalog.controlVersion,
   });
+  catalog.generatedAt = control.generatedAt;
+  catalog.periods = nextPeriods;
+  await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+}
 
-  await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
+export async function writePhotoCatalogIndex(
+  store: PhotoObjectStore,
+  catalog: LoadedPhotoCatalog,
+): Promise<void> {
+  if (catalog.generatedAt === null) {
+    throw new Error("无法发布空的照片 Catalog 投影");
+  }
+  const control = buildControl(catalog, catalog.periods, catalog.generatedAt);
+  if (catalog.controlVersion === null) {
+    catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
+      contentType: "application/json; charset=utf-8",
+      cacheControl: CONTROL_CACHE_CONTROL,
+      expectedVersion: null,
+    });
+  }
+  await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+}
+
+async function writePublicIndex(
+  store: PhotoObjectStore,
+  catalog: LoadedPhotoCatalog,
+  index: PhotoCatalogIndex,
+): Promise<void> {
+  catalog.publicIndexVersion = await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
     contentType: "application/json; charset=utf-8",
     cacheControl: INDEX_CACHE_CONTROL,
-    expectedVersion: catalog.indexVersion,
+    expectedVersion: catalog.publicIndexVersion,
   });
+  catalog.publicIndexCurrent = true;
 }
 
 export async function retryPhotoCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
@@ -203,6 +254,45 @@ function removeEmptyAlbums(catalog: LoadedPhotoCatalog, periods: Map<string, Pho
       catalog.albums.delete(albumId);
     }
   }
+}
+
+function buildControl(
+  catalog: LoadedPhotoCatalog,
+  periods: Map<string, PhotoPeriod>,
+  generatedAt: string,
+): PhotoCatalogControl {
+  return parsePhotoCatalogControl({
+    schemaVersion: PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
+    generatedAt,
+    albums: [...catalog.albums.values()].toSorted((left, right) => left.id.localeCompare(right.id)),
+    periods: [...periods.values()].toSorted((left, right) => right.month.localeCompare(left.month)),
+    photoMonths: Object.fromEntries(
+      [...catalog.photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
+    ),
+    retiredObjects: [...catalog.retiredObjects.values()].toSorted(
+      (left, right) =>
+        left.deleteAfter.localeCompare(right.deleteAfter) ||
+        left.photoId.localeCompare(right.photoId),
+    ),
+    retiredArtifacts: [...catalog.retiredArtifacts.values()].toSorted(
+      (left, right) =>
+        left.deleteAfter.localeCompare(right.deleteAfter) ||
+        left.retirementId.localeCompare(right.retirementId),
+    ),
+  });
+}
+
+function catalogIndex(catalog: LoadedPhotoCatalog): PhotoCatalogIndex {
+  if (catalog.generatedAt === null) {
+    throw new Error("照片 Catalog 尚未初始化");
+  }
+  return parsePhotoCatalogIndex({
+    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
+    generatedAt: catalog.generatedAt,
+    albums: [...catalog.albums.values()],
+    periods: [...catalog.periods.values()],
+    photoMonths: Object.fromEntries(catalog.photoMonths),
+  });
 }
 
 function serializeJson(value: unknown): string {

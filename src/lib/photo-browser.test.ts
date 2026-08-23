@@ -25,13 +25,11 @@ const period = {
   path: "catalog/months/2026-04.0123456789abcdef01234567.json",
 };
 const index: PhotoCatalogIndex = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   generatedAt: "2026-08-07T12:00:00.000Z",
   albums: [{ id: "trip", title: "旅行" }],
   periods: [period],
   photoMonths: { [photoId]: "2026-04" },
-  retiredObjects: [],
-  retiredArtifacts: [],
 };
 const month: PhotoMonthCatalog = {
   schemaVersion: 1,

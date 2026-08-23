@@ -13,12 +13,10 @@ import {
 } from "@/lib/photo-catalog";
 
 const indexFixture: PhotoCatalogIndex = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   generatedAt: "2026-07-30T12:00:00.000Z",
   albums: [{ id: "japan-2026", title: "日本旅行" }],
   photoMonths: { "0123456789abcdef0123456789abcdef": "2026-04" },
-  retiredObjects: [],
-  retiredArtifacts: [],
   periods: [
     {
       month: "2026-04",
@@ -64,7 +62,12 @@ describe("photo catalog", () => {
     expect(() =>
       parsePhotoMonthCatalog({
         ...monthFixture,
-        photos: [{ ...monthFixture.photos[0], capturedAt: "2026-05-01T00:00:00+08:00" }],
+        photos: [
+          {
+            ...monthFixture.photos[0],
+            capturedAt: "2026-05-01T00:00:00+08:00",
+          },
+        ],
       }),
     ).toThrow("拍摄月份");
   });
@@ -73,7 +76,12 @@ describe("photo catalog", () => {
     expect(() =>
       parsePhotoMonthCatalog({
         ...monthFixture,
-        photos: [{ ...monthFixture.photos[0], capturedAt: "2026-02-30T12:00:00+08:00" }],
+        photos: [
+          {
+            ...monthFixture.photos[0],
+            capturedAt: "2026-02-30T12:00:00+08:00",
+          },
+        ],
       }),
     ).toThrow("ISO 时间");
   });
@@ -93,12 +101,18 @@ describe("photo catalog", () => {
     );
     expect(() =>
       validatePhotoMonth(
-        { ...indexFixture, periods: [{ ...indexFixture.periods[0], albumCounts: {} }] },
+        {
+          ...indexFixture,
+          periods: [{ ...indexFixture.periods[0], albumCounts: {} }],
+        },
         { ...indexFixture.periods[0], albumCounts: {} },
         monthFixture,
       ),
     ).toThrow("相册计数");
-    const unknownAlbumPeriod = { ...indexFixture.periods[0], albumCounts: { missing: 1 } };
+    const unknownAlbumPeriod = {
+      ...indexFixture.periods[0],
+      albumCounts: { missing: 1 },
+    };
     expect(() =>
       validatePhotoMonth({ ...indexFixture, periods: [unknownAlbumPeriod] }, unknownAlbumPeriod, {
         ...monthFixture,
@@ -114,16 +128,22 @@ describe("photo catalog", () => {
     expect(locatePhotoPeriod(indexFixture, "ffffffffffffffffffffffffffffffff")).toBeNull();
   });
 
-  it("normalizes the complete version 1 index used in production", () => {
-    expect(parsePhotoCatalogIndex({ ...indexFixture, schemaVersion: 1 })).toEqual(indexFixture);
+  it("migrates the previous public index without exposing control state", () => {
+    expect(
+      parsePhotoCatalogIndex({
+        ...indexFixture,
+        schemaVersion: 2,
+        retiredObjects: [],
+        retiredArtifacts: [],
+      }),
+    ).toEqual(indexFixture);
   });
 
-  it("rejects incomplete version 1 indexes instead of enabling runtime fallbacks", () => {
+  it("rejects unsupported indexes instead of pretending they are compatible", () => {
     const incomplete = structuredClone(indexFixture) as unknown as Record<string, unknown>;
     incomplete.schemaVersion = 1;
-    delete incomplete.photoMonths;
 
-    expect(() => parsePhotoCatalogIndex(incomplete)).toThrow("catalog.photoMonths 必须是对象");
+    expect(() => parsePhotoCatalogIndex(incomplete)).toThrow("不支持的照片 Catalog 版本");
   });
 
   it("rejects an empty locator when indexed periods contain photos", () => {
@@ -140,64 +160,6 @@ describe("photo catalog", () => {
         monthFixture,
       ),
     ).toThrow("定位月份");
-  });
-
-  it("validates retired immutable artifacts", () => {
-    expect(
-      parsePhotoCatalogIndex({
-        ...indexFixture,
-        retiredArtifacts: [
-          {
-            retirementId: "abcdef0123456789abcdef01",
-            objectKeys: [
-              "catalog/months/2026-04.ffffffffffffffffffffffff.json",
-              "media/ffffffffffffffffffffffffffffffff/960.webp",
-            ],
-            deleteAfter: "2026-08-08T13:00:00.000Z",
-          },
-        ],
-      }).retiredArtifacts,
-    ).toHaveLength(1);
-    expect(() =>
-      parsePhotoCatalogIndex({
-        ...indexFixture,
-        retiredArtifacts: [
-          {
-            retirementId: "abcdef0123456789abcdef01",
-            objectKeys: [indexFixture.periods[0].path],
-            deleteAfter: "2026-08-08T13:00:00.000Z",
-          },
-        ],
-      }),
-    ).toThrow("仍被主 Catalog 引用");
-  });
-
-  it("validates retired object tombstones", () => {
-    const photoId = "ffffffffffffffffffffffffffffffff";
-    expect(
-      parsePhotoCatalogIndex({
-        ...indexFixture,
-        retiredObjects: [
-          {
-            photoId,
-            objectKeys: [`media/${photoId}/960.webp`, indexFixture.periods[0].path],
-            deleteAfter: "2026-08-08T13:00:00.000Z",
-          },
-        ],
-      }).retiredObjects,
-    ).toHaveLength(1);
-    expect(() =>
-      parsePhotoCatalogIndex({
-        ...indexFixture,
-        retiredObjects: [
-          {
-            photoId: monthFixture.photos[0].id,
-            objectKeys: [`media/${monthFixture.photos[0].id}/960.webp`],
-            deleteAfter: "2026-08-08T13:00:00.000Z",
-          },
-        ],
-      }),
-    ).toThrow("不能同时");
   });
 
   it("derives catalog and media URLs from one base URL", () => {

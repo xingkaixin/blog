@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
+import { type PhotoPeriod } from "../../src/lib/photo-catalog";
 import {
   isPhotoArtifactKey,
   photoIdFromMediaObjectKey,
-  type PhotoPeriod,
   type RetiredArtifactBatch,
   type RetiredPhotoObjects,
-} from "../../src/lib/photo-catalog";
+} from "./photo-catalog-control";
 
 const RETIRED_OBJECT_GRACE_MS = 25 * 60 * 60 * 1_000;
 

@@ -8,6 +8,7 @@ import {
   parsePhotoMonthCatalog,
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
+import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
 import { collectPhotoGarbage, deletePhotos, publishPhotos } from "./lib/photo-publisher";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import {
@@ -81,6 +82,12 @@ async function createSourceFile(contents = "stable photo bytes"): Promise<string
   return file;
 }
 
+async function readControl(store: MemoryPhotoStore) {
+  return parsePhotoCatalogControl(
+    JSON.parse((await store.getText(PHOTO_CATALOG_CONTROL_KEY))!.text),
+  );
+}
+
 function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"): ProcessedPhoto {
   return {
     id,
@@ -152,7 +159,8 @@ describe("photo publisher", () => {
     const unreferencedPeriodPaths = [...store.objects.keys()].filter(
       (key) => key.startsWith("catalog/months/") && !livePeriodPaths.has(key),
     );
-    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
+    const control = await readControl(store);
+    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
       unreferencedPeriodPaths.toSorted(),
     );
     expect(processFirst).toHaveBeenCalledTimes(1);
@@ -309,6 +317,47 @@ describe("photo publisher", () => {
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
   });
 
+  it("migrates the combined catalog into control and public documents", async () => {
+    const file = await createSourceFile();
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+    });
+    const indexObject = await store.getText(PHOTO_CATALOG_INDEX_KEY);
+    const control = await readControl(store);
+    store.objects.set(
+      PHOTO_CATALOG_INDEX_KEY,
+      JSON.stringify({
+        ...JSON.parse(indexObject!.text),
+        schemaVersion: 2,
+        retiredObjects: control.retiredObjects,
+        retiredArtifacts: control.retiredArtifacts,
+      }),
+    );
+    store.objects.delete(PHOTO_CATALOG_CONTROL_KEY);
+    store.versions.delete(PHOTO_CATALOG_CONTROL_KEY);
+    store.writes.length = 0;
+
+    const result = await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => {
+        throw new Error("existing photo should not be processed");
+      },
+    });
+
+    expect(result.catalogChanged).toBe(true);
+    expect(store.writes).toEqual([PHOTO_CATALOG_CONTROL_KEY, PHOTO_CATALOG_INDEX_KEY]);
+    const migrated = JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text);
+    expect(migrated).toMatchObject({ schemaVersion: 3, photoMonths: { [id]: "2026-04" } });
+    expect(migrated).not.toHaveProperty("retiredObjects");
+    expect(migrated).not.toHaveProperty("retiredArtifacts");
+  });
+
   it("reads only the catalog months needed by a mutation", async () => {
     const januaryFile = await createSourceFile("january photo");
     const februaryFile = await createSourceFile("february photo");
@@ -370,7 +419,11 @@ describe("photo publisher", () => {
     const oldPeriodPath = index.periods[0].path;
 
     const deletedAt = new Date("2026-08-07T12:00:00.000Z");
-    const result = await deletePhotos({ photoIds: [id], store, now: () => deletedAt });
+    const result = await deletePhotos({
+      photoIds: [id],
+      store,
+      now: () => deletedAt,
+    });
 
     expect(result).toEqual({
       deleted: 1,
@@ -378,12 +431,12 @@ describe("photo publisher", () => {
       retiredObjects: 4,
       updatedPeriods: 1,
     });
-    let updatedIndex = parsePhotoCatalogIndex(
+    const updatedIndex = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
-    expect(updatedIndex).toEqual(
-      expect.objectContaining({ albums: [], periods: [], retiredObjects: [expect.any(Object)] }),
-    );
+    let control = await readControl(store);
+    expect(updatedIndex).toEqual(expect.objectContaining({ albums: [], periods: [] }));
+    expect(control.retiredObjects).toEqual([expect.any(Object)]);
     expect(store.objects.has(oldPeriodPath)).toBe(true);
     expect(store.objects.has(`media/${id}/480.webp`)).toBe(true);
 
@@ -432,11 +485,9 @@ describe("photo publisher", () => {
       retiredObjects: 0,
       updatedPeriods: 0,
     });
-    updatedIndex = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(updatedIndex.retiredObjects).toEqual([]);
-    expect(updatedIndex.retiredArtifacts).toEqual([]);
+    control = await readControl(store);
+    expect(control.retiredObjects).toEqual([]);
+    expect(control.retiredArtifacts).toEqual([]);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
   });
@@ -469,7 +520,8 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(index.periods[0].path).not.toBe(replacedPath);
-    expect(index.retiredArtifacts).toEqual([
+    let control = await readControl(store);
+    expect(control.retiredArtifacts).toEqual([
       expect.objectContaining({ objectKeys: [replacedPath] }),
     ]);
     expect(store.objects.has(replacedPath)).toBe(true);
@@ -487,10 +539,8 @@ describe("photo publisher", () => {
       }),
     ).toMatchObject({ removedObjects: 1, pendingArtifacts: 0 });
 
-    index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.retiredArtifacts).toEqual([]);
+    control = await readControl(store);
+    expect(control.retiredArtifacts).toEqual([]);
     expect(store.objects.has(replacedPath)).toBe(false);
   });
 
@@ -528,7 +578,10 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(index.periods[0].path).toBe(revivedPath);
-    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys)).not.toContain(revivedPath);
+    const control = await readControl(store);
+    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys)).not.toContain(
+      revivedPath,
+    );
   });
 
   it("does not delete a month shard revived by a concurrent mutation", async () => {
@@ -601,7 +654,7 @@ describe("photo publisher", () => {
     const originalPut = store.put.bind(store);
     let conflictsRemaining = 5;
     store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_INDEX_KEY && conflictsRemaining > 0) {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
         conflictsRemaining -= 1;
         throw new PhotoStoreConflictError(key);
       }
@@ -622,7 +675,8 @@ describe("photo publisher", () => {
     );
     expect(index.periods).toEqual([]);
     expect(index.photoMonths).toEqual({});
-    expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
+    const control = await readControl(store);
+    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
       [
         `media/${id}/480.webp`,
         `media/${id}/960.webp`,
@@ -641,7 +695,7 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(recoveredIndex.photoMonths[id]).toBe("2026-04");
-    expect(recoveredIndex.retiredArtifacts).toEqual([]);
+    expect((await readControl(store)).retiredArtifacts).toEqual([]);
   });
 });
 
