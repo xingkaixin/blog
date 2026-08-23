@@ -1,0 +1,78 @@
+---
+import { resolveCover } from "@/lib/covers";
+import { postHref } from "@/lib/published-post";
+import type { PostConsoleItem } from "@/lib/post-console";
+
+type Props = {
+  post: PostConsoleItem;
+  related: PostConsoleItem[];
+};
+
+const { post, related } = Astro.props;
+const cover = resolveCover(post.cover);
+---
+
+<aside data-post-preview class="hidden border-l border-line bg-surface p-[18px] xl:block">
+  <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">预览 · 悬停即换</p>
+  <a
+    data-preview-link
+    href={postHref(post.slug)}
+    class="mt-3 block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+  >
+    <picture class="block">
+      <source data-preview-source srcset={`${cover.mobile} 1x, ${cover.desktop} 2x`} />
+      <img
+        data-preview-image
+        src={cover.desktop}
+        alt={post.coverAlt}
+        width="400"
+        class="block h-auto w-full"
+      />
+    </picture>
+  </a>
+  <h2 class="mt-3.5 text-lg font-medium leading-7 text-ink-800">
+    <a
+      data-preview-link
+      data-preview-title
+      href={postHref(post.slug)}
+      class="transition-colors hover:text-accent"
+    >
+      {post.title}
+    </a>
+  </h2>
+  <p data-preview-summary class="mt-2 line-clamp-5 text-[13px] leading-6 text-ink-600">
+    {post.summary}
+  </p>
+  <dl class="mt-4 grid gap-1.5 font-mono text-[10px] text-ink-400">
+    <div class="flex justify-between gap-3">
+      <dt>字数</dt>
+      <dd data-preview-word-count class="text-ink-600">{post.wordCount.toLocaleString("zh-CN")}</dd>
+    </div>
+    <div class="flex justify-between gap-3">
+      <dt>阅读</dt>
+      <dd data-preview-reading-minutes class="text-ink-600">{post.readingMinutes} min</dd>
+    </div>
+    <div class="flex justify-between gap-3">
+      <dt>标签</dt>
+      <dd data-preview-tags class="max-w-44 truncate text-right text-ink-600">
+        {post.tags.join(" · ")}
+      </dd>
+    </div>
+  </dl>
+
+  <div data-preview-related-section hidden={related.length === 0} class="mt-4 border-t border-line pt-3.5">
+    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">同标签</p>
+    <div data-preview-related class="mt-2 space-y-1.5">
+      {
+        related.map((item) => (
+          <a
+            href={postHref(item.slug)}
+            class="line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent"
+          >
+            {item.title}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</aside>

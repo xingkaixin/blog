@@ -1,0 +1,71 @@
+---
+import { cn } from "@/lib/utils";
+
+type FilterOption = {
+  value: string;
+  label: string;
+  count?: number;
+};
+
+type Props = {
+  layout: "mobile" | "desktop";
+  kind: "year" | "tag";
+  label: string;
+  options: FilterOption[];
+  allLabel: string;
+  totalCount?: number;
+  showCounts?: boolean;
+};
+
+const { layout, kind, label, options, allLabel, totalCount, showCounts = false } = Astro.props;
+const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
+---
+
+<div>
+  {
+    layout === "desktop" && (
+      <p class="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+        {label}
+      </p>
+    )
+  }
+  <div
+    role="group"
+    aria-label={`按${label}筛选文章`}
+    class:list={[
+      layout === "mobile"
+        ? "flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        : showCounts
+          ? "space-y-0.5"
+          : "flex flex-wrap gap-1.5",
+      layout === "mobile" && showCounts && "mb-2",
+    ]}
+  >
+    {
+      buttons.map(({ value, label: optionLabel, count }) => (
+        <button
+          type="button"
+          data-post-filter
+          data-filter-kind={kind}
+          data-filter-value={value}
+          aria-pressed={value === "" ? "true" : "false"}
+          class={cn(
+            layout === "mobile"
+              ? "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+              : showCounts
+                ? "flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
+                : "rounded-[5px] border border-line bg-surface px-1.5 py-1 font-mono text-[10px] tracking-[0.03em] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white",
+            value === "" &&
+              layout === "mobile" &&
+              "aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
+          )}
+        >
+          <span>{optionLabel}</span>
+          {layout === "desktop" && showCounts && (
+            <span class="font-mono text-[10px] text-ink-400">{count}</span>
+          )}
+        </button>
+      ))
+    }
+  </div>
+</div>

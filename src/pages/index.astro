@@ -1,7 +1,8 @@
 ---
-import { PostConsole, type PostConsoleItem } from "@/components/post-console";
+import PostConsole from "@/components/astro/PostConsole.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import type { PostConsoleItem } from "@/lib/post-console";
 import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { siteConfig } from "@/lib/site";
 
@@ -19,5 +20,5 @@ const meta = {
 ---
 
 <SiteLayout meta={meta} status={`HOME · ${posts.length} POSTS`}>
-  <PostConsole posts={posts} client:load />
+  <PostConsole posts={posts} />
 </SiteLayout>
