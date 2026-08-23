@@ -5,7 +5,7 @@ import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
-import { buildPhotoWallLoadedModel, buildPhotoWallPeriodModel } from "@/lib/photo-wall-model";
+import { buildPhotoWallModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
   baseUrl: string;
@@ -27,40 +27,36 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   } = usePhotoCatalogSession(normalizedBaseUrl);
   const browsing = usePhotoBrowsingSession({ index, loadMonth, resolvePhoto });
   const photoView = browsing.view;
-  const periodModel = useMemo(
-    () => buildPhotoWallPeriodModel(index, photoView),
-    [index, photoView],
-  );
-  const loadedModel = useMemo(
-    () => buildPhotoWallLoadedModel(index, monthCatalogs, periodModel.selectedAlbumId),
-    [index, monthCatalogs, periodModel.selectedAlbumId],
+  const model = useMemo(
+    () => buildPhotoWallModel(index, monthCatalogs, photoView),
+    [index, monthCatalogs, photoView],
   );
 
   useEffect(() => {
-    for (const period of periodModel.visiblePeriods.slice(0, INITIAL_PERIOD_COUNT)) {
+    for (const period of model.visiblePeriods.slice(0, INITIAL_PERIOD_COUNT)) {
       void loadMonth(period).catch(() => undefined);
     }
-  }, [loadMonth, periodModel.visiblePeriods]);
+  }, [loadMonth, model.visiblePeriods]);
 
   useEffect(() => {
     if (photoView.mode !== "overview") {
       return;
     }
-    for (const period of periodModel.overviewPeriods) {
+    for (const period of model.overviewPeriods) {
       void loadMonth(period).catch(() => undefined);
     }
-  }, [loadMonth, periodModel.overviewPeriods, photoView.mode]);
+  }, [loadMonth, model.overviewPeriods, photoView.mode]);
 
   const { activeMonth, wallRef, jumpToMonth } = useActivePhotoMonth(
     photoView.mode === "timeline",
-    periodModel.visiblePeriods,
+    model.visiblePeriods,
     loadMonth,
   );
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
   const lightboxPhotos =
-    displayPhoto && loadedModel.filteredPhotos.some((photo) => photo.id === displayPhoto.id)
-      ? loadedModel.filteredPhotos
-      : loadedModel.allPhotos;
+    displayPhoto && model.filteredPhotos.some((photo) => photo.id === displayPhoto.id)
+      ? model.filteredPhotos
+      : model.allPhotos;
 
   return (
     <section className="pb-20">
@@ -72,14 +68,14 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         <PhotoOverview
           baseUrl={normalizedBaseUrl}
           albumCount={catalogState.index.albums.length}
-          items={loadedModel.overviewItems}
+          items={model.overviewItems}
           onOpenAlbum={browsing.openTimeline}
         />
       )}
       {catalogState.status === "ready" && photoView.mode === "timeline" && (
         <PhotoTimeline
           baseUrl={normalizedBaseUrl}
-          model={periodModel}
+          model={model}
           monthCatalogs={monthCatalogs}
           monthErrors={monthErrors}
           activeMonth={activeMonth}

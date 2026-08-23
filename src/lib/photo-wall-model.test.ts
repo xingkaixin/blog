@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PhotoCatalogIndex, PhotoMonthCatalog } from "./photo-catalog";
-import {
-  buildPhotoWallLoadedModel,
-  buildPhotoWallPeriodModel,
-  formatPeriodRange,
-} from "./photo-wall-model";
+import { buildPhotoWallModel, formatPeriodRange } from "./photo-wall-model";
 
 const firstPhoto = {
   id: "11111111111111111111111111111111",
@@ -52,10 +48,7 @@ const months: Record<string, PhotoMonthCatalog> = {
 
 describe("photo wall model", () => {
   it("derives timeline periods and totals from the selected album", () => {
-    const model = buildPhotoWallPeriodModel(index, {
-      mode: "timeline",
-      albumId: "travel",
-    });
+    const model = buildPhotoWallModel(index, months, { mode: "timeline", albumId: "travel" });
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");
@@ -69,7 +62,7 @@ describe("photo wall model", () => {
   });
 
   it("derives overview previews and loaded lightbox photos in catalog order", () => {
-    const model = buildPhotoWallLoadedModel(index, months, "daily");
+    const model = buildPhotoWallModel(index, months, { mode: "timeline", albumId: "daily" });
 
     expect(model.allPhotos.map((photo) => photo.id)).toEqual([firstPhoto.id, secondPhoto.id]);
     expect(model.filteredPhotos.map((photo) => photo.id)).toEqual([secondPhoto.id]);
@@ -78,6 +71,9 @@ describe("photo wall model", () => {
       ["日常", 1],
       ["旅行", 1],
     ]);
+    expect(model.overviewItems.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
+    expect(model.overviewItems.find((item) => item.id === "travel")?.photos).toEqual([firstPhoto]);
+    expect(model.overviewPeriods).toEqual(index.periods);
   });
 
   it("formats single-month and cross-year ranges", () => {
