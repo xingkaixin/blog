@@ -74,7 +74,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     if (!item) {
       return;
     }
-    if (item.kind === "action") {
+    if (item.kind === "theme") {
       window.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
       onOpenChange(false);
       return;

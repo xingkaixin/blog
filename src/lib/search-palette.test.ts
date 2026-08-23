@@ -28,7 +28,7 @@ describe("search palette", () => {
       items: [{ id: "post-agent-testing" }, { id: "post-agent-review" }],
     });
     expect(groups[1].items).toContainEqual(
-      expect.objectContaining({ id: "action-theme", kind: "action" }),
+      expect.objectContaining({ id: "action-theme", kind: "theme" }),
     );
   });
 
@@ -55,7 +55,7 @@ describe("search palette", () => {
     expect(groups).toHaveLength(1);
     expect(groups[0].label).toBe("命令");
     expect(groups[0].items).toContainEqual(
-      expect.objectContaining({ id: "action-theme", kind: "action" }),
+      expect.objectContaining({ id: "action-theme", kind: "theme" }),
     );
   });
 });

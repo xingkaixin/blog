@@ -15,16 +15,15 @@ export type SearchPaletteLink = {
   reload: boolean;
 };
 
-export type SearchPaletteAction = {
+export type SearchPaletteThemeCommand = {
   id: string;
-  kind: "action";
+  kind: "theme";
   glyph: string;
   title: string;
   hint: string;
-  action: "theme";
 };
 
-export type SearchPaletteItem = SearchPaletteLink | SearchPaletteAction;
+export type SearchPaletteItem = SearchPaletteLink | SearchPaletteThemeCommand;
 
 export type SearchPaletteGroup = {
   label: string;
@@ -40,13 +39,12 @@ const routeLinks: Array<SearchPaletteLink & { keywords: string }> = searchNaviga
     glyph: "›",
   }),
 );
-const themeItem: SearchPaletteAction & { keywords: string } = {
+const themeItem: SearchPaletteThemeCommand & { keywords: string } = {
   id: "action-theme",
-  kind: "action",
+  kind: "theme",
   glyph: "›",
   title: "翻转世界",
   hint: "⌘J",
-  action: "theme",
   keywords: "主题 亮色 暗色 theme dark light",
 };
 const routeItems: SearchablePaletteItem[] = [...routeLinks, themeItem];
