@@ -179,10 +179,14 @@ export class PhotoCatalogState {
 
   addPhotoToAlbum(photoId: string, albumId: string): boolean {
     const month = this.#photoMonths.get(photoId);
-    const photo = month
-      ? this.#months.get(month)?.photos.find((candidate) => candidate.id === photoId)
-      : undefined;
-    if (!month || !photo || photo.albumIds.includes(albumId)) {
+    if (!month) {
+      throw new Error(`Catalog 中不存在照片 ${photoId}`);
+    }
+    const photo = this.#months.get(month)?.photos.find((candidate) => candidate.id === photoId);
+    if (!photo) {
+      throw new Error(`照片 ${photoId} 所属月份 ${month} 尚未加载或内容不完整`);
+    }
+    if (photo.albumIds.includes(albumId)) {
       return false;
     }
     photo.albumIds = [...photo.albumIds, albumId].toSorted();
