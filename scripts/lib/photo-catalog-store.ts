@@ -7,7 +7,6 @@ import {
   parsePhotoMonthCatalog,
   photoAlbumCounts,
   validatePhotoMonth,
-  type PhotoAlbum,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
@@ -15,19 +14,12 @@ import {
 import { mapWithConcurrency } from "./concurrency";
 import {
   PHOTO_CATALOG_CONTROL_KEY,
-  PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
   parseLegacyPhotoCatalogControl,
   parsePhotoCatalogControl,
   photoCatalogIndexFromControl,
   type PhotoCatalogControl,
-  type RetiredArtifactBatch,
-  type RetiredPhotoObjects,
 } from "./photo-catalog-control";
-import {
-  isPhotoArtifactDeletionClaimed,
-  keepOnlyUnreferencedPhotoRetirements,
-  retireUnreferencedPhotoArtifacts,
-} from "./photo-retirement";
+import { PhotoCatalogState } from "./photo-catalog-state";
 import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
 
 const SHARD_CACHE_CONTROL = "public, max-age=31536000, immutable";
@@ -37,20 +29,7 @@ const READ_CONCURRENCY = 8;
 const WRITE_CONCURRENCY = 2;
 const CATALOG_COMMIT_ATTEMPTS = 5;
 
-export type LoadedPhotoCatalog = {
-  generatedAt: string | null;
-  controlVersion: string | null;
-  publicIndexVersion: string | null;
-  publicIndexCurrent: boolean;
-  albums: Map<string, PhotoAlbum>;
-  months: Map<string, PhotoMonthCatalog>;
-  periods: Map<string, PhotoPeriod>;
-  photoMonths: Map<string, string>;
-  retiredObjects: Map<string, RetiredPhotoObjects>;
-  retiredArtifacts: Map<string, RetiredArtifactBatch>;
-};
-
-export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<LoadedPhotoCatalog> {
+export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogState> {
   const [controlObject, indexObject] = await Promise.all([
     store.getText(PHOTO_CATALOG_CONTROL_KEY),
     store.getText(PHOTO_CATALOG_INDEX_KEY),
@@ -73,68 +52,49 @@ export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<LoadedP
   }
 
   if (!control) {
-    return {
-      generatedAt: null,
-      controlVersion: null,
-      publicIndexVersion: null,
-      publicIndexCurrent: true,
-      albums: new Map(),
-      months: new Map(),
-      periods: new Map(),
-      photoMonths: new Map(),
-      retiredObjects: new Map(),
-      retiredArtifacts: new Map(),
-    };
+    return PhotoCatalogState.empty();
   }
 
   const expectedPublicIndex = photoCatalogIndexFromControl(control);
-  return {
-    generatedAt: control.generatedAt,
-    controlVersion: controlObject?.version ?? null,
-    publicIndexVersion: indexObject?.version ?? null,
+  return PhotoCatalogState.loaded(control, {
+    control: controlObject?.version ?? null,
+    publicIndex: indexObject?.version ?? null,
     publicIndexCurrent:
       (rawIndex as { schemaVersion?: unknown } | null)?.schemaVersion ===
         PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
       JSON.stringify(publicIndex) === JSON.stringify(expectedPublicIndex),
-    albums: new Map(control.albums.map((album) => [album.id, album])),
-    months: new Map(),
-    periods: new Map(control.periods.map((period) => [period.month, period])),
-    photoMonths: new Map(Object.entries(control.photoMonths)),
-    retiredObjects: new Map(control.retiredObjects.map((entry) => [entry.photoId, entry])),
-    retiredArtifacts: new Map(control.retiredArtifacts.map((entry) => [entry.retirementId, entry])),
-  };
+  });
 }
 
 export async function loadPhotoCatalogMonths(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
+  catalog: PhotoCatalogState,
   months: Iterable<string>,
 ): Promise<void> {
   if (catalog.generatedAt === null) {
     return;
   }
   const periods = [...new Set(months)]
-    .filter((month) => !catalog.months.has(month))
-    .map((month) => catalog.periods.get(month))
+    .filter((month) => !catalog.hasLoadedMonth(month))
+    .map((month) => catalog.period(month))
     .filter((period): period is PhotoPeriod => Boolean(period));
-  const loadedMonths = await readPhotoCatalogMonths(store, catalogIndex(catalog), periods);
-  for (const { period, shard } of loadedMonths) {
-    catalog.months.set(period.month, shard);
+  const loadedMonths = await readPhotoCatalogMonths(store, catalog.currentIndex(), periods);
+  for (const { shard } of loadedMonths) {
+    catalog.loadMonth(shard);
   }
 }
 
 export async function writePhotoCatalog(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
-  dirtyMonths: Set<string>,
+  catalog: PhotoCatalogState,
   generatedAt: Date,
   attemptedArtifacts: Set<string> = new Set(),
   writtenArtifacts: Set<string> = new Set(),
 ): Promise<void> {
-  const nextPeriods = new Map(catalog.periods);
+  const nextPeriods = catalog.periods();
 
-  await mapWithConcurrency([...dirtyMonths], WRITE_CONCURRENCY, async (month) => {
-    const shard = catalog.months.get(month);
+  await mapWithConcurrency(catalog.dirtyMonths(), WRITE_CONCURRENCY, async (month) => {
+    const shard = catalog.monthForWrite(month);
     if (!shard) {
       throw new Error(`缺少待写入的月份 ${month}`);
     }
@@ -147,7 +107,7 @@ export async function writePhotoCatalog(
     const body = serializeJson(validatedShard);
     const hash = createHash("sha256").update(body).digest("hex").slice(0, 24);
     const key = `catalog/months/${month}.${hash}.json`;
-    if (isPhotoArtifactDeletionClaimed(catalog, key)) {
+    if (catalog.isArtifactDeletionClaimed(key)) {
       throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
     }
     if (!writtenArtifacts.has(key)) {
@@ -166,48 +126,32 @@ export async function writePhotoCatalog(
     });
   });
 
-  const replacedPeriodPaths = [...catalog.periods]
-    .filter(([month, period]) => nextPeriods.get(month)?.path !== period.path)
-    .map(([, period]) => period.path);
-  retireUnreferencedPhotoArtifacts(
-    catalog,
-    nextPeriods,
-    new Set([...attemptedArtifacts, ...replacedPeriodPaths]),
-    generatedAt,
-  );
-  keepOnlyUnreferencedPhotoRetirements(catalog, nextPeriods);
-  removeEmptyAlbums(catalog, nextPeriods);
-
-  const control = await writeControlDocument(
-    store,
-    catalog,
-    nextPeriods,
-    generatedAt.toISOString(),
-  );
+  const control = catalog.prepareControl(nextPeriods, generatedAt, attemptedArtifacts);
+  await writeControlDocument(store, catalog, control);
   await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
 }
 
 export async function writePhotoCatalogControl(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
+  catalog: PhotoCatalogState,
 ): Promise<void> {
   if (catalog.generatedAt === null) {
     throw new Error("无法写入空的照片 Catalog 控制状态");
   }
-  await writeControlDocument(store, catalog, catalog.periods, catalog.generatedAt);
+  await writeControlDocument(store, catalog, catalog.currentControl());
 }
 
 export async function writePhotoCatalogIndex(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
+  catalog: PhotoCatalogState,
 ): Promise<void> {
   if (catalog.generatedAt === null) {
     throw new Error("无法发布空的照片 Catalog 投影");
   }
   if (catalog.controlVersion === null) {
-    await writeControlDocument(store, catalog, catalog.periods, catalog.generatedAt);
+    await writeControlDocument(store, catalog, catalog.currentControl());
   }
-  await writePublicIndex(store, catalog, catalogIndex(catalog));
+  await writePublicIndex(store, catalog, catalog.currentIndex());
 }
 
 export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
@@ -226,32 +170,28 @@ export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<bool
 
 async function writePublicIndex(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
+  catalog: PhotoCatalogState,
   index: PhotoCatalogIndex,
 ): Promise<void> {
-  catalog.publicIndexVersion = await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
+  const version = await store.put(PHOTO_CATALOG_INDEX_KEY, serializeJson(index), {
     contentType: "application/json; charset=utf-8",
     cacheControl: INDEX_CACHE_CONTROL,
     expectedVersion: catalog.publicIndexVersion,
   });
-  catalog.publicIndexCurrent = true;
+  catalog.recordPublicIndexWrite(version);
 }
 
 async function writeControlDocument(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
-  periods: Map<string, PhotoPeriod>,
-  generatedAt: string,
-): Promise<PhotoCatalogControl> {
-  const control = buildControl(catalog, periods, generatedAt);
-  catalog.controlVersion = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
+  catalog: PhotoCatalogState,
+  control: PhotoCatalogControl,
+): Promise<void> {
+  const version = await store.put(PHOTO_CATALOG_CONTROL_KEY, serializeJson(control), {
     contentType: "application/json; charset=utf-8",
     cacheControl: CONTROL_CACHE_CONTROL,
     expectedVersion: catalog.controlVersion,
   });
-  catalog.generatedAt = control.generatedAt;
-  catalog.periods = periods;
-  return control;
+  catalog.recordControlWrite(version, control);
 }
 
 export async function retryPhotoCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
@@ -280,56 +220,6 @@ async function readPhotoCatalogMonths(
     const shard = parsePhotoMonthCatalog(parseJson(shardObject.text, period.path));
     validatePhotoMonth(index, period, shard);
     return { period, shard };
-  });
-}
-
-function removeEmptyAlbums(catalog: LoadedPhotoCatalog, periods: Map<string, PhotoPeriod>): void {
-  const referencedAlbums = new Set(
-    [...periods.values()].flatMap((period) => Object.keys(period.albumCounts)),
-  );
-  for (const albumId of catalog.albums.keys()) {
-    if (!referencedAlbums.has(albumId)) {
-      catalog.albums.delete(albumId);
-    }
-  }
-}
-
-function buildControl(
-  catalog: LoadedPhotoCatalog,
-  periods: Map<string, PhotoPeriod>,
-  generatedAt: string,
-): PhotoCatalogControl {
-  return parsePhotoCatalogControl({
-    schemaVersion: PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
-    generatedAt,
-    albums: [...catalog.albums.values()].toSorted((left, right) => left.id.localeCompare(right.id)),
-    periods: [...periods.values()].toSorted((left, right) => right.month.localeCompare(left.month)),
-    photoMonths: Object.fromEntries(
-      [...catalog.photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
-    ),
-    retiredObjects: [...catalog.retiredObjects.values()].toSorted(
-      (left, right) =>
-        left.deleteAfter.localeCompare(right.deleteAfter) ||
-        left.photoId.localeCompare(right.photoId),
-    ),
-    retiredArtifacts: [...catalog.retiredArtifacts.values()].toSorted(
-      (left, right) =>
-        left.deleteAfter.localeCompare(right.deleteAfter) ||
-        left.retirementId.localeCompare(right.retirementId),
-    ),
-  });
-}
-
-function catalogIndex(catalog: LoadedPhotoCatalog): PhotoCatalogIndex {
-  if (catalog.generatedAt === null) {
-    throw new Error("照片 Catalog 尚未初始化");
-  }
-  return parsePhotoCatalogIndex({
-    schemaVersion: PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-    generatedAt: catalog.generatedAt,
-    albums: [...catalog.albums.values()],
-    periods: [...catalog.periods.values()],
-    photoMonths: Object.fromEntries(catalog.photoMonths),
   });
 }
 

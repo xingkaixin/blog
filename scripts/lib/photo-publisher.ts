@@ -1,24 +1,21 @@
 import path from "node:path";
 import {
-  PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   isPhotoAlbumId,
   monthFromCapturedAt,
   parsePhotoRecord,
-  type PhotoAlbum,
   type PhotoRecord,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
+import type { PhotoCatalogState } from "./photo-catalog-state";
 import {
   loadPhotoCatalog,
   loadPhotoCatalogMonths,
   retryPhotoCatalogMutation,
   writePhotoCatalog,
   writePhotoCatalogIndex,
-  type LoadedPhotoCatalog,
 } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
-import { hasUnreferencedPhotoArtifacts, isPhotoArtifactDeletionClaimed } from "./photo-retirement";
 import type { ProcessedPhoto } from "./photo-source";
 import { snapshotPhotoFile, type PhotoSourceSnapshot } from "./photo-source";
 import type { PhotoObjectStore } from "./photo-store";
@@ -107,18 +104,17 @@ async function publishPhotosOnce(
   await loadPhotoCatalogMonths(
     options.store,
     catalog,
-    uniqueFiles.flatMap((file) => catalog.photoMonths.get(file.id) ?? []),
+    uniqueFiles.flatMap((file) => catalog.photoMonth(file.id) ?? []),
   );
-  const albumChanged = applyAlbum(catalog.albums, options.album);
-  const dirtyMonths = new Set<string>();
+  applyAlbum(catalog, options.album);
   const pending: IdentifiedFile[] = [];
   let reused = identifiedFiles.length - uniqueFiles.length;
 
   for (const identified of uniqueFiles) {
-    if (catalog.retiredObjects.has(identified.id)) {
+    if (catalog.isPhotoRetired(identified.id)) {
       throw new Error(`照片 ${identified.id} 正在延迟回收，请在回收完成后重新发布`);
     }
-    const existingMonth = catalog.photoMonths.get(identified.id);
+    const existingMonth = catalog.photoMonth(identified.id);
     if (!existingMonth) {
       pending.push(identified);
       continue;
@@ -126,8 +122,8 @@ async function publishPhotosOnce(
 
     reused += 1;
     options.onProgress?.({ type: "reused", file: identified.file });
-    if (options.album && addPhotoToAlbum(catalog, identified.id, existingMonth, options.album.id)) {
-      dirtyMonths.add(existingMonth);
+    if (options.album) {
+      catalog.addPhotoToAlbum(identified.id, options.album.id);
     }
   }
 
@@ -169,28 +165,18 @@ async function publishPhotosOnce(
   );
 
   for (const record of processed) {
-    const month = monthFromCapturedAt(record.capturedAt);
-    const monthCatalog = catalog.months.get(month) ?? {
-      schemaVersion: PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
-      month,
-      photos: [],
-    };
-    monthCatalog.photos.push(record);
-    catalog.months.set(month, monthCatalog);
-    catalog.photoMonths.set(record.id, month);
-    dirtyMonths.add(month);
+    catalog.addPhoto(record);
   }
 
   const domainChanged =
-    albumChanged ||
-    dirtyMonths.size > 0 ||
-    hasUnreferencedPhotoArtifacts(catalog, catalog.periods, attemptedArtifacts);
+    catalog.domainChanged ||
+    catalog.hasUnreferencedArtifacts(catalog.periods(), attemptedArtifacts);
   const catalogChanged = domainChanged || !catalog.publicIndexCurrent;
+  const updatedPeriods = catalog.dirtyMonths().length;
   if (domainChanged) {
     await writePhotoCatalog(
       options.store,
       catalog,
-      dirtyMonths,
       options.now?.() ?? new Date(),
       attemptedArtifacts,
       writtenArtifacts,
@@ -203,7 +189,7 @@ async function publishPhotosOnce(
     discovered: identifiedFiles.length,
     published: processed.length,
     reused,
-    updatedPeriods: dirtyMonths.size,
+    updatedPeriods,
     catalogChanged,
   };
 }
@@ -231,23 +217,21 @@ function validateAlbum(album: PublishAlbum | undefined): void {
   }
 }
 
-function applyAlbum(albums: Map<string, PhotoAlbum>, album: PublishAlbum | undefined): boolean {
+function applyAlbum(catalog: PhotoCatalogState, album: PublishAlbum | undefined): boolean {
   if (!album) {
     return false;
   }
 
-  const existing = albums.get(album.id);
+  const existing = catalog.album(album.id);
   if (!existing) {
     if (!album.title) {
       throw new Error(`新相册 ${album.id} 必须同时提供 --album-title`);
     }
-    albums.set(album.id, { id: album.id, title: album.title.trim() });
-    return true;
+    return catalog.upsertAlbum({ id: album.id, title: album.title.trim() });
   }
 
   if (album.title && existing.title !== album.title.trim()) {
-    albums.set(album.id, { id: album.id, title: album.title.trim() });
-    return true;
+    return catalog.upsertAlbum({ id: album.id, title: album.title.trim() });
   }
   return false;
 }
@@ -277,23 +261,9 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
   });
 }
 
-function addPhotoToAlbum(
-  catalog: LoadedPhotoCatalog,
-  photoId: string,
-  month: string,
-  albumId: string,
-): boolean {
-  const photo = catalog.months.get(month)?.photos.find((candidate) => candidate.id === photoId);
-  if (!photo || photo.albumIds.includes(albumId)) {
-    return false;
-  }
-  photo.albumIds = [...photo.albumIds, albumId].toSorted();
-  return true;
-}
-
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
-  catalog: LoadedPhotoCatalog,
+  catalog: PhotoCatalogState,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
   writtenArtifacts: Set<string>,
@@ -317,9 +287,9 @@ async function uploadPhotoAssets(
   });
 }
 
-function assertPhotoAssetsWritable(catalog: LoadedPhotoCatalog, photoId: string): void {
+function assertPhotoAssetsWritable(catalog: PhotoCatalogState, photoId: string): void {
   const claimedKey = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photoId}/${width}.webp`).find(
-    (key) => isPhotoArtifactDeletionClaimed(catalog, key),
+    (key) => catalog.isArtifactDeletionClaimed(key),
   );
   if (claimedKey) {
     throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
@@ -336,10 +306,10 @@ async function recordFailedPublishArtifacts(
   }
   await retryPhotoCatalogMutation(async () => {
     const catalog = await loadPhotoCatalog(store);
-    if (!hasUnreferencedPhotoArtifacts(catalog, catalog.periods, attemptedArtifacts)) {
+    if (!catalog.hasUnreferencedArtifacts(catalog.periods(), attemptedArtifacts)) {
       return;
     }
-    await writePhotoCatalog(store, catalog, new Set(), failedAt, attemptedArtifacts);
+    await writePhotoCatalog(store, catalog, failedAt, attemptedArtifacts);
   });
 }
 
