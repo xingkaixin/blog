@@ -2,19 +2,11 @@ import path from "node:path";
 import {
   PHOTO_VARIANT_WIDTHS,
   isPhotoAlbumId,
-  monthFromCapturedAt,
   parsePhotoRecord,
   type PhotoRecord,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
-import type { PhotoCatalogState } from "./photo-catalog-state";
-import {
-  loadPhotoCatalog,
-  loadPhotoCatalogMonths,
-  retryPhotoCatalogMutation,
-  writePhotoCatalog,
-  writePhotoCatalogIndex,
-} from "./photo-catalog-store";
+import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { ProcessedPhoto } from "./photo-source";
 import { snapshotPhotoFile, type PhotoSourceSnapshot } from "./photo-source";
@@ -66,9 +58,10 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
       options.onWarning,
     );
     try {
-      return await retryPhotoCatalogMutation(() =>
+      return await editPhotoCatalog(options.store, (catalog) =>
         publishPhotosOnce(
           { ...options, now: () => now },
+          catalog,
           identifiedFiles,
           publishedPhotos,
           attemptedArtifacts,
@@ -94,28 +87,24 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
 
 async function publishPhotosOnce(
   options: PublishPhotosOptions,
+  catalog: PhotoCatalogEditor,
   identifiedFiles: IdentifiedFile[],
   publishedPhotos: Map<string, PhotoRecord>,
   attemptedArtifacts: Set<string>,
   writtenArtifacts: Set<string>,
 ): Promise<PublishPhotosResult> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
-  const catalog = await loadPhotoCatalog(options.store);
-  await loadPhotoCatalogMonths(
-    options.store,
-    catalog,
-    uniqueFiles.flatMap((file) => catalog.photoMonth(file.id) ?? []),
-  );
+  const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
   applyAlbum(catalog, options.album);
   const pending: IdentifiedFile[] = [];
   let reused = identifiedFiles.length - uniqueFiles.length;
 
   for (const identified of uniqueFiles) {
-    if (catalog.isPhotoRetired(identified.id)) {
+    const status = photoStatuses.get(identified.id);
+    if (status === "retired") {
       throw new Error(`照片 ${identified.id} 正在延迟回收，请在回收完成后重新发布`);
     }
-    const existingMonth = catalog.photoMonth(identified.id);
-    if (!existingMonth) {
+    if (status !== "published") {
       pending.push(identified);
       continue;
     }
@@ -123,7 +112,7 @@ async function publishPhotosOnce(
     reused += 1;
     options.onProgress?.({ type: "reused", file: identified.file });
     if (options.album) {
-      catalog.addPhotoToAlbum(identified.id, options.album.id);
+      await catalog.addPhotoToAlbum(identified.id, options.album.id);
     }
   }
 
@@ -133,7 +122,7 @@ async function publishPhotosOnce(
     async (identified, index) => {
       const published = publishedPhotos.get(identified.id);
       if (published) {
-        assertPhotoAssetsWritable(catalog, published.id);
+        catalog.assertArtifactsWritable(published.id);
         return published;
       }
       options.onProgress?.({
@@ -158,32 +147,12 @@ async function publishPhotosOnce(
     },
   );
 
-  await loadPhotoCatalogMonths(
-    options.store,
-    catalog,
-    processed.map((record) => monthFromCapturedAt(record.capturedAt)),
+  await catalog.addPhotos(processed);
+  const { catalogChanged, updatedPeriods } = await catalog.commit(
+    options.now?.() ?? new Date(),
+    attemptedArtifacts,
+    writtenArtifacts,
   );
-
-  for (const record of processed) {
-    catalog.addPhoto(record);
-  }
-
-  const domainChanged =
-    catalog.domainChanged ||
-    catalog.hasUnreferencedArtifacts(catalog.periods(), attemptedArtifacts);
-  const catalogChanged = domainChanged || !catalog.publicIndexCurrent;
-  const updatedPeriods = catalog.dirtyMonths().length;
-  if (domainChanged) {
-    await writePhotoCatalog(
-      options.store,
-      catalog,
-      options.now?.() ?? new Date(),
-      attemptedArtifacts,
-      writtenArtifacts,
-    );
-  } else if (!catalog.publicIndexCurrent) {
-    await writePhotoCatalogIndex(options.store, catalog);
-  }
 
   return {
     discovered: identifiedFiles.length,
@@ -217,7 +186,7 @@ function validateAlbum(album: PublishAlbum | undefined): void {
   }
 }
 
-function applyAlbum(catalog: PhotoCatalogState, album: PublishAlbum | undefined): boolean {
+function applyAlbum(catalog: PhotoCatalogEditor, album: PublishAlbum | undefined): boolean {
   if (!album) {
     return false;
   }
@@ -263,12 +232,12 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
-  catalog: PhotoCatalogState,
+  catalog: PhotoCatalogEditor,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
   writtenArtifacts: Set<string>,
 ): Promise<void> {
-  assertPhotoAssetsWritable(catalog, photo.id);
+  catalog.assertArtifactsWritable(photo.id);
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
     const body = photo.variants.get(width);
     if (!body) {
@@ -287,15 +256,6 @@ async function uploadPhotoAssets(
   });
 }
 
-function assertPhotoAssetsWritable(catalog: PhotoCatalogState, photoId: string): void {
-  const claimedKey = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photoId}/${width}.webp`).find(
-    (key) => catalog.isArtifactDeletionClaimed(key),
-  );
-  if (claimedKey) {
-    throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
-  }
-}
-
 async function recordFailedPublishArtifacts(
   store: PhotoObjectStore,
   attemptedArtifacts: Set<string>,
@@ -304,12 +264,8 @@ async function recordFailedPublishArtifacts(
   if (attemptedArtifacts.size === 0) {
     return;
   }
-  await retryPhotoCatalogMutation(async () => {
-    const catalog = await loadPhotoCatalog(store);
-    if (!catalog.hasUnreferencedArtifacts(catalog.periods(), attemptedArtifacts)) {
-      return;
-    }
-    await writePhotoCatalog(store, catalog, failedAt, attemptedArtifacts);
+  await editPhotoCatalog(store, async (catalog) => {
+    await catalog.commit(failedAt, attemptedArtifacts);
   });
 }
 

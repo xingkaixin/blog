@@ -1,11 +1,6 @@
 import { isPhotoId } from "../../src/lib/photo-catalog";
 import { photoRetirementDeadline } from "./photo-catalog-state";
-import {
-  loadPhotoCatalog,
-  loadPhotoCatalogMonths,
-  retryPhotoCatalogMutation,
-  writePhotoCatalog,
-} from "./photo-catalog-store";
+import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { PhotoObjectStore } from "./photo-store";
 
@@ -25,14 +20,17 @@ export type RetirePhotosResult = {
 
 export async function retirePhotos(options: RetirePhotosOptions): Promise<RetirePhotosResult> {
   const now = options.now?.() ?? new Date();
-  const result = await retryPhotoCatalogMutation(() =>
-    retirePhotosOnce({ ...options, now: () => now }),
+  const result = await editPhotoCatalog(options.store, (catalog) =>
+    retirePhotosOnce({ ...options, now: () => now }, catalog),
   );
   await collectPhotoGarbageBestEffort({ store: options.store, now: () => now }, options.onWarning);
   return result;
 }
 
-async function retirePhotosOnce(options: RetirePhotosOptions): Promise<RetirePhotosResult> {
+async function retirePhotosOnce(
+  options: RetirePhotosOptions,
+  catalog: PhotoCatalogEditor,
+): Promise<RetirePhotosResult> {
   const photoIds = [...new Set(options.photoIds)];
   if (photoIds.length === 0) {
     throw new Error("至少需要指定一张照片");
@@ -41,14 +39,13 @@ async function retirePhotosOnce(options: RetirePhotosOptions): Promise<RetirePho
     throw new Error("照片 ID 必须是 32 位小写十六进制内容 ID");
   }
 
-  const catalog = await loadPhotoCatalog(options.store);
-  const alreadyRetired = photoIds.filter((photoId) => catalog.isPhotoRetired(photoId));
-  const activePhotoIds = photoIds.filter((photoId) => !catalog.isPhotoRetired(photoId));
-  await loadPhotoCatalogMonths(
-    options.store,
-    catalog,
-    activePhotoIds.flatMap((photoId) => catalog.photoMonth(photoId) ?? []),
-  );
+  const statuses = await catalog.inspectPhotos(photoIds);
+  const alreadyRetired = photoIds.filter((photoId) => statuses.get(photoId) === "retired");
+  const activePhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "published");
+  const missingPhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "new");
+  if (missingPhotoIds.length > 0) {
+    throw new Error(`Catalog 中不存在照片 ${missingPhotoIds[0]}`);
+  }
 
   if (activePhotoIds.length === 0) {
     return {
@@ -59,12 +56,11 @@ async function retirePhotosOnce(options: RetirePhotosOptions): Promise<RetirePho
     };
   }
 
-  const objectKeys = catalog.retirePhotos(
+  const objectKeys = await catalog.retirePhotos(
     activePhotoIds,
     photoRetirementDeadline(options.now?.() ?? new Date()),
   );
-  const updatedPeriods = catalog.dirtyMonths().length;
-  await writePhotoCatalog(options.store, catalog, options.now?.() ?? new Date());
+  const { updatedPeriods } = await catalog.commit(options.now?.() ?? new Date());
 
   return {
     retired: activePhotoIds.length,

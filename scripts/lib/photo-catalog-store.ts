@@ -2,14 +2,17 @@ import { createHash } from "node:crypto";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
+  PHOTO_VARIANT_WIDTHS,
   comparePhotosNewestFirst,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   photoAlbumCounts,
   validatePhotoMonth,
+  type PhotoAlbum,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
+  type PhotoRecord,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
 import {
@@ -18,6 +21,8 @@ import {
   parsePhotoCatalogControl,
   photoCatalogIndexFromControl,
   type PhotoCatalogControl,
+  type RetiredArtifactBatch,
+  type RetiredPhotoObjects,
 } from "./photo-catalog-control";
 import { PhotoCatalogState } from "./photo-catalog-state";
 import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
@@ -29,7 +34,163 @@ const READ_CONCURRENCY = 8;
 const WRITE_CONCURRENCY = 2;
 const CATALOG_COMMIT_ATTEMPTS = 5;
 
-export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogState> {
+export type PhotoCatalogPhotoStatus = "published" | "retired" | "new";
+
+export type PhotoCatalogCommitResult = {
+  catalogChanged: boolean;
+  updatedPeriods: number;
+};
+
+export class PhotoCatalogEditor {
+  private constructor(
+    private readonly store: PhotoObjectStore,
+    private readonly state: PhotoCatalogState,
+  ) {}
+
+  static async load(store: PhotoObjectStore): Promise<PhotoCatalogEditor> {
+    return new PhotoCatalogEditor(store, await loadPhotoCatalog(store));
+  }
+
+  get generatedAt(): string | null {
+    return this.state.generatedAt;
+  }
+
+  get pendingRetiredPhotos(): number {
+    return this.state.pendingRetiredPhotos;
+  }
+
+  get pendingRetiredArtifacts(): number {
+    return this.state.pendingRetiredArtifacts;
+  }
+
+  album(albumId: string): PhotoAlbum | undefined {
+    return this.state.album(albumId);
+  }
+
+  upsertAlbum(album: PhotoAlbum): boolean {
+    return this.state.upsertAlbum(album);
+  }
+
+  async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, PhotoCatalogPhotoStatus>> {
+    const ids = [...new Set(photoIds)];
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      ids.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
+    );
+    return new Map(
+      ids.map((photoId) => [
+        photoId,
+        this.state.isPhotoRetired(photoId)
+          ? "retired"
+          : this.state.photoMonth(photoId)
+            ? "published"
+            : "new",
+      ]),
+    );
+  }
+
+  async addPhotoToAlbum(photoId: string, albumId: string): Promise<boolean> {
+    const month = this.state.photoMonth(photoId);
+    await loadPhotoCatalogMonths(this.store, this.state, month ? [month] : []);
+    return this.state.addPhotoToAlbum(photoId, albumId);
+  }
+
+  async addPhotos(photos: PhotoRecord[]): Promise<void> {
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      photos.map((photo) => photo.capturedAt.slice(0, 7)),
+    );
+    for (const photo of photos) {
+      this.state.addPhoto(photo);
+    }
+  }
+
+  async retirePhotos(photoIds: string[], deleteAfter: string): Promise<Set<string>> {
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      photoIds.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
+    );
+    return this.state.retirePhotos(photoIds, deleteAfter);
+  }
+
+  assertArtifactsWritable(photoId: string): void {
+    const claimedKey = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photoId}/${width}.webp`).find(
+      (key) => this.state.isArtifactDeletionClaimed(key),
+    );
+    if (claimedKey) {
+      throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
+    }
+  }
+
+  async commit(
+    generatedAt: Date,
+    attemptedArtifacts: Set<string> = new Set(),
+    writtenArtifacts: Set<string> = new Set(),
+  ): Promise<PhotoCatalogCommitResult> {
+    const updatedPeriods = this.state.dirtyMonths().length;
+    const domainChanged =
+      this.state.domainChanged ||
+      this.state.hasUnreferencedArtifacts(this.state.periods(), attemptedArtifacts);
+    const catalogChanged = domainChanged || !this.state.publicIndexCurrent;
+    if (domainChanged) {
+      await writePhotoCatalog(
+        this.store,
+        this.state,
+        generatedAt,
+        attemptedArtifacts,
+        writtenArtifacts,
+      );
+    } else if (!this.state.publicIndexCurrent) {
+      await writePhotoCatalogIndex(this.store, this.state);
+    }
+    return { catalogChanged, updatedPeriods };
+  }
+
+  async repairPublicIndex(): Promise<boolean> {
+    if (this.state.generatedAt === null) {
+      throw new Error("无法迁移空的照片 Catalog");
+    }
+    if (this.state.controlVersion !== null && this.state.publicIndexCurrent) {
+      return false;
+    }
+    await writePhotoCatalogIndex(this.store, this.state);
+    return true;
+  }
+
+  async claimGarbage(
+    claimId: string,
+    now: Date,
+    expiresAt: string,
+  ): Promise<{ photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] }> {
+    const claim = this.state.claimGarbage(claimId, now, expiresAt);
+    if (claim.photos.length > 0 || claim.artifacts.length > 0) {
+      await writePhotoCatalogControl(this.store, this.state);
+    }
+    return claim;
+  }
+
+  async finishGarbage(
+    claimId: string,
+    photos: RetiredPhotoObjects[],
+    artifacts: RetiredArtifactBatch[],
+    failedKeys: Set<string>,
+  ): Promise<void> {
+    this.state.finishGarbageClaim(claimId, photos, artifacts, failedKeys);
+    await writePhotoCatalogControl(this.store, this.state);
+  }
+}
+
+export async function editPhotoCatalog<T>(
+  store: PhotoObjectStore,
+  operation: (catalog: PhotoCatalogEditor) => Promise<T>,
+): Promise<T> {
+  return retryPhotoCatalogMutation(async () => operation(await PhotoCatalogEditor.load(store)));
+}
+
+async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogState> {
   const [controlObject, indexObject] = await Promise.all([
     store.getText(PHOTO_CATALOG_CONTROL_KEY),
     store.getText(PHOTO_CATALOG_INDEX_KEY),
@@ -66,7 +227,7 @@ export async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCa
   });
 }
 
-export async function loadPhotoCatalogMonths(
+async function loadPhotoCatalogMonths(
   store: PhotoObjectStore,
   catalog: PhotoCatalogState,
   months: Iterable<string>,
@@ -84,7 +245,7 @@ export async function loadPhotoCatalogMonths(
   }
 }
 
-export async function writePhotoCatalog(
+async function writePhotoCatalog(
   store: PhotoObjectStore,
   catalog: PhotoCatalogState,
   generatedAt: Date,
@@ -131,7 +292,7 @@ export async function writePhotoCatalog(
   await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
 }
 
-export async function writePhotoCatalogControl(
+async function writePhotoCatalogControl(
   store: PhotoObjectStore,
   catalog: PhotoCatalogState,
 ): Promise<void> {
@@ -141,7 +302,7 @@ export async function writePhotoCatalogControl(
   await writeControlDocument(store, catalog, catalog.currentControl());
 }
 
-export async function writePhotoCatalogIndex(
+async function writePhotoCatalogIndex(
   store: PhotoObjectStore,
   catalog: PhotoCatalogState,
 ): Promise<void> {
@@ -155,17 +316,7 @@ export async function writePhotoCatalogIndex(
 }
 
 export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
-  return retryPhotoCatalogMutation(async () => {
-    const catalog = await loadPhotoCatalog(store);
-    if (catalog.generatedAt === null) {
-      throw new Error("无法迁移空的照片 Catalog");
-    }
-    if (catalog.controlVersion !== null && catalog.publicIndexCurrent) {
-      return false;
-    }
-    await writePhotoCatalogIndex(store, catalog);
-    return true;
-  });
+  return editPhotoCatalog(store, (catalog) => catalog.repairPublicIndex());
 }
 
 async function writePublicIndex(
@@ -194,7 +345,7 @@ async function writeControlDocument(
   catalog.recordControlWrite(version, control);
 }
 
-export async function retryPhotoCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
+async function retryPhotoCatalogMutation<T>(operation: () => Promise<T>): Promise<T> {
   for (let attempt = 1; attempt <= CATALOG_COMMIT_ATTEMPTS; attempt += 1) {
     try {
       return await operation();

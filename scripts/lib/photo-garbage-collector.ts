@@ -1,11 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { mapWithConcurrency } from "./concurrency";
 import type { RetiredArtifactBatch, RetiredPhotoObjects } from "./photo-catalog-control";
-import {
-  loadPhotoCatalog,
-  retryPhotoCatalogMutation,
-  writePhotoCatalogControl,
-} from "./photo-catalog-store";
+import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import type { PhotoObjectStore } from "./photo-store";
 
 const DELETE_CONCURRENCY = 8;
@@ -44,8 +40,8 @@ export async function collectPhotoGarbage(
 ): Promise<CollectPhotoGarbageResult> {
   const now = options.now?.() ?? new Date();
   const claimId = randomBytes(12).toString("hex");
-  const claim = await retryPhotoCatalogMutation(() =>
-    claimPhotoGarbage({ ...options, now: () => now }, claimId),
+  const claim = await editPhotoCatalog(options.store, (catalog) =>
+    claimPhotoGarbage({ ...options, now: () => now }, claimId, catalog),
   );
   if (claim.photos.length === 0 && claim.artifacts.length === 0) {
     return {
@@ -83,8 +79,8 @@ export async function collectPhotoGarbage(
       },
     ),
   );
-  return retryPhotoCatalogMutation(() =>
-    finishPhotoGarbageCollection(options.store, claim, deletionResults),
+  return editPhotoCatalog(options.store, (catalog) =>
+    finishPhotoGarbageCollection(catalog, claim, deletionResults),
   );
 }
 
@@ -102,14 +98,11 @@ export async function collectPhotoGarbageBestEffort(
 async function claimPhotoGarbage(
   options: CollectPhotoGarbageOptions,
   claimId: string,
+  catalog: PhotoCatalogEditor,
 ): Promise<GarbageClaim> {
   const now = options.now?.() ?? new Date();
-  const catalog = await loadPhotoCatalog(options.store);
   const expiresAt = new Date(now.getTime() + GARBAGE_CLAIM_DURATION_MS).toISOString();
-  const { photos, artifacts } = catalog.claimGarbage(claimId, now, expiresAt);
-  if (photos.length > 0 || artifacts.length > 0) {
-    await writePhotoCatalogControl(options.store, catalog);
-  }
+  const { photos, artifacts } = await catalog.claimGarbage(claimId, now, expiresAt);
   return {
     id: claimId,
     photos,
@@ -120,18 +113,16 @@ async function claimPhotoGarbage(
 }
 
 async function finishPhotoGarbageCollection(
-  store: PhotoObjectStore,
+  catalog: PhotoCatalogEditor,
   claim: GarbageClaim,
   deletionResults: Map<string, GarbageDeletionResult>,
 ): Promise<CollectPhotoGarbageResult> {
-  const catalog = await loadPhotoCatalog(store);
   const failedKeys = new Set(
     [...deletionResults]
       .filter(([, result]) => result.status === "failed")
       .map(([objectKey]) => objectKey),
   );
-  catalog.finishGarbageClaim(claim.id, claim.photos, claim.artifacts, failedKeys);
-  await writePhotoCatalogControl(store, catalog);
+  await catalog.finishGarbage(claim.id, claim.photos, claim.artifacts, failedKeys);
   const failures: PhotoGarbageFailure[] = [];
   for (const [objectKey, result] of deletionResults) {
     if (result.status === "failed") {
