@@ -1,9 +1,9 @@
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
 import { migratePhotoCatalog } from "./photo-catalog-store";
-import { deletePhotos } from "./photo-deleter";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
 import { photoDisplayName, publishPhotos, type PublishAlbum } from "./photo-publisher";
+import { retirePhotos } from "./photo-retirement";
 import { collectPhotoFiles, hashPhotoFile, type ProcessedPhoto } from "./photo-source";
 import {
   createR2PhotoObjectStore,
@@ -85,7 +85,7 @@ R2 环境变量:
   bun run photos:delete -- <照片或目录...> --confirm
 
 选项:
-  --confirm               确认删除 Catalog 记录与 R2 衍生图
+  --confirm               确认将照片移出 Catalog 并进入延迟回收
   --output <目录>         操作本地目录；省略时操作 R2
   --help                  显示帮助
 `,
@@ -314,13 +314,13 @@ async function runDeleteCommand(options: DeletePhotoCliOptions, io: PhotoCliIo):
 
   const store = createStore(options.output, "删除", io);
   try {
-    const result = await deletePhotos({
+    const result = await retirePhotos({
       photoIds,
       store,
       onWarning: (message) => io.error(message),
     });
     io.log(
-      `完成：移除 ${result.deleted} 张照片，已有 ${result.alreadyRetired} 张在回收队列，延迟回收 ${result.retiredObjects} 个对象，更新 ${result.updatedPeriods} 个月份`,
+      `完成：移除 ${result.retired} 张照片，已有 ${result.alreadyRetired} 张在回收队列，延迟回收 ${result.retiredObjects} 个对象，更新 ${result.updatedPeriods} 个月份`,
     );
   } finally {
     store.close?.();

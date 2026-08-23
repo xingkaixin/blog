@@ -9,9 +9,9 @@ import {
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { deletePhotos } from "./lib/photo-deleter";
 import { collectPhotoGarbage } from "./lib/photo-garbage-collector";
 import { publishPhotos } from "./lib/photo-publisher";
+import { retirePhotos } from "./lib/photo-retirement";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import {
   PhotoStoreConflictError,
@@ -453,15 +453,15 @@ describe("photo publisher", () => {
     );
     const oldPeriodPath = index.periods[0].path;
 
-    const deletedAt = new Date("2026-08-07T12:00:00.000Z");
-    const result = await deletePhotos({
+    const retiredAt = new Date("2026-08-07T12:00:00.000Z");
+    const result = await retirePhotos({
       photoIds: [id],
       store,
-      now: () => deletedAt,
+      now: () => retiredAt,
     });
 
     expect(result).toEqual({
-      deleted: 1,
+      retired: 1,
       alreadyRetired: 0,
       retiredObjects: 4,
       updatedPeriods: 1,
@@ -511,13 +511,13 @@ describe("photo publisher", () => {
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(true);
 
     expect(
-      await deletePhotos({
+      await retirePhotos({
         photoIds: [id],
         store,
         now: () => new Date("2026-08-08T14:01:00.000Z"),
       }),
     ).toEqual({
-      deleted: 0,
+      retired: 0,
       alreadyRetired: 1,
       retiredObjects: 0,
       updatedPeriods: 0,
@@ -560,13 +560,13 @@ describe("photo publisher", () => {
       return version;
     };
 
-    const result = await deletePhotos({
+    const result = await retirePhotos({
       photoIds: [id],
       store,
       onWarning: (message) => warnings.push(message),
     });
 
-    expect(result.deleted).toBe(1);
+    expect(result.retired).toBe(1);
     expect(warnings).toEqual(["照片对象回收未完成: garbage catalog unavailable"]);
     expect((await readControl(store)).photoMonths).toEqual({});
   });
@@ -647,7 +647,7 @@ describe("photo publisher", () => {
       processPhoto: async () => processedPhoto(secondId),
       now: () => new Date("2026-08-01T13:00:00.000Z"),
     });
-    await deletePhotos({
+    await retirePhotos({
       photoIds: [secondId],
       store,
       now: () => new Date("2026-08-01T14:00:00.000Z"),
@@ -705,7 +705,7 @@ describe("photo publisher", () => {
     });
     await deletionStarted.promise;
     await expect(
-      deletePhotos({
+      retirePhotos({
         photoIds: [secondId],
         store,
         now: () => new Date("2026-08-02T13:00:00.000Z"),
@@ -713,7 +713,7 @@ describe("photo publisher", () => {
     ).rejects.toThrow("正在回收");
     releaseDeletion.resolve(undefined);
     await garbageCollection;
-    await deletePhotos({
+    await retirePhotos({
       photoIds: [secondId],
       store,
       now: () => new Date("2026-08-02T13:00:00.000Z"),

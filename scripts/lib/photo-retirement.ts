@@ -9,30 +9,30 @@ import {
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { PhotoObjectStore } from "./photo-store";
 
-export type DeletePhotosOptions = {
+export type RetirePhotosOptions = {
   photoIds: string[];
   store: PhotoObjectStore;
   now?: () => Date;
   onWarning?: (message: string) => void;
 };
 
-export type DeletePhotosResult = {
-  deleted: number;
+export type RetirePhotosResult = {
+  retired: number;
   alreadyRetired: number;
   retiredObjects: number;
   updatedPeriods: number;
 };
 
-export async function deletePhotos(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
+export async function retirePhotos(options: RetirePhotosOptions): Promise<RetirePhotosResult> {
   const now = options.now?.() ?? new Date();
   const result = await retryPhotoCatalogMutation(() =>
-    deletePhotosOnce({ ...options, now: () => now }),
+    retirePhotosOnce({ ...options, now: () => now }),
   );
   await collectPhotoGarbageBestEffort({ store: options.store, now: () => now }, options.onWarning);
   return result;
 }
 
-async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePhotosResult> {
+async function retirePhotosOnce(options: RetirePhotosOptions): Promise<RetirePhotosResult> {
   const photoIds = [...new Set(options.photoIds)];
   if (photoIds.length === 0) {
     throw new Error("至少需要指定一张照片");
@@ -52,7 +52,7 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
 
   if (activePhotoIds.length === 0) {
     return {
-      deleted: 0,
+      retired: 0,
       alreadyRetired: alreadyRetired.length,
       retiredObjects: 0,
       updatedPeriods: 0,
@@ -67,7 +67,7 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
   await writePhotoCatalog(options.store, catalog, options.now?.() ?? new Date());
 
   return {
-    deleted: activePhotoIds.length,
+    retired: activePhotoIds.length,
     alreadyRetired: alreadyRetired.length,
     retiredObjects: objectKeys.size,
     updatedPeriods,
