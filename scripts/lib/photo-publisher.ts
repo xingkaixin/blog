@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import path from "node:path";
 import {
   PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
@@ -8,6 +9,7 @@ import {
   parsePhotoRecord,
   type PhotoAlbum,
   type PhotoRecord,
+  type RetiredArtifactBatch,
   type RetiredPhotoObjects,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
@@ -20,7 +22,7 @@ import {
 } from "./photo-catalog-store";
 import {
   hasUnreferencedPhotoArtifacts,
-  isPhotoArtifactReferenced,
+  isPhotoArtifactDeletionClaimed,
   photoRetirementDeadline,
 } from "./photo-retirement";
 import type { ProcessedPhoto } from "./photo-source";
@@ -30,6 +32,7 @@ import type { PhotoObjectStore } from "./photo-store";
 const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const PROCESS_CONCURRENCY = 2;
 const READ_CONCURRENCY = 8;
+const GARBAGE_CLAIM_DURATION_MS = 60 * 60 * 1_000;
 export type PublishAlbum = {
   id: string;
   title?: string;
@@ -90,10 +93,15 @@ export type PhotoGarbageFailure = {
   message: string;
 };
 
-type GarbageDeletionResult =
-  | { status: "referenced" }
-  | { status: "removed" }
-  | { status: "failed"; message: string };
+type GarbageDeletionResult = { status: "removed" } | { status: "failed"; message: string };
+
+type GarbageClaim = {
+  id: string;
+  photos: RetiredPhotoObjects[];
+  artifacts: RetiredArtifactBatch[];
+  pendingPhotos: number;
+  pendingArtifacts: number;
+};
 
 type IdentifiedFile = PhotoSourceSnapshot;
 
@@ -198,7 +206,7 @@ async function publishPhotosOnce(
     processed.map(({ record }) => monthFromCapturedAt(record.capturedAt)),
   );
   await mapWithConcurrency(processed, PROCESS_CONCURRENCY, async ({ file, photo }) => {
-    await uploadPhotoAssets(options.store, photo, attemptedArtifacts);
+    await uploadPhotoAssets(options.store, catalog, photo, attemptedArtifacts);
     options.onProgress?.({
       type: "published",
       file,
@@ -334,34 +342,25 @@ async function deletePhotosOnce(options: DeletePhotosOptions): Promise<DeletePho
 export async function collectPhotoGarbage(
   options: CollectPhotoGarbageOptions,
 ): Promise<CollectPhotoGarbageResult> {
-  return retryPhotoCatalogMutation(() => collectPhotoGarbageOnce(options));
-}
-
-async function collectPhotoGarbageOnce(
-  options: CollectPhotoGarbageOptions,
-): Promise<CollectPhotoGarbageResult> {
   const now = options.now?.() ?? new Date();
-  const catalog = await loadPhotoCatalog(options.store);
-  const duePhotos = [...catalog.retiredObjects.values()].filter(
-    (entry) => Date.parse(entry.deleteAfter) <= now.getTime(),
+  const claimId = randomBytes(12).toString("hex");
+  const claim = await retryPhotoCatalogMutation(() =>
+    claimPhotoGarbage({ ...options, now: () => now }, claimId),
   );
-  const dueArtifacts = [...catalog.retiredArtifacts.values()].filter(
-    (entry) => Date.parse(entry.deleteAfter) <= now.getTime(),
-  );
-  if (duePhotos.length === 0 && dueArtifacts.length === 0) {
+  if (claim.photos.length === 0 && claim.artifacts.length === 0) {
     return {
       removedObjects: 0,
       failedObjects: 0,
-      pendingPhotos: catalog.retiredObjects.size,
-      pendingArtifacts: catalog.retiredArtifacts.size,
+      pendingPhotos: claim.pendingPhotos,
+      pendingArtifacts: claim.pendingArtifacts,
       failures: [],
     };
   }
 
   const objectKeys = [
     ...new Set([
-      ...duePhotos.flatMap((entry) => entry.objectKeys),
-      ...dueArtifacts.flatMap((entry) => entry.objectKeys),
+      ...claim.photos.flatMap((entry) => entry.objectKeys),
+      ...claim.artifacts.flatMap((entry) => entry.objectKeys),
     ]),
   ];
   const deletionResults = new Map<string, GarbageDeletionResult>(
@@ -369,9 +368,6 @@ async function collectPhotoGarbageOnce(
       objectKeys,
       READ_CONCURRENCY,
       async (key): Promise<[string, GarbageDeletionResult]> => {
-        if (isPhotoArtifactReferenced(catalog.periods, catalog.photoMonths, key)) {
-          return [key, { status: "referenced" }];
-        }
         try {
           await options.store.delete(key);
           return [key, { status: "removed" }];
@@ -387,22 +383,62 @@ async function collectPhotoGarbageOnce(
       },
     ),
   );
-  const completedPhotos = duePhotos.filter((entry) =>
-    entry.objectKeys.every((key) => deletionResults.get(key)?.status !== "failed"),
+  return retryPhotoCatalogMutation(() =>
+    finishPhotoGarbageCollection(options.store, claim, deletionResults, now),
   );
-  const completedArtifacts = dueArtifacts.filter((entry) =>
-    entry.objectKeys.every((key) => deletionResults.get(key)?.status !== "failed"),
-  );
-  for (const entry of completedPhotos) {
-    catalog.retiredObjects.delete(entry.photoId);
+}
+
+async function claimPhotoGarbage(
+  options: CollectPhotoGarbageOptions,
+  claimId: string,
+): Promise<GarbageClaim> {
+  const now = options.now?.() ?? new Date();
+  const catalog = await loadPhotoCatalog(options.store);
+  const expiresAt = new Date(now.getTime() + GARBAGE_CLAIM_DURATION_MS).toISOString();
+  const canClaim = (entry: RetiredPhotoObjects | RetiredArtifactBatch) =>
+    Date.parse(entry.deleteAfter) <= now.getTime() &&
+    (entry.deletion === undefined ||
+      entry.deletion.id === claimId ||
+      Date.parse(entry.deletion.expiresAt) <= now.getTime());
+  const photos = [...catalog.retiredObjects.values()].filter(canClaim);
+  const artifacts = [...catalog.retiredArtifacts.values()].filter(canClaim);
+  for (const entry of [...photos, ...artifacts]) {
+    entry.deletion = { id: claimId, expiresAt };
   }
-  for (const entry of completedArtifacts) {
-    catalog.retiredArtifacts.delete(entry.retirementId);
-  }
-  if (completedPhotos.length > 0 || completedArtifacts.length > 0) {
+  if (photos.length > 0 || artifacts.length > 0) {
     await writePhotoCatalog(options.store, catalog, new Set(), now);
   }
+  return {
+    id: claimId,
+    photos,
+    artifacts,
+    pendingPhotos: catalog.retiredObjects.size,
+    pendingArtifacts: catalog.retiredArtifacts.size,
+  };
+}
 
+async function finishPhotoGarbageCollection(
+  store: PhotoObjectStore,
+  claim: GarbageClaim,
+  deletionResults: Map<string, GarbageDeletionResult>,
+  now: Date,
+): Promise<CollectPhotoGarbageResult> {
+  const catalog = await loadPhotoCatalog(store);
+  finishClaimedEntries(
+    claim.photos,
+    catalog.retiredObjects,
+    (entry) => entry.photoId,
+    claim.id,
+    deletionResults,
+  );
+  finishClaimedEntries(
+    claim.artifacts,
+    catalog.retiredArtifacts,
+    (entry) => entry.retirementId,
+    claim.id,
+    deletionResults,
+  );
+  await writePhotoCatalog(store, catalog, new Set(), now);
   const failures: PhotoGarbageFailure[] = [];
   for (const [objectKey, result] of deletionResults) {
     if (result.status === "failed") {
@@ -418,6 +454,30 @@ async function collectPhotoGarbageOnce(
     pendingArtifacts: catalog.retiredArtifacts.size,
     failures,
   };
+}
+
+function finishClaimedEntries<Entry extends RetiredPhotoObjects | RetiredArtifactBatch>(
+  claimedEntries: Entry[],
+  currentEntries: Map<string, Entry>,
+  entryId: (entry: Entry) => string,
+  claimId: string,
+  deletionResults: Map<string, GarbageDeletionResult>,
+): void {
+  for (const claimed of claimedEntries) {
+    const id = entryId(claimed);
+    const current = currentEntries.get(id);
+    if (current?.deletion?.id !== claimId) {
+      continue;
+    }
+    const failedKeys = current.objectKeys.filter(
+      (key) => deletionResults.get(key)?.status === "failed",
+    );
+    if (failedKeys.length === 0) {
+      currentEntries.delete(id);
+    } else {
+      currentEntries.set(id, { ...current, objectKeys: failedKeys, deletion: undefined });
+    }
+  }
 }
 
 function validateNewPhoto(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
@@ -505,9 +565,15 @@ function addPhotoToAlbum(
 
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
+  catalog: LoadedPhotoCatalog,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
 ): Promise<void> {
+  const objectKeys = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photo.id}/${width}.webp`);
+  const claimedKey = objectKeys.find((key) => isPhotoArtifactDeletionClaimed(catalog, key));
+  if (claimedKey) {
+    throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
+  }
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
     const body = photo.variants.get(width);
     if (!body) {

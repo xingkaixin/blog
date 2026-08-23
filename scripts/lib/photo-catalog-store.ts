@@ -16,6 +16,7 @@ import {
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
 import {
+  isPhotoArtifactDeletionClaimed,
   keepOnlyUnreferencedPhotoRetirements,
   retireUnreferencedPhotoArtifacts,
 } from "./photo-retirement";
@@ -107,6 +108,9 @@ export async function writePhotoCatalog(
     const body = serializeJson(validatedShard);
     const hash = createHash("sha256").update(body).digest("hex").slice(0, 24);
     const key = `catalog/months/${month}.${hash}.json`;
+    if (isPhotoArtifactDeletionClaimed(catalog, key)) {
+      throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
+    }
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "application/json; charset=utf-8",

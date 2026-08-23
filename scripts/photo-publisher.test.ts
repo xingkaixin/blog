@@ -531,6 +531,69 @@ describe("photo publisher", () => {
     expect(index.retiredArtifacts.flatMap((entry) => entry.objectKeys)).not.toContain(revivedPath);
   });
 
+  it("does not delete a month shard revived by a concurrent mutation", async () => {
+    const firstFile = await createSourceFile("first live photo");
+    const secondFile = await createSourceFile("temporary second photo");
+    const firstId = await hashPhotoFile(firstFile);
+    const secondId = await hashPhotoFile(secondFile);
+    const store = new MemoryPhotoStore();
+
+    await publishPhotos({
+      files: [firstFile],
+      store,
+      processPhoto: async () => processedPhoto(firstId),
+      now: () => new Date("2026-08-01T12:00:00.000Z"),
+    });
+    const firstIndex = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const revivedPath = firstIndex.periods[0].path;
+
+    await publishPhotos({
+      files: [secondFile],
+      store,
+      processPhoto: async () => processedPhoto(secondId),
+      now: () => new Date("2026-08-02T12:00:00.000Z"),
+    });
+
+    const deletionStarted = deferred<void>();
+    const releaseDeletion = deferred<void>();
+    const originalDelete = store.delete.bind(store);
+    store.delete = async (key) => {
+      if (key === revivedPath) {
+        deletionStarted.resolve(undefined);
+        await releaseDeletion.promise;
+      }
+      return originalDelete(key);
+    };
+
+    const garbageCollection = collectPhotoGarbage({
+      store,
+      now: () => new Date("2026-08-03T14:00:00.000Z"),
+    });
+    await deletionStarted.promise;
+    await expect(
+      deletePhotos({
+        photoIds: [secondId],
+        store,
+        now: () => new Date("2026-08-02T13:00:00.000Z"),
+      }),
+    ).rejects.toThrow("正在回收");
+    releaseDeletion.resolve(undefined);
+    await garbageCollection;
+    await deletePhotos({
+      photoIds: [secondId],
+      store,
+      now: () => new Date("2026-08-02T13:00:00.000Z"),
+    });
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.periods[0]?.path).toBe(revivedPath);
+    expect(store.objects.has(revivedPath)).toBe(true);
+  });
+
   it("records artifacts written by a publish whose catalog commit never wins", async () => {
     const file = await createSourceFile("failed catalog commit");
     const id = await hashPhotoFile(file);

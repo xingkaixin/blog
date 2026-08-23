@@ -30,12 +30,19 @@ export type RetiredPhotoObjects = {
   photoId: string;
   objectKeys: string[];
   deleteAfter: string;
+  deletion?: PhotoDeletionClaim;
 };
 
 export type RetiredArtifactBatch = {
   retirementId: string;
   objectKeys: string[];
   deleteAfter: string;
+  deletion?: PhotoDeletionClaim;
+};
+
+export type PhotoDeletionClaim = {
+  id: string;
+  expiresAt: string;
 };
 
 export type PhotoCatalogIndex = {
@@ -233,6 +240,7 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
       photoId,
       objectKeys,
       deleteAfter: readTimestamp(entry.deleteAfter, `${field}.deleteAfter`),
+      deletion: readDeletionClaim(entry.deletion, `${field}.deletion`),
     };
   });
 
@@ -267,6 +275,7 @@ function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
       retirementId,
       objectKeys,
       deleteAfter: readTimestamp(entry.deleteAfter, `${field}.deleteAfter`),
+      deletion: readDeletionClaim(entry.deletion, `${field}.deletion`),
     };
   });
 
@@ -279,6 +288,21 @@ function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
     "catalog.retiredArtifacts.objectKeys",
   );
   return entries;
+}
+
+function readDeletionClaim(value: unknown, field: string): PhotoDeletionClaim | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  const claim = readRecord(value, field);
+  const id = readString(claim.id, `${field}.id`);
+  if (!RETIREMENT_ID_PATTERN.test(id)) {
+    throw new PhotoCatalogError(`${field}.id 必须是 24 位十六进制 ID`);
+  }
+  return {
+    id,
+    expiresAt: readTimestamp(claim.expiresAt, `${field}.expiresAt`),
+  };
 }
 
 function readPhoto(value: unknown, field: string): PhotoRecord {

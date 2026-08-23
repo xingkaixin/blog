@@ -100,6 +100,12 @@ export function isPhotoArtifactReferenced(
   return photoId !== null && photoMonths.has(photoId);
 }
 
+export function isPhotoArtifactDeletionClaimed(state: PhotoRetirementState, key: string): boolean {
+  return [...state.retiredObjects.values(), ...state.retiredArtifacts.values()].some(
+    (entry) => entry.deletion !== undefined && entry.objectKeys.includes(key),
+  );
+}
+
 function allRetiredObjectKeys(state: PhotoRetirementState): Set<string> {
   return new Set([
     ...[...state.retiredObjects.values()].flatMap((entry) => entry.objectKeys),
