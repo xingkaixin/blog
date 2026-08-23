@@ -1,3 +1,5 @@
+import { isPhotoTimestamp } from "./photo-timestamp";
+
 export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 3 as const;
 export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 1 as const;
 export const PHOTO_VARIANT_WIDTHS = [480, 960, 2048] as const;
@@ -47,8 +49,6 @@ const ALBUM_ID_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
 const PHOTO_ID_PATTERN = /^[a-f0-9]{32}$/;
 const MONTH_PATTERN = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 const COLOR_PATTERN = /^#[a-f0-9]{6}$/;
-const ISO_TIMESTAMP_PATTERN =
-  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
 const MAX_IMAGE_DIMENSION = 100_000;
 const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 2;
@@ -96,34 +96,10 @@ function assertUnique(values: string[], field: string): void {
 
 function readTimestamp(value: unknown, field: string): string {
   const timestamp = readString(value, field);
-  const match = ISO_TIMESTAMP_PATTERN.exec(timestamp);
-  if (!match || !isValidTimestampParts(match) || !Number.isFinite(Date.parse(timestamp))) {
+  if (!isPhotoTimestamp(timestamp)) {
     throw new PhotoCatalogError(`${field} 必须是包含时区的 ISO 时间`);
   }
   return timestamp;
-}
-
-function isValidTimestampParts(match: RegExpExecArray): boolean {
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const hour = Number(match[4]);
-  const minute = Number(match[5]);
-  const second = Number(match[6]);
-  const offsetHour = Number(match[8] ?? 0);
-  const offsetMinute = Number(match[9] ?? 0);
-  const date = new Date(Date.UTC(year, month - 1, day));
-
-  return (
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day &&
-    hour <= 23 &&
-    minute <= 59 &&
-    second <= 59 &&
-    offsetHour <= 23 &&
-    offsetMinute <= 59
-  );
 }
 
 function readMonth(value: unknown, field: string): string {

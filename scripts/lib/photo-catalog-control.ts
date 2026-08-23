@@ -5,6 +5,7 @@ import {
   parsePhotoCatalogIndex,
   type PhotoCatalogIndex,
 } from "../../src/lib/photo-catalog";
+import { isPhotoTimestamp } from "../../src/lib/photo-timestamp";
 
 export const PHOTO_CATALOG_CONTROL_KEY = "catalog/control.json";
 export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 1 as const;
@@ -39,8 +40,6 @@ const MEDIA_PATH_PATTERN = new RegExp(
   `^media/([a-f0-9]{32})/(?:${PHOTO_VARIANT_WIDTHS.join("|")})\\.webp$`,
 );
 const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
-const ISO_TIMESTAMP_PATTERN =
-  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,3})?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 
 export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
   const input = readRecord(value, "catalogControl");
@@ -211,28 +210,10 @@ function readObjectKeys(value: unknown, field: string): string[] {
 
 function readTimestamp(value: unknown, field: string): string {
   const timestamp = readString(value, field);
-  const match = ISO_TIMESTAMP_PATTERN.exec(timestamp);
-  if (!match || !isValidTimestampParts(match) || !Number.isFinite(Date.parse(timestamp))) {
+  if (!isPhotoTimestamp(timestamp)) {
     throw new Error(`${field} 必须是包含时区的 ISO 时间`);
   }
   return timestamp;
-}
-
-function isValidTimestampParts(match: RegExpExecArray): boolean {
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  return (
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day &&
-    Number(match[4]) <= 23 &&
-    Number(match[5]) <= 59 &&
-    Number(match[6]) <= 59 &&
-    Number(match[8] ?? 0) <= 23 &&
-    Number(match[9] ?? 0) <= 59
-  );
 }
 
 function readRecord(value: unknown, field: string): Record<string, unknown> {

@@ -98,4 +98,19 @@ describe("photo catalog control", () => {
       }),
     ).toThrow("不能同时");
   });
+
+  it("rejects invalid retirement timestamps", () => {
+    expect(() =>
+      parsePhotoCatalogControl({
+        ...controlFixture,
+        retiredObjects: [
+          {
+            photoId: "ffffffffffffffffffffffffffffffff",
+            objectKeys: ["media/ffffffffffffffffffffffffffffffff/960.webp"],
+            deleteAfter: "2026-02-30T12:00:00+08:00",
+          },
+        ],
+      }),
+    ).toThrow("ISO 时间");
+  });
 });
