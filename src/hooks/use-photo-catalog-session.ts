@@ -34,7 +34,6 @@ export function usePhotoCatalogSession(baseUrl: string) {
     const generation = generationRef.current + 1;
     requestControllerRef.current = controller;
     generationRef.current = generation;
-    browser.reset();
     monthsRef.current = {};
     setMonths({});
     setMonthErrors({});

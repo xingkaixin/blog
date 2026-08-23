@@ -61,7 +61,7 @@ describe("photo catalog browser", () => {
     expect(request).toHaveBeenCalledTimes(2);
   });
 
-  it("starts a new request after reset when the old request resolves later", async () => {
+  it("keys in-flight requests by immutable month path", async () => {
     let resolveFirst: ((value: unknown) => void) | undefined;
     const request = vi
       .fn<PhotoCatalogRequest>()
@@ -73,12 +73,16 @@ describe("photo catalog browser", () => {
       )
       .mockResolvedValue(month);
     const browser = new PhotoCatalogBrowser("https://photos.example.com", request);
+    const nextPeriod = {
+      ...period,
+      path: "catalog/months/2026-04.ffffffffffffffffffffffff.json",
+    };
+    const nextIndex = { ...index, periods: [nextPeriod] };
 
     const stale = browser.loadMonth(index, period);
-    browser.reset();
+    await expect(browser.loadMonth(nextIndex, nextPeriod)).resolves.toEqual(month);
     resolveFirst?.(month);
     await stale;
-    await browser.loadMonth(index, period);
     expect(request).toHaveBeenCalledTimes(2);
   });
 

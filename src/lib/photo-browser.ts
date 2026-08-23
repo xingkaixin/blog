@@ -53,10 +53,6 @@ export class PhotoCatalogBrowser {
     this.request = request;
   }
 
-  reset(): void {
-    this.pendingMonths.clear();
-  }
-
   async loadIndex(signal?: AbortSignal): Promise<PhotoCatalogIndex> {
     if (!this.baseUrl) {
       throw new Error("照片存储地址尚未配置");
@@ -73,7 +69,7 @@ export class PhotoCatalogBrowser {
     period: PhotoPeriod,
     signal?: AbortSignal,
   ): Promise<PhotoMonthCatalog> {
-    const pending = this.pendingMonths.get(period.month);
+    const pending = this.pendingMonths.get(period.path);
     if (pending) {
       return pending;
     }
@@ -84,11 +80,11 @@ export class PhotoCatalogBrowser {
     })
       .then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)))
       .finally(() => {
-        if (this.pendingMonths.get(period.month) === request) {
-          this.pendingMonths.delete(period.month);
+        if (this.pendingMonths.get(period.path) === request) {
+          this.pendingMonths.delete(period.path);
         }
       });
-    this.pendingMonths.set(period.month, request);
+    this.pendingMonths.set(period.path, request);
     return request;
   }
 }
