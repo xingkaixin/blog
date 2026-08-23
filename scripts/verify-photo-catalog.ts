@@ -4,13 +4,18 @@ import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
   catalogIndexUrl,
   parsePhotoCatalogIndex,
+  parsePhotoMonthCatalog,
+  photoObjectUrl,
   type PhotoCatalogIndex,
+  validatePhotoMonth,
 } from "../src/lib/photo-catalog";
 import { siteConfig } from "../src/lib/site";
+import { mapWithConcurrency } from "./lib/concurrency";
 
 export type PhotoCatalogLoader = (url: string) => Promise<unknown>;
 
 const MAX_COMPACT_CATALOG_BYTES = 256 * 1024;
+const SHARD_READ_CONCURRENCY = 8;
 
 export async function verifyPublishedPhotoCatalog(
   photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl,
@@ -30,6 +35,14 @@ export async function verifyPublishedPhotoCatalog(
       `照片 Catalog 索引为 ${compactBytes.toLocaleString("en-US")} 字节，超过 ${MAX_COMPACT_CATALOG_BYTES.toLocaleString("en-US")} 字节预算；请先拆分照片定位表`,
     );
   }
+  await mapWithConcurrency(catalog.periods, SHARD_READ_CONCURRENCY, async (period) => {
+    try {
+      const shard = parsePhotoMonthCatalog(await load(photoObjectUrl(photoBaseUrl, period.path)));
+      validatePhotoMonth(catalog, period, shard);
+    } catch (error) {
+      throw new Error(`照片月份 Catalog ${period.path} 验证失败`, { cause: error });
+    }
+  });
   return catalog;
 }
 
@@ -46,7 +59,9 @@ async function loadJson(url: string): Promise<unknown> {
 }
 
 if (import.meta.main) {
-  verifyPublishedPhotoCatalog()
+  const photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
+  console.log(`正在验证照片 Catalog: ${catalogIndexUrl(photoBaseUrl)}`);
+  verifyPublishedPhotoCatalog(photoBaseUrl)
     .then((catalog) => {
       const photoCount = Object.keys(catalog.photoMonths).length;
       const compactBytes = compactCatalogBytes(catalog);
