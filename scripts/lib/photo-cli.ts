@@ -154,13 +154,76 @@ export function parsePhotoCliArguments(
 export function parsePhotoCliArguments(command: "migrate", args: string[]): MigratePhotoCliOptions;
 export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions;
 export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions {
+  const specification = COMMAND_ARGUMENTS[command];
+  const parsed = parseArguments(args, {
+    valueOptions: [...COMMON_VALUE_OPTIONS, ...specification.valueOptions],
+    flagOptions: [...HELP_OPTIONS, ...specification.flagOptions],
+  });
+  if (specification.positionalLabel && parsed.inputs.length > 0) {
+    throw new Error(
+      `${specification.positionalLabel}命令不接受位置参数: ${parsed.inputs.join(", ")}`,
+    );
+  }
+  const common = {
+    output: parsed.values.get("--output"),
+    help: HELP_OPTIONS.some((option) => parsed.flags.has(option)),
+  };
+
+  if (command === "publish") {
+    const albumId = parsed.values.get("--album");
+    const albumTitle = parsed.values.get("--album-title");
+    if (albumTitle && !albumId) {
+      throw new Error("--album-title 必须与 --album 一起使用");
+    }
+    return {
+      command,
+      inputs: parsed.inputs,
+      ...common,
+      album: albumId ? { id: albumId, title: albumTitle } : undefined,
+      timezone: parsed.values.get("--timezone"),
+    };
+  }
+  if (command === "delete") {
+    return { command, inputs: parsed.inputs, ...common, confirm: parsed.flags.has("--confirm") };
+  }
+  return { command, ...common, confirm: parsed.flags.has("--confirm") };
+}
+
+type ParsedPhotoArguments = {
+  inputs: string[];
+  values: Map<string, string>;
+  flags: Set<string>;
+};
+
+const COMMON_VALUE_OPTIONS = ["--output"] as const;
+const HELP_OPTIONS = ["--help", "-h"] as const;
+const COMMAND_ARGUMENTS = {
+  publish: {
+    valueOptions: ["--album", "--album-title", "--timezone"],
+    flagOptions: [],
+    positionalLabel: null,
+  },
+  delete: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: null },
+  gc: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: "回收" },
+  migrate: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: "迁移" },
+} as const satisfies Record<
+  PhotoCommandName,
+  {
+    valueOptions: readonly string[];
+    flagOptions: readonly string[];
+    positionalLabel: string | null;
+  }
+>;
+
+function parseArguments(
+  args: string[],
+  options: { valueOptions: readonly string[]; flagOptions: readonly string[] },
+): ParsedPhotoArguments {
   const inputs: string[] = [];
-  let output: string | undefined;
-  let albumId: string | undefined;
-  let albumTitle: string | undefined;
-  let timezone: string | undefined;
-  let confirm = false;
-  let help = false;
+  const values = new Map<string, string>();
+  const flags = new Set<string>();
+  const valueOptions = new Set(options.valueOptions);
+  const flagOptions = new Set(options.flagOptions);
   let positionalOnly = false;
 
   for (let index = 0; index < args.length; index += 1) {
@@ -169,47 +232,17 @@ export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]
       inputs.push(argument);
     } else if (argument === "--") {
       positionalOnly = true;
-    } else if (argument === "--help" || argument === "-h") {
-      help = true;
-    } else if (argument === "--output") {
-      output = readOptionValue(args, ++index, argument);
-    } else if (argument === "--confirm" && command !== "publish") {
-      confirm = true;
-    } else if (argument === "--album" && command === "publish") {
-      albumId = readOptionValue(args, ++index, argument);
-    } else if (argument === "--album-title" && command === "publish") {
-      albumTitle = readOptionValue(args, ++index, argument);
-    } else if (argument === "--timezone" && command === "publish") {
-      timezone = readOptionValue(args, ++index, argument);
+    } else if (valueOptions.has(argument)) {
+      values.set(argument, readOptionValue(args, ++index, argument));
+    } else if (flagOptions.has(argument)) {
+      flags.add(argument);
     } else if (argument.startsWith("-")) {
       throw new Error(`未知选项 ${argument}`);
     } else {
       inputs.push(argument);
     }
   }
-
-  if (command === "publish") {
-    if (albumTitle && !albumId) {
-      throw new Error("--album-title 必须与 --album 一起使用");
-    }
-    return {
-      command,
-      inputs,
-      output,
-      album: albumId ? { id: albumId, title: albumTitle } : undefined,
-      timezone,
-      help,
-    };
-  }
-  if (command === "delete") {
-    return { command, inputs, output, confirm, help };
-  }
-  if (inputs.length > 0) {
-    throw new Error(
-      `${command === "gc" ? "回收" : "迁移"}命令不接受位置参数: ${inputs.join(", ")}`,
-    );
-  }
-  return { command, output, confirm, help };
+  return { inputs, values, flags };
 }
 
 async function runPublishCommand(
