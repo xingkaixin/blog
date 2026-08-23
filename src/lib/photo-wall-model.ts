@@ -1,4 +1,3 @@
-import type { PhotoView } from "./photo-browser";
 import type {
   PhotoAlbum,
   PhotoCatalogIndex,
@@ -6,6 +5,7 @@ import type {
   PhotoPeriod,
   PhotoRecord,
 } from "./photo-catalog";
+import type { PhotoView } from "./photo-location";
 
 export type AlbumOverviewItem = {
   id: string | null;

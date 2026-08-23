@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PhotoCatalogBrowser, resolveCatalogPhoto } from "@/lib/photo-browser";
 import type {
   PhotoCatalogIndex,
   PhotoMonthCatalog,
   PhotoPeriod,
   PhotoRecord,
 } from "@/lib/photo-catalog";
+import { PhotoCatalogBrowser, resolveCatalogPhoto } from "@/lib/photo-catalog-browser";
 
 export type PhotoCatalogSessionState =
   | { status: "loading" }

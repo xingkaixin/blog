@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import type { PhotoCatalogIndex } from "@/lib/photo-catalog";
 import {
   applyPhotoNavigation,
   readPhotoLocation,
   type PhotoLocation,
   type PhotoNavigationPlan,
-} from "@/lib/photo-browser";
-import type { PhotoCatalogIndex } from "@/lib/photo-catalog";
+} from "@/lib/photo-location";
 
 export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   const [location, setLocation] = useState<PhotoLocation | null>(null);

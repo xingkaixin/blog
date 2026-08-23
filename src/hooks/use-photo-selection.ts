@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { resolvePhotoSelection } from "@/lib/photo-browser";
 import type { PhotoRecord } from "@/lib/photo-catalog";
+import { resolvePhotoSelection } from "@/lib/photo-catalog-browser";
 
 export type PhotoSelectionState =
   | { status: "idle" }

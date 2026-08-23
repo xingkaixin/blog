@@ -6,6 +6,7 @@ import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
 import { usePhotoLocation } from "@/hooks/use-photo-location";
 import { usePhotoSelection } from "@/hooks/use-photo-selection";
+import { monthFromCapturedAt, type PhotoRecord } from "@/lib/photo-catalog";
 import {
   planOverviewOpen,
   planPhotoClose,
@@ -13,8 +14,7 @@ import {
   planPhotoSelection,
   planTimelineOpen,
   planTimelineSelection,
-} from "@/lib/photo-browser";
-import { monthFromCapturedAt, type PhotoRecord } from "@/lib/photo-catalog";
+} from "@/lib/photo-location";
 import { buildPhotoWallLoadedModel, buildPhotoWallPeriodModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
