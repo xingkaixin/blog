@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { isSupportedPhoto, resolveCapturedAt, runPhotoCommand } from "./lib/photo-source";
+import { runPhotoCommand } from "./lib/photo-command";
+import { isSupportedPhoto, resolveCapturedAt } from "./lib/photo-source";
 
 describe("photo source", () => {
   it("accepts DNG and case variants of supported image extensions", () => {

@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import fs from "node:fs/promises";
@@ -11,15 +10,13 @@ import {
   type PhotoRecord,
   type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
+import { decodeHeicPhoto, requiresPhotoDecode } from "./photo-decoder";
 
 const SUPPORTED_EXTENSIONS = new Set([".dng", ".heic", ".heif", ".jpg", ".jpeg", ".png", ".webp"]);
-const HEIC_EXTENSIONS = new Set([".heic", ".heif"]);
 const WEBP_QUALITY = 82;
 const WEBP_EFFORT = 4;
 const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 100_000_000;
-const HEIC_DECODE_TIMEOUT_MS = 60_000;
-const PROCESS_TERMINATION_GRACE_MS = 5_000;
 
 export type ProcessedPhoto = Omit<PhotoRecord, "albumIds"> & {
   variants: Map<PhotoVariantWidth, Uint8Array>;
@@ -135,14 +132,14 @@ export async function processPhotoFile(
   fallbackTimezone?: string,
 ): Promise<ProcessedPhoto> {
   await assertSourceSize(file);
-  const temporaryDirectory = HEIC_EXTENSIONS.has(path.extname(file).toLowerCase())
+  const temporaryDirectory = requiresPhotoDecode(file)
     ? await fs.mkdtemp(path.join(os.tmpdir(), "photo-publish-"))
     : null;
 
   try {
     const [tags, decodedSource] = await settlePair(
       exiftool.read(file),
-      temporaryDirectory ? decodeHeic(file, temporaryDirectory) : file,
+      temporaryDirectory ? decodeHeicPhoto(file, temporaryDirectory) : file,
     );
     const capturedAt = resolveCapturedAt(tags, fallbackTimezone);
     const metadata = await sharp(decodedSource, {
@@ -217,93 +214,6 @@ async function buildVariants(source: string): Promise<Map<PhotoVariantWidth, Uin
   }
 
   return variants;
-}
-
-async function decodeHeic(file: string, temporaryDirectory: string): Promise<string> {
-  const output = path.join(temporaryDirectory, "decoded.png");
-  const attempts =
-    process.platform === "darwin"
-      ? [
-          { command: "sips", args: ["-s", "format", "png", file, "--out", output] },
-          { command: "heif-convert", args: [file, output] },
-        ]
-      : [{ command: "heif-convert", args: [file, output] }];
-  const errors: string[] = [];
-
-  for (const attempt of attempts) {
-    try {
-      await fs.rm(output, { force: true });
-      await runPhotoCommand(attempt.command, attempt.args, HEIC_DECODE_TIMEOUT_MS);
-      await fs.access(output);
-      return output;
-    } catch (error) {
-      errors.push(`${attempt.command}: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
-  throw new Error(`无法解码 HEIC 照片 ${file}\n${errors.join("\n")}`);
-}
-
-export function runPhotoCommand(command: string, args: string[], timeoutMs: number): Promise<void> {
-  if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
-    throw new Error("照片命令超时必须是正整数");
-  }
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      stdio: ["ignore", "ignore", "pipe"],
-    });
-    let stderr = "";
-    let finished = false;
-    let timedOut = false;
-    let spawnError: Error | null = null;
-    let terminationTimer: ReturnType<typeof setTimeout> | undefined;
-    const complete = (error?: Error) => {
-      if (finished) {
-        return;
-      }
-      finished = true;
-      clearTimeout(timeout);
-      clearTimeout(terminationTimer);
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    };
-    const timeout = setTimeout(() => {
-      timedOut = true;
-      child.kill("SIGKILL");
-      terminationTimer = setTimeout(
-        () => complete(new Error(`执行 ${command} 超时且进程未在宽限期内退出`)),
-        PROCESS_TERMINATION_GRACE_MS,
-      );
-    }, timeoutMs);
-
-    child.stderr.setEncoding("utf8");
-    child.stderr.on("data", (chunk: string) => {
-      if (stderr.length < 32_000) {
-        stderr = `${stderr}${chunk}`.slice(0, 32_000);
-      }
-    });
-    child.once("error", (error) => {
-      spawnError = error;
-    });
-    child.once("close", (code) => {
-      if (timedOut) {
-        complete(new Error(`执行 ${command} 超时（${timeoutMs}ms）`));
-        return;
-      }
-      if (spawnError) {
-        complete(spawnError);
-        return;
-      }
-      if (code === 0) {
-        complete();
-      } else {
-        complete(new Error(stderr.trim() || `退出码 ${code ?? "unknown"}`));
-      }
-    });
-  });
 }
 
 async function settlePair<First, Second>(
