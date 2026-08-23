@@ -2,12 +2,8 @@ import { SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { buildPostTaxonomy } from "@/lib/post-tags";
-import { primaryProjectUrl, projects, rankProjects, type Project } from "@/lib/projects";
-import { postHref } from "@/lib/published-post";
-import { loadSearchIndex, rankPosts, type SearchIndexItem } from "@/lib/search";
-import { matchesSearchQuery, normalizeSearchText } from "@/lib/search-text";
-import { searchNavigation } from "@/lib/site-navigation";
+import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
+import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
 import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
 import { cn } from "@/lib/utils";
 
@@ -16,82 +12,13 @@ type SearchPanelProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type LinkItem = {
-  id: string;
-  kind: "link";
-  glyph: string;
-  title: string;
-  hint: string;
-  href: string;
-  keywords: string;
-  reload: boolean;
-};
-
-type ActionItem = {
-  id: string;
-  kind: "action";
-  glyph: string;
-  title: string;
-  hint: string;
-  action: "theme";
-  keywords: string;
-};
-
-type PaletteItem = LinkItem | ActionItem;
-
-type PaletteGroup = {
-  label: string;
-  items: PaletteItem[];
-};
-
-const routeLinks: LinkItem[] = searchNavigation().map((route) => ({
-  ...route,
-  kind: "link",
-  glyph: "›",
-}));
-const themeItem: ActionItem = {
-  id: "action-theme",
-  kind: "action",
-  glyph: "›",
-  title: "翻转世界",
-  hint: "⌘J",
-  action: "theme",
-  keywords: "主题 亮色 暗色 theme dark light",
-};
-const routeItems: PaletteItem[] = [...routeLinks, themeItem];
-
-function postItem(post: SearchIndexItem): LinkItem {
-  return {
-    id: `post-${post.slug}`,
-    kind: "link",
-    glyph: "#",
-    title: post.title,
-    hint: post.date,
-    href: postHref(post.slug),
-    keywords: `${post.title} ${post.summary} ${post.tags.join(" ")}`,
-    reload: false,
-  };
-}
-
-function projectItem(project: Project): LinkItem {
-  return {
-    id: `project-${project.id}`,
-    kind: "link",
-    glyph: "+",
-    title: project.name,
-    hint: project.kind,
-    href: primaryProjectUrl(project),
-    keywords: `${project.name} ${project.kind} ${project.description} ${project.tags.join(" ")}`,
-    reload: true,
-  };
-}
-
 export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [query, setQuery] = useState("");
   const [posts, setPosts] = useState<SearchIndexItem[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "loaded" | "failed">("idle");
   const [activeIndex, setActiveIndex] = useState(0);
   const mountedRef = useRef(true);
+  const itemRefs = useRef(new Map<string, HTMLElement>());
 
   useEffect(() => {
     mountedRef.current = true;
@@ -127,46 +54,10 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     }
   }, [open]);
 
-  const groups = useMemo<PaletteGroup[]>(() => {
-    const normalizedQuery = normalizeSearchText(query);
-    if (!normalizedQuery) {
-      return [
-        ...(status === "loaded"
-          ? [{ label: "最近发布", items: posts.slice(0, 4).map(postItem) }]
-          : []),
-        { label: "跳转与命令", items: routeItems },
-      ];
-    }
-
-    const taxonomy = status === "loaded" ? buildPostTaxonomy(posts) : null;
-    const matchedPosts =
-      status === "loaded" ? rankPosts(posts, { query }).slice(0, 8).map(postItem) : [];
-    const matchedTags =
-      taxonomy?.tags
-        .filter(({ tag, href }) => href !== null && matchesSearchQuery(tag, normalizedQuery))
-        .slice(0, 5)
-        .map<LinkItem>(({ tag, count, href }) => ({
-          id: `tag-${tag}`,
-          kind: "link",
-          glyph: "⌗",
-          title: `${tag} · ${count} 篇`,
-          hint: "筛选",
-          href: href!,
-          keywords: tag,
-          reload: false,
-        })) ?? [];
-    const matchedProjects = rankProjects(projects, query).slice(0, 6).map(projectItem);
-    const matchedRoutes = routeItems.filter((item) =>
-      matchesSearchQuery(`${item.title} ${item.hint} ${item.keywords}`, normalizedQuery),
-    );
-
-    return [
-      { label: `文章 · ${matchedPosts.length}`, items: matchedPosts },
-      { label: "标签", items: matchedTags },
-      { label: "项目", items: matchedProjects },
-      { label: "命令", items: matchedRoutes },
-    ].filter((group) => group.items.length > 0);
-  }, [posts, query, status]);
+  const groups = useMemo(
+    () => buildSearchPalette(query, status === "loaded" ? posts : null),
+    [posts, query, status],
+  );
 
   const items = useMemo(() => groups.flatMap((group) => group.items), [groups]);
   const itemIndexById = useMemo(
@@ -179,7 +70,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     setActiveIndex(0);
   }, [query, status]);
 
-  const activate = (item: PaletteItem | undefined) => {
+  const activate = (item: SearchPaletteItem | undefined) => {
     if (!item) {
       return;
     }
@@ -188,7 +79,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       onOpenChange(false);
       return;
     }
-    document.getElementById(item.id)?.click();
+    itemRefs.current.get(item.id)?.click();
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -284,6 +175,13 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
                     return item.kind === "link" ? (
                       <a
+                        ref={(element) => {
+                          if (element) {
+                            itemRefs.current.set(item.id, element);
+                          } else {
+                            itemRefs.current.delete(item.id);
+                          }
+                        }}
                         id={item.id}
                         key={item.id}
                         href={item.href}
