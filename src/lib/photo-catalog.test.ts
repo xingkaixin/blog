@@ -7,7 +7,6 @@ import {
   parsePhotoMonthCatalog,
   parsePhotoRecord,
   photoVariantUrl,
-  validatePhotoCatalog,
   validatePhotoMonth,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
@@ -88,14 +87,10 @@ describe("photo catalog", () => {
     ).toThrow("不存在的相册");
   });
 
-  it("validates index and shard invariants through one module", () => {
+  it("validates index and shard invariants at runtime boundaries", () => {
     expect(validatePhotoMonth(indexFixture, indexFixture.periods[0], monthFixture)).toEqual(
       monthFixture,
     );
-    expect(validatePhotoCatalog(indexFixture, [monthFixture]).photoMonths).toEqual(
-      new Map([[monthFixture.photos[0].id, "2026-04"]]),
-    );
-
     expect(() =>
       validatePhotoMonth(
         { ...indexFixture, periods: [{ ...indexFixture.periods[0], albumCounts: {} }] },
@@ -129,6 +124,22 @@ describe("photo catalog", () => {
     delete incomplete.photoMonths;
 
     expect(() => parsePhotoCatalogIndex(incomplete)).toThrow("catalog.photoMonths 必须是对象");
+  });
+
+  it("rejects an empty locator when indexed periods contain photos", () => {
+    expect(() => parsePhotoCatalogIndex({ ...indexFixture, photoMonths: {} })).toThrow(
+      "catalog.photoMonths 必须完整覆盖所有照片",
+    );
+  });
+
+  it("requires every loaded photo to have an exact locator", () => {
+    expect(() =>
+      validatePhotoMonth(
+        { ...indexFixture, photoMonths: {} },
+        indexFixture.periods[0],
+        monthFixture,
+      ),
+    ).toThrow("定位月份");
   });
 
   it("validates retired immutable artifacts", () => {

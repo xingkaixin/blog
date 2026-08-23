@@ -431,7 +431,7 @@ export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
     }
   }
   const totalPhotoCount = periods.reduce((sum, period) => sum + period.count, 0);
-  if (Object.keys(photoMonths).length > 0 && Object.keys(photoMonths).length !== totalPhotoCount) {
+  if (Object.keys(photoMonths).length !== totalPhotoCount) {
     throw new PhotoCatalogError("catalog.photoMonths 必须完整覆盖所有照片");
   }
   for (const retired of retiredObjects) {
@@ -497,12 +497,6 @@ export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
   };
 }
 
-export type ValidatedPhotoCatalog = {
-  index: PhotoCatalogIndex;
-  months: Map<string, PhotoMonthCatalog>;
-  photoMonths: Map<string, string>;
-};
-
 export function validatePhotoMonth(
   index: PhotoCatalogIndex,
   period: PhotoPeriod,
@@ -532,51 +526,11 @@ export function validatePhotoMonth(
       }
     }
     const locatedMonth = index.photoMonths[photo.id];
-    if (locatedMonth && locatedMonth !== shard.month) {
+    if (locatedMonth !== shard.month) {
       throw new PhotoCatalogError(`照片 ${photo.id} 的定位月份与月份 Catalog 不一致`);
     }
   }
   return shard;
-}
-
-export function validatePhotoCatalog(
-  index: PhotoCatalogIndex,
-  shards: Iterable<PhotoMonthCatalog>,
-): ValidatedPhotoCatalog {
-  const periods = new Map(index.periods.map((period) => [period.month, period]));
-  const months = new Map<string, PhotoMonthCatalog>();
-  const photoMonths = new Map<string, string>();
-
-  for (const shard of shards) {
-    const period = periods.get(shard.month);
-    if (!period) {
-      throw new PhotoCatalogError(`月份 ${shard.month} 不属于主 Catalog`);
-    }
-    if (months.has(shard.month)) {
-      throw new PhotoCatalogError(`月份 ${shard.month} 重复出现`);
-    }
-    validatePhotoMonth(index, period, shard);
-    months.set(shard.month, shard);
-    for (const photo of shard.photos) {
-      if (photoMonths.has(photo.id)) {
-        throw new PhotoCatalogError(`照片 ${photo.id} 在多个 Catalog 月份中重复出现`);
-      }
-      photoMonths.set(photo.id, shard.month);
-    }
-  }
-
-  if (months.size !== periods.size) {
-    const missing = [...periods.keys()].filter((month) => !months.has(month));
-    throw new PhotoCatalogError(`主 Catalog 缺少月份分片 ${missing.join(", ")}`);
-  }
-  if (
-    Object.keys(index.photoMonths).length > 0 &&
-    [...photoMonths].some(([photoId, month]) => index.photoMonths[photoId] !== month)
-  ) {
-    throw new PhotoCatalogError("catalog.photoMonths 与月份分片不一致");
-  }
-
-  return { index, months, photoMonths };
 }
 
 export function locatePhotoPeriod(index: PhotoCatalogIndex, photoId: string): PhotoPeriod | null {
