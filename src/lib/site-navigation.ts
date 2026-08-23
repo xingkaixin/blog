@@ -7,6 +7,7 @@ type SiteRoute = {
   searchTitle: string;
   keywords: string;
   status: string;
+  reload: boolean;
   desktop: boolean;
   mobile: boolean;
   sitemap: { changefreq: string; priority: string } | null;
@@ -20,6 +21,7 @@ const routes: SiteRoute[] = [
     searchTitle: "文章日志",
     keywords: "首页 文章 日志 home posts",
     status: "HOME",
+    reload: false,
     desktop: false,
     mobile: true,
     sitemap: { changefreq: "weekly", priority: "1.0" },
@@ -31,6 +33,7 @@ const routes: SiteRoute[] = [
     searchTitle: "工具箱",
     keywords: "工具 项目 projects",
     status: "PROJECTS",
+    reload: false,
     desktop: true,
     mobile: true,
     sitemap: { changefreq: "monthly", priority: "0.7" },
@@ -42,6 +45,7 @@ const routes: SiteRoute[] = [
     searchTitle: "照片墙",
     keywords: "照片 摄影 相册 photos",
     status: "PHOTOS",
+    reload: false,
     desktop: true,
     mobile: true,
     sitemap: { changefreq: "weekly", priority: "0.8" },
@@ -53,6 +57,7 @@ const routes: SiteRoute[] = [
     searchTitle: "标签索引",
     keywords: "标签 主题 分类 tags taxonomy",
     status: "TAGS",
+    reload: false,
     desktop: false,
     mobile: false,
     sitemap: { changefreq: "weekly", priority: "0.6" },
@@ -64,6 +69,7 @@ const routes: SiteRoute[] = [
     searchTitle: "关于",
     keywords: "关于 联系 about",
     status: "ABOUT",
+    reload: false,
     desktop: true,
     mobile: true,
     sitemap: { changefreq: "yearly", priority: "0.6" },
@@ -75,6 +81,7 @@ const routes: SiteRoute[] = [
     searchTitle: "订阅 RSS",
     keywords: "订阅 rss feed",
     status: "SYSTEM",
+    reload: true,
     desktop: true,
     mobile: true,
     sitemap: null,
@@ -111,27 +118,29 @@ export function siteStatus(currentPath: string): string {
 export function desktopNavigation() {
   return routes
     .filter((route) => route.desktop)
-    .map(({ href }) => ({ href, path: routePath(href) }));
+    .map(({ href, reload }) => ({ href, path: routePath(href), reload }));
 }
 
 export function mobileNavigation() {
   return routes
     .filter((route) => route.mobile)
-    .map(({ id, href, label }) => ({
+    .map(({ id, href, label, reload }) => ({
       id,
       href,
       path: routePath(href),
       label,
+      reload,
     }));
 }
 
 export function searchNavigation() {
-  return routes.map(({ id, href, searchTitle, keywords }) => ({
+  return routes.map(({ id, href, searchTitle, keywords, reload }) => ({
     id: `route-${id}`,
     href,
     hint: routePath(href),
     title: searchTitle,
     keywords,
+    reload,
   }));
 }
 

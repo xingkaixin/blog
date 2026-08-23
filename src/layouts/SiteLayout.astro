@@ -220,7 +220,7 @@ const pageTransition = {
                 return (
                   <a
                     href={item.href}
-                    data-astro-reload={item.href.endsWith(".xml") ? "" : undefined}
+                    data-astro-reload={item.reload ? "" : undefined}
                     aria-current={active ? "page" : undefined}
                     class:list={[
                       "rounded-[6px] px-2.5 py-1.5 font-mono text-xs transition-colors duration-(--duration-quick) hover:bg-ink-50 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",

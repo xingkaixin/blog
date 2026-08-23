@@ -24,6 +24,7 @@ type LinkItem = {
   hint: string;
   href: string;
   keywords: string;
+  reload: boolean;
 };
 
 type ActionItem = {
@@ -57,9 +58,7 @@ const themeItem: ActionItem = {
   action: "theme",
   keywords: "主题 亮色 暗色 theme dark light",
 };
-const routeItems: PaletteItem[] = routeLinks.flatMap((route) =>
-  route.id === "route-feed" ? [themeItem, route] : [route],
-);
+const routeItems: PaletteItem[] = [...routeLinks, themeItem];
 
 function postItem(post: SearchIndexItem): LinkItem {
   return {
@@ -70,6 +69,7 @@ function postItem(post: SearchIndexItem): LinkItem {
     hint: post.date,
     href: postHref(post.slug),
     keywords: `${post.title} ${post.summary} ${post.tags.join(" ")}`,
+    reload: false,
   };
 }
 
@@ -82,6 +82,7 @@ function projectItem(project: Project): LinkItem {
     hint: project.kind,
     href: primaryProjectUrl(project),
     keywords: `${project.name} ${project.kind} ${project.description} ${project.tags.join(" ")}`,
+    reload: true,
   };
 }
 
@@ -152,6 +153,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
           hint: "筛选",
           href: href!,
           keywords: tag,
+          reload: false,
         })) ?? [];
     const matchedProjects = rankProjects(projects, query).slice(0, 6).map(projectItem);
     const matchedRoutes = routeItems.filter((item) =>
@@ -285,7 +287,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                         id={item.id}
                         key={item.id}
                         href={item.href}
-                        data-astro-reload={item.href.endsWith(".xml") ? "" : undefined}
+                        data-astro-reload={item.reload ? "" : undefined}
                         role="option"
                         aria-selected={selected}
                         className={itemClassName}

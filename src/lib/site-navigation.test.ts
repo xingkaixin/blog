@@ -21,6 +21,10 @@ describe("site navigation", () => {
     expect(searchNavigation().find((route) => route.id === "route-photos")?.href).toBe("/photos/");
     expect(searchNavigation().find((route) => route.id === "route-photos")?.hint).toBe("/photos");
     expect(searchNavigation().find((route) => route.id === "route-tags")?.href).toBe("/tags/");
+    expect(desktopNavigation().find((route) => route.href === "/feed.xml")?.reload).toBe(true);
+    expect(mobileNavigation().find((route) => route.id === "feed")?.reload).toBe(true);
+    expect(searchNavigation().find((route) => route.id === "route-feed")?.reload).toBe(true);
+    expect(searchNavigation().find((route) => route.id === "route-photos")?.reload).toBe(false);
     expect(sitemapNavigation().map((route) => route.href)).not.toContain("/feed.xml");
     expect(sitemapNavigation().map((route) => route.href)).toContain("/tags/");
   });

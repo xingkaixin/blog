@@ -147,7 +147,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
                 key={route.path}
                 ref={index === 0 ? firstItemRef : undefined}
                 href={route.href}
-                data-astro-reload={route.href.endsWith(".xml") ? "" : undefined}
+                data-astro-reload={route.reload ? "" : undefined}
                 aria-current={active ? "page" : undefined}
                 onClick={() => closeMenu()}
                 className={menuItem}
