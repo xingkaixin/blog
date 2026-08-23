@@ -4,7 +4,7 @@ import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
   PHOTO_VARIANT_WIDTHS,
   comparePhotosNewestFirst,
-  parsePhotoCatalogIndex,
+  parsePhotoCatalogIndexWithVersion,
   parsePhotoMonthCatalog,
   photoAlbumCounts,
   validatePhotoMonth,
@@ -13,6 +13,7 @@ import {
   type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
+  type ParsedPhotoCatalogIndex,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
 import {
@@ -204,10 +205,10 @@ async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogSt
     : rawIndex
       ? parseLegacyPhotoCatalogControl(rawIndex)
       : null;
-  let publicIndex: PhotoCatalogIndex | null = null;
+  let parsedPublicIndex: ParsedPhotoCatalogIndex | null = null;
   if (rawIndex) {
     try {
-      publicIndex = parsePhotoCatalogIndex(rawIndex);
+      parsedPublicIndex = parsePhotoCatalogIndexWithVersion(rawIndex);
     } catch (error) {
       if (!controlObject) {
         throw error;
@@ -224,9 +225,8 @@ async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogSt
     control: controlObject?.version ?? null,
     publicIndex: indexObject?.version ?? null,
     publicIndexCurrent:
-      (rawIndex as { schemaVersion?: unknown } | null)?.schemaVersion ===
-        PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
-      JSON.stringify(publicIndex) === JSON.stringify(expectedPublicIndex),
+      parsedPublicIndex?.sourceVersion === PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
+      JSON.stringify(parsedPublicIndex.index) === JSON.stringify(expectedPublicIndex),
   });
 }
 

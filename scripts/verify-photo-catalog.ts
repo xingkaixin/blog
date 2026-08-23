@@ -3,7 +3,7 @@
 import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
   catalogIndexUrl,
-  parsePhotoCatalogIndex,
+  parsePhotoCatalogIndexWithVersion,
   parsePhotoMonthCatalog,
   photoObjectUrl,
   type PhotoCatalogIndex,
@@ -22,11 +22,10 @@ export async function verifyPublishedPhotoCatalog(
   load: PhotoCatalogLoader = loadJson,
 ): Promise<PhotoCatalogIndex> {
   const value = await load(catalogIndexUrl(photoBaseUrl));
-  const catalog = parsePhotoCatalogIndex(value);
-  const publishedVersion = Reflect.get(value as object, "schemaVersion");
-  if (publishedVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION) {
+  const { index: catalog, sourceVersion } = parsePhotoCatalogIndexWithVersion(value);
+  if (sourceVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION) {
     throw new Error(
-      `照片 Catalog 仍是 schema v${String(publishedVersion)}，请先运行 bun run photos:migrate -- --confirm`,
+      `照片 Catalog 仍是 schema v${sourceVersion}，请先运行 bun run photos:migrate -- --confirm`,
     );
   }
   const compactBytes = compactCatalogBytes(value);

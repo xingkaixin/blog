@@ -5,6 +5,7 @@ import {
   isPhotoId,
   locatePhotoPeriod,
   parsePhotoCatalogIndex,
+  parsePhotoCatalogIndexWithVersion,
   parsePhotoMonthCatalog,
   parsePhotoRecord,
   photoVariantSrcSet,
@@ -131,14 +132,14 @@ describe("photo catalog", () => {
   });
 
   it.each([1, 2])("migrates public index version %i without exposing control state", (version) => {
-    expect(
-      parsePhotoCatalogIndex({
-        ...indexFixture,
-        schemaVersion: version,
-        retiredObjects: [],
-        retiredArtifacts: [],
-      }),
-    ).toEqual(indexFixture);
+    const parsed = parsePhotoCatalogIndexWithVersion({
+      ...indexFixture,
+      schemaVersion: version,
+      retiredObjects: [],
+      retiredArtifacts: [],
+    });
+
+    expect(parsed).toEqual({ index: indexFixture, sourceVersion: version });
   });
 
   it("rejects unsupported indexes instead of pretending they are compatible", () => {
