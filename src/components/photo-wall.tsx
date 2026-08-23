@@ -5,7 +5,7 @@ import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
-import { buildPhotoWallModel } from "@/lib/photo-wall-model";
+import { buildPhotoWallCatalogModel, buildPhotoWallModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
   baseUrl: string;
@@ -27,29 +27,33 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   } = usePhotoCatalogSession(normalizedBaseUrl);
   const browsing = usePhotoBrowsingSession({ index, loadMonth, resolvePhoto });
   const photoView = browsing.view;
+  const catalogModel = useMemo(
+    () => buildPhotoWallCatalogModel(index, photoView),
+    [index, photoView],
+  );
   const model = useMemo(
-    () => buildPhotoWallModel(index, monthCatalogs, photoView),
-    [index, monthCatalogs, photoView],
+    () => buildPhotoWallModel(catalogModel, monthCatalogs),
+    [catalogModel, monthCatalogs],
   );
 
   useEffect(() => {
-    for (const period of model.visiblePeriods.slice(0, INITIAL_PERIOD_COUNT)) {
+    for (const period of catalogModel.visiblePeriods.slice(0, INITIAL_PERIOD_COUNT)) {
       void loadMonth(period).catch(() => undefined);
     }
-  }, [loadMonth, model.visiblePeriods]);
+  }, [catalogModel.visiblePeriods, loadMonth]);
 
   useEffect(() => {
     if (photoView.mode !== "overview") {
       return;
     }
-    for (const period of model.overviewPeriods) {
+    for (const period of catalogModel.overviewPeriods) {
       void loadMonth(period).catch(() => undefined);
     }
-  }, [loadMonth, model.overviewPeriods, photoView.mode]);
+  }, [catalogModel.overviewPeriods, loadMonth, photoView.mode]);
 
   const { activeMonth, wallRef, jumpToMonth } = useActivePhotoMonth(
     photoView.mode === "timeline",
-    model.visiblePeriods,
+    catalogModel.visiblePeriods,
     loadMonth,
   );
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;

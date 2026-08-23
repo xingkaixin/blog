@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { PhotoCatalogIndex, PhotoMonthCatalog } from "./photo-catalog";
-import { buildPhotoWallModel, formatPeriodRange } from "./photo-wall-model";
+import {
+  buildPhotoWallCatalogModel,
+  buildPhotoWallModel,
+  formatPeriodRange,
+} from "./photo-wall-model";
 
 const firstPhoto = {
   id: "11111111111111111111111111111111",
@@ -48,7 +52,8 @@ const months: Record<string, PhotoMonthCatalog> = {
 
 describe("photo wall model", () => {
   it("derives timeline periods and totals from the selected album", () => {
-    const model = buildPhotoWallModel(index, months, { mode: "timeline", albumId: "travel" });
+    const catalog = buildPhotoWallCatalogModel(index, { mode: "timeline", albumId: "travel" });
+    const model = buildPhotoWallModel(catalog, months);
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");
@@ -62,7 +67,8 @@ describe("photo wall model", () => {
   });
 
   it("derives overview previews and loaded lightbox photos in catalog order", () => {
-    const model = buildPhotoWallModel(index, months, { mode: "timeline", albumId: "daily" });
+    const catalog = buildPhotoWallCatalogModel(index, { mode: "timeline", albumId: "daily" });
+    const model = buildPhotoWallModel(catalog, months);
 
     expect(model.allPhotos.map((photo) => photo.id)).toEqual([firstPhoto.id, secondPhoto.id]);
     expect(model.filteredPhotos.map((photo) => photo.id)).toEqual([secondPhoto.id]);
@@ -74,6 +80,15 @@ describe("photo wall model", () => {
     expect(model.overviewItems.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
     expect(model.overviewItems.find((item) => item.id === "travel")?.photos).toEqual([firstPhoto]);
     expect(model.overviewPeriods).toEqual(index.periods);
+  });
+
+  it("preserves catalog-derived references when loaded months change", () => {
+    const catalog = buildPhotoWallCatalogModel(index, { mode: "overview" });
+    const initial = buildPhotoWallModel(catalog, {});
+    const loaded = buildPhotoWallModel(catalog, months);
+
+    expect(loaded.visiblePeriods).toBe(initial.visiblePeriods);
+    expect(loaded.overviewPeriods).toBe(initial.overviewPeriods);
   });
 
   it("formats single-month and cross-year ranges", () => {

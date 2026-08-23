@@ -17,6 +17,8 @@ export type AlbumOverviewItem = {
   photos: PhotoRecord[];
 };
 
+type AlbumOverviewSummary = Omit<AlbumOverviewItem, "photos">;
+
 export type PhotoAlbumSummary = PhotoAlbum & {
   count: number;
 };
@@ -38,11 +40,16 @@ export type PhotoWallModel = PhotoTimelineModel & {
   filteredPhotos: PhotoRecord[];
 };
 
-export function buildPhotoWallModel(
+type PhotoWallCatalogModel = PhotoTimelineModel & {
+  periods: PhotoPeriod[];
+  overviewPeriods: PhotoPeriod[];
+  overviewSummaries: AlbumOverviewSummary[];
+};
+
+export function buildPhotoWallCatalogModel(
   index: PhotoCatalogIndex | null,
-  monthCatalogs: Record<string, PhotoMonthCatalog>,
   view: PhotoView,
-): PhotoWallModel {
+): PhotoWallCatalogModel {
   const selectedAlbumId = view.mode === "timeline" ? view.albumId : null;
   if (!index) {
     return {
@@ -50,10 +57,9 @@ export function buildPhotoWallModel(
       selectedAlbum: undefined,
       albumSummaries: [],
       visiblePeriods: [],
+      periods: [],
       overviewPeriods: [],
-      overviewItems: [],
-      allPhotos: [],
-      filteredPhotos: [],
+      overviewSummaries: [],
       allPhotoCount: 0,
       totalPhotoCount: 0,
       timelineRange: "",
@@ -91,12 +97,51 @@ export function buildPhotoWallModel(
   const visiblePeriods = selectedAlbumId
     ? (periodsByAlbum.get(selectedAlbumId) ?? [])
     : index.periods;
-  const allPhotos = index.periods.flatMap((period) => monthCatalogs[period.month]?.photos ?? []);
-  const previewPhotos = new Map(index.albums.map((album) => [album.id, [] as PhotoRecord[]]));
+  const overviewSummaries: AlbumOverviewSummary[] = [
+    {
+      id: null,
+      title: "全部",
+      count: allPhotoCount,
+      meta: formatPeriodRange(index.periods),
+    },
+    ...index.albums.map((album) => {
+      const periods = periodsByAlbum.get(album.id) ?? [];
+      return {
+        id: album.id,
+        title: album.title,
+        count: albumCounts.get(album.id) ?? 0,
+        meta: formatPeriodRange(periods),
+      };
+    }),
+  ];
+
+  return {
+    selectedAlbumId,
+    selectedAlbum,
+    albumSummaries,
+    visiblePeriods,
+    periods: index.periods,
+    overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
+    overviewSummaries,
+    allPhotoCount,
+    totalPhotoCount: selectedAlbumId ? (selectedAlbum?.count ?? 0) : allPhotoCount,
+    timelineRange: formatPeriodRange(visiblePeriods),
+  };
+}
+
+export function buildPhotoWallModel(
+  catalog: PhotoWallCatalogModel,
+  monthCatalogs: Record<string, PhotoMonthCatalog>,
+): PhotoWallModel {
+  const { overviewSummaries, periods, ...timeline } = catalog;
+  const allPhotos = periods.flatMap((period) => monthCatalogs[period.month]?.photos ?? []);
+  const previewPhotos = new Map(
+    catalog.albumSummaries.map((album) => [album.id, [] as PhotoRecord[]]),
+  );
   const filteredPhotos: PhotoRecord[] = [];
 
   for (const photo of allPhotos) {
-    if (!selectedAlbumId || photo.albumIds.includes(selectedAlbumId)) {
+    if (!catalog.selectedAlbumId || photo.albumIds.includes(catalog.selectedAlbumId)) {
       filteredPhotos.push(photo);
     }
     for (const albumId of photo.albumIds) {
@@ -107,38 +152,17 @@ export function buildPhotoWallModel(
     }
   }
 
-  const overviewItems: AlbumOverviewItem[] = [
-    {
-      id: null,
-      title: "全部",
-      count: allPhotoCount,
-      meta: formatPeriodRange(index.periods),
-      photos: allPhotos.slice(0, PREVIEW_PHOTO_COUNT),
-    },
-    ...index.albums.map((album) => {
-      const periods = periodsByAlbum.get(album.id) ?? [];
-      return {
-        id: album.id,
-        title: album.title,
-        count: albumCounts.get(album.id) ?? 0,
-        meta: formatPeriodRange(periods),
-        photos: previewPhotos.get(album.id) ?? [],
-      };
-    }),
-  ];
-
   return {
-    selectedAlbumId,
-    selectedAlbum,
-    albumSummaries,
-    visiblePeriods,
-    overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
-    overviewItems,
+    ...timeline,
+    overviewItems: overviewSummaries.map((summary) => ({
+      ...summary,
+      photos:
+        summary.id === null
+          ? allPhotos.slice(0, PREVIEW_PHOTO_COUNT)
+          : (previewPhotos.get(summary.id) ?? []),
+    })),
     allPhotos,
     filteredPhotos,
-    allPhotoCount,
-    totalPhotoCount: selectedAlbumId ? (selectedAlbum?.count ?? 0) : allPhotoCount,
-    timelineRange: formatPeriodRange(visiblePeriods),
   };
 }
 
