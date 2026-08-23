@@ -35,7 +35,7 @@ const READ_CONCURRENCY = 8;
 const WRITE_CONCURRENCY = 2;
 const CATALOG_COMMIT_ATTEMPTS = 5;
 
-export type PhotoCatalogPhotoStatus = "published" | "retired" | "new";
+export type PhotoCatalogPhotoStatus = "published" | "retired" | "absent";
 
 export type PhotoCatalogCommitResult = {
   catalogChanged: boolean;
@@ -86,7 +86,7 @@ export class PhotoCatalogEditor {
           ? "retired"
           : this.state.photoMonth(photoId)
             ? "published"
-            : "new",
+            : "absent",
       ]),
     );
   }

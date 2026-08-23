@@ -42,9 +42,9 @@ async function retirePhotosOnce(
   const statuses = await catalog.inspectPhotos(photoIds);
   const alreadyRetired = photoIds.filter((photoId) => statuses.get(photoId) === "retired");
   const activePhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "published");
-  const missingPhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "new");
-  if (missingPhotoIds.length > 0) {
-    throw new Error(`Catalog 中不存在照片 ${missingPhotoIds[0]}`);
+  const absentPhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "absent");
+  if (absentPhotoIds.length > 0) {
+    throw new Error(`Catalog 中不存在照片 ${absentPhotoIds[0]}`);
   }
 
   if (activePhotoIds.length === 0) {

@@ -26,6 +26,18 @@ afterEach(async () => {
 });
 
 describe("photo catalog editor", () => {
+  it("reports photos outside the catalog as absent", async () => {
+    const catalog = await PhotoCatalogEditor.load(await catalogStore());
+    const absentPhotoId = "b".repeat(32);
+
+    await expect(catalog.inspectPhotos([photoId, absentPhotoId])).resolves.toEqual(
+      new Map([
+        [photoId, "published"],
+        [absentPhotoId, "absent"],
+      ]),
+    );
+  });
+
   it("loads the owning month before updating an album", async () => {
     const store = await catalogStore();
     const catalog = await PhotoCatalogEditor.load(store);
