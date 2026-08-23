@@ -229,6 +229,7 @@ describe("photo publisher", () => {
     const failingFile = await createSourceFile("failing photo");
     const slowFile = await createSourceFile("slow photo");
     const failingId = await hashPhotoFile(failingFile);
+    const slowId = await hashPhotoFile(slowFile);
     const store = new MemoryPhotoStore();
     const slowStarted = deferred<void>();
     const releaseSlow = deferred<void>();
@@ -263,7 +264,13 @@ describe("photo publisher", () => {
     await Promise.all(
       processedSources.map((source) => expect(fs.access(source)).rejects.toThrow()),
     );
-    expect([...store.objects.keys()].some((key) => key.startsWith("media/"))).toBe(false);
+    const uploadedKeys = [...store.objects.keys()].filter((key) =>
+      key.startsWith(`media/${slowId}`),
+    );
+    expect(uploadedKeys).toHaveLength(3);
+    expect(
+      (await readControl(store)).retiredArtifacts.flatMap((entry) => entry.objectKeys),
+    ).toEqual(expect.arrayContaining(uploadedKeys));
   });
 
   it("is idempotent and can add an existing photo to another logical album", async () => {
@@ -652,6 +659,7 @@ describe("photo publisher", () => {
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
     const originalPut = store.put.bind(store);
+    const processPhoto = vi.fn(async () => processedPhoto(id));
     let conflictsRemaining = 5;
     store.put = async (key, body, options) => {
       if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
@@ -665,10 +673,14 @@ describe("photo publisher", () => {
       publishPhotos({
         files: [file],
         store,
-        processPhoto: async () => processedPhoto(id),
+        processPhoto,
         now: () => new Date("2026-08-02T12:00:00.000Z"),
       }),
     ).rejects.toThrow(PhotoStoreConflictError);
+
+    expect(processPhoto).toHaveBeenCalledTimes(1);
+    expect(store.writes.filter((key) => key.startsWith(`media/${id}/`))).toHaveLength(3);
+    expect(store.writes.filter((key) => key.startsWith("catalog/months/"))).toHaveLength(1);
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),

@@ -129,6 +129,7 @@ export async function writePhotoCatalog(
   dirtyMonths: Set<string>,
   generatedAt: Date,
   attemptedArtifacts: Set<string> = new Set(),
+  writtenArtifacts: Set<string> = new Set(),
 ): Promise<void> {
   const nextPeriods = new Map(catalog.periods);
 
@@ -149,11 +150,14 @@ export async function writePhotoCatalog(
     if (isPhotoArtifactDeletionClaimed(catalog, key)) {
       throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
     }
-    attemptedArtifacts.add(key);
-    await store.put(key, body, {
-      contentType: "application/json; charset=utf-8",
-      cacheControl: SHARD_CACHE_CONTROL,
-    });
+    if (!writtenArtifacts.has(key)) {
+      attemptedArtifacts.add(key);
+      await store.put(key, body, {
+        contentType: "application/json; charset=utf-8",
+        cacheControl: SHARD_CACHE_CONTROL,
+      });
+      writtenArtifacts.add(key);
+    }
     nextPeriods.set(month, {
       month,
       count: validatedShard.photos.length,

@@ -109,8 +109,9 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
   validateAlbum(options.album);
   const now = options.now?.() ?? new Date();
   const identifiedFiles = await identifyFiles(options.files);
-  const processedPhotos = new Map<string, ProcessedPhoto>();
+  const publishedPhotos = new Map<string, PhotoRecord>();
   const attemptedArtifacts = new Set<string>();
+  const writtenArtifacts = new Set<string>();
   try {
     reportGarbageFailures(
       await collectPhotoGarbage({ store: options.store, now: () => now }),
@@ -121,8 +122,9 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
         publishPhotosOnce(
           { ...options, now: () => now },
           identifiedFiles,
-          processedPhotos,
+          publishedPhotos,
           attemptedArtifacts,
+          writtenArtifacts,
         ),
       );
     } catch (error) {
@@ -145,8 +147,9 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
 async function publishPhotosOnce(
   options: PublishPhotosOptions,
   identifiedFiles: IdentifiedFile[],
-  processedPhotos: Map<string, ProcessedPhoto>,
+  publishedPhotos: Map<string, PhotoRecord>,
   attemptedArtifacts: Set<string>,
+  writtenArtifacts: Set<string>,
 ): Promise<PublishPhotosResult> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
   const catalog = await loadPhotoCatalog(options.store);
@@ -181,40 +184,40 @@ async function publishPhotosOnce(
     pending,
     PROCESS_CONCURRENCY,
     async (identified, index) => {
-      let photo = processedPhotos.get(identified.id);
-      if (!photo) {
-        options.onProgress?.({
-          type: "processing",
-          file: identified.file,
-          index: index + 1,
-          total: pending.length,
-        });
-        photo = await options.processPhoto(identified.source, identified.id);
+      const published = publishedPhotos.get(identified.id);
+      if (published) {
+        assertPhotoAssetsWritable(catalog, published.id);
+        return published;
       }
+      options.onProgress?.({
+        type: "processing",
+        file: identified.file,
+        index: index + 1,
+        total: pending.length,
+      });
+      const photo = await options.processPhoto(identified.source, identified.id);
       if (photo.id !== identified.id) {
         throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
       }
-      processedPhotos.set(photo.id, photo);
       const record = validateNewPhoto(photo, options.album?.id);
-      return { file: identified.file, photo, record };
+      await uploadPhotoAssets(options.store, catalog, photo, attemptedArtifacts, writtenArtifacts);
+      publishedPhotos.set(photo.id, record);
+      options.onProgress?.({
+        type: "published",
+        file: identified.file,
+        photoId: photo.id,
+      });
+      return record;
     },
   );
 
   await loadPhotoCatalogMonths(
     options.store,
     catalog,
-    processed.map(({ record }) => monthFromCapturedAt(record.capturedAt)),
+    processed.map((record) => monthFromCapturedAt(record.capturedAt)),
   );
-  await mapWithConcurrency(processed, PROCESS_CONCURRENCY, async ({ file, photo }) => {
-    await uploadPhotoAssets(options.store, catalog, photo, attemptedArtifacts);
-    options.onProgress?.({
-      type: "published",
-      file,
-      photoId: photo.id,
-    });
-  });
 
-  for (const { record } of processed) {
+  for (const record of processed) {
     const month = monthFromCapturedAt(record.capturedAt);
     const monthCatalog = catalog.months.get(month) ?? {
       schemaVersion: PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
@@ -239,6 +242,7 @@ async function publishPhotosOnce(
       dirtyMonths,
       options.now?.() ?? new Date(),
       attemptedArtifacts,
+      writtenArtifacts,
     );
   } else if (!catalog.publicIndexCurrent) {
     await writePhotoCatalogIndex(options.store, catalog);
@@ -575,24 +579,34 @@ async function uploadPhotoAssets(
   catalog: LoadedPhotoCatalog,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
+  writtenArtifacts: Set<string>,
 ): Promise<void> {
-  const objectKeys = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photo.id}/${width}.webp`);
-  const claimedKey = objectKeys.find((key) => isPhotoArtifactDeletionClaimed(catalog, key));
-  if (claimedKey) {
-    throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
-  }
+  assertPhotoAssetsWritable(catalog, photo.id);
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
     const body = photo.variants.get(width);
     if (!body) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
     const key = `media/${photo.id}/${width}.webp`;
+    if (writtenArtifacts.has(key)) {
+      return;
+    }
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "image/webp",
       cacheControl: ASSET_CACHE_CONTROL,
     });
+    writtenArtifacts.add(key);
   });
+}
+
+function assertPhotoAssetsWritable(catalog: LoadedPhotoCatalog, photoId: string): void {
+  const claimedKey = PHOTO_VARIANT_WIDTHS.map((width) => `media/${photoId}/${width}.webp`).find(
+    (key) => isPhotoArtifactDeletionClaimed(catalog, key),
+  );
+  if (claimedKey) {
+    throw new Error(`照片对象 ${claimedKey} 正在回收，请稍后重试`);
+  }
 }
 
 async function recordFailedPublishArtifacts(
