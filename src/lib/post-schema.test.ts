@@ -1,5 +1,10 @@
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { postFrontmatterSchema } from "@/lib/post-schema";
+import { createPostFrontmatterSchema } from "@/lib/post-schema";
+
+const postFrontmatterSchema = createPostFrontmatterSchema(
+  fileURLToPath(new URL("../assets/cover/", import.meta.url)),
+);
 
 const validFrontmatter = {
   title: "测试文章",
@@ -52,5 +57,13 @@ describe("post frontmatter", () => {
     expect(
       postFrontmatterSchema.safeParse({ ...validFrontmatter, cover: "missing.png" }).success,
     ).toBe(false);
+  });
+
+  it("validates covers against the injected directory", () => {
+    const schema = createPostFrontmatterSchema(
+      fileURLToPath(new URL("../assets/post-images/", import.meta.url)),
+    );
+
+    expect(schema.safeParse(validFrontmatter).success).toBe(false);
   });
 });

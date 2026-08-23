@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseDocument } from "yaml";
-import { isPublishedFrontmatter, parseFrontmatter } from "../../src/lib/post-schema";
+import {
+  createPostFrontmatterSchema,
+  isPublishedFrontmatter,
+  parseFrontmatter,
+} from "../../src/lib/post-schema";
 import {
   comparePublishedPostsNewestFirst,
   parsePostSlug,
@@ -11,10 +16,17 @@ import {
 
 const MAX_FRONTMATTER_CHARACTERS = 64 * 1024;
 const MAX_YAML_ALIAS_COUNT = 50;
+const postFrontmatterSchema = createPostFrontmatterSchema(
+  fileURLToPath(new URL("../../src/assets/cover/", import.meta.url)),
+);
 
 export function parsePublishedPost(slug: string, source: string): PublishedPost | null {
   const postSlug = parsePostSlug(slug, "post slug");
-  const frontmatter = parseFrontmatter(postSlug, parsePostFrontmatter(source));
+  const frontmatter = parseFrontmatter(
+    postFrontmatterSchema,
+    postSlug,
+    parsePostFrontmatter(source),
+  );
 
   if (!isPublishedFrontmatter(frontmatter)) {
     return null;

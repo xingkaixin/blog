@@ -4,7 +4,6 @@ import { z } from "astro/zod";
 import { isCalendarDate } from "./calendar-date";
 import { canonicalTag } from "./post-tag";
 
-const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
 const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const COVER_FILENAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|webp)$/i;
 const COVER_MISSING_MESSAGE = "Cover image not found";
@@ -19,25 +18,27 @@ const tagsSchema = z
   .min(1)
   .refine((tags) => new Set(tags).size === tags.length, "tags must be unique within a post");
 
-export const postFrontmatterSchema = z
-  .object({
-    title: z.string().trim().min(1),
-    date: calendarDateSchema,
-    summary: z.string().trim().min(1),
-    tags: tagsSchema,
-    cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
-    coverAlt: z.string().trim().min(1),
-    draft: z.boolean().optional(),
-  })
-  .refine(({ cover }) => coverExists(cover), {
-    message: COVER_MISSING_MESSAGE,
-    path: ["cover"],
-  });
+const postFrontmatterFieldsSchema = z.object({
+  title: z.string().trim().min(1),
+  date: calendarDateSchema,
+  summary: z.string().trim().min(1),
+  tags: tagsSchema,
+  cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
+  coverAlt: z.string().trim().min(1),
+  draft: z.boolean().optional(),
+});
 
-export type PostFrontmatter = z.infer<typeof postFrontmatterSchema>;
+export type PostFrontmatter = z.infer<typeof postFrontmatterFieldsSchema>;
+export type PostFrontmatterSchema = ReturnType<typeof createPostFrontmatterSchema>;
 
-function coverExists(cover: string) {
-  return fs.existsSync(path.join(COVER_DIR, cover));
+export function createPostFrontmatterSchema(coverDirectory: string) {
+  return postFrontmatterFieldsSchema.refine(
+    ({ cover }) => fs.existsSync(path.join(coverDirectory, cover)),
+    {
+      message: COVER_MISSING_MESSAGE,
+      path: ["cover"],
+    },
+  );
 }
 
 type FrontmatterIssue = {
@@ -52,8 +53,12 @@ export function frontmatterError(slug: string, issues: FrontmatterIssue[]) {
   return new Error(`Invalid frontmatter for ${slug}: ${details}`);
 }
 
-export function parseFrontmatter(slug: string, data: unknown): PostFrontmatter {
-  const result = postFrontmatterSchema.safeParse(data);
+export function parseFrontmatter(
+  schema: PostFrontmatterSchema,
+  slug: string,
+  data: unknown,
+): PostFrontmatter {
+  const result = schema.safeParse(data);
   if (!result.success) {
     throw frontmatterError(slug, result.error.issues);
   }

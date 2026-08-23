@@ -1,7 +1,12 @@
+import { fileURLToPath } from "node:url";
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
-import { postFrontmatterSchema } from "@/lib/post-schema";
+import { createPostFrontmatterSchema } from "@/lib/post-schema";
 import { parsePostSlug } from "@/lib/published-post";
+
+const postFrontmatterSchema = createPostFrontmatterSchema(
+  fileURLToPath(new URL("./assets/cover/", import.meta.url)),
+);
 
 const posts = defineCollection({
   // 平铺匹配，与 readPublishedPosts 的发现规则保持一致；子目录由后者显式报错拦下。
