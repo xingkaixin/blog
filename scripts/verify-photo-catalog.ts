@@ -10,6 +10,8 @@ import { siteConfig } from "../src/lib/site";
 
 export type PhotoCatalogLoader = (url: string) => Promise<unknown>;
 
+const MAX_COMPACT_CATALOG_BYTES = 256 * 1024;
+
 export async function verifyPublishedPhotoCatalog(
   photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl,
   load: PhotoCatalogLoader = loadJson,
@@ -20,6 +22,12 @@ export async function verifyPublishedPhotoCatalog(
   if (publishedVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION) {
     throw new Error(
       `照片 Catalog 仍是 schema v${String(publishedVersion)}，请先运行 bun run photos:migrate -- --confirm`,
+    );
+  }
+  const compactBytes = new TextEncoder().encode(JSON.stringify(value)).byteLength;
+  if (compactBytes > MAX_COMPACT_CATALOG_BYTES) {
+    throw new Error(
+      `照片 Catalog 索引为 ${compactBytes.toLocaleString("en-US")} 字节，超过 ${MAX_COMPACT_CATALOG_BYTES.toLocaleString("en-US")} 字节预算；请先拆分照片定位表`,
     );
   }
   return catalog;

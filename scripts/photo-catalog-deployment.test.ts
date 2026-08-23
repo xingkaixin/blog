@@ -29,4 +29,28 @@ describe("photo catalog deployment", () => {
       })),
     ).rejects.toThrow("photos:migrate");
   });
+
+  it("blocks deployment when the eager locator outgrows its transfer budget", async () => {
+    const photoMonths = Object.fromEntries(
+      Array.from({ length: 6_000 }, (_, index) => [
+        index.toString(16).padStart(32, "0"),
+        "2026-08",
+      ]),
+    );
+
+    await expect(
+      verifyPublishedPhotoCatalog("https://photos.example.com", async () => ({
+        ...catalog,
+        periods: [
+          {
+            month: "2026-08",
+            count: 6_000,
+            albumCounts: {},
+            path: "catalog/months/2026-08.0123456789abcdef01234567.json",
+          },
+        ],
+        photoMonths,
+      })),
+    ).rejects.toThrow("拆分照片定位表");
+  });
 });
