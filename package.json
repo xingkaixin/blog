@@ -11,7 +11,7 @@
     "build:post-images": "bun scripts/generate-post-images.ts",
     "build:search": "bun scripts/generate-search-index.ts",
     "build:sitemap": "bun scripts/generate-sitemap.ts",
-    "check:generated": "git diff --exit-code -- public/search-index.json src/lib/generated",
+    "check:generated": "git diff --exit-code -- public/search-index.json public/cover public/posts/images src/lib/generated",
     "check:source": "bun run lint && bun run format:check && bun run typecheck && bun run test",
     "deploy": "bun run build && bun run wrangler",
     "dev": "astro dev",
