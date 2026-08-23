@@ -1,5 +1,6 @@
+import { isCalendarDate } from "./calendar-date";
 import { canonicalTags } from "./post-tag";
-import { isCalendarDate, parsePostSlug, type PublishedPost } from "./published-post";
+import { parsePostSlug, type PublishedPost } from "./published-post";
 
 export type SearchIndexItem = Pick<PublishedPost, "slug" | "title" | "date" | "summary" | "tags">;
 

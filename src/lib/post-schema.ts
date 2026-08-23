@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "astro/zod";
+import { isCalendarDate } from "./calendar-date";
 import { canonicalTag } from "./post-tag";
-import { isCalendarDate } from "./published-post";
 
 const COVER_DIR = path.join(process.cwd(), "src", "assets", "cover");
 const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

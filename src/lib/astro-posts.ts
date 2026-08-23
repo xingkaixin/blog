@@ -1,7 +1,7 @@
 import type { MarkdownHeading } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import { tocFromHeadings, type TocItem } from "@/lib/markdown";
 import { isPublishedFrontmatter } from "@/lib/post-schema";
+import { tocFromHeadings, type TocItem } from "@/lib/post-toc";
 import {
   comparePublishedPostsNewestFirst,
   toPublishedPost,

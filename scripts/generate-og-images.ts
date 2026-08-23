@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
-import { formatDisplayDate } from "../src/lib/markdown";
+import { formatCalendarDate } from "../src/lib/calendar-date";
 import type { PublishedPost } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
@@ -252,7 +252,7 @@ function postLayout(post: Post, coverSrc: string, logoSrc: string) {
         lineClamp: 2,
       }),
       el("div", { style: { display: "flex", flexGrow: 1 } }),
-      text(formatDisplayDate(post.date), {
+      text(formatCalendarDate(post.date), {
         fontSize: 22,
         fontWeight: 700,
         letterSpacing: 2,

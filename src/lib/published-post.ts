@@ -1,4 +1,3 @@
-const CALENDAR_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const POST_SLUG_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export type PublishedPost = {
@@ -12,21 +11,6 @@ export type PublishedPost = {
 };
 
 type PublishablePost = Omit<PublishedPost, "slug">;
-
-export function isCalendarDate(value: string): boolean {
-  const match = CALENDAR_DATE_PATTERN.exec(value);
-  if (!match) {
-    return false;
-  }
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  return (
-    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
-  );
-}
 
 export function parsePostSlug(value: string, field = "slug"): string {
   if (!POST_SLUG_PATTERN.test(value)) {

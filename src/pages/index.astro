@@ -2,7 +2,7 @@
 import { PostConsole, type PostConsoleItem } from "@/components/post-console";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { estimateReadingMetrics } from "@/lib/markdown";
+import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { siteConfig } from "@/lib/site";
 
 const entries = await getPublishedPosts();

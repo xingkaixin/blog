@@ -12,7 +12,8 @@ import {
   toPostListItem,
   type BlogPostEntry,
 } from "@/lib/astro-posts";
-import { estimateReadingMetrics, formatDisplayDate } from "@/lib/markdown";
+import { formatCalendarDate } from "@/lib/calendar-date";
+import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { buildPostTaxonomy } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
@@ -69,7 +70,7 @@ const meta = {
         <p class="mt-4 max-w-[70ch] text-[15px] leading-7 text-ink-500">{postMeta.summary}</p>
         <div class="mt-5 flex flex-col gap-3 border-t border-line pt-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex flex-wrap items-center gap-x-2 font-mono text-[10px] text-ink-400">
-            <span>{formatDisplayDate(postMeta.date)}</span>
+            <span>{formatCalendarDate(postMeta.date)}</span>
             <span class="text-ink-200">·</span>
             <span>{readingMetrics.wordCount.toLocaleString("zh-CN")} 字</span>
             <span class="text-ink-200">·</span>
@@ -136,7 +137,7 @@ const meta = {
                 </div>
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
                   <dt class="font-mono text-[10px] text-ink-400">发布时间</dt>
-                  <dd>{formatDisplayDate(postMeta.date)}</dd>
+                  <dd>{formatCalendarDate(postMeta.date)}</dd>
                 </div>
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
                   <dt class="font-mono text-[10px] text-ink-400">文章链接</dt>

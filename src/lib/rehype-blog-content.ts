@@ -1,5 +1,5 @@
-import { createHeadingIdAllocator } from "./markdown";
 import { resolvePostImage } from "./post-images";
+import { createHeadingIdAllocator } from "./post-toc";
 
 type HastNode = {
   type?: string;
