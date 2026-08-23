@@ -24,6 +24,8 @@ export type PhotoWallPeriodModel = {
   timelineRange: string;
 };
 
+export type PhotoTimelineModel = Omit<PhotoWallPeriodModel, "overviewPeriods">;
+
 export type PhotoWallLoadedModel = {
   overviewItems: AlbumOverviewItem[];
   allPhotos: PhotoRecord[];

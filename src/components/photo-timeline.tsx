@@ -3,12 +3,12 @@ import type { RefObject } from "react";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
 import type {
-  PhotoAlbum,
   PhotoCatalogIndex,
   PhotoMonthCatalog,
   PhotoPeriod,
   PhotoRecord,
 } from "@/lib/photo-catalog";
+import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
 const ALBUM_CHIP_CLASS_NAME =
@@ -19,13 +19,9 @@ const ALBUM_SIDEBAR_CLASS_NAME =
 type PhotoTimelineProps = {
   baseUrl: string;
   index: PhotoCatalogIndex;
-  selectedAlbumId: string | null;
-  selectedAlbum: PhotoAlbum | undefined;
-  periods: PhotoPeriod[];
+  model: PhotoTimelineModel;
   monthCatalogs: Record<string, PhotoMonthCatalog>;
   monthErrors: Record<string, string>;
-  totalPhotoCount: number;
-  timelineRange: string;
   activeMonth: string;
   wallRef: RefObject<HTMLDivElement | null>;
   onReturn: () => void;
@@ -39,13 +35,9 @@ type PhotoTimelineProps = {
 export function PhotoTimeline({
   baseUrl,
   index,
-  selectedAlbumId,
-  selectedAlbum,
-  periods,
+  model,
   monthCatalogs,
   monthErrors,
-  totalPhotoCount,
-  timelineRange,
   activeMonth,
   wallRef,
   onReturn,
@@ -55,6 +47,7 @@ export function PhotoTimeline({
   onOpenPhoto,
   onJumpMonth,
 }: PhotoTimelineProps) {
+  const { selectedAlbumId, selectedAlbum, visiblePeriods, totalPhotoCount, timelineRange } = model;
   return (
     <>
       <div className="mx-auto max-w-320">
@@ -144,10 +137,12 @@ export function PhotoTimeline({
             ref={wallRef}
             className={cn(
               "min-w-0 py-[18px]",
-              periods.length > 1 ? "pr-8 sm:px-5 sm:pr-12 lg:px-5 lg:pr-5" : "sm:px-5 lg:px-5",
+              visiblePeriods.length > 1
+                ? "pr-8 sm:px-5 sm:pr-12 lg:px-5 lg:pr-5"
+                : "sm:px-5 lg:px-5",
             )}
           >
-            {periods.length === 0 ? (
+            {visiblePeriods.length === 0 ? (
               <div className="flex min-h-72 items-center justify-center border-y border-line bg-surface px-6 text-center sm:rounded-[10px] sm:border">
                 <div>
                   <h2 className="text-lg font-medium text-ink-800">
@@ -160,7 +155,7 @@ export function PhotoTimeline({
               </div>
             ) : (
               <div className="space-y-9 md:space-y-12">
-                {periods.map((period, indexInList) => (
+                {visiblePeriods.map((period, indexInList) => (
                   <PhotoPeriodSection
                     key={`${selectedAlbumId ?? "all"}-${period.month}`}
                     baseUrl={baseUrl}
@@ -183,8 +178,8 @@ export function PhotoTimeline({
         </div>
       </div>
 
-      {periods.length > 1 && (
-        <PhotoTimeRail periods={periods} activeMonth={activeMonth} onSelect={onJumpMonth} />
+      {visiblePeriods.length > 1 && (
+        <PhotoTimeRail periods={visiblePeriods} activeMonth={activeMonth} onSelect={onJumpMonth} />
       )}
     </>
   );

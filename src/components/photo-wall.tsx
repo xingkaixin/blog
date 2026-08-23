@@ -162,13 +162,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         <PhotoTimeline
           baseUrl={normalizedBaseUrl}
           index={catalogState.index}
-          selectedAlbumId={periodModel.selectedAlbumId}
-          selectedAlbum={periodModel.selectedAlbum}
-          periods={periodModel.visiblePeriods}
+          model={periodModel}
           monthCatalogs={monthCatalogs}
           monthErrors={monthErrors}
-          totalPhotoCount={periodModel.totalPhotoCount}
-          timelineRange={periodModel.timelineRange}
           activeMonth={activeMonth}
           wallRef={wallRef}
           onReturn={returnToOverview}
