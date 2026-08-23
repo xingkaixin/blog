@@ -9,7 +9,9 @@ import {
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { collectPhotoGarbage, deletePhotos, publishPhotos } from "./lib/photo-publisher";
+import { deletePhotos } from "./lib/photo-deleter";
+import { collectPhotoGarbage } from "./lib/photo-garbage-collector";
+import { publishPhotos } from "./lib/photo-publisher";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import {
   PhotoStoreConflictError,
@@ -201,6 +203,32 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(index.periods[0].path))!.text),
     );
     expect(month.photos[0]?.albumIds).toEqual(["japan-2026"]);
+  });
+
+  it("publishes when opportunistic garbage collection cannot start", async () => {
+    const file = await createSourceFile("publish after garbage collection failure");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const originalGetText = store.getText.bind(store);
+    const warnings: string[] = [];
+    let failed = false;
+    store.getText = async (key) => {
+      if (!failed) {
+        failed = true;
+        throw new Error("garbage catalog unavailable");
+      }
+      return originalGetText(key);
+    };
+
+    const result = await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      onWarning: (message) => warnings.push(message),
+    });
+
+    expect(result.published).toBe(1);
+    expect(warnings).toEqual(["照片对象回收未完成: garbage catalog unavailable"]);
   });
 
   it("hashes and processes the same stable source snapshot", async () => {
@@ -497,6 +525,46 @@ describe("photo publisher", () => {
     expect(control.retiredArtifacts).toEqual([]);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
+  });
+
+  it("returns a committed deletion when opportunistic garbage collection fails", async () => {
+    const file = await createSourceFile("delete before garbage collection failure");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+    });
+
+    const originalGetText = store.getText.bind(store);
+    const originalPut = store.put.bind(store);
+    const warnings: string[] = [];
+    let failNextRead = false;
+    store.getText = async (key) => {
+      if (failNextRead) {
+        failNextRead = false;
+        throw new Error("garbage catalog unavailable");
+      }
+      return originalGetText(key);
+    };
+    store.put = async (key, body, options) => {
+      const version = await originalPut(key, body, options);
+      if (key === PHOTO_CATALOG_INDEX_KEY) {
+        failNextRead = true;
+      }
+      return version;
+    };
+
+    const result = await deletePhotos({
+      photoIds: [id],
+      store,
+      onWarning: (message) => warnings.push(message),
+    });
+
+    expect(result.deleted).toBe(1);
+    expect(warnings).toEqual(["照片对象回收未完成: garbage catalog unavailable"]);
+    expect((await readControl(store)).photoMonths).toEqual({});
   });
 
   it("retires replaced month shards and removes them only after the cache grace period", async () => {

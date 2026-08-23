@@ -1,12 +1,8 @@
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
-import {
-  collectPhotoGarbage,
-  deletePhotos,
-  photoDisplayName,
-  publishPhotos,
-  type PublishAlbum,
-} from "./photo-publisher";
+import { deletePhotos } from "./photo-deleter";
+import { collectPhotoGarbage } from "./photo-garbage-collector";
+import { photoDisplayName, publishPhotos, type PublishAlbum } from "./photo-publisher";
 import { collectPhotoFiles, hashPhotoFile, type ProcessedPhoto } from "./photo-source";
 import {
   createR2PhotoObjectStore,
