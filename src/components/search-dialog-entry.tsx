@@ -1,12 +1,13 @@
 import { createRoot, type Root } from "react-dom/client";
 import { SearchDialog } from "@/components/search-dialog";
+import { OPEN_SEARCH_EVENT } from "@/lib/site-events";
 
 const roots = new WeakMap<HTMLElement, Root>();
 
 export function openSearchDialog(container: HTMLElement): void {
   const existing = roots.get(container);
   if (existing) {
-    window.dispatchEvent(new Event("site:open-search"));
+    window.dispatchEvent(new Event(OPEN_SEARCH_EVENT));
     return;
   }
 

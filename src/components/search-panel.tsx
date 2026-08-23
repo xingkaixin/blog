@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
-import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
+import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {

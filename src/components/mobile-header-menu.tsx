@@ -9,8 +9,8 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
-import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
 import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {

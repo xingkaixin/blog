@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
+import { OPEN_SEARCH_EVENT } from "@/lib/site-events";
 
 const SearchPanel = lazy(() =>
   import("@/components/search-panel").then((module) => ({ default: module.SearchPanel })),
@@ -15,8 +16,8 @@ export function SearchDialog({ initialOpen = false }: SearchDialogProps) {
 
   useEffect(() => {
     const open = () => setPanelState("open");
-    window.addEventListener("site:open-search", open);
-    return () => window.removeEventListener("site:open-search", open);
+    window.addEventListener(OPEN_SEARCH_EVENT, open);
+    return () => window.removeEventListener(OPEN_SEARCH_EVENT, open);
   }, []);
 
   return (

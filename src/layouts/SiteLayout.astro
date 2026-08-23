@@ -24,7 +24,7 @@ import {
   normalizeSitePath,
   siteStatus,
 } from "@/lib/site-navigation";
-import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
+import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import "../index.css";
 
 type Props = {
@@ -249,7 +249,7 @@ const pageTransition = {
     </div>
 
     <script>
-      import { THEME_TOGGLE_EVENT } from "@/lib/theme-event";
+      import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 
       document.addEventListener("astro:before-preparation", (event) => {
         const isReturningToPostList =
