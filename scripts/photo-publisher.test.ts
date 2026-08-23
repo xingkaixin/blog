@@ -169,6 +169,96 @@ describe("photo publisher", () => {
     expect(processSecond).toHaveBeenCalledTimes(1);
   });
 
+  it("does not replay publish progress after the public index conflicts", async () => {
+    const file = await createSourceFile("publish through index conflict");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const originalPut = store.put.bind(store);
+    const progress: string[] = [];
+    let conflictPending = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && conflictPending) {
+        conflictPending = false;
+        throw new PhotoStoreConflictError(key);
+      }
+      return originalPut(key, body, options);
+    };
+
+    const result = await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      onProgress: (event) => progress.push(event.type),
+    });
+
+    expect(result).toMatchObject({ published: 1, reused: 0, updatedPeriods: 1 });
+    expect(progress).toEqual(["processing", "published"]);
+    expect(
+      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text)),
+    ).toMatchObject({ photoMonths: { [id]: "2026-04" } });
+  });
+
+  it("finishes retirement after the public index conflicts", async () => {
+    const file = await createSourceFile("retire through index conflict");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+    });
+    const originalPut = store.put.bind(store);
+    let conflictPending = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && conflictPending) {
+        conflictPending = false;
+        throw new PhotoStoreConflictError(key);
+      }
+      return originalPut(key, body, options);
+    };
+
+    const result = await retirePhotos({ photoIds: [id], store });
+
+    expect(result).toMatchObject({ retired: 1, alreadyRetired: 0, updatedPeriods: 1 });
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.photoMonths[id]).toBeUndefined();
+  });
+
+  it("repairs a stale public index when retirement is already recorded", async () => {
+    const file = await createSourceFile("repair retirement projection");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+    });
+    const originalPut = store.put.bind(store);
+    let failurePending = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && failurePending) {
+        failurePending = false;
+        throw new Error("public index unavailable");
+      }
+      return originalPut(key, body, options);
+    };
+
+    await expect(retirePhotos({ photoIds: [id], store })).rejects.toThrow(
+      "public index unavailable",
+    );
+    await expect(retirePhotos({ photoIds: [id], store })).resolves.toMatchObject({
+      retired: 0,
+      alreadyRetired: 1,
+    });
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.photoMonths[id]).toBeUndefined();
+  });
+
   it("publishes immutable assets and a content-addressed month before the index", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);

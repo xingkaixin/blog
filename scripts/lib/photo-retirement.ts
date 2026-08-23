@@ -48,6 +48,7 @@ async function retirePhotosOnce(
   }
 
   if (activePhotoIds.length === 0) {
+    await catalog.commit(options.now?.() ?? new Date());
     return {
       retired: 0,
       alreadyRetired: alreadyRetired.length,

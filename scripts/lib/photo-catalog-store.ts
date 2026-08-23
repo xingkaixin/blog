@@ -294,7 +294,21 @@ async function writePhotoCatalog(
 
   const control = catalog.prepareControl(nextPeriods, generatedAt, attemptedArtifacts);
   await writeControlDocument(store, catalog, control);
-  await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+  try {
+    await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
+  } catch (error) {
+    if (!(error instanceof PhotoStoreConflictError)) {
+      throw error;
+    }
+    await repairLatestPublicIndex(store);
+  }
+}
+
+async function repairLatestPublicIndex(store: PhotoObjectStore): Promise<void> {
+  await retryPhotoCatalogMutation(async () => {
+    const catalog = await PhotoCatalogEditor.load(store);
+    await catalog.repairPublicIndex();
+  });
 }
 
 async function writePhotoCatalogControl(
