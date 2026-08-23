@@ -130,11 +130,11 @@ describe("photo catalog", () => {
     expect(locatePhotoPeriod(indexFixture, "ffffffffffffffffffffffffffffffff")).toBeNull();
   });
 
-  it("migrates the previous public index without exposing control state", () => {
+  it.each([1, 2])("migrates public index version %i without exposing control state", (version) => {
     expect(
       parsePhotoCatalogIndex({
         ...indexFixture,
-        schemaVersion: 2,
+        schemaVersion: version,
         retiredObjects: [],
         retiredArtifacts: [],
       }),
@@ -143,7 +143,7 @@ describe("photo catalog", () => {
 
   it("rejects unsupported indexes instead of pretending they are compatible", () => {
     const incomplete = structuredClone(indexFixture) as unknown as Record<string, unknown>;
-    incomplete.schemaVersion = 1;
+    incomplete.schemaVersion = 0;
 
     expect(() => parsePhotoCatalogIndex(incomplete)).toThrow("不支持的照片 Catalog 版本");
   });

@@ -51,7 +51,7 @@ const MONTH_PATTERN = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 const COLOR_PATTERN = /^#[a-f0-9]{6}$/;
 const PERIOD_PATH_PATTERN = /^catalog\/months\/\d{4}-(?:0[1-9]|1[0-2])\.[a-f0-9]{24}\.json$/;
 const MAX_IMAGE_DIMENSION = 100_000;
-const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 2;
+const LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSIONS = new Set<unknown>([1, 2]);
 
 export class PhotoCatalogError extends Error {
   constructor(message: string) {
@@ -243,8 +243,8 @@ export function monthFromCapturedAt(capturedAt: string): string {
 export function parsePhotoCatalogIndex(value: unknown): PhotoCatalogIndex {
   const input = readRecord(value, "catalog");
   if (
-    input.schemaVersion !== LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
-    input.schemaVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION
+    input.schemaVersion !== PHOTO_CATALOG_INDEX_SCHEMA_VERSION &&
+    !LEGACY_PHOTO_CATALOG_INDEX_SCHEMA_VERSIONS.has(input.schemaVersion)
   ) {
     throw new PhotoCatalogError("不支持的照片 Catalog 版本");
   }

@@ -37,8 +37,8 @@ describe("photo catalog control", () => {
     });
   });
 
-  it("migrates the previous combined catalog", () => {
-    expect(parseLegacyPhotoCatalogControl({ ...controlFixture, schemaVersion: 2 })).toEqual(
+  it.each([1, 2])("migrates combined catalog version %i", (version) => {
+    expect(parseLegacyPhotoCatalogControl({ ...controlFixture, schemaVersion: version })).toEqual(
       controlFixture,
     );
   });

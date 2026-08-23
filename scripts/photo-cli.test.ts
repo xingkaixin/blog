@@ -42,6 +42,12 @@ describe("photo CLI", () => {
       inputs: ["-photo.jpg"],
       confirm: true,
     });
+    expect(parsePhotoCliArguments("migrate", ["--confirm", "--output", "preview"])).toEqual({
+      command: "migrate",
+      output: "preview",
+      confirm: true,
+      help: false,
+    });
   });
 
   it("validates dependent and missing option values", () => {

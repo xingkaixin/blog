@@ -51,7 +51,7 @@ export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
 
 export function parseLegacyPhotoCatalogControl(value: unknown): PhotoCatalogControl {
   const input = readRecord(value, "catalog");
-  if (input.schemaVersion !== 2) {
+  if (input.schemaVersion !== 1 && input.schemaVersion !== 2) {
     throw new Error("无法从当前照片 Catalog 迁移后台控制状态");
   }
   return parseControlFields(input);

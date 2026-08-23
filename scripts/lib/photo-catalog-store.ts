@@ -207,6 +207,20 @@ export async function writePhotoCatalogIndex(
   await writePublicIndex(store, catalog, photoCatalogIndexFromControl(control));
 }
 
+export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
+  return retryPhotoCatalogMutation(async () => {
+    const catalog = await loadPhotoCatalog(store);
+    if (catalog.generatedAt === null) {
+      throw new Error("无法迁移空的照片 Catalog");
+    }
+    if (catalog.controlVersion !== null && catalog.publicIndexCurrent) {
+      return false;
+    }
+    await writePhotoCatalogIndex(store, catalog);
+    return true;
+  });
+}
+
 async function writePublicIndex(
   store: PhotoObjectStore,
   catalog: LoadedPhotoCatalog,

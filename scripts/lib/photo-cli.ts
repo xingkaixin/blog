@@ -1,5 +1,6 @@
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
+import { migratePhotoCatalog } from "./photo-catalog-store";
 import { deletePhotos } from "./photo-deleter";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
 import { photoDisplayName, publishPhotos, type PublishAlbum } from "./photo-publisher";
@@ -10,7 +11,7 @@ import {
   type PhotoObjectStore,
 } from "./photo-store";
 
-export type PhotoCommandName = "publish" | "delete" | "gc";
+export type PhotoCommandName = "publish" | "delete" | "gc" | "migrate";
 
 type CommonOptions = {
   output?: string;
@@ -35,10 +36,16 @@ export type GarbageCollectPhotoCliOptions = CommonOptions & {
   confirm: boolean;
 };
 
+export type MigratePhotoCliOptions = CommonOptions & {
+  command: "migrate";
+  confirm: boolean;
+};
+
 export type PhotoCliOptions =
   | PublishPhotoCliOptions
   | DeletePhotoCliOptions
-  | GarbageCollectPhotoCliOptions;
+  | GarbageCollectPhotoCliOptions
+  | MigratePhotoCliOptions;
 
 export type PhotoCliProcessor = {
   process(file: string, id: string, timezone: string | undefined): Promise<ProcessedPhoto>;
@@ -92,6 +99,16 @@ R2 环境变量:
   --output <目录>         操作本地目录；省略时操作 R2
   --help                  显示帮助
 `,
+  migrate: `迁移照片 Catalog 到当前存储格式
+
+用法:
+  bun run photos:migrate -- --confirm [选项]
+
+选项:
+  --confirm               确认写入私有控制文档与公开投影
+  --output <目录>         操作本地目录；省略时操作 R2
+  --help                  显示帮助
+`,
 };
 
 const defaultIo: PhotoCliIo = {
@@ -121,7 +138,11 @@ export async function runPhotoCli(
     await runDeleteCommand(parsePhotoCliArguments(command, args), io);
     return;
   }
-  await runGarbageCollectCommand(parsePhotoCliArguments(command, args), io);
+  if (command === "gc") {
+    await runGarbageCollectCommand(parsePhotoCliArguments(command, args), io);
+    return;
+  }
+  await runMigrateCommand(parsePhotoCliArguments(command, args), io);
 }
 
 export function parsePhotoCliArguments(command: "publish", args: string[]): PublishPhotoCliOptions;
@@ -130,6 +151,7 @@ export function parsePhotoCliArguments(
   command: "gc",
   args: string[],
 ): GarbageCollectPhotoCliOptions;
+export function parsePhotoCliArguments(command: "migrate", args: string[]): MigratePhotoCliOptions;
 export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions;
 export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions {
   const inputs: string[] = [];
@@ -183,7 +205,9 @@ export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]
     return { command, inputs, output, confirm, help };
   }
   if (inputs.length > 0) {
-    throw new Error(`回收命令不接受位置参数: ${inputs.join(", ")}`);
+    throw new Error(
+      `${command === "gc" ? "回收" : "迁移"}命令不接受位置参数: ${inputs.join(", ")}`,
+    );
   }
   return { command, output, confirm, help };
 }
@@ -294,6 +318,24 @@ async function runGarbageCollectCommand(
     if (result.failedObjects > 0) {
       throw new Error("部分照片对象回收失败");
     }
+  } finally {
+    store.close?.();
+  }
+}
+
+async function runMigrateCommand(options: MigratePhotoCliOptions, io: PhotoCliIo): Promise<void> {
+  if (options.help) {
+    io.write(HELP.migrate);
+    return;
+  }
+  if (!options.confirm) {
+    throw new Error("迁移操作需要显式添加 --confirm；不执行任何修改");
+  }
+
+  const store = createStore(options.output, "迁移", io);
+  try {
+    const migrated = await migratePhotoCatalog(store);
+    io.log(migrated ? "完成：Catalog 已迁移到当前格式" : "Catalog 已是当前格式，无需写入");
   } finally {
     store.close?.();
   }
