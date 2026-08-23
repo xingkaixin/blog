@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
@@ -17,6 +17,7 @@ type PhotoPeriodSectionProps = {
   albumId: string | null;
   error?: string;
   eager: boolean;
+  containerWidth: number;
   onVisible: () => void;
   onRetry: () => void;
   onOpenPhoto: (photo: PhotoRecord) => void;
@@ -26,6 +27,7 @@ type PhotoGridProps = {
   baseUrl: string;
   photos: PhotoRecord[];
   eager: boolean;
+  containerWidth: number;
   onOpenPhoto: (photo: PhotoRecord) => void;
 };
 
@@ -51,6 +53,7 @@ export function PhotoPeriodSection({
   albumId,
   error,
   eager,
+  containerWidth,
   onVisible,
   onRetry,
   onOpenPhoto,
@@ -99,7 +102,13 @@ export function PhotoPeriodSection({
       </div>
 
       {monthCatalog ? (
-        <PhotoGrid baseUrl={baseUrl} photos={photos} eager={eager} onOpenPhoto={onOpenPhoto} />
+        <PhotoGrid
+          baseUrl={baseUrl}
+          photos={photos}
+          eager={eager}
+          containerWidth={containerWidth}
+          onOpenPhoto={onOpenPhoto}
+        />
       ) : error ? (
         <div className="flex min-h-48 flex-col items-center justify-center gap-3 border border-line bg-surface px-5 text-center">
           <p className="text-sm text-ink-600">这个月份的照片暂时无法加载。</p>
@@ -137,34 +146,7 @@ function PhotoPeriodPlaceholder({ count }: { count: number }) {
   );
 }
 
-function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) {
-      return undefined;
-    }
-
-    const updateWidth = (width: number) => {
-      const roundedWidth = Math.round(width);
-      setContainerWidth((current) =>
-        Math.abs(current - roundedWidth) >= 2 ? roundedWidth : current,
-      );
-    };
-    updateWidth(container.getBoundingClientRect().width);
-
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width;
-      if (width !== undefined) {
-        updateWidth(width);
-      }
-    });
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
-
+function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: PhotoGridProps) {
   const rows = useMemo(() => {
     const targetRowHeight = Math.min(300, Math.max(200, containerWidth / 5));
     return buildJustifiedRows(photos, {
@@ -175,7 +157,7 @@ function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
   }, [containerWidth, photos]);
 
   return (
-    <div ref={containerRef} className="photo-gallery">
+    <div className="photo-gallery">
       {containerWidth === 0 ? (
         <PhotoPeriodPlaceholder count={photos.length} />
       ) : (

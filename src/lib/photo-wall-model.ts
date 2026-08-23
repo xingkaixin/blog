@@ -15,11 +15,17 @@ export type AlbumOverviewItem = {
   photos: PhotoRecord[];
 };
 
+export type PhotoAlbumSummary = PhotoAlbum & {
+  count: number;
+};
+
 export type PhotoWallPeriodModel = {
   selectedAlbumId: string | null;
-  selectedAlbum: PhotoAlbum | undefined;
+  selectedAlbum: PhotoAlbumSummary | undefined;
+  albumSummaries: PhotoAlbumSummary[];
   visiblePeriods: PhotoPeriod[];
   overviewPeriods: PhotoPeriod[];
+  allPhotoCount: number;
   totalPhotoCount: number;
   timelineRange: string;
 };
@@ -41,26 +47,32 @@ export function buildPhotoWallPeriodModel(
     return {
       selectedAlbumId,
       selectedAlbum: undefined,
+      albumSummaries: [],
       visiblePeriods: [],
       overviewPeriods: [],
+      allPhotoCount: 0,
       totalPhotoCount: 0,
       timelineRange: "",
     };
   }
 
+  const albumSummaries = index.albums.map((album) => ({
+    ...album,
+    count: index.periods.reduce((sum, period) => sum + (period.albumCounts[album.id] ?? 0), 0),
+  }));
+  const selectedAlbum = albumSummaries.find((album) => album.id === selectedAlbumId);
+  const allPhotoCount = index.periods.reduce((sum, period) => sum + period.count, 0);
   const visiblePeriods = index.periods.filter(
     (period) => !selectedAlbumId || (period.albumCounts[selectedAlbumId] ?? 0) > 0,
   );
   return {
     selectedAlbumId,
-    selectedAlbum: index.albums.find((album) => album.id === selectedAlbumId),
+    selectedAlbum,
+    albumSummaries,
     visiblePeriods,
     overviewPeriods: previewPeriods(index),
-    totalPhotoCount: visiblePeriods.reduce(
-      (sum, period) =>
-        sum + (selectedAlbumId ? (period.albumCounts[selectedAlbumId] ?? 0) : period.count),
-      0,
-    ),
+    allPhotoCount,
+    totalPhotoCount: selectedAlbumId ? (selectedAlbum?.count ?? 0) : allPhotoCount,
     timelineRange: formatPeriodRange(visiblePeriods),
   };
 }

@@ -161,7 +161,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       {catalogState.status === "ready" && photoView.mode === "timeline" && (
         <PhotoTimeline
           baseUrl={normalizedBaseUrl}
-          index={catalogState.index}
           model={periodModel}
           monthCatalogs={monthCatalogs}
           monthErrors={monthErrors}

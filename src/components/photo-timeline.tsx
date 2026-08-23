@@ -1,13 +1,8 @@
 import { ArrowLeftIcon } from "lucide-react";
-import type { RefObject } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
-import type {
-  PhotoCatalogIndex,
-  PhotoMonthCatalog,
-  PhotoPeriod,
-  PhotoRecord,
-} from "@/lib/photo-catalog";
+import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
 import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +13,6 @@ const ALBUM_SIDEBAR_CLASS_NAME =
 
 type PhotoTimelineProps = {
   baseUrl: string;
-  index: PhotoCatalogIndex;
   model: PhotoTimelineModel;
   monthCatalogs: Record<string, PhotoMonthCatalog>;
   monthErrors: Record<string, string>;
@@ -34,7 +28,6 @@ type PhotoTimelineProps = {
 
 export function PhotoTimeline({
   baseUrl,
-  index,
   model,
   monthCatalogs,
   monthErrors,
@@ -47,7 +40,40 @@ export function PhotoTimeline({
   onOpenPhoto,
   onJumpMonth,
 }: PhotoTimelineProps) {
-  const { selectedAlbumId, selectedAlbum, visiblePeriods, totalPhotoCount, timelineRange } = model;
+  const [containerWidth, setContainerWidth] = useState(0);
+  const {
+    selectedAlbumId,
+    selectedAlbum,
+    albumSummaries,
+    visiblePeriods,
+    allPhotoCount,
+    totalPhotoCount,
+    timelineRange,
+  } = model;
+
+  useEffect(() => {
+    const wall = wallRef.current;
+    if (!wall) {
+      return undefined;
+    }
+
+    const updateWidth = (width: number) => {
+      const roundedWidth = Math.round(width);
+      setContainerWidth((current) =>
+        Math.abs(current - roundedWidth) >= 2 ? roundedWidth : current,
+      );
+    };
+
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width;
+      if (width !== undefined) {
+        updateWidth(width);
+      }
+    });
+    observer.observe(wall);
+    return () => observer.disconnect();
+  }, [wallRef]);
+
   return (
     <>
       <div className="mx-auto max-w-320">
@@ -82,7 +108,7 @@ export function PhotoTimeline({
           >
             全部
           </button>
-          {index.albums.map((album) => (
+          {albumSummaries.map((album) => (
             <button
               key={album.id}
               type="button"
@@ -106,9 +132,9 @@ export function PhotoTimeline({
                 className={ALBUM_SIDEBAR_CLASS_NAME}
               >
                 <span>全部照片</span>
-                <span>{index.periods.reduce((sum, period) => sum + period.count, 0)}</span>
+                <span>{allPhotoCount}</span>
               </button>
-              {index.albums.map((album) => (
+              {albumSummaries.map((album) => (
                 <button
                   key={album.id}
                   type="button"
@@ -117,12 +143,7 @@ export function PhotoTimeline({
                   className={ALBUM_SIDEBAR_CLASS_NAME}
                 >
                   <span>{album.title}</span>
-                  <span>
-                    {index.periods.reduce(
-                      (sum, period) => sum + (period.albumCounts[album.id] ?? 0),
-                      0,
-                    )}
-                  </span>
+                  <span>{album.count}</span>
                 </button>
               ))}
             </div>
@@ -164,6 +185,7 @@ export function PhotoTimeline({
                     albumId={selectedAlbumId}
                     error={monthErrors[period.month]}
                     eager={indexInList === 0}
+                    containerWidth={containerWidth}
                     onVisible={() => onLoadMonth(period)}
                     onRetry={() => onRetryMonth(period)}
                     onOpenPhoto={onOpenPhoto}
