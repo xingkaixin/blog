@@ -32,10 +32,11 @@ export function usePhotoCatalogSession(baseUrl: string) {
     requestControllerRef.current?.abort();
     const controller = new AbortController();
     const generation = generationRef.current + 1;
+    const emptyMonths: MonthCatalogs = {};
     requestControllerRef.current = controller;
     generationRef.current = generation;
-    monthsRef.current = {};
-    setMonths({});
+    monthsRef.current = emptyMonths;
+    setMonths(emptyMonths);
     setMonthErrors({});
     setState({ status: "loading" });
 
@@ -74,11 +75,9 @@ export function usePhotoCatalogSession(baseUrl: string) {
         if (generationRef.current !== generation) {
           return month;
         }
-        setMonths((current) => {
-          const next = { ...current, [period.month]: month };
-          monthsRef.current = next;
-          return next;
-        });
+        const nextMonths = { ...monthsRef.current, [period.month]: month };
+        monthsRef.current = nextMonths;
+        setMonths(nextMonths);
         setMonthErrors((current) => {
           if (!(period.month in current)) {
             return current;
