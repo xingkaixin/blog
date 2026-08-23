@@ -2,7 +2,14 @@ import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
-import { photoVariantUrl, type PhotoAlbum, type PhotoRecord } from "@/lib/photo-catalog";
+import {
+  PHOTO_DISPLAY_WIDTH,
+  PHOTO_FULL_WIDTH,
+  photoVariantSrcSet,
+  photoVariantUrl,
+  type PhotoAlbum,
+  type PhotoRecord,
+} from "@/lib/photo-catalog";
 import { photoFromArrow, photoFromSwipe, planPhotoPreload } from "@/lib/photo-preload";
 
 type PhotoLightboxProps = {
@@ -155,8 +162,8 @@ export function PhotoLightbox({
             key={photo.id}
             // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
             style={{ backgroundColor: photo.placeholderColor }}
-            src={photoVariantUrl(baseUrl, photo.id, 2048)}
-            srcSet={`${photoVariantUrl(baseUrl, photo.id, 960)} 960w, ${photoVariantUrl(baseUrl, photo.id, 2048)} 2048w`}
+            src={photoVariantUrl(baseUrl, photo.id, PHOTO_FULL_WIDTH)}
+            srcSet={photoVariantSrcSet(baseUrl, photo.id, [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH])}
             sizes="100vw"
             alt=""
             width={photo.width}

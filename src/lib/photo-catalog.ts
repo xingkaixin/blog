@@ -1,6 +1,9 @@
 export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 3 as const;
 export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 1 as const;
 export const PHOTO_VARIANT_WIDTHS = [480, 960, 2048] as const;
+export const PHOTO_THUMBNAIL_WIDTH = PHOTO_VARIANT_WIDTHS[0];
+export const PHOTO_DISPLAY_WIDTH = PHOTO_VARIANT_WIDTHS[1];
+export const PHOTO_FULL_WIDTH = PHOTO_VARIANT_WIDTHS[2];
 export const PHOTO_CATALOG_INDEX_KEY = "catalog/index.json";
 
 export type PhotoVariantWidth = (typeof PHOTO_VARIANT_WIDTHS)[number];
@@ -429,4 +432,12 @@ export function photoVariantUrl(
   width: PhotoVariantWidth,
 ): string {
   return photoObjectUrl(baseUrl, `media/${photoId}/${width}.webp`);
+}
+
+export function photoVariantSrcSet(
+  baseUrl: string,
+  photoId: string,
+  widths: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
+): string {
+  return widths.map((width) => `${photoVariantUrl(baseUrl, photoId, width)} ${width}w`).join(", ");
 }

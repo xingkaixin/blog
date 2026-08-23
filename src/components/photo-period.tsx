@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
+  PHOTO_THUMBNAIL_WIDTH,
+  photoVariantSrcSet,
   photoVariantUrl,
   type PhotoMonthCatalog,
   type PhotoPeriod,
@@ -199,8 +201,8 @@ function PhotoGrid({ baseUrl, photos, eager, onOpenPhoto }: PhotoGridProps) {
                   onClick={() => onOpenPhoto(photo)}
                 >
                   <img
-                    src={photoVariantUrl(baseUrl, photo.id, 480)}
-                    srcSet={`${photoVariantUrl(baseUrl, photo.id, 480)} 480w, ${photoVariantUrl(baseUrl, photo.id, 960)} 960w, ${photoVariantUrl(baseUrl, photo.id, 2048)} 2048w`}
+                    src={photoVariantUrl(baseUrl, photo.id, PHOTO_THUMBNAIL_WIDTH)}
+                    srcSet={photoVariantSrcSet(baseUrl, photo.id)}
                     sizes="(max-width: 767px) 33vw, (max-width: 1199px) 34vw, 360px"
                     alt=""
                     width={photo.width}

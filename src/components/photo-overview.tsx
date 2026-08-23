@@ -1,4 +1,4 @@
-import { photoVariantUrl } from "@/lib/photo-catalog";
+import { PHOTO_THUMBNAIL_WIDTH, photoVariantUrl } from "@/lib/photo-catalog";
 import type { AlbumOverviewItem } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
@@ -121,7 +121,7 @@ function AlbumOverviewCard({
           >
             {photo && (
               <img
-                src={photoVariantUrl(baseUrl, photo.id, 480)}
+                src={photoVariantUrl(baseUrl, photo.id, PHOTO_THUMBNAIL_WIDTH)}
                 alt=""
                 width={photo.width}
                 height={photo.height}

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  PHOTO_DISPLAY_WIDTH,
   catalogIndexUrl,
   isPhotoId,
   locatePhotoPeriod,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   parsePhotoRecord,
+  photoVariantSrcSet,
   photoVariantUrl,
   validatePhotoMonth,
   type PhotoCatalogIndex,
@@ -166,8 +168,11 @@ describe("photo catalog", () => {
     expect(catalogIndexUrl("https://photos.example.com/")).toBe(
       "https://photos.example.com/catalog/index.json",
     );
-    expect(photoVariantUrl("/photo-preview/", "0123456789abcdef0123456789abcdef", 960)).toBe(
-      "/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp",
+    expect(
+      photoVariantUrl("/photo-preview/", "0123456789abcdef0123456789abcdef", PHOTO_DISPLAY_WIDTH),
+    ).toBe("/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp");
+    expect(photoVariantSrcSet("/photo-preview/", "0123456789abcdef0123456789abcdef")).toBe(
+      "/photo-preview/media/0123456789abcdef0123456789abcdef/480.webp 480w, /photo-preview/media/0123456789abcdef0123456789abcdef/960.webp 960w, /photo-preview/media/0123456789abcdef0123456789abcdef/2048.webp 2048w",
     );
   });
 });

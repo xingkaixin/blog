@@ -1,4 +1,9 @@
-import type { PhotoRecord, PhotoVariantWidth } from "./photo-catalog";
+import {
+  PHOTO_DISPLAY_WIDTH,
+  PHOTO_FULL_WIDTH,
+  type PhotoRecord,
+  type PhotoVariantWidth,
+} from "./photo-catalog";
 
 type NetworkState = {
   saveData?: boolean;
@@ -55,6 +60,6 @@ export function planPhotoPreload(
   }
   return {
     photo,
-    width: viewportWidth < 1_280 ? 960 : 2048,
+    width: viewportWidth < 1_280 ? PHOTO_DISPLAY_WIDTH : PHOTO_FULL_WIDTH,
   };
 }
