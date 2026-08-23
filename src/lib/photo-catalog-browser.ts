@@ -70,39 +70,18 @@ export class PhotoCatalogBrowser {
   }
 }
 
-export function photoLookupPeriods(index: PhotoCatalogIndex, photoId: string): PhotoPeriod[] {
-  const located = locatePhotoPeriod(index, photoId);
-  return located ? [located] : [];
-}
-
 export async function resolveCatalogPhoto(
   index: PhotoCatalogIndex,
   photoId: string,
-  loadedMonths: Iterable<PhotoMonthCatalog>,
+  loadedMonths: Readonly<Record<string, PhotoMonthCatalog>>,
   loadMonth: (period: PhotoPeriod) => Promise<PhotoMonthCatalog>,
 ): Promise<PhotoRecord | null> {
-  for (const month of loadedMonths) {
-    const loaded = month.photos.find((photo) => photo.id === photoId);
-    if (loaded) {
-      return loaded;
-    }
+  const period = locatePhotoPeriod(index, photoId);
+  if (!period) {
+    return null;
   }
-
-  const failures: unknown[] = [];
-  for (const period of photoLookupPeriods(index, photoId)) {
-    try {
-      const photo = (await loadMonth(period)).photos.find((candidate) => candidate.id === photoId);
-      if (photo) {
-        return photo;
-      }
-    } catch (error) {
-      failures.push(error);
-    }
-  }
-  if (failures.length > 0) {
-    throw new AggregateError(failures, `无法定位照片 ${photoId}`);
-  }
-  return null;
+  const month = loadedMonths[period.month] ?? (await loadMonth(period));
+  return month.photos.find((photo) => photo.id === photoId) ?? null;
 }
 
 export async function resolvePhotoSelection(

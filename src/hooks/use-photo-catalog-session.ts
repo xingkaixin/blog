@@ -119,7 +119,7 @@ export function usePhotoCatalogSession(baseUrl: string) {
       if (!index) {
         return Promise.reject(new Error("照片主 Catalog 尚未加载"));
       }
-      return resolveCatalogPhoto(index, photoId, Object.values(monthsRef.current), loadMonth);
+      return resolveCatalogPhoto(index, photoId, monthsRef.current, loadMonth);
     },
     [index, loadMonth],
   );

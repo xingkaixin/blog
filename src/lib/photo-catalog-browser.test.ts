@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { PhotoCatalogIndex, PhotoMonthCatalog } from "@/lib/photo-catalog";
 import {
   PhotoCatalogBrowser,
-  photoLookupPeriods,
   resolveCatalogPhoto,
   resolvePhotoSelection,
   type PhotoCatalogRequest,
@@ -103,23 +102,40 @@ describe("photo catalog browser", () => {
     expect(request).toHaveBeenCalledTimes(2);
   });
 
-  it("uses the authoritative locator without scanning unrelated months", () => {
-    expect(photoLookupPeriods(index, photoId)).toEqual([period]);
-    expect(photoLookupPeriods({ ...index, photoMonths: {} }, photoId)).toEqual([]);
-    expect(photoLookupPeriods(index, "ffffffffffffffffffffffffffffffff")).toEqual([]);
-  });
-
-  it("resolves photos without scanning when the locator is authoritative", async () => {
+  it("loads only the month selected by the authoritative locator", async () => {
     const loadMonth = vi.fn(async () => month);
-    await expect(resolveCatalogPhoto(index, photoId, [], loadMonth)).resolves.toEqual(
+    await expect(resolveCatalogPhoto(index, photoId, {}, loadMonth)).resolves.toEqual(
       month.photos[0],
     );
     expect(loadMonth).toHaveBeenCalledTimes(1);
 
     loadMonth.mockClear();
     await expect(
-      resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", [], loadMonth),
+      resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", {}, loadMonth),
     ).resolves.toBeNull();
+    expect(loadMonth).not.toHaveBeenCalled();
+  });
+
+  it("does not scan unrelated loaded months", async () => {
+    const unrelatedMonth: PhotoMonthCatalog = {
+      schemaVersion: 1,
+      month: "2026-03",
+      get photos(): PhotoMonthCatalog["photos"] {
+        throw new Error("unrelated month was scanned");
+      },
+    };
+    const loadMonth = vi.fn(async () => {
+      throw new Error("the target month is already loaded");
+    });
+
+    await expect(
+      resolveCatalogPhoto(
+        index,
+        photoId,
+        { "2026-03": unrelatedMonth, [month.month]: month },
+        loadMonth,
+      ),
+    ).resolves.toEqual(month.photos[0]);
     expect(loadMonth).not.toHaveBeenCalled();
   });
 
