@@ -250,6 +250,11 @@ const pageTransition = {
 
     <script>
       import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+      import { registerBlogWebMcpTools } from "@/lib/webmcp";
+
+      registerBlogWebMcpTools(document).catch((error) => {
+        console.error("Failed to register WebMCP tools", error);
+      });
 
       document.addEventListener("astro:before-preparation", (event) => {
         const isReturningToPostList =
