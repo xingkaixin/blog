@@ -152,7 +152,7 @@ export function initializePostConsole(root: HTMLElement): void {
       event.preventDefault();
       const currentIndex = Math.max(
         0,
-        visibleRows.findIndex((row) => row.dataset.postRow === previewSlug),
+        visibleRows.findIndex((row) => row === root.ownerDocument.activeElement),
       );
       const direction = event.key === "ArrowDown" ? 1 : -1;
       visibleRows[(currentIndex + direction + visibleRows.length) % visibleRows.length].focus();

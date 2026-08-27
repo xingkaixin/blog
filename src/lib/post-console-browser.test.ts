@@ -95,6 +95,21 @@ describe("initializePostConsole", () => {
     );
     expect(root.querySelector("[data-preview-related]")?.textContent).toBe("first");
   });
+
+  it.each([
+    ["first", "third", "ArrowDown"],
+    ["third", "first", "ArrowUp"],
+  ])("moves from the focused %s row when hovering %s and pressing %s", (focused, hovered, key) => {
+    const focusedRow = root.querySelector<HTMLElement>(`[data-post-row="${focused}"]`)!;
+    focusedRow.focus();
+    root
+      .querySelector<HTMLElement>(`[data-post-row="${hovered}"]`)!
+      .dispatchEvent(new Event("mouseenter"));
+
+    focusedRow.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    expect(document.activeElement).toBe(root.querySelector('[data-post-row="second"]'));
+    expect(root.querySelector("[data-preview-title]")?.textContent).toBe("second");
+  });
 });
 
 function button(groupLabel: string, label: string): HTMLButtonElement {
