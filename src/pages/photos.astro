@@ -4,7 +4,7 @@ import SiteLayout from "@/layouts/SiteLayout.astro";
 import { siteConfig } from "@/lib/site";
 
 const configuredPhotoUrl = import.meta.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
-const photoBaseUrl = import.meta.env.DEV && configuredPhotoUrl.startsWith("http")
+const photoBaseUrl = import.meta.env.DEV && (import.meta.env.PHOTO_PREVIEW_DIRECTORY?.trim() || configuredPhotoUrl.startsWith("http"))
   ? "/__photos"
   : configuredPhotoUrl;
 const meta = {

@@ -119,9 +119,13 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 bun run photos:publish -- ~/Downloads/IMG_7616.heic ~/Downloads/IMG_7608.heic \
   --album preview \
   --album-title "预览" \
-  --output public/photo-preview
+  --output .photo-preview
 
-PUBLIC_PHOTO_BASE_URL=/photo-preview bun run dev
+PHOTO_PREVIEW_DIRECTORY=.photo-preview bun run dev
 ```
 
-`public/photo-preview` 已被 Git 忽略。删除它不会影响 R2。
+`.photo-preview` 不属于 `public/`，已被 Git 忽略。开发服务器通过 `/__photos/` 只提供
+公开索引、月份分片和图片，不提供 `catalog/control.json`，生产构建不会复制该目录。
+若曾使用旧路径，先把整个 `public/photo-preview` 移到 `.photo-preview`，不要丢弃其中的
+控制文档。发布命令拒绝把本地数据写入 `public/`，构建也会拒绝遗留预览目录或控制文档。
+删除本地预览目录不会影响 R2。

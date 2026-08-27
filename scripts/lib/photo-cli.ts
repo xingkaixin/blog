@@ -2,6 +2,7 @@ import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
 import { migratePhotoCatalog } from "./photo-catalog-store";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
+import { assertPhotoDirectoryOutsidePublic } from "./photo-preview";
 import { photoDisplayName, publishPhotos, type PublishAlbum } from "./photo-publisher";
 import { retirePhotos } from "./photo-retirement";
 import { collectPhotoFiles, hashPhotoFile, type ProcessedPhoto } from "./photo-source";
@@ -382,6 +383,7 @@ async function runMigrateCommand(options: MigratePhotoCliOptions, io: PhotoCliIo
 function createStore(output: string | undefined, action: string, io: PhotoCliIo): PhotoObjectStore {
   if (output) {
     const directory = path.resolve(output);
+    assertPhotoDirectoryOutsidePublic(directory, path.resolve("public"));
     io.log(`${action}目标：${directory}`);
     return new FilePhotoObjectStore(directory);
   }

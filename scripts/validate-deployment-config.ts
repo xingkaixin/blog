@@ -3,11 +3,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { siteConfig } from "../src/lib/site";
+import { assertPublicPhotoIsolation } from "./lib/photo-preview";
 
 export function validateDeploymentConfig(
   rootDirectory = process.cwd(),
   photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl,
 ): void {
+  assertPublicPhotoIsolation(path.join(rootDirectory, "public"));
   const siteOrigin = new URL(siteConfig.url).origin;
   const headers = fs.readFileSync(path.join(rootDirectory, "public", "_headers"), "utf8");
   const cors = JSON.parse(

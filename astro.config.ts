@@ -4,10 +4,12 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
+import { photoPreviewPlugin } from "./scripts/lib/photo-preview";
 import { rehypeBlogContent } from "./src/lib/rehype-blog-content";
 import { siteConfig } from "./src/lib/site";
 
 const configuredPhotoUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
+const previewDirectory = process.env.PHOTO_PREVIEW_DIRECTORY?.trim();
 const photoProxyTarget = configuredPhotoUrl.startsWith("http")
   ? configuredPhotoUrl
   : siteConfig.photoUrl;
@@ -22,7 +24,7 @@ export default defineConfig({
     processor: unified({ remarkPlugins: [remarkGfm], rehypePlugins: [rehypeBlogContent] }),
   },
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), photoPreviewPlugin(previewDirectory)],
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -30,13 +32,15 @@ export default defineConfig({
     },
     server: {
       // 开发服务器通过同源代理隔离远端缓存与跨域配置差异。
-      proxy: {
-        "/__photos": {
-          target: photoProxyTarget,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/__photos/, ""),
-        },
-      },
+      proxy: previewDirectory
+        ? undefined
+        : {
+            "/__photos": {
+              target: photoProxyTarget,
+              changeOrigin: true,
+              rewrite: (path) => path.replace(/^\/__photos/, ""),
+            },
+          },
     },
   },
 });
