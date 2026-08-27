@@ -22,6 +22,22 @@ afterEach(async () => {
 });
 
 describe("file photo store", () => {
+  it("writes concurrent photo variants into a new directory", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const keys = [480, 960, 2048].map((width) => `media/photo/${width}.webp`);
+    const results = await Promise.allSettled(
+      keys.map((key) =>
+        store.put(key, key, { contentType: "image/webp", cacheControl: "immutable" }),
+      ),
+    );
+
+    expect(results.every((result) => result.status === "fulfilled")).toBe(true);
+    expect(await Promise.all(keys.map((key) => fs.readFile(path.join(root, key), "utf8")))).toEqual(
+      keys,
+    );
+  });
+
   it("reads, conditionally writes, and deletes objects inside its root", async () => {
     const root = temporaryDirectory();
     const store = new FilePhotoObjectStore(root);

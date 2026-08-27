@@ -177,21 +177,14 @@ async function assertRootDirectory(root: string, create: boolean): Promise<void>
 }
 
 async function assertDirectory(directory: string, create: boolean): Promise<void> {
-  let stats = await fs.lstat(directory).catch((error) => {
-    if (isNodeError(error) && error.code === "ENOENT") {
-      return null;
-    }
-    throw error;
-  });
-  if (!stats && create) {
-    await fs.mkdir(directory);
-    stats = await fs.lstat(directory);
+  if (create) {
+    await fs.mkdir(directory).catch((error) => {
+      if (!isNodeError(error) || error.code !== "EEXIST") {
+        throw error;
+      }
+    });
   }
-  if (!stats) {
-    const error = new Error(`对象目录不存在: ${directory}`) as NodeJS.ErrnoException;
-    error.code = "ENOENT";
-    throw error;
-  }
+  const stats = await fs.lstat(directory);
   if (stats.isSymbolicLink() || !stats.isDirectory()) {
     throw new Error(`对象目录不能是符号链接或非目录条目: ${directory}`);
   }
