@@ -25,7 +25,13 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     retryMonth,
     resolvePhoto,
   } = usePhotoCatalogSession(normalizedBaseUrl);
-  const browsing = usePhotoBrowsingSession({ index, loadMonth, resolvePhoto });
+  const browsing = usePhotoBrowsingSession({
+    index,
+    months: monthCatalogs,
+    monthErrors,
+    loadMonth,
+    resolvePhoto,
+  });
   const photoView = browsing.view;
   const catalogModel = useMemo(
     () => buildPhotoWallCatalogModel(index, photoView),
@@ -57,10 +63,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     loadMonth,
   );
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
-  const lightboxPhotos =
-    displayPhoto && model.filteredPhotos.some((photo) => photo.id === displayPhoto.id)
-      ? model.filteredPhotos
-      : model.allPhotos;
 
   return (
     <section className="pb-20">
@@ -112,15 +114,16 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         </div>
       )}
 
-      {displayPhoto && index && (
+      {displayPhoto && index && browsing.navigation && (
         <PhotoLightbox
           baseUrl={normalizedBaseUrl}
           open={selectedPhoto !== null}
           photo={displayPhoto}
-          photos={lightboxPhotos}
+          navigation={browsing.navigation}
           albums={index.albums}
           onClose={browsing.closePhoto}
           onSelect={browsing.selectPhoto}
+          onRetryNavigation={browsing.retryNavigation}
         />
       )}
     </section>

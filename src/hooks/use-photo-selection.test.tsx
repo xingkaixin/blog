@@ -70,14 +70,12 @@ describe("usePhotoSelection", () => {
       photoId === firstPhoto.id ? first.promise : second.promise,
     );
     const onMissing = vi.fn();
-    const onResolved = vi.fn();
 
     await renderSelection({
       catalogReady: true,
       photoId: firstPhoto.id,
       resolvePhoto,
       onMissing,
-      onResolved,
     });
     expect(selection.state).toEqual({ status: "loading", photoId: firstPhoto.id });
 
@@ -86,15 +84,12 @@ describe("usePhotoSelection", () => {
       photoId: secondPhoto.id,
       resolvePhoto,
       onMissing,
-      onResolved,
     });
     await act(async () => first.resolve(firstPhoto));
     expect(selection.state).toEqual({ status: "loading", photoId: secondPhoto.id });
 
     await act(async () => second.resolve(secondPhoto));
     expect(selection.state).toEqual({ status: "ready", photo: secondPhoto });
-    expect(onResolved).toHaveBeenCalledOnce();
-    expect(onResolved).toHaveBeenCalledWith(secondPhoto);
   });
 
   it("retries the current URL selection after a recoverable failure", async () => {
@@ -108,7 +103,6 @@ describe("usePhotoSelection", () => {
       photoId: firstPhoto.id,
       resolvePhoto,
       onMissing: vi.fn(),
-      onResolved: vi.fn(),
     };
 
     await renderSelection(options);
@@ -131,7 +125,6 @@ describe("usePhotoSelection", () => {
       photoId: firstPhoto.id,
       resolvePhoto: vi.fn().mockResolvedValue(null),
       onMissing,
-      onResolved: vi.fn(),
     });
 
     expect(selection.state).toEqual({ status: "idle" });
@@ -140,20 +133,17 @@ describe("usePhotoSelection", () => {
 
   it("does not reopen after dismissal while history is still updating", async () => {
     const pending = deferred<PhotoRecord | null>();
-    const onResolved = vi.fn();
 
     await renderSelection({
       catalogReady: true,
       photoId: firstPhoto.id,
       resolvePhoto: vi.fn(() => pending.promise),
       onMissing: vi.fn(),
-      onResolved,
     });
     await act(async () => selection.dismiss());
     await act(async () => pending.resolve(firstPhoto));
 
     expect(selection.state).toEqual({ status: "idle" });
-    expect(onResolved).not.toHaveBeenCalled();
   });
 
   it("keeps the last photo available while the lightbox exits", async () => {
@@ -162,7 +152,6 @@ describe("usePhotoSelection", () => {
       photoId: null,
       resolvePhoto: vi.fn(),
       onMissing: vi.fn(),
-      onResolved: vi.fn(),
     });
 
     await act(async () => selection.select(firstPhoto));

@@ -1,12 +1,13 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { usePhotoLocation } from "@/hooks/use-photo-location";
 import { usePhotoSelection } from "@/hooks/use-photo-selection";
 import {
-  monthFromCapturedAt,
   type PhotoCatalogIndex,
+  type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
 } from "@/lib/photo-catalog";
+import { planPhotoNavigation, type PhotoNavigation } from "@/lib/photo-catalog-browser";
 import {
   planOverviewOpen,
   planPhotoClose,
@@ -18,36 +19,27 @@ import {
 
 type UsePhotoBrowsingSessionOptions = {
   index: PhotoCatalogIndex | null;
+  months: Readonly<Record<string, PhotoMonthCatalog>>;
+  monthErrors: Readonly<Record<string, string>>;
   loadMonth: (period: PhotoPeriod) => Promise<unknown>;
   resolvePhoto: (photoId: string) => Promise<PhotoRecord | null>;
+};
+
+export type PhotoBrowsingNavigation = PhotoNavigation & {
+  status: "ready" | "loading" | "error";
 };
 
 const OVERVIEW_VIEW = { mode: "overview" } as const;
 
 export function usePhotoBrowsingSession({
   index,
+  months,
+  monthErrors,
   loadMonth,
   resolvePhoto,
 }: UsePhotoBrowsingSessionOptions) {
   const { location, navigate } = usePhotoLocation(index);
   const view = location?.view ?? OVERVIEW_VIEW;
-
-  const preloadAdjacentPeriods = useCallback(
-    (photo: PhotoRecord) => {
-      if (!index) {
-        return;
-      }
-      const currentMonth = monthFromCapturedAt(photo.capturedAt);
-      const currentIndex = index.periods.findIndex((period) => period.month === currentMonth);
-      for (const adjacentIndex of [currentIndex - 1, currentIndex + 1]) {
-        const period = index.periods[adjacentIndex];
-        if (period) {
-          void loadMonth(period).catch(() => undefined);
-        }
-      }
-    },
-    [index, loadMonth],
-  );
 
   const closeMissingPhoto = useCallback(() => {
     navigate(planPhotoClose(window.location.href, window.history.state));
@@ -64,8 +56,38 @@ export function usePhotoBrowsingSession({
     photoId: location?.photoId,
     resolvePhoto,
     onMissing: closeMissingPhoto,
-    onResolved: preloadAdjacentPeriods,
   });
+
+  const albumId = view.mode === "timeline" ? view.albumId : null;
+  const navigationPlan = useMemo(
+    () =>
+      index && displayPhoto ? planPhotoNavigation(index, displayPhoto, albumId, months) : null,
+    [albumId, displayPhoto, index, months],
+  );
+  const loadNavigation = useCallback(
+    (retry = false) => {
+      if (!selectedPhoto || !navigationPlan) {
+        return;
+      }
+      for (const period of navigationPlan.pendingPeriods) {
+        if (retry || !monthErrors[period.month]) {
+          void loadMonth(period).catch(() => undefined);
+        }
+      }
+    },
+    [loadMonth, monthErrors, navigationPlan, selectedPhoto],
+  );
+
+  useEffect(() => loadNavigation(), [loadNavigation]);
+
+  const navigation: PhotoBrowsingNavigation | null = navigationPlan && {
+    ...navigationPlan.navigation,
+    status: navigationPlan.pendingPeriods.some((period) => monthErrors[period.month])
+      ? "error"
+      : navigationPlan.pendingPeriods.length > 0
+        ? "loading"
+        : "ready",
+  };
 
   const openPhoto = useCallback(
     (photo: PhotoRecord) => {
@@ -111,6 +133,8 @@ export function usePhotoBrowsingSession({
     selectionState,
     selectedPhoto,
     displayPhoto,
+    navigation,
+    retryNavigation: () => loadNavigation(true),
     retryPhoto,
     openPhoto,
     selectPhoto,

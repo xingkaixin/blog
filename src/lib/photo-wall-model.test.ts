@@ -66,12 +66,11 @@ describe("photo wall model", () => {
     expect(model.timelineRange).toBe("2026年8月");
   });
 
-  it("derives overview previews and loaded lightbox photos in catalog order", () => {
+  it("derives overview previews in catalog order", () => {
     const catalog = buildPhotoWallCatalogModel(index, { mode: "timeline", albumId: "daily" });
     const model = buildPhotoWallModel(catalog, months);
 
-    expect(model.allPhotos.map((photo) => photo.id)).toEqual([firstPhoto.id, secondPhoto.id]);
-    expect(model.filteredPhotos.map((photo) => photo.id)).toEqual([secondPhoto.id]);
+    expect(model.overviewItems[0].photos).toEqual([firstPhoto, secondPhoto]);
     expect(model.overviewItems.map((item) => [item.title, item.count])).toEqual([
       ["全部", 2],
       ["日常", 1],

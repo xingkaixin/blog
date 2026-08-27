@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { PhotoCatalogIndex, PhotoMonthCatalog } from "@/lib/photo-catalog";
 import {
   PhotoCatalogBrowser,
+  planPhotoNavigation,
   resolveCatalogPhoto,
   resolvePhotoSelection,
   type PhotoCatalogRequest,
@@ -37,6 +38,97 @@ const month: PhotoMonthCatalog = {
 };
 
 describe("photo catalog browser", () => {
+  it("waits for an unloaded month instead of skipping to a cached later photo", () => {
+    const periods = ["2026-04", "2026-03", "2026-02"].map((month) => ({
+      ...period,
+      month,
+      path: `catalog/months/${month}.0123456789abcdef01234567.json`,
+    }));
+    const catalogs = Object.fromEntries(
+      periods.map((period, i) => [
+        period.month,
+        {
+          ...month,
+          month: period.month,
+          photos: [
+            {
+              ...month.photos[0],
+              id: String(i).repeat(32),
+              capturedAt: `${period.month}-25T21:12:30.244+07:00`,
+            },
+          ],
+        },
+      ]),
+    );
+    const catalog = {
+      ...index,
+      periods,
+      photoMonths: Object.fromEntries(
+        Object.values(catalogs).map((month) => [month.photos[0].id, month.month]),
+      ),
+    };
+    const selected = catalogs["2026-04"].photos[0];
+    expect(
+      planPhotoNavigation(catalog, selected, "trip", {
+        "2026-04": catalogs["2026-04"],
+        "2026-02": catalogs["2026-02"],
+      }),
+    ).toEqual({
+      navigation: { previous: undefined, next: undefined, position: 1, total: 3 },
+      pendingPeriods: [periods[1]],
+    });
+    expect(planPhotoNavigation(catalog, selected, "trip", catalogs)).toEqual({
+      navigation: {
+        previous: undefined,
+        next: catalogs["2026-03"].photos[0],
+        position: 1,
+        total: 3,
+      },
+      pendingPeriods: [],
+    });
+  });
+
+  it("navigates within a month without loading other periods", () => {
+    const photos = ["f", "e", "d", "c"].map((id, index) => ({
+      ...month.photos[0],
+      id: id.repeat(32),
+      albumIds: index === 1 ? [] : ["trip"],
+    }));
+    const catalog = {
+      ...index,
+      periods: [{ ...period, count: 4, albumCounts: { trip: 3 } }],
+      photoMonths: Object.fromEntries(photos.map((photo) => [photo.id, month.month])),
+    };
+
+    expect(
+      planPhotoNavigation(catalog, photos[2], "trip", { [month.month]: { ...month, photos } }),
+    ).toEqual({
+      navigation: { previous: photos[0], next: photos[3], position: 2, total: 3 },
+      pendingPeriods: [],
+    });
+  });
+
+  it("uses the full catalog for a linked photo outside the selected album", () => {
+    const otherPhoto = {
+      ...month.photos[0],
+      id: "f".repeat(32),
+      capturedAt: "2026-04-24T21:12:30.244+07:00",
+      albumIds: ["other"],
+    };
+    const catalog = {
+      ...index,
+      albums: [...index.albums, { id: "other", title: "其他" }],
+      periods: [{ ...period, count: 2, albumCounts: { trip: 1, other: 1 } }],
+      photoMonths: { ...index.photoMonths, [otherPhoto.id]: month.month },
+    };
+    const loaded = { [month.month]: { ...month, photos: [...month.photos, otherPhoto] } };
+
+    expect(planPhotoNavigation(catalog, month.photos[0], "other", loaded)).toEqual({
+      navigation: { previous: undefined, next: otherPhoto, position: 1, total: 2 },
+      pendingPeriods: [],
+    });
+  });
+
   it("deduplicates month requests and retries failures", async () => {
     const request = vi
       .fn<PhotoCatalogRequest>()

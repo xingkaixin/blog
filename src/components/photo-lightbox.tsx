@@ -1,6 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type { PhotoBrowsingNavigation } from "@/hooks/use-photo-browsing-session";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_DISPLAY_WIDTH,
@@ -16,10 +17,11 @@ type PhotoLightboxProps = {
   baseUrl: string;
   open: boolean;
   photo: PhotoRecord;
-  photos: PhotoRecord[];
+  navigation: PhotoBrowsingNavigation;
   albums: PhotoAlbum[];
   onClose: () => void;
   onSelect: (photo: PhotoRecord) => void;
+  onRetryNavigation: () => void;
 };
 
 function revealIfOutsideViewport(element: HTMLElement | null): void {
@@ -37,16 +39,14 @@ export function PhotoLightbox({
   baseUrl,
   open,
   photo,
-  photos,
+  navigation,
   albums,
   onClose,
   onSelect,
+  onRetryNavigation,
 }: PhotoLightboxProps) {
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const index = photos.findIndex((candidate) => candidate.id === photo.id);
-  const currentPosition = index >= 0 ? index + 1 : 1;
-  const previous = index > 0 ? photos[index - 1] : undefined;
-  const next = index >= 0 && index < photos.length - 1 ? photos[index + 1] : undefined;
+  const { previous, next } = navigation;
   const albumTitleById = useMemo(
     () => new Map(albums.map((album) => [album.id, album.title])),
     [albums],
@@ -197,10 +197,27 @@ export function PhotoLightbox({
 
         <footer className="flex h-10 shrink-0 items-center justify-between gap-4 border-t border-white/10 px-3 font-mono text-[10px] text-[#8b8c92] sm:px-5">
           <span aria-live="polite" className="text-[#deddd8]">
-            {currentPosition} / {photos.length}
+            {navigation.position} / {navigation.total}
           </span>
-          <span className="sm:hidden">左右滑动 · Esc 关闭</span>
-          <span className="hidden sm:inline">← → 切换 · Esc 关闭</span>
+          {navigation.status === "loading" ? (
+            <span role="status">正在加载相邻照片…</span>
+          ) : navigation.status === "error" ? (
+            <span role="alert" className="flex items-center gap-3">
+              相邻照片加载失败
+              <button
+                type="button"
+                onClick={onRetryNavigation}
+                className="rounded px-2 py-1 text-[#f0efea] underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e]"
+              >
+                重试
+              </button>
+            </span>
+          ) : (
+            <>
+              <span className="sm:hidden">左右滑动 · Esc 关闭</span>
+              <span className="hidden sm:inline">← → 切换 · Esc 关闭</span>
+            </>
+          )}
         </footer>
       </DialogContent>
     </Dialog>

@@ -13,7 +13,6 @@ type UsePhotoSelectionOptions = {
   photoId: string | null | undefined;
   resolvePhoto: (photoId: string) => Promise<PhotoRecord | null>;
   onMissing: () => void;
-  onResolved: (photo: PhotoRecord) => void;
 };
 
 export function usePhotoSelection({
@@ -21,7 +20,6 @@ export function usePhotoSelection({
   photoId,
   resolvePhoto,
   onMissing,
-  onResolved,
 }: UsePhotoSelectionOptions) {
   const [state, setState] = useState<PhotoSelectionState>({ status: "idle" });
   const [retryCount, setRetryCount] = useState(0);
@@ -65,7 +63,6 @@ export function usePhotoSelection({
       }
       lastPhotoRef.current = result.photo;
       setState({ status: "ready", photo: result.photo });
-      onResolved(result.photo);
     });
 
     return () => {
@@ -73,7 +70,7 @@ export function usePhotoSelection({
         resolutionGenerationRef.current += 1;
       }
     };
-  }, [catalogReady, onMissing, onResolved, photoId, resolvePhoto, retryCount]);
+  }, [catalogReady, onMissing, photoId, resolvePhoto, retryCount]);
 
   const select = useCallback((photo: PhotoRecord) => {
     resolutionGenerationRef.current += 1;

@@ -21,6 +21,13 @@ export type PhotoResolution =
   | { status: "missing" }
   | { status: "error"; message: string; cause: unknown };
 
+export type PhotoNavigation = {
+  previous: PhotoRecord | undefined;
+  next: PhotoRecord | undefined;
+  position: number;
+  total: number;
+};
+
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
   readonly request: PhotoCatalogRequest;
@@ -82,6 +89,63 @@ export async function resolveCatalogPhoto(
   }
   const month = loadedMonths[period.month] ?? (await loadMonth(period));
   return month.photos.find((photo) => photo.id === photoId) ?? null;
+}
+
+export function planPhotoNavigation(
+  index: PhotoCatalogIndex,
+  photo: PhotoRecord,
+  albumId: string | null,
+  loadedMonths: Readonly<Record<string, PhotoMonthCatalog>>,
+): { navigation: PhotoNavigation; pendingPeriods: PhotoPeriod[] } | null {
+  const selectedAlbumId = albumId && photo.albumIds.includes(albumId) ? albumId : null;
+  const photoCount = (period: PhotoPeriod) =>
+    selectedAlbumId ? (period.albumCounts[selectedAlbumId] ?? 0) : period.count;
+  const periods = index.periods.filter((period) => photoCount(period) > 0);
+  const periodIndex = periods.findIndex((period) => period.month === index.photoMonths[photo.id]);
+  if (periodIndex < 0) {
+    return null;
+  }
+
+  const monthPhotos = (period: PhotoPeriod) =>
+    loadedMonths[period.month]?.photos.filter(
+      (candidate) => !selectedAlbumId || candidate.albumIds.includes(selectedAlbumId),
+    ) ?? [];
+  const photos = monthPhotos(periods[periodIndex]);
+  const photoIndex = photos.findIndex((candidate) => candidate.id === photo.id);
+  if (photoIndex < 0) {
+    return null;
+  }
+
+  const pendingPeriods: PhotoPeriod[] = [];
+  const adjacentPhoto = (direction: -1 | 1): PhotoRecord | undefined => {
+    const adjacent = photos[photoIndex + direction];
+    if (adjacent) {
+      return adjacent;
+    }
+    const period = periods[periodIndex + direction];
+    if (!period) {
+      return undefined;
+    }
+    if (!loadedMonths[period.month]) {
+      pendingPeriods.push(period);
+      return undefined;
+    }
+    const candidates = monthPhotos(period);
+    return direction === -1 ? candidates.at(-1) : candidates[0];
+  };
+
+  return {
+    navigation: {
+      previous: adjacentPhoto(-1),
+      next: adjacentPhoto(1),
+      position:
+        periods.slice(0, periodIndex).reduce((sum, period) => sum + photoCount(period), 0) +
+        photoIndex +
+        1,
+      total: periods.reduce((sum, period) => sum + photoCount(period), 0),
+    },
+    pendingPeriods,
+  };
 }
 
 export async function resolvePhotoSelection(

@@ -36,8 +36,6 @@ export type PhotoTimelineModel = {
 export type PhotoWallModel = PhotoTimelineModel & {
   overviewPeriods: PhotoPeriod[];
   overviewItems: AlbumOverviewItem[];
-  allPhotos: PhotoRecord[];
-  filteredPhotos: PhotoRecord[];
 };
 
 type PhotoWallCatalogModel = PhotoTimelineModel & {
@@ -138,12 +136,8 @@ export function buildPhotoWallModel(
   const previewPhotos = new Map(
     catalog.albumSummaries.map((album) => [album.id, [] as PhotoRecord[]]),
   );
-  const filteredPhotos: PhotoRecord[] = [];
 
   for (const photo of allPhotos) {
-    if (!catalog.selectedAlbumId || photo.albumIds.includes(catalog.selectedAlbumId)) {
-      filteredPhotos.push(photo);
-    }
     for (const albumId of photo.albumIds) {
       const photos = previewPhotos.get(albumId);
       if (photos && photos.length < PREVIEW_PHOTO_COUNT) {
@@ -161,8 +155,6 @@ export function buildPhotoWallModel(
           ? allPhotos.slice(0, PREVIEW_PHOTO_COUNT)
           : (previewPhotos.get(summary.id) ?? []),
     })),
-    allPhotos,
-    filteredPhotos,
   };
 }
 

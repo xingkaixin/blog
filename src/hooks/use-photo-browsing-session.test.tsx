@@ -3,7 +3,12 @@
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { PhotoCatalogIndex, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
+import type {
+  PhotoCatalogIndex,
+  PhotoMonthCatalog,
+  PhotoPeriod,
+  PhotoRecord,
+} from "@/lib/photo-catalog";
 import { usePhotoBrowsingSession } from "./use-photo-browsing-session";
 
 declare global {
@@ -24,12 +29,15 @@ const periods: PhotoPeriod[] = ["2026-05", "2026-04", "2026-03"].map((month) => 
   albumCounts: { trip: 1 },
   path: `catalog/months/${month}.0123456789abcdef01234567.json`,
 }));
+const months = Object.fromEntries(periods.map((period) => [period.month, monthCatalog(period)]));
 const index: PhotoCatalogIndex = {
   schemaVersion: 3,
   generatedAt: "2026-08-07T12:00:00.000Z",
   albums: [{ id: "trip", title: "旅行" }],
   periods,
-  photoMonths: { [photo.id]: "2026-04" },
+  photoMonths: Object.fromEntries(
+    Object.values(months).map((month) => [month.photos[0].id, month.month]),
+  ),
 };
 
 type BrowsingOptions = Parameters<typeof usePhotoBrowsingSession>[0];
@@ -64,10 +72,99 @@ afterEach(async () => {
 });
 
 describe("usePhotoBrowsingSession", () => {
+  it("loads adjacent months within the selected album", async () => {
+    const sparsePeriods: PhotoPeriod[] = [
+      "2026-08",
+      "2026-07",
+      "2026-06",
+      "2026-05",
+      "2026-04",
+    ].map((month, index): PhotoPeriod => ({
+      month,
+      count: 1,
+      albumCounts: index % 2 === 0 ? { trip: 1 } : {},
+      path: `catalog/months/${month}.0123456789abcdef01234567.json`,
+    }));
+    const sparseMonths = Object.fromEntries(
+      sparsePeriods.map((period) => [period.month, monthCatalog(period)]),
+    );
+    const selected = sparseMonths["2026-06"].photos[0];
+    const sparseIndex = {
+      ...index,
+      periods: sparsePeriods,
+      photoMonths: Object.fromEntries(
+        Object.values(sparseMonths).map((month) => [month.photos[0].id, month.month]),
+      ),
+    };
+    const loadMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
+    const options: BrowsingOptions = {
+      index: sparseIndex,
+      months: { "2026-06": sparseMonths["2026-06"] },
+      monthErrors: {},
+      loadMonth,
+      resolvePhoto: async (photoId) => sparseMonths[sparseIndex.photoMonths[photoId]].photos[0],
+    };
+
+    await renderSession(options);
+    await act(async () => session.openTimeline("trip"));
+    await act(async () => session.openPhoto(selected));
+
+    const requestedMonths = loadMonth.mock.calls.map(([period]) => period.month);
+    expect(requestedMonths).toEqual(["2026-08", "2026-04"]);
+    expect(session.navigation).toEqual({
+      previous: undefined,
+      next: undefined,
+      position: 2,
+      total: 3,
+      status: "loading",
+    });
+
+    await renderSession({ ...options, months: sparseMonths });
+    expect(session.navigation).toMatchObject({
+      previous: sparseMonths["2026-08"].photos[0],
+      next: sparseMonths["2026-04"].photos[0],
+      status: "ready",
+    });
+    await act(async () => session.selectPhoto(session.navigation!.next!));
+    expect(session.navigation).toMatchObject({ position: 3, total: 3, next: undefined });
+    expect(window.location.hash).toContain(`photo=${sparseMonths["2026-04"].photos[0].id}`);
+  });
+
+  it("keeps the current photo visible while a failed adjacent month is retried", async () => {
+    const loadMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
+    const options: BrowsingOptions = {
+      index,
+      months: { "2026-04": months["2026-04"] },
+      monthErrors: { "2026-03": "offline" },
+      loadMonth,
+      resolvePhoto: vi.fn().mockResolvedValue(photo),
+    };
+    await renderSession(options);
+    await act(async () => session.openPhoto(photo));
+    expect(session.navigation?.status).toBe("error");
+    expect(session.selectedPhoto).toEqual(photo);
+    expect(loadMonth).not.toHaveBeenCalledWith(periods[2]);
+
+    await act(async () => session.retryNavigation());
+    expect(loadMonth).toHaveBeenCalledWith(periods[2]);
+    await renderSession({ ...options, months, monthErrors: {} });
+    expect(session.navigation).toMatchObject({
+      next: months["2026-03"].photos[0],
+      status: "ready",
+    });
+    expect(session.selectedPhoto).toEqual(photo);
+  });
+
   it("coordinates view, selection, URL, and adjacent loading", async () => {
     const loadMonth = vi.fn(async () => undefined);
 
-    await renderSession({ index, loadMonth, resolvePhoto: vi.fn().mockResolvedValue(photo) });
+    await renderSession({
+      index,
+      months: { "2026-04": months["2026-04"] },
+      monthErrors: {},
+      loadMonth,
+      resolvePhoto: vi.fn().mockResolvedValue(photo),
+    });
     await act(async () => session.openTimeline("trip"));
     expect(session.view).toEqual({ mode: "timeline", albumId: "trip" });
     expect(window.location.hash).toBe("#album=trip");
@@ -90,6 +187,8 @@ describe("usePhotoBrowsingSession", () => {
 
     await renderSession({
       index,
+      months,
+      monthErrors: {},
       loadMonth: vi.fn(async () => undefined),
       resolvePhoto: vi.fn().mockResolvedValue(null),
     });
@@ -98,3 +197,18 @@ describe("usePhotoBrowsingSession", () => {
     expect(window.location.hash).toBe("");
   });
 });
+
+function monthCatalog(period: PhotoPeriod): PhotoMonthCatalog {
+  return {
+    schemaVersion: 1,
+    month: period.month,
+    photos: [
+      {
+        ...photo,
+        id: period.month === "2026-04" ? photo.id : period.month.replace("-", "").padStart(32, "0"),
+        capturedAt: `${period.month}-25T21:12:30.244+07:00`,
+        albumIds: Object.keys(period.albumCounts),
+      },
+    ],
+  };
+}
