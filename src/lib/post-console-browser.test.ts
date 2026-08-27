@@ -1,10 +1,12 @@
 // @vitest-environment happy-dom
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { PostConsoleItem } from "./post-console";
 import { initializePostConsole } from "./post-console-browser";
-import type { SearchIndexItem } from "./search-index";
 
-const posts: SearchIndexItem[] = [
+type PostMetadata = Pick<PostConsoleItem, "slug" | "title" | "date" | "summary" | "tags">;
+
+const posts: PostMetadata[] = [
   post("first", "2026-02-02", ["AI"]),
   post("second", "2026-01-01", ["生活"]),
   post("third", "2025-12-31", ["AI"]),
@@ -13,6 +15,7 @@ const posts: SearchIndexItem[] = [
 let root: HTMLElement;
 
 beforeEach(() => {
+  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("搜索索引不可用")));
   document.body.innerHTML = `
     <section data-post-console>
       <div aria-label="按年份筛选文章">
@@ -43,8 +46,10 @@ beforeEach(() => {
       </aside>
     </section>`;
   root = document.querySelector("[data-post-console]")!;
-  initializePostConsole(root, async () => posts);
+  initializePostConsole(root);
 });
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("initializePostConsole", () => {
   it("keeps duplicate filter controls on the same state", () => {
@@ -61,16 +66,34 @@ describe("initializePostConsole", () => {
     expect(visiblePostSlugs()).toEqual(["first", "third"]);
   });
 
-  it("loads preview details only when the active article changes", async () => {
+  it("updates preview details from the page without fetching an index", () => {
     root
       .querySelector<HTMLElement>('[data-post-row="third"]')
       ?.dispatchEvent(new Event("mouseenter"));
-    await Promise.resolve();
-
     expect(root.querySelector("[data-preview-title]")?.textContent).toBe("third");
+    expect(root.querySelector("[data-preview-summary]")?.textContent).toBe("third summary");
+    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
+      "/posts/third/",
+    );
     expect(root.querySelector<HTMLImageElement>("[data-preview-image]")?.src).toContain(
       "/third-800.webp",
     );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("keeps preview links aligned with keyboard and filter selection", () => {
+    const third = root.querySelector<HTMLElement>('[data-post-row="third"]')!;
+    third.focus();
+    third.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
+      "/posts/second/",
+    );
+
+    button("按年份筛选文章", "2025").click();
+    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
+      "/posts/third/",
+    );
+    expect(root.querySelector("[data-preview-related]")?.textContent).toBe("first");
   });
 });
 
@@ -91,7 +114,7 @@ function visiblePostSlugs(): string[] {
     .map((element) => element.dataset.postRow ?? "");
 }
 
-function post(slug: string, date: string, tags: string[]): SearchIndexItem {
+function post(slug: string, date: string, tags: string[]): PostMetadata {
   return {
     slug,
     title: slug,
@@ -101,10 +124,11 @@ function post(slug: string, date: string, tags: string[]): SearchIndexItem {
   };
 }
 
-function postRow(item: SearchIndexItem): string {
+function postRow(item: PostMetadata): string {
   return `<a
     data-post-row="${item.slug}"
     data-post-date="${item.date}"
+    data-post-summary="${item.summary}"
     data-post-tags='${JSON.stringify(item.tags)}'
     data-post-cover-alt="${item.slug} cover"
     data-post-cover-mobile="/${item.slug}-400.webp"
@@ -112,5 +136,5 @@ function postRow(item: SearchIndexItem): string {
     data-post-word-count="100"
     data-post-reading-minutes="1"
     href="/posts/${item.slug}/"
-  ></a>`;
+  ><span data-post-title>${item.title}</span></a>`;
 }

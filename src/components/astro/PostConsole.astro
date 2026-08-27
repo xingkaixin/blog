@@ -99,6 +99,7 @@ const previewPost = posts[0];
               <a
                 data-post-row={post.slug}
                 data-post-date={post.date}
+                data-post-summary={post.summary}
                 data-post-tags={JSON.stringify(post.tags)}
                 data-post-cover-alt={post.coverAlt}
                 data-post-cover-mobile={cover.mobile}
@@ -126,7 +127,7 @@ const previewPost = posts[0];
 
                 <span class="hidden items-center gap-3 px-5 py-2.5 lg:flex">
                   <span class="w-[76px] shrink-0 font-mono text-[10px] text-ink-400">{post.date}</span>
-                  <span class="min-w-0 flex-1 truncate text-[14px] leading-6 text-ink-800 group-hover:text-accent">
+                  <span data-post-title class="min-w-0 flex-1 truncate text-[14px] leading-6 text-ink-800 group-hover:text-accent">
                     {post.title}
                   </span>
                   <span class="hidden shrink-0 gap-1.5 2xl:flex">

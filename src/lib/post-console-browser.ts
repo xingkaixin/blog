@@ -4,10 +4,11 @@ import {
   type PostConsoleFilter,
 } from "./post-console";
 import { postHref } from "./published-post";
-import { loadSearchIndex, type SearchIndexItem } from "./search";
 
 type PostConsoleRow = {
   slug: string;
+  title: string;
+  summary: string;
   date: string;
   tags: string[];
   coverAlt: string;
@@ -19,12 +20,7 @@ type PostConsoleRow = {
 
 const initializedRoots = new WeakSet<HTMLElement>();
 
-export type PostConsoleSearchLoader = () => Promise<SearchIndexItem[]>;
-
-export function initializePostConsole(
-  root: HTMLElement,
-  loadPosts: PostConsoleSearchLoader = loadSearchIndex,
-): void {
+export function initializePostConsole(root: HTMLElement): void {
   if (initializedRoots.has(root)) {
     return;
   }
@@ -35,9 +31,8 @@ export function initializePostConsole(
   const postsBySlug = new Map(posts.map((post) => [post.slug, post]));
   const filter: PostConsoleFilter = { year: null, tag: null };
   let previewSlug = posts[0]?.slug ?? "";
-  let renderedPreviewSlug = previewSlug;
 
-  const renderPreview = (post: SearchIndexItem, row: PostConsoleRow, index: SearchIndexItem[]) => {
+  const renderPreview = (post: PostConsoleRow) => {
     const preview = root.querySelector<HTMLElement>("[data-post-preview]");
     if (!preview) {
       return;
@@ -48,20 +43,20 @@ export function initializePostConsole(
     }
     const image = preview.querySelector<HTMLImageElement>("[data-preview-image]");
     if (image) {
-      image.src = row.coverDesktop;
-      image.alt = row.coverAlt;
+      image.src = post.coverDesktop;
+      image.alt = post.coverAlt;
     }
     const source = preview.querySelector<HTMLSourceElement>("[data-preview-source]");
     if (source) {
-      source.srcset = `${row.coverMobile} 1x, ${row.coverDesktop} 2x`;
+      source.srcset = `${post.coverMobile} 1x, ${post.coverDesktop} 2x`;
     }
     setText(preview, "[data-preview-title]", post.title);
     setText(preview, "[data-preview-summary]", post.summary);
-    setText(preview, "[data-preview-word-count]", row.wordCount.toLocaleString("zh-CN"));
-    setText(preview, "[data-preview-reading-minutes]", `${row.readingMinutes} min`);
+    setText(preview, "[data-preview-word-count]", post.wordCount.toLocaleString("zh-CN"));
+    setText(preview, "[data-preview-reading-minutes]", `${post.readingMinutes} min`);
     setText(preview, "[data-preview-tags]", post.tags.join(" · "));
 
-    const relatedPosts = relatedPostConsoleItems(index, post);
+    const relatedPosts = relatedPostConsoleItems(posts, post);
     const related = preview.querySelector<HTMLElement>("[data-preview-related]");
     if (related) {
       related.replaceChildren(
@@ -81,24 +76,8 @@ export function initializePostConsole(
     }
   };
 
-  const loadPreview = async (row: PostConsoleRow) => {
-    try {
-      const index = await loadPosts();
-      if (previewSlug !== row.slug) {
-        return;
-      }
-      const post = index.find((item) => item.slug === row.slug);
-      if (!post) {
-        return;
-      }
-      renderPreview(post, row, index);
-      renderedPreviewSlug = row.slug;
-    } catch (error) {
-      console.error(`加载文章预览 ${row.slug} 失败`, error);
-    }
-  };
-
   const selectPreview = (slug: string) => {
+    const changed = previewSlug !== slug;
     previewSlug = slug;
     for (const row of rows) {
       row.toggleAttribute("data-active", row.dataset.postRow === slug);
@@ -108,8 +87,8 @@ export function initializePostConsole(
     if (preview) {
       preview.hidden = !post;
     }
-    if (post && renderedPreviewSlug !== slug) {
-      void loadPreview(post);
+    if (post && changed) {
+      renderPreview(post);
     }
   };
 
@@ -192,6 +171,8 @@ function setText(root: ParentNode, selector: string, value: string): void {
 function readPostConsoleRow(row: HTMLElement): PostConsoleRow {
   return {
     slug: row.dataset.postRow ?? "",
+    title: row.querySelector("[data-post-title]")?.textContent?.trim() ?? "",
+    summary: row.dataset.postSummary ?? "",
     date: row.dataset.postDate ?? "",
     tags: JSON.parse(row.dataset.postTags ?? "[]") as string[],
     coverAlt: row.dataset.postCoverAlt ?? "",
