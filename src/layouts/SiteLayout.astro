@@ -207,7 +207,7 @@ const pageTransition = {
 
           {currentPath !== "/" && (
             <span class="hidden max-w-52 shrink-0 truncate font-mono text-xs text-ink-400 xl:inline">
-              {currentPath}
+              {decodeURI(currentPath)}
             </span>
           )}
 

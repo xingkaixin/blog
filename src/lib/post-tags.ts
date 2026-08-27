@@ -24,12 +24,27 @@ export type PostTaxonomy<T extends TaggedPost = PublishedPost> = {
   relatedTo(post: T, limit?: number): T[];
 };
 
-export function tagHref(tag: string): string {
+export function tagSlug(tag: string): string {
   const canonical = canonicalTag(tag);
   if (!canonical) {
     throw new Error("tag must not be empty");
   }
-  return `/tags/${encodeURIComponent(canonical)}/`;
+  // Astro 会反复解码路由；保留字符使用可逆标识，避免路径碰撞与目录穿越。
+  if (
+    /[%\\/;?:@&=+$,#]/.test(canonical) ||
+    canonical.startsWith("~") ||
+    canonical === "." ||
+    canonical === ".."
+  ) {
+    return `~${Array.from(new TextEncoder().encode(canonical), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("")}`;
+  }
+  return canonical;
+}
+
+export function tagHref(tag: string): string {
+  return `/tags/${encodeURIComponent(tagSlug(tag))}/`;
 }
 
 export function buildPostTaxonomy<T extends TaggedPost>(posts: T[]): PostTaxonomy<T> {

@@ -89,7 +89,7 @@ const routes: SiteRoute[] = [
 ];
 
 export function normalizeSitePath(pathname: string): string {
-  return decodeURI(pathname.replace(/\/$/, "") || "/");
+  return pathname.replace(/\/$/, "") || "/";
 }
 
 function routePath(href: string): string {

@@ -3,6 +3,7 @@ import {
   desktopNavigation,
   isSiteRouteActive,
   mobileNavigation,
+  normalizeSitePath,
   searchNavigation,
   sitemapNavigation,
   siteStatus,
@@ -36,4 +37,15 @@ describe("site navigation", () => {
     expect(siteStatus("/tags/")).toBe("TAGS");
     expect(siteStatus("/projects/")).toBe("PROJECTS");
   });
+
+  it.each(["100%25", "%2525", "C%2FC%2B%2B", "%E4%B8%AD%E6%96%87", "raw%"])(
+    "keeps URL encoding intact when normalizing /tags/%s/ repeatedly",
+    (tag) => {
+      const path = normalizeSitePath(`/tags/${tag}/`);
+      expect(path).toBe(`/tags/${tag}`);
+      expect(normalizeSitePath(path)).toBe(path);
+      expect(siteStatus(path)).toBe("TAG ARCHIVE");
+      expect(isSiteRouteActive(path, "/photos")).toBe(false);
+    },
+  );
 });

@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { buildPostTaxonomy, type TagArchive } from "@/lib/post-tags";
+import { buildPostTaxonomy, tagSlug, type TagArchive } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
@@ -14,7 +14,7 @@ type Props = {
 export async function getStaticPaths() {
   const posts = (await getPublishedPosts()).map(toPostListItem);
   return buildPostTaxonomy(posts).archives.map((archive) => ({
-    params: { tag: archive.tag },
+    params: { tag: tagSlug(archive.tag) },
     props: { archive },
   }));
 }
