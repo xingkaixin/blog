@@ -7,6 +7,7 @@ export type TocItem = {
 type RenderedHeading = {
   depth: number;
   text: string;
+  slug: string;
 };
 
 const slugify = (value: string) =>
@@ -33,20 +34,22 @@ export function createHeadingIdAllocator() {
 
   return (text: string) => {
     const baseId = buildHeadingId(text) || "section";
-    const count = (counts.get(baseId) ?? 0) + 1;
-    counts.set(baseId, count);
-    return count === 1 ? baseId : `${baseId}-${count}`;
+    let id = baseId;
+    while (counts.has(id)) {
+      const count = (counts.get(baseId) ?? 1) + 1;
+      counts.set(baseId, count);
+      id = `${baseId}-${count}`;
+    }
+    counts.set(id, 1);
+    return id;
   };
 }
 
 export function tocFromHeadings(headings: RenderedHeading[]): TocItem[] {
-  const allocateId = createHeadingIdAllocator();
-
-  return headings.flatMap(({ depth, text }) => {
-    const id = allocateId(text);
+  return headings.flatMap(({ depth, text, slug }) => {
     if (depth !== 2 && depth !== 3) {
       return [];
     }
-    return [{ depth, id, text }];
+    return [{ depth, id: slug, text }];
   });
 }

@@ -1,4 +1,6 @@
+import { createMarkdownProcessor } from "@astrojs/markdown-remark";
 import { describe, expect, it } from "vitest";
+import { tocFromHeadings } from "@/lib/post-toc";
 import { rehypeBlogContent } from "@/lib/rehype-blog-content";
 
 describe("rehype blog content", () => {
@@ -75,6 +77,33 @@ describe("rehype blog content", () => {
     expect(second.properties).toMatchObject({ id: "重复标题-2" });
     expect(linked.properties).toMatchObject({ id: "docs" });
   });
+
+  it.each([
+    { markdown: "## 部署\n\n## 部署\n\n## 部署-2", ids: ["部署", "部署-2", "部署-2-2"] },
+    { markdown: "## 部署-2\n\n## 部署\n\n## 部署", ids: ["部署-2", "部署", "部署-3"] },
+    { markdown: "## ✨\n\n## section-2\n\n## ✨", ids: ["section", "section-2", "section-3"] },
+    {
+      markdown: "## [Docs](https://example.com)\n\n#### Docs\n\n### **Docs**",
+      ids: ["docs", "docs-2", "docs-3"],
+    },
+  ])(
+    "keeps rendered anchors unique and the TOC aligned for $markdown",
+    async ({ markdown, ids }) => {
+      const renderer = await createMarkdownProcessor({
+        syntaxHighlight: false,
+        rehypePlugins: [rehypeBlogContent],
+      });
+      const { code, metadata } = await renderer.render(markdown);
+      const renderedIds = [...code.matchAll(/<h[2-6] id="([^"]+)"/g)].map((match) => match[1]);
+
+      expect(renderedIds).toEqual(ids);
+      expect(tocFromHeadings(metadata.headings)).toEqual(
+        metadata.headings
+          .filter(({ depth }) => depth === 2 || depth === 3)
+          .map(({ depth, slug, text }) => ({ depth, id: slug, text })),
+      );
+    },
+  );
 
   it("adds lazy responsive markup to known post images", () => {
     const image = {
