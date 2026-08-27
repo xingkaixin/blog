@@ -9,7 +9,7 @@ import {
 } from "../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
 import { PhotoCatalogEditor } from "./lib/photo-catalog-store";
-import { FilePhotoObjectStore } from "./lib/photo-store";
+import { FilePhotoObjectStore, type PhotoTextObject } from "./lib/photo-store";
 
 const temporaryDirectories: string[] = [];
 const photoId = "a".repeat(32);
@@ -26,6 +26,46 @@ afterEach(async () => {
 });
 
 describe("photo catalog editor", () => {
+  it("preserves a publish interleaved with catalog reads", async () => {
+    const store = await catalogStore();
+    const publisher = await PhotoCatalogEditor.load(store);
+    const read = store.getText.bind(store);
+    const addedPhotoId = "b".repeat(32);
+    let concurrentPublish: Promise<PhotoTextObject | null> | undefined;
+
+    store.getText = async (key) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && !concurrentPublish) {
+        concurrentPublish = read(key).then(async (snapshot) => {
+          await publisher.addPhotos([
+            {
+              id: addedPhotoId,
+              capturedAt: "2026-08-21T12:00:00.000+08:00",
+              width: 1200,
+              height: 800,
+              albumIds: ["trip"],
+              placeholderColor: "#abcdef",
+            },
+          ]);
+          await publisher.commit(new Date("2026-08-23T09:00:00.000Z"));
+          return snapshot;
+        });
+        return concurrentPublish;
+      }
+      if (key === PHOTO_CATALOG_INDEX_KEY) {
+        await concurrentPublish;
+      }
+      return read(key);
+    };
+
+    const catalog = await PhotoCatalogEditor.load(store);
+    await catalog.commit(new Date("2026-08-23T10:00:00.000Z"));
+
+    const index = parsePhotoCatalogIndex(JSON.parse((await read(PHOTO_CATALOG_INDEX_KEY))!.text));
+    expect(index.photoMonths).toEqual({ [photoId]: month, [addedPhotoId]: month });
+    const shard = parsePhotoMonthCatalog(JSON.parse((await read(index.periods[0].path))!.text));
+    expect(shard.photos.map((photo) => photo.id)).toEqual([addedPhotoId, photoId]);
+  });
+
   it("reports photos outside the catalog as absent", async () => {
     const catalog = await PhotoCatalogEditor.load(await catalogStore());
     const absentPhotoId = "b".repeat(32);
