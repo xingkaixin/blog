@@ -172,8 +172,8 @@ describe("photo catalog", () => {
     expect(
       photoVariantUrl("/photo-preview/", "0123456789abcdef0123456789abcdef", PHOTO_DISPLAY_WIDTH),
     ).toBe("/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp");
-    expect(photoVariantSrcSet("/photo-preview/", "0123456789abcdef0123456789abcdef")).toBe(
-      "/photo-preview/media/0123456789abcdef0123456789abcdef/480.webp 480w, /photo-preview/media/0123456789abcdef0123456789abcdef/960.webp 960w, /photo-preview/media/0123456789abcdef0123456789abcdef/2048.webp 2048w",
+    expect(photoVariantSrcSet("/photo-preview/", monthFixture.photos[0], [960, 2048])).toBe(
+      "/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp 720w, /photo-preview/media/0123456789abcdef0123456789abcdef/2048.webp 1536w",
     );
   });
 });

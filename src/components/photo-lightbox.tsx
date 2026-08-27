@@ -163,7 +163,7 @@ export function PhotoLightbox({
             // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
             style={{ backgroundColor: photo.placeholderColor }}
             src={photoVariantUrl(baseUrl, photo.id, PHOTO_FULL_WIDTH)}
-            srcSet={photoVariantSrcSet(baseUrl, photo.id, [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH])}
+            srcSet={photoVariantSrcSet(baseUrl, photo, [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH])}
             sizes="100vw"
             alt=""
             width={photo.width}

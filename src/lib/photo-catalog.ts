@@ -436,8 +436,17 @@ export function photoVariantUrl(
 
 export function photoVariantSrcSet(
   baseUrl: string,
-  photoId: string,
-  widths: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
+  photo: Pick<PhotoRecord, "id" | "width" | "height">,
+  sizes: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
 ): string {
-  return widths.map((width) => `${photoVariantUrl(baseUrl, photoId, width)} ${width}w`).join(", ");
+  const candidates = new Map<number, string>();
+  for (const size of sizes) {
+    // 与生成器一致：按最长边缩放且不放大，变体编号不等于实际宽度。
+    const scale = Math.min(1, size / Math.max(photo.width, photo.height));
+    const width = Math.max(1, Math.round(photo.width * scale));
+    if (!candidates.has(width)) {
+      candidates.set(width, `${photoVariantUrl(baseUrl, photo.id, size)} ${width}w`);
+    }
+  }
+  return [...candidates.values()].join(", ");
 }
