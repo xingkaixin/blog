@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { photoMediaObjectKey } from "../../src/lib/photo-artifact";
 import {
@@ -6,6 +7,7 @@ import {
   isPhotoAlbumId,
   parsePhotoRecord,
   type PhotoRecord,
+  type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
@@ -46,18 +48,20 @@ export type PublishPhotosResult = {
 };
 
 type IdentifiedFile = PhotoSourceSnapshot;
+type PreparedPhoto = Omit<ProcessedPhoto, "variants"> & {
+  variants: Map<PhotoVariantWidth, string>;
+};
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
   validateAlbum(options.album);
   const identifiedFiles = await identifyFiles(options.files);
   const attemptedArtifacts = new Set<string>();
+  const preparedPhotos = new Map<string, PreparedPhoto>();
   try {
     await collectPhotoGarbageBestEffort(options, options.onWarning);
-    try {
-      return await editPhotoCatalog(options.store, (catalog) =>
-        publishPhotosOnce(options, catalog, identifiedFiles, attemptedArtifacts),
-      );
-    } catch (error) {
+    const { completed, ...result } = await editPhotoCatalog(options.store, (catalog) =>
+      publishPhotosOnce(options, catalog, identifiedFiles, attemptedArtifacts, preparedPhotos),
+    ).catch(async (error: unknown) => {
       try {
         await recordFailedPublishArtifacts(
           options.store,
@@ -72,7 +76,11 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
         throw failure;
       }
       throw error;
+    });
+    for (const progress of completed) {
+      options.onProgress?.(progress);
     }
+    return result;
   } finally {
     await Promise.all(identifiedFiles.map((file) => file.dispose()));
     await collectPhotoGarbageBestEffort(options, options.onWarning);
@@ -84,11 +92,13 @@ async function publishPhotosOnce(
   catalog: PhotoCatalogEditor,
   identifiedFiles: IdentifiedFile[],
   attemptedArtifacts: Set<string>,
-): Promise<PublishPhotosResult> {
+  preparedPhotos: Map<string, PreparedPhoto>,
+): Promise<PublishPhotosResult & { completed: PublishProgress[] }> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
   const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
   applyAlbum(catalog, options.album);
   const pending: IdentifiedFile[] = [];
+  const completed: PublishProgress[] = [];
   let reused = identifiedFiles.length - uniqueFiles.length;
 
   for (const identified of uniqueFiles) {
@@ -102,7 +112,7 @@ async function publishPhotosOnce(
     }
 
     reused += 1;
-    options.onProgress?.({ type: "reused", file: identified.file });
+    completed.push({ type: "reused", file: identified.file });
     if (options.album) {
       await catalog.addPhotoToAlbum(identified.id, options.album.id);
     }
@@ -112,19 +122,20 @@ async function publishPhotosOnce(
     pending,
     PROCESS_CONCURRENCY,
     async (identified, index) => {
-      options.onProgress?.({
-        type: "processing",
-        file: identified.file,
-        index: index + 1,
-        total: pending.length,
-      });
-      const photo = await options.processPhoto(identified.source, identified.id);
-      if (photo.id !== identified.id) {
-        throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
+      let photo = preparedPhotos.get(identified.id);
+      if (!photo) {
+        options.onProgress?.({
+          type: "processing",
+          file: identified.file,
+          index: index + 1,
+          total: pending.length,
+        });
+        photo = await preparePhoto(identified, options.processPhoto);
+        preparedPhotos.set(identified.id, photo);
       }
       const record = createPhotoRecord(photo, options.album?.id);
       await uploadPhotoAssets(options.store, record, photo.variants, attemptedArtifacts);
-      options.onProgress?.({
+      completed.push({
         type: "published",
         file: identified.file,
         photoId: photo.id,
@@ -140,6 +151,7 @@ async function publishPhotosOnce(
   );
 
   return {
+    completed,
     discovered: identifiedFiles.length,
     published: processed.length,
     reused,
@@ -148,7 +160,32 @@ async function publishPhotosOnce(
   };
 }
 
-function createPhotoRecord(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
+async function preparePhoto(
+  identified: IdentifiedFile,
+  processPhoto: PublishPhotosOptions["processPhoto"],
+): Promise<PreparedPhoto> {
+  const { variants, ...photo } = await processPhoto(identified.source, identified.id);
+  if (photo.id !== identified.id) {
+    throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
+  }
+  // 复用源快照的临时目录，让重试缓存随发布结束清理，避免整批图片常驻内存。
+  const files = await mapWithConcurrency(
+    PHOTO_VARIANT_WIDTHS,
+    PROCESS_CONCURRENCY,
+    async (width): Promise<[PhotoVariantWidth, string]> => {
+      const body = variants.get(width);
+      if (!body) {
+        throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
+      }
+      const file = path.join(path.dirname(identified.source), `${width}.webp`);
+      await fs.writeFile(file, body);
+      return [width, file];
+    },
+  );
+  return { ...photo, variants: new Map(files) };
+}
+
+function createPhotoRecord(photo: PreparedPhoto, albumId: string | undefined): PhotoRecord {
   return parsePhotoRecord({
     id: photo.id,
     mediaRevision: randomBytes(12).toString("hex"),
@@ -219,15 +256,16 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
   photo: PhotoRecord,
-  variants: ProcessedPhoto["variants"],
+  variants: PreparedPhoto["variants"],
   attemptedArtifacts: Set<string>,
 ): Promise<void> {
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
-    const body = variants.get(width);
-    if (!body) {
+    const file = variants.get(width);
+    if (!file) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
     const key = photoMediaObjectKey(photo.id, width, photo.mediaRevision);
+    const body = await fs.readFile(file);
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "image/webp",

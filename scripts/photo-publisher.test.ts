@@ -128,6 +128,116 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
+  it("processes once and reports publication only after control retries commit", async () => {
+    const file = await createSourceFile("publish through control conflicts");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const originalPut = store.put.bind(store);
+    const progress: string[] = [];
+    const visibleAtNotification: boolean[] = [];
+    const processPhoto = vi.fn(async (_source: string) => processedPhoto(id));
+    let conflictsRemaining = 2;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
+        conflictsRemaining -= 1;
+        throw new PhotoStoreConflictError(key);
+      }
+      return originalPut(key, body, options);
+    };
+    const result = await publishPhotos({
+      files: [file],
+      store,
+      processPhoto,
+      onProgress(event) {
+        progress.push(event.type);
+        if (event.type === "published") {
+          const index = store.objects.get(PHOTO_CATALOG_INDEX_KEY);
+          visibleAtNotification.push(
+            typeof index === "string" && Boolean(JSON.parse(index).photoMonths[id]),
+          );
+        }
+      },
+    });
+    expect(processPhoto).toHaveBeenCalledTimes(1);
+    expect(progress).toEqual(["processing", "published"]);
+    expect(visibleAtNotification).toEqual([true]);
+    expect(result).toMatchObject({ published: 1, reused: 0 });
+    const mediaWrites = store.writes.filter((key) => key.startsWith("media/"));
+    expect(mediaWrites).toHaveLength(9);
+    expect(new Set(mediaWrites).size).toBe(9);
+    await expect(fs.access(path.dirname(processPhoto.mock.calls[0][0]))).rejects.toThrow();
+  });
+
+  it("does not replay catalog mutations when a completion callback throws", async () => {
+    const file = await createSourceFile("completion callback fails");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const processPhoto = vi.fn(async () => processedPhoto(id));
+    let notifications = 0;
+    await expect(
+      publishPhotos({
+        files: [file],
+        store,
+        processPhoto,
+        onProgress(event) {
+          if (event.type === "published") {
+            notifications += 1;
+            throw new PhotoStoreConflictError("notification");
+          }
+        },
+      }),
+    ).rejects.toThrow(PhotoStoreConflictError);
+    expect(notifications).toBe(1);
+    expect(processPhoto).toHaveBeenCalledTimes(1);
+    expect((await readControl(store)).photoMonths[id]).toBe("2026-04");
+    expect(store.writes.filter((key) => key.startsWith("media/"))).toHaveLength(3);
+  });
+
+  it("reports reuse only once when a concurrent publisher wins the same photo", async () => {
+    const file = await createSourceFile("same photo concurrent publication");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const originalPut = store.put.bind(store);
+    const processPhoto = vi.fn(async () => processedPhoto(id));
+    const progress: string[] = [];
+    let concurrentPublish = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && concurrentPublish) {
+        concurrentPublish = false;
+        await publishPhotos({
+          files: [file],
+          store,
+          processPhoto: async () => processedPhoto(id),
+        });
+      }
+      return originalPut(key, body, options);
+    };
+    const result = await publishPhotos({
+      files: [file],
+      store,
+      processPhoto,
+      album: { id: "favorites", title: "喜欢" },
+      onProgress: (event) => progress.push(event.type),
+    });
+    expect(processPhoto).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({ published: 0, reused: 1 });
+    expect(progress).toEqual(["processing", "reused"]);
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.albums).toEqual([{ id: "favorites", title: "喜欢" }]);
+    const referencedKeys = new Set(await publishedObjectKeys(store));
+    expect(
+      (await readControl(store)).retiredArtifacts.flatMap((entry) => entry.objectKeys),
+    ).toEqual(
+      expect.arrayContaining(
+        [...store.objects.keys()].filter(
+          (key) => isPhotoArtifactKey(key) && !referencedKeys.has(key),
+        ),
+      ),
+    );
+  });
+
   it("preserves both updates when two publishers start from the same catalog", async () => {
     const firstFile = await createSourceFile("first photo bytes");
     const secondFile = await createSourceFile("second photo bytes");
@@ -1059,6 +1169,8 @@ describe("photo publisher", () => {
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
     const originalPut = store.put.bind(store);
+    const processPhoto = vi.fn(async (_source: string) => processedPhoto(id));
+    const progress: string[] = [];
     let conflictsRemaining = 5;
     store.put = async (key, body, options) => {
       if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
@@ -1072,10 +1184,14 @@ describe("photo publisher", () => {
       publishPhotos({
         files: [file],
         store,
-        processPhoto: async () => processedPhoto(id),
+        processPhoto,
+        onProgress: (event) => progress.push(event.type),
         now: () => new Date("2026-08-02T12:00:00.000Z"),
       }),
     ).rejects.toThrow(PhotoStoreConflictError);
+    expect(processPhoto).toHaveBeenCalledTimes(1);
+    expect(progress).toEqual(["processing"]);
+    await expect(fs.access(path.dirname(processPhoto.mock.calls[0][0]))).rejects.toThrow();
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
