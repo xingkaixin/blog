@@ -25,5 +25,5 @@ export function openSearchDialog(container: HTMLElement): void {
     },
     { once: true },
   );
-  root.render(<SearchDialog initialOpen />);
+  root.render(<SearchDialog />);
 }
