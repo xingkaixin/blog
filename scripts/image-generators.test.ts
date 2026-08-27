@@ -1,9 +1,11 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
 import { afterEach, describe, expect, it } from "vitest";
 import type { PublishedPost } from "../src/lib/published-post";
+import { checkGeneratedArtifacts } from "./check-generated-artifacts";
 import { generateCovers, type GenerateCoversOptions } from "./generate-covers";
 import { generateOgImages, type GenerateOgImagesOptions } from "./generate-og-images";
 import { generatePostImages, type GeneratePostImagesOptions } from "./generate-post-images";
@@ -68,6 +70,31 @@ describe("image generators", () => {
     ).toEqual({ width: 400, height: 171, format: "webp" });
     expect(fs.existsSync(path.join(options.outputDirectory, "demo-800.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "demo.webp"))).toBe(true);
+  });
+
+  it("detects regenerated outputs missing from Git while ignoring unrelated files", async () => {
+    const options = createCoverOptions();
+    const root = path.resolve(options.outputDirectory, "../..");
+    fs.mkdirSync(options.sourceDirectory, { recursive: true });
+    await writeFixture(path.join(options.sourceDirectory, "demo.png"), "#00ff00", "png");
+    await generateCovers(options);
+    const git = (...args: string[]) =>
+      execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: "pipe" });
+    git("init", "--quiet");
+    git("add", "--", ".");
+    expect(() => checkGeneratedArtifacts(root)).not.toThrow();
+
+    const output = path.join(options.outputDirectory, "demo-400.webp");
+    git("rm", "--cached", "--", "public/cover/demo-400.webp");
+    fs.rmSync(output);
+    await generateCovers(options);
+    expect(() => checkGeneratedArtifacts(root)).toThrow("demo-400.webp");
+
+    git("add", "--", "public/cover/demo-400.webp");
+    fs.writeFileSync(path.join(root, "notes.txt"), "unrelated workspace file");
+    expect(() => checkGeneratedArtifacts(root)).not.toThrow();
+    fs.writeFileSync(output, "changed output");
+    expect(() => checkGeneratedArtifacts(root)).toThrow("demo-400.webp");
   });
 
   it("rejects responsive image sources that share an output stem", async () => {
