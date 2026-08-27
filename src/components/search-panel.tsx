@@ -124,7 +124,6 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         <div className="flex h-[52px] items-center gap-3 border-b border-line px-4">
           <SearchIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
           <input
-            autoFocus
             aria-label="搜索与命令"
             aria-controls="command-palette-results"
             aria-activedescendant={activeItem?.id}

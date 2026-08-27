@@ -99,6 +99,7 @@ describe("search dialog entry", () => {
         ),
       );
       const close = document.querySelector<HTMLButtonElement>('button[aria-label="关闭大图"]')!;
+      await act(async () => close.focus());
       for (const key of ["ArrowLeft", "ArrowRight"]) {
         await act(async () =>
           close.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true })),
@@ -118,6 +119,16 @@ describe("search dialog entry", () => {
       expect(onSelect).not.toHaveBeenCalled();
       expect(keys.every((event) => !event.defaultPrevented)).toBe(true);
       expect(document.activeElement).toBe(input);
+      await act(async () =>
+        input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })),
+      );
+      expect(document.activeElement).toBe(close);
+      await act(async () =>
+        document.activeElement!.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+        ),
+      );
+      expect(onSelect).toHaveBeenCalledExactlyOnceWith(next);
     } finally {
       await act(async () => root.unmount());
     }
