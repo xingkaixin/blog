@@ -60,21 +60,6 @@ export function PhotoLightbox({
     if (!open) {
       return undefined;
     }
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const selected = photoFromArrow(event.key, previous, next);
-      if (selected) {
-        event.preventDefault();
-        onSelect(selected);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [next, onSelect, open, previous]);
-
-  useEffect(() => {
-    if (!open) {
-      return undefined;
-    }
     const connection = (
       navigator as Navigator & {
         connection?: { saveData?: boolean; effectiveType?: string };
@@ -128,6 +113,16 @@ export function PhotoLightbox({
         title="照片大图"
         description={formatPhotoCapturedAt(photo.capturedAt)}
         finalFocus={getPhotoTile}
+        onKeyDown={(event) => {
+          if (!open || event.defaultPrevented) {
+            return;
+          }
+          const selected = photoFromArrow(event.key, previous, next);
+          if (selected) {
+            event.preventDefault();
+            onSelect(selected);
+          }
+        }}
         backdropClassName="bg-[#101114]/90 backdrop-blur-md"
         className="photo-lightbox fixed inset-0 left-0 top-0 flex h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 bg-[#101114] p-0 text-[#f0efea] shadow-none"
       >

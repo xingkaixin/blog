@@ -1,9 +1,11 @@
 // @vitest-environment happy-dom
 
 import { act } from "react";
+import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetSearchCache } from "@/lib/search";
 import { openSearch } from "@/lib/search-launcher";
+import { PhotoLightbox } from "./photo-lightbox";
 import { openSearchDialog } from "./search-dialog-entry";
 
 beforeEach(async () => {
@@ -63,6 +65,62 @@ describe("search dialog entry", () => {
     container.replaceWith(nextContainer);
     await act(async () => openSearch());
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+  });
+
+  it("keeps search arrow keys from navigating the photo underneath", async () => {
+    const photo = {
+      id: "a".repeat(32),
+      capturedAt: "2026-08-27T12:00:00+08:00",
+      width: 1200,
+      height: 800,
+      albumIds: [],
+      placeholderColor: "#112233",
+    };
+    const previous = { ...photo, id: "b".repeat(32) };
+    const next = { ...photo, id: "c".repeat(32) };
+    const onSelect = vi.fn();
+    const photoContainer = document.createElement("div");
+    const searchContainer = document.createElement("div");
+    document.body.append(photoContainer, searchContainer);
+    const root = createRoot(photoContainer);
+    try {
+      await act(async () =>
+        root.render(
+          <PhotoLightbox
+            baseUrl="https://photos.example.com"
+            open
+            photo={photo}
+            navigation={{ previous, next, position: 2, total: 3, status: "ready" }}
+            albums={[]}
+            onClose={vi.fn()}
+            onSelect={onSelect}
+            onRetryNavigation={vi.fn()}
+          />,
+        ),
+      );
+      const close = document.querySelector<HTMLButtonElement>('button[aria-label="关闭大图"]')!;
+      for (const key of ["ArrowLeft", "ArrowRight"]) {
+        await act(async () =>
+          close.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true })),
+        );
+      }
+      expect(onSelect.mock.calls.map(([selected]) => selected)).toEqual([previous, next]);
+      onSelect.mockClear();
+
+      await act(async () => openSearchDialog(searchContainer));
+      const input = document.querySelector<HTMLInputElement>('input[aria-label="搜索与命令"]')!;
+      const keys = ["ArrowLeft", "ArrowRight"].map(
+        (key) => new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+      );
+      for (const event of keys) {
+        await act(async () => input.dispatchEvent(event));
+      }
+      expect(onSelect).not.toHaveBeenCalled();
+      expect(keys.every((event) => !event.defaultPrevented)).toBe(true);
+      expect(document.activeElement).toBe(input);
+    } finally {
+      await act(async () => root.unmount());
+    }
   });
 
   it.each(["isComposing", "keyCode"])(
