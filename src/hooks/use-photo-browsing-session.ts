@@ -110,22 +110,19 @@ export function usePhotoBrowsingSession({
   }, [dismiss, navigate]);
   const openTimeline = useCallback(
     (albumId: string | null) => {
-      navigate(planTimelineOpen(window.location.href, window.history.state, albumId));
-      window.scrollTo(0, 0);
+      navigate(planTimelineOpen(window.location.href, window.history.state, albumId), "top");
     },
     [navigate],
   );
   const selectAlbum = useCallback(
     (albumId: string | null) => {
-      navigate(planTimelineSelection(window.location.href, window.history.state, albumId));
-      window.scrollTo(0, 0);
+      navigate(planTimelineSelection(window.location.href, window.history.state, albumId), "top");
     },
     [navigate],
   );
   const returnToOverview = useCallback(() => {
     dismiss();
-    navigate(planOverviewOpen(window.location.href, window.history.state));
-    window.scrollTo(0, 0);
+    navigate(planOverviewOpen(window.location.href, window.history.state), "top");
   }, [dismiss, navigate]);
 
   return {

@@ -1,5 +1,5 @@
 import { ArrowLeftIcon } from "lucide-react";
-import { useEffect, useState, type RefObject } from "react";
+import { useLayoutEffect, useState, type RefObject } from "react";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
 import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
@@ -51,7 +51,7 @@ export function PhotoTimeline({
     timelineRange,
   } = model;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const wall = wallRef.current;
     if (!wall) {
       return undefined;
@@ -64,6 +64,12 @@ export function PhotoTimeline({
       );
     };
 
+    const style = window.getComputedStyle(wall);
+    updateWidth(
+      wall.clientWidth -
+        (parseFloat(style.paddingLeft) || 0) -
+        (parseFloat(style.paddingRight) || 0),
+    );
     const observer = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width;
       if (width !== undefined) {

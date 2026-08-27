@@ -74,6 +74,66 @@ afterEach(async () => {
 });
 
 describe("usePhotoBrowsingSession", () => {
+  it("restores each view's scroll position on same-page history traversal", async () => {
+    let scrollY = 0;
+    vi.spyOn(window, "scrollY", "get").mockImplementation(() => scrollY);
+    vi.spyOn(window, "scrollTo").mockImplementation(
+      (left?: number | ScrollToOptions, top?: number) => {
+        scrollY = typeof left === "object" ? (left.top ?? scrollY) : (top ?? scrollY);
+      },
+    );
+    history.replaceState({ index: 0, scrollX: 0, scrollY: 0 }, "", "/photos/");
+    const removeRouter = await installAstroRouter();
+    try {
+      await renderSession({
+        index,
+        months,
+        monthErrors: {},
+        loadMonth: vi.fn(async () => undefined),
+        resolvePhoto: vi.fn().mockResolvedValue(photo),
+      });
+      scrollY = 420;
+      await act(async () => session.openTimeline("trip"));
+      expect(scrollY).toBe(0);
+      scrollY = 1600;
+      window.dispatchEvent(new Event("scrollend"));
+
+      await travel(() => history.back(), "");
+      await vi.waitFor(() => expect(scrollY).toBe(420));
+      expect(session.view).toEqual({ mode: "overview" });
+
+      await travel(() => history.forward(), "#album=trip");
+      await vi.waitFor(() => expect(scrollY).toBe(1600));
+      expect(session.view).toEqual({ mode: "timeline", albumId: "trip" });
+    } finally {
+      removeRouter();
+    }
+  });
+
+  it("waits for the catalog before restoring a pending history position", async () => {
+    const options: BrowsingOptions = {
+      index,
+      months,
+      monthErrors: {},
+      loadMonth: vi.fn(async () => undefined),
+      resolvePhoto: vi.fn().mockResolvedValue(photo),
+    };
+    await renderSession(options);
+    await act(async () => session.openTimeline("trip"));
+    history.replaceState({ ...history.state, scrollY: 1600 }, "");
+    await renderSession({ ...options, index: null });
+    const scrollTo = vi.spyOn(window, "scrollTo").mockClear();
+
+    await travel(() => history.back(), "");
+    await travel(() => history.forward(), "#album=trip");
+    expect(scrollTo).not.toHaveBeenCalled();
+    await renderSession(options);
+    await vi.waitFor(() =>
+      expect(scrollTo).toHaveBeenCalledWith({ left: 0, top: 1600, behavior: "instant" }),
+    );
+    expect(session.view).toEqual({ mode: "timeline", albumId: "trip" });
+  });
+
   it("loads adjacent months within the selected album", async () => {
     const sparsePeriods: PhotoPeriod[] = [
       "2026-08",

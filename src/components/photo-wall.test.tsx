@@ -66,6 +66,19 @@ describe("photo overview recovery", () => {
   });
 });
 
+it("lays out a restored timeline before resize notifications arrive", async () => {
+  const catalog = fixture();
+  serveCatalog(catalog, new Set());
+  vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
+  vi.spyOn(ResizeObserver.prototype, "observe").mockImplementation(() => {});
+  window.history.replaceState({}, "", "/photos/#album=trip");
+
+  await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" />));
+
+  expect(container.querySelectorAll("[data-photo-id]")).toHaveLength(2);
+  expect(container.querySelector(".photo-period-placeholder")).toBeNull();
+});
+
 function fixture(newestCount = 1, olderInAlbum = true) {
   const months: PhotoMonthCatalog[] = ["2026-08", "2026-07"].map((month, monthIndex) => ({
     schemaVersion: 2,
