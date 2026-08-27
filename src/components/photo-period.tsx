@@ -185,7 +185,7 @@ function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: Phot
                   <img
                     src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
                     srcSet={photoVariantSrcSet(baseUrl, photo)}
-                    sizes="(max-width: 767px) 33vw, (max-width: 1199px) 34vw, 360px"
+                    sizes={`(max-width: 767px) 33vw, ${item.width}px`}
                     alt=""
                     width={photo.width}
                     height={photo.height}
