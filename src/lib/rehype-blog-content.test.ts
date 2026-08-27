@@ -139,7 +139,7 @@ describe("rehype blog content", () => {
     const image = {
       type: "element",
       tagName: "img",
-      properties: { src: "/images/external.png", alt: "外部图片" },
+      properties: { src: "/images/external.png", alt: "外部图片", width: 400, height: 300 },
       children: [],
     };
     const tree = { type: "root", children: [image] };
@@ -150,10 +150,25 @@ describe("rehype blog content", () => {
       tagName: "img",
       properties: {
         src: "/images/external.png",
+        width: 400,
+        height: 300,
         loading: "lazy",
         className: ["block", "w-full", "rounded-2xl"],
       },
     });
+  });
+
+  it("reserves the intrinsic aspect ratio in rendered post image markup", async () => {
+    const renderer = await createMarkdownProcessor({
+      syntaxHighlight: false,
+      rehypePlugins: [rehypeBlogContent],
+    });
+    const { code } = await renderer.render(
+      "![芒果树](/posts/images/2026-chiangmai-trip/mango-tree.png)",
+    );
+
+    expect(code).toMatch(/<img\b[^>]*width="1085"[^>]*height="1450"/);
+    expect(code).toContain('loading="lazy"');
   });
 
   it("rejects managed post images that are missing from generated data", () => {

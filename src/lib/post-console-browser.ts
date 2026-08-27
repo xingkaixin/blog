@@ -14,6 +14,8 @@ type PostConsoleRow = {
   coverAlt: string;
   coverMobile: string;
   coverDesktop: string;
+  coverWidth: number;
+  coverHeight: number;
   wordCount: number;
   readingMinutes: number;
 };
@@ -45,6 +47,8 @@ export function initializePostConsole(root: HTMLElement): void {
     if (image) {
       image.src = post.coverDesktop;
       image.alt = post.coverAlt;
+      image.width = post.coverWidth;
+      image.height = post.coverHeight;
     }
     const source = preview.querySelector<HTMLSourceElement>("[data-preview-source]");
     if (source) {
@@ -178,6 +182,8 @@ function readPostConsoleRow(row: HTMLElement): PostConsoleRow {
     coverAlt: row.dataset.postCoverAlt ?? "",
     coverMobile: row.dataset.postCoverMobile ?? "",
     coverDesktop: row.dataset.postCoverDesktop ?? "",
+    coverWidth: Number(row.dataset.postCoverWidth),
+    coverHeight: Number(row.dataset.postCoverHeight),
     wordCount: Number(row.dataset.postWordCount),
     readingMinutes: Number(row.dataset.postReadingMinutes),
   };

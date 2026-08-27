@@ -34,6 +34,8 @@ type ImageMapping = {
   webp: string;
   mobile: string;
   desktop: string;
+  width: number;
+  height: number;
 };
 
 export async function generatePostImages(
@@ -64,11 +66,14 @@ export async function generatePostImages(
     }),
   });
   for (const image of result.images) {
+    const { width, height } = await new Bun.Image(image.outputs.webp).metadata();
     mappings[image.key] = {
       src: image.key,
       webp: publicUrl(options.outputDirectory, image.outputs.webp),
       mobile: publicUrl(options.outputDirectory, image.outputs.mobile),
       desktop: publicUrl(options.outputDirectory, image.outputs.desktop),
+      width,
+      height,
     };
   }
   writeDataFile(options.dataFile, mappings);

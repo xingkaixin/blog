@@ -4,6 +4,8 @@ export type ResponsiveCover = {
   full: string;
   desktop: string;
   mobile: string;
+  width: number;
+  height: number;
 };
 
 const covers: Record<string, ResponsiveCover> = coverData;

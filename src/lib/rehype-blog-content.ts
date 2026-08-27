@@ -109,6 +109,8 @@ export function rehypeBlogContent() {
             src: responsive.webp,
             alt,
             title,
+            width: responsive.width,
+            height: responsive.height,
             loading: "lazy",
             className: ["block", "w-full", "rounded-2xl"],
           },

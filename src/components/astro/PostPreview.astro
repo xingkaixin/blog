@@ -25,7 +25,8 @@ const cover = resolveCover(post.cover);
         data-preview-image
         src={cover.desktop}
         alt={post.coverAlt}
-        width="400"
+        width={cover.width}
+        height={cover.height}
         class="block h-auto w-full"
       />
     </picture>

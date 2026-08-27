@@ -33,6 +33,8 @@ const imageClassName = ["block h-auto w-full max-w-full", imageClass].filter(Boo
     <img
       src={responsive.full}
       alt={alt}
+      width={responsive.width}
+      height={responsive.height}
       loading={priority ? "eager" : "lazy"}
       fetchpriority={priority ? "high" : undefined}
       class={imageClassName}

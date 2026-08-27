@@ -5,6 +5,8 @@ export type ResponsivePostImage = {
   webp: string;
   mobile: string;
   desktop: string;
+  width: number;
+  height: number;
 };
 
 const postImages: Record<string, ResponsivePostImage> = postImageData;

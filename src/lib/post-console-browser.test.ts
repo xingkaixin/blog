@@ -78,6 +78,10 @@ describe("initializePostConsole", () => {
     expect(root.querySelector<HTMLImageElement>("[data-preview-image]")?.src).toContain(
       "/third-800.webp",
     );
+    expect(root.querySelector<HTMLImageElement>("[data-preview-image]")).toMatchObject({
+      width: 900,
+      height: 1200,
+    });
     expect(fetch).not.toHaveBeenCalled();
   });
 
@@ -148,6 +152,8 @@ function postRow(item: PostMetadata): string {
     data-post-cover-alt="${item.slug} cover"
     data-post-cover-mobile="/${item.slug}-400.webp"
     data-post-cover-desktop="/${item.slug}-800.webp"
+    data-post-cover-width="${item.slug === "third" ? 900 : 1200}"
+    data-post-cover-height="${item.slug === "third" ? 1200 : 800}"
     data-post-word-count="100"
     data-post-reading-minutes="1"
     href="/posts/${item.slug}/"

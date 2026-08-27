@@ -2,401 +2,561 @@
   "2025-review.webp": {
     "mobile": "/cover/2025-review-400.webp",
     "desktop": "/cover/2025-review-800.webp",
-    "full": "/cover/2025-review.webp"
+    "full": "/cover/2025-review.webp",
+    "width": 2048,
+    "height": 1143
   },
   "2026-chiangmai-trip.png": {
     "mobile": "/cover/2026-chiangmai-trip-400.webp",
     "desktop": "/cover/2026-chiangmai-trip-800.webp",
-    "full": "/cover/2026-chiangmai-trip.webp"
+    "full": "/cover/2026-chiangmai-trip.webp",
+    "width": 1672,
+    "height": 941
   },
   "315-geo-ai-poisoning.png": {
     "mobile": "/cover/315-geo-ai-poisoning-400.webp",
     "desktop": "/cover/315-geo-ai-poisoning-800.webp",
-    "full": "/cover/315-geo-ai-poisoning.webp"
+    "full": "/cover/315-geo-ai-poisoning.webp",
+    "width": 1536,
+    "height": 864
   },
   "ALS-Ice-Bucket-Challenge-and-Charity.webp": {
     "mobile": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-400.webp",
     "desktop": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-800.webp",
-    "full": "/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp"
+    "full": "/cover/ALS-Ice-Bucket-Challenge-and-Charity.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp": {
     "mobile": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-400.webp",
     "desktop": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-800.webp",
-    "full": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp"
+    "full": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Follow-or-break-the-rules.webp": {
     "mobile": "/cover/Follow-or-break-the-rules-400.webp",
     "desktop": "/cover/Follow-or-break-the-rules-800.webp",
-    "full": "/cover/Follow-or-break-the-rules.webp"
+    "full": "/cover/Follow-or-break-the-rules.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Infuse-subscription-migration.webp": {
     "mobile": "/cover/Infuse-subscription-migration-400.webp",
     "desktop": "/cover/Infuse-subscription-migration-800.webp",
-    "full": "/cover/Infuse-subscription-migration.webp"
+    "full": "/cover/Infuse-subscription-migration.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Memories-make-people-grow-old.webp": {
     "mobile": "/cover/Memories-make-people-grow-old-400.webp",
     "desktop": "/cover/Memories-make-people-grow-old-800.webp",
-    "full": "/cover/Memories-make-people-grow-old.webp"
+    "full": "/cover/Memories-make-people-grow-old.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Ted-Lasso.webp": {
     "mobile": "/cover/Ted-Lasso-400.webp",
     "desktop": "/cover/Ted-Lasso-800.webp",
-    "full": "/cover/Ted-Lasso.webp"
+    "full": "/cover/Ted-Lasso.webp",
+    "width": 2048,
+    "height": 1143
   },
   "The-Last-of-Us-review.webp": {
     "mobile": "/cover/The-Last-of-Us-review-400.webp",
     "desktop": "/cover/The-Last-of-Us-review-800.webp",
-    "full": "/cover/The-Last-of-Us-review.webp"
+    "full": "/cover/The-Last-of-Us-review.webp",
+    "width": 2048,
+    "height": 1143
   },
   "The-requirements-and-design-ideas-of-the-strategy-team.webp": {
     "mobile": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-400.webp",
     "desktop": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-800.webp",
-    "full": "/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp"
+    "full": "/cover/The-requirements-and-design-ideas-of-the-strategy-team.webp",
+    "width": 2048,
+    "height": 1143
   },
   "Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp": {
     "mobile": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-400.webp",
     "desktop": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-800.webp",
-    "full": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp"
+    "full": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.webp",
+    "width": 2048,
+    "height": 1143
   },
   "agent-blast-radius.png": {
     "mobile": "/cover/agent-blast-radius-400.webp",
     "desktop": "/cover/agent-blast-radius-800.webp",
-    "full": "/cover/agent-blast-radius.webp"
+    "full": "/cover/agent-blast-radius.webp",
+    "width": 1880,
+    "height": 800
   },
   "agent-blindspot-pass.png": {
     "mobile": "/cover/agent-blindspot-pass-400.webp",
     "desktop": "/cover/agent-blindspot-pass-800.webp",
-    "full": "/cover/agent-blindspot-pass.webp"
+    "full": "/cover/agent-blindspot-pass.webp",
+    "width": 1916,
+    "height": 821
   },
   "agent-browser-self-check.png": {
     "mobile": "/cover/agent-browser-self-check-400.webp",
     "desktop": "/cover/agent-browser-self-check-800.webp",
-    "full": "/cover/agent-browser-self-check.webp"
+    "full": "/cover/agent-browser-self-check.webp",
+    "width": 1923,
+    "height": 818
   },
   "agent-daily-log-patrol.png": {
     "mobile": "/cover/agent-daily-log-patrol-400.webp",
     "desktop": "/cover/agent-daily-log-patrol-800.webp",
-    "full": "/cover/agent-daily-log-patrol.webp"
+    "full": "/cover/agent-daily-log-patrol.webp",
+    "width": 1923,
+    "height": 818
   },
   "agent-first-action-layer.png": {
     "mobile": "/cover/agent-first-action-layer-400.webp",
     "desktop": "/cover/agent-first-action-layer-800.webp",
-    "full": "/cover/agent-first-action-layer.webp"
+    "full": "/cover/agent-first-action-layer.webp",
+    "width": 1880,
+    "height": 800
   },
   "agent-friendly-tool.png": {
     "mobile": "/cover/agent-friendly-tool-400.webp",
     "desktop": "/cover/agent-friendly-tool-800.webp",
-    "full": "/cover/agent-friendly-tool.webp"
+    "full": "/cover/agent-friendly-tool.webp",
+    "width": 1921,
+    "height": 819
   },
   "agent-guesses-not-debug.png": {
     "mobile": "/cover/agent-guesses-not-debug-400.webp",
     "desktop": "/cover/agent-guesses-not-debug-800.webp",
-    "full": "/cover/agent-guesses-not-debug.webp"
+    "full": "/cover/agent-guesses-not-debug.webp",
+    "width": 1536,
+    "height": 864
   },
   "agent-harness-not-model.png": {
     "mobile": "/cover/agent-harness-not-model-400.webp",
     "desktop": "/cover/agent-harness-not-model-800.webp",
-    "full": "/cover/agent-harness-not-model.webp"
+    "full": "/cover/agent-harness-not-model.webp",
+    "width": 1921,
+    "height": 819
   },
   "agent-restates-goal.png": {
     "mobile": "/cover/agent-restates-goal-400.webp",
     "desktop": "/cover/agent-restates-goal-800.webp",
-    "full": "/cover/agent-restates-goal.webp"
+    "full": "/cover/agent-restates-goal.webp",
+    "width": 1923,
+    "height": 818
   },
   "agent-stop-conditions.png": {
     "mobile": "/cover/agent-stop-conditions-400.webp",
     "desktop": "/cover/agent-stop-conditions-800.webp",
-    "full": "/cover/agent-stop-conditions.webp"
+    "full": "/cover/agent-stop-conditions.webp",
+    "width": 1923,
+    "height": 818
   },
   "agent-swarm-context.png": {
     "mobile": "/cover/agent-swarm-context-400.webp",
     "desktop": "/cover/agent-swarm-context-800.webp",
-    "full": "/cover/agent-swarm-context.webp"
+    "full": "/cover/agent-swarm-context.webp",
+    "width": 1923,
+    "height": 818
   },
   "agent-team-babel.png": {
     "mobile": "/cover/agent-team-babel-400.webp",
     "desktop": "/cover/agent-team-babel-800.webp",
-    "full": "/cover/agent-team-babel.webp"
+    "full": "/cover/agent-team-babel.webp",
+    "width": 1923,
+    "height": 818
   },
   "agentic-workflow-waiting-revalued.png": {
     "mobile": "/cover/agentic-workflow-waiting-revalued-400.webp",
     "desktop": "/cover/agentic-workflow-waiting-revalued-800.webp",
-    "full": "/cover/agentic-workflow-waiting-revalued.webp"
+    "full": "/cover/agentic-workflow-waiting-revalued.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-code-5-checkpoints.png": {
     "mobile": "/cover/ai-code-5-checkpoints-400.webp",
     "desktop": "/cover/ai-code-5-checkpoints-800.webp",
-    "full": "/cover/ai-code-5-checkpoints.webp"
+    "full": "/cover/ai-code-5-checkpoints.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-code-responsibility-gap.png": {
     "mobile": "/cover/ai-code-responsibility-gap-400.webp",
     "desktop": "/cover/ai-code-responsibility-gap-800.webp",
-    "full": "/cover/ai-code-responsibility-gap.webp"
+    "full": "/cover/ai-code-responsibility-gap.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-code-review-expensive-testing.png": {
     "mobile": "/cover/ai-code-review-expensive-testing-400.webp",
     "desktop": "/cover/ai-code-review-expensive-testing-800.webp",
-    "full": "/cover/ai-code-review-expensive-testing.webp"
+    "full": "/cover/ai-code-review-expensive-testing.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-code-volume-not-outcome.png": {
     "mobile": "/cover/ai-code-volume-not-outcome-400.webp",
     "desktop": "/cover/ai-code-volume-not-outcome-800.webp",
-    "full": "/cover/ai-code-volume-not-outcome.webp"
+    "full": "/cover/ai-code-volume-not-outcome.webp",
+    "width": 1921,
+    "height": 819
   },
   "ai-frontend-design-system-handoff.png": {
     "mobile": "/cover/ai-frontend-design-system-handoff-400.webp",
     "desktop": "/cover/ai-frontend-design-system-handoff-800.webp",
-    "full": "/cover/ai-frontend-design-system-handoff.webp"
+    "full": "/cover/ai-frontend-design-system-handoff.webp",
+    "width": 1921,
+    "height": 819
   },
   "ai-memory-systems-from-log-retrieval-to-knowledge-evolution.png": {
     "mobile": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-400.webp",
     "desktop": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-800.webp",
-    "full": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.webp"
+    "full": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.webp",
+    "width": 1536,
+    "height": 1024
   },
   "ai-review-ai.png": {
     "mobile": "/cover/ai-review-ai-400.webp",
     "desktop": "/cover/ai-review-ai-800.webp",
-    "full": "/cover/ai-review-ai.webp"
+    "full": "/cover/ai-review-ai.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-slop-battle.png": {
     "mobile": "/cover/ai-slop-battle-400.webp",
     "desktop": "/cover/ai-slop-battle-800.webp",
-    "full": "/cover/ai-slop-battle.webp"
+    "full": "/cover/ai-slop-battle.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-tests-closed-loop.png": {
     "mobile": "/cover/ai-tests-closed-loop-400.webp",
     "desktop": "/cover/ai-tests-closed-loop-800.webp",
-    "full": "/cover/ai-tests-closed-loop.webp"
+    "full": "/cover/ai-tests-closed-loop.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-travel-talk-vs-act.png": {
     "mobile": "/cover/ai-travel-talk-vs-act-400.webp",
     "desktop": "/cover/ai-travel-talk-vs-act-800.webp",
-    "full": "/cover/ai-travel-talk-vs-act.webp"
+    "full": "/cover/ai-travel-talk-vs-act.webp",
+    "width": 1536,
+    "height": 864
   },
   "ai-wont-tire-but-you-will.png": {
     "mobile": "/cover/ai-wont-tire-but-you-will-400.webp",
     "desktop": "/cover/ai-wont-tire-but-you-will-800.webp",
-    "full": "/cover/ai-wont-tire-but-you-will.webp"
+    "full": "/cover/ai-wont-tire-but-you-will.webp",
+    "width": 1536,
+    "height": 864
   },
   "assuming-x-agentic-era-engineers-survival-coordinates.png": {
     "mobile": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-400.webp",
     "desktop": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-800.webp",
-    "full": "/cover/assuming-x-agentic-era-engineers-survival-coordinates.webp"
+    "full": "/cover/assuming-x-agentic-era-engineers-survival-coordinates.webp",
+    "width": 1536,
+    "height": 864
   },
   "benchmark-noise.png": {
     "mobile": "/cover/benchmark-noise-400.webp",
     "desktop": "/cover/benchmark-noise-800.webp",
-    "full": "/cover/benchmark-noise.webp"
+    "full": "/cover/benchmark-noise.webp",
+    "width": 1921,
+    "height": 819
   },
   "best-ai-users-need-it-least.png": {
     "mobile": "/cover/best-ai-users-need-it-least-400.webp",
     "desktop": "/cover/best-ai-users-need-it-least-800.webp",
-    "full": "/cover/best-ai-users-need-it-least.webp"
+    "full": "/cover/best-ai-users-need-it-least.webp",
+    "width": 1536,
+    "height": 864
   },
   "beyond-the-3-day-clone.png": {
     "mobile": "/cover/beyond-the-3-day-clone-400.webp",
     "desktop": "/cover/beyond-the-3-day-clone-800.webp",
-    "full": "/cover/beyond-the-3-day-clone.webp"
+    "full": "/cover/beyond-the-3-day-clone.webp",
+    "width": 1536,
+    "height": 864
   },
   "claude-text-watermark.png": {
     "mobile": "/cover/claude-text-watermark-400.webp",
     "desktop": "/cover/claude-text-watermark-800.webp",
-    "full": "/cover/claude-text-watermark.webp"
+    "full": "/cover/claude-text-watermark.webp",
+    "width": 1922,
+    "height": 818
   },
   "codesesh-ai-coding-sessions-disappearing.webp": {
     "mobile": "/cover/codesesh-ai-coding-sessions-disappearing-400.webp",
     "desktop": "/cover/codesesh-ai-coding-sessions-disappearing-800.webp",
-    "full": "/cover/codesesh-ai-coding-sessions-disappearing.webp"
+    "full": "/cover/codesesh-ai-coding-sessions-disappearing.webp",
+    "width": 1672,
+    "height": 941
   },
   "coding-agent-almost-1-year.png": {
     "mobile": "/cover/coding-agent-almost-1-year-400.webp",
     "desktop": "/cover/coding-agent-almost-1-year-800.webp",
-    "full": "/cover/coding-agent-almost-1-year.webp"
+    "full": "/cover/coding-agent-almost-1-year.webp",
+    "width": 1536,
+    "height": 864
   },
   "coding-joy-stolen.png": {
     "mobile": "/cover/coding-joy-stolen-400.webp",
     "desktop": "/cover/coding-joy-stolen-800.webp",
-    "full": "/cover/coding-joy-stolen.webp"
+    "full": "/cover/coding-joy-stolen.webp",
+    "width": 1916,
+    "height": 821
   },
   "control-ideas-not-code.png": {
     "mobile": "/cover/control-ideas-not-code-400.webp",
     "desktop": "/cover/control-ideas-not-code-800.webp",
-    "full": "/cover/control-ideas-not-code.webp"
+    "full": "/cover/control-ideas-not-code.webp",
+    "width": 1880,
+    "height": 800
   },
   "deepseek-harness-133-plugins.png": {
     "mobile": "/cover/deepseek-harness-133-plugins-400.webp",
     "desktop": "/cover/deepseek-harness-133-plugins-800.webp",
-    "full": "/cover/deepseek-harness-133-plugins.webp"
+    "full": "/cover/deepseek-harness-133-plugins.webp",
+    "width": 1922,
+    "height": 818
   },
   "enjoying-ai-too-much-scares-me.png": {
     "mobile": "/cover/enjoying-ai-too-much-scares-me-400.webp",
     "desktop": "/cover/enjoying-ai-too-much-scares-me-800.webp",
-    "full": "/cover/enjoying-ai-too-much-scares-me.webp"
+    "full": "/cover/enjoying-ai-too-much-scares-me.webp",
+    "width": 1536,
+    "height": 864
   },
   "from-writing-code-to-reviewing-code.png": {
     "mobile": "/cover/from-writing-code-to-reviewing-code-400.webp",
     "desktop": "/cover/from-writing-code-to-reviewing-code-800.webp",
-    "full": "/cover/from-writing-code-to-reviewing-code.webp"
+    "full": "/cover/from-writing-code-to-reviewing-code.webp",
+    "width": 1536,
+    "height": 864
   },
   "judgment-needs-a-deadline.png": {
     "mobile": "/cover/judgment-needs-a-deadline-400.webp",
     "desktop": "/cover/judgment-needs-a-deadline-800.webp",
-    "full": "/cover/judgment-needs-a-deadline.webp"
+    "full": "/cover/judgment-needs-a-deadline.webp",
+    "width": 1921,
+    "height": 819
   },
   "karpathy-join-anthropic.png": {
     "mobile": "/cover/karpathy-join-anthropic-400.webp",
     "desktop": "/cover/karpathy-join-anthropic-800.webp",
-    "full": "/cover/karpathy-join-anthropic.webp"
+    "full": "/cover/karpathy-join-anthropic.webp",
+    "width": 1536,
+    "height": 864
   },
   "kv-cache-why-ai-replies-get-faster.png": {
     "mobile": "/cover/kv-cache-why-ai-replies-get-faster-400.webp",
     "desktop": "/cover/kv-cache-why-ai-replies-get-faster-800.webp",
-    "full": "/cover/kv-cache-why-ai-replies-get-faster.webp"
+    "full": "/cover/kv-cache-why-ai-replies-get-faster.webp",
+    "width": 1536,
+    "height": 864
   },
   "llm-only-getting-average.png": {
     "mobile": "/cover/llm-only-getting-average-400.webp",
     "desktop": "/cover/llm-only-getting-average-800.webp",
-    "full": "/cover/llm-only-getting-average.webp"
+    "full": "/cover/llm-only-getting-average.webp",
+    "width": 1536,
+    "height": 864
   },
   "llm-react-prompt.webp": {
     "mobile": "/cover/llm-react-prompt-400.webp",
     "desktop": "/cover/llm-react-prompt-800.webp",
-    "full": "/cover/llm-react-prompt.webp"
+    "full": "/cover/llm-react-prompt.webp",
+    "width": 2048,
+    "height": 1143
   },
   "log-lock-in.png": {
     "mobile": "/cover/log-lock-in-400.webp",
     "desktop": "/cover/log-lock-in-800.webp",
-    "full": "/cover/log-lock-in.webp"
+    "full": "/cover/log-lock-in.webp",
+    "width": 1880,
+    "height": 800
   },
   "macOS-now-supports-Netflix-Dolby-Vision.webp": {
     "mobile": "/cover/macOS-now-supports-Netflix-Dolby-Vision-400.webp",
     "desktop": "/cover/macOS-now-supports-Netflix-Dolby-Vision-800.webp",
-    "full": "/cover/macOS-now-supports-Netflix-Dolby-Vision.webp"
+    "full": "/cover/macOS-now-supports-Netflix-Dolby-Vision.webp",
+    "width": 2048,
+    "height": 1143
   },
   "mcp-cli-skill-evolution.png": {
     "mobile": "/cover/mcp-cli-skill-evolution-400.webp",
     "desktop": "/cover/mcp-cli-skill-evolution-800.webp",
-    "full": "/cover/mcp-cli-skill-evolution.webp"
+    "full": "/cover/mcp-cli-skill-evolution.webp",
+    "width": 1536,
+    "height": 864
   },
   "mcp-vs-a2a-protocol-comparison.png": {
     "mobile": "/cover/mcp-vs-a2a-protocol-comparison-400.webp",
     "desktop": "/cover/mcp-vs-a2a-protocol-comparison-800.webp",
-    "full": "/cover/mcp-vs-a2a-protocol-comparison.webp"
+    "full": "/cover/mcp-vs-a2a-protocol-comparison.webp",
+    "width": 1536,
+    "height": 864
   },
   "model-core-tools-shell.png": {
     "mobile": "/cover/model-core-tools-shell-400.webp",
     "desktop": "/cover/model-core-tools-shell-800.webp",
-    "full": "/cover/model-core-tools-shell.webp"
+    "full": "/cover/model-core-tools-shell.webp",
+    "width": 1536,
+    "height": 864
   },
   "musk-vs-altman.png": {
     "mobile": "/cover/musk-vs-altman-400.webp",
     "desktop": "/cover/musk-vs-altman-800.webp",
-    "full": "/cover/musk-vs-altman.webp"
+    "full": "/cover/musk-vs-altman.webp",
+    "width": 1536,
+    "height": 864
   },
   "only-click-merge.png": {
     "mobile": "/cover/only-click-merge-400.webp",
     "desktop": "/cover/only-click-merge-800.webp",
-    "full": "/cover/only-click-merge.webp"
+    "full": "/cover/only-click-merge.webp",
+    "width": 1922,
+    "height": 818
   },
   "persona-distillation.png": {
     "mobile": "/cover/persona-distillation-400.webp",
     "desktop": "/cover/persona-distillation-800.webp",
-    "full": "/cover/persona-distillation.webp"
+    "full": "/cover/persona-distillation.webp",
+    "width": 1536,
+    "height": 864
   },
   "rhythm-in-ai-coding.png": {
     "mobile": "/cover/rhythm-in-ai-coding-400.webp",
     "desktop": "/cover/rhythm-in-ai-coding-800.webp",
-    "full": "/cover/rhythm-in-ai-coding.webp"
+    "full": "/cover/rhythm-in-ai-coding.webp",
+    "width": 1536,
+    "height": 864
   },
   "search-before-create.png": {
     "mobile": "/cover/search-before-create-400.webp",
     "desktop": "/cover/search-before-create-800.webp",
-    "full": "/cover/search-before-create.webp"
+    "full": "/cover/search-before-create.webp",
+    "width": 1923,
+    "height": 818
   },
   "session-as-asset.png": {
     "mobile": "/cover/session-as-asset-400.webp",
     "desktop": "/cover/session-as-asset-800.webp",
-    "full": "/cover/session-as-asset.webp"
+    "full": "/cover/session-as-asset.webp",
+    "width": 1536,
+    "height": 864
   },
   "skill-is-a-folder.png": {
     "mobile": "/cover/skill-is-a-folder-400.webp",
     "desktop": "/cover/skill-is-a-folder-800.webp",
-    "full": "/cover/skill-is-a-folder.webp"
+    "full": "/cover/skill-is-a-folder.webp",
+    "width": 1536,
+    "height": 864
   },
   "spec-as-new-fig-leaf.png": {
     "mobile": "/cover/spec-as-new-fig-leaf-400.webp",
     "desktop": "/cover/spec-as-new-fig-leaf-800.webp",
-    "full": "/cover/spec-as-new-fig-leaf.webp"
+    "full": "/cover/spec-as-new-fig-leaf.webp",
+    "width": 1536,
+    "height": 864
   },
   "spec-tell-ai-what-not-to-do.png": {
     "mobile": "/cover/spec-tell-ai-what-not-to-do-400.webp",
     "desktop": "/cover/spec-tell-ai-what-not-to-do-800.webp",
-    "full": "/cover/spec-tell-ai-what-not-to-do.webp"
+    "full": "/cover/spec-tell-ai-what-not-to-do.webp",
+    "width": 1536,
+    "height": 864
   },
   "spec-unwritten-assumptions.png": {
     "mobile": "/cover/spec-unwritten-assumptions-400.webp",
     "desktop": "/cover/spec-unwritten-assumptions-800.webp",
-    "full": "/cover/spec-unwritten-assumptions.webp"
+    "full": "/cover/spec-unwritten-assumptions.webp",
+    "width": 1536,
+    "height": 864
   },
   "state-of-ai.webp": {
     "mobile": "/cover/state-of-ai-400.webp",
     "desktop": "/cover/state-of-ai-800.webp",
-    "full": "/cover/state-of-ai.webp"
+    "full": "/cover/state-of-ai.webp",
+    "width": 2048,
+    "height": 1143
   },
   "stay-in-the-loop.png": {
     "mobile": "/cover/stay-in-the-loop-400.webp",
     "desktop": "/cover/stay-in-the-loop-800.webp",
-    "full": "/cover/stay-in-the-loop.webp"
+    "full": "/cover/stay-in-the-loop.webp",
+    "width": 1536,
+    "height": 864
   },
   "taste-is-a-muscle-predict-before-output.png": {
     "mobile": "/cover/taste-is-a-muscle-predict-before-output-400.webp",
     "desktop": "/cover/taste-is-a-muscle-predict-before-output-800.webp",
-    "full": "/cover/taste-is-a-muscle-predict-before-output.webp"
+    "full": "/cover/taste-is-a-muscle-predict-before-output.webp",
+    "width": 1923,
+    "height": 818
   },
   "the-chicken-or-the-egg.webp": {
     "mobile": "/cover/the-chicken-or-the-egg-400.webp",
     "desktop": "/cover/the-chicken-or-the-egg-800.webp",
-    "full": "/cover/the-chicken-or-the-egg.webp"
+    "full": "/cover/the-chicken-or-the-egg.webp",
+    "width": 2048,
+    "height": 1143
   },
   "the-newsroom-time-tested-masterpieces.webp": {
     "mobile": "/cover/the-newsroom-time-tested-masterpieces-400.webp",
     "desktop": "/cover/the-newsroom-time-tested-masterpieces-800.webp",
-    "full": "/cover/the-newsroom-time-tested-masterpieces.webp"
+    "full": "/cover/the-newsroom-time-tested-masterpieces.webp",
+    "width": 2048,
+    "height": 1143
   },
   "the-state-of-enterprise-ai_2025-report.webp": {
     "mobile": "/cover/the-state-of-enterprise-ai_2025-report-400.webp",
     "desktop": "/cover/the-state-of-enterprise-ai_2025-report-800.webp",
-    "full": "/cover/the-state-of-enterprise-ai_2025-report.webp"
+    "full": "/cover/the-state-of-enterprise-ai_2025-report.webp",
+    "width": 2048,
+    "height": 1143
   },
   "three-small-prototypes.png": {
     "mobile": "/cover/three-small-prototypes-400.webp",
     "desktop": "/cover/three-small-prototypes-800.webp",
-    "full": "/cover/three-small-prototypes.webp"
+    "full": "/cover/three-small-prototypes.webp",
+    "width": 1923,
+    "height": 818
   },
   "vibe-coding-ai-code-backlash-openclaw.png": {
     "mobile": "/cover/vibe-coding-ai-code-backlash-openclaw-400.webp",
     "desktop": "/cover/vibe-coding-ai-code-backlash-openclaw-800.webp",
-    "full": "/cover/vibe-coding-ai-code-backlash-openclaw.webp"
+    "full": "/cover/vibe-coding-ai-code-backlash-openclaw.webp",
+    "width": 1536,
+    "height": 864
   },
   "vibe-coding-to-agentic-engineering.png": {
     "mobile": "/cover/vibe-coding-to-agentic-engineering-400.webp",
     "desktop": "/cover/vibe-coding-to-agentic-engineering-800.webp",
-    "full": "/cover/vibe-coding-to-agentic-engineering.webp"
+    "full": "/cover/vibe-coding-to-agentic-engineering.webp",
+    "width": 1536,
+    "height": 864
   },
   "when-ai-bypasses-all-pitfalls.png": {
     "mobile": "/cover/when-ai-bypasses-all-pitfalls-400.webp",
     "desktop": "/cover/when-ai-bypasses-all-pitfalls-800.webp",
-    "full": "/cover/when-ai-bypasses-all-pitfalls.webp"
+    "full": "/cover/when-ai-bypasses-all-pitfalls.webp",
+    "width": 1536,
+    "height": 864
   },
   "why-i-pay.webp": {
     "mobile": "/cover/why-i-pay-400.webp",
     "desktop": "/cover/why-i-pay-800.webp",
-    "full": "/cover/why-i-pay.webp"
+    "full": "/cover/why-i-pay.webp",
+    "width": 2048,
+    "height": 1143
   },
   "yomitomo-ai-reading-companion.webp": {
     "mobile": "/cover/yomitomo-ai-reading-companion-400.webp",
     "desktop": "/cover/yomitomo-ai-reading-companion-800.webp",
-    "full": "/cover/yomitomo-ai-reading-companion.webp"
+    "full": "/cover/yomitomo-ai-reading-companion.webp",
+    "width": 1672,
+    "height": 941
   }
 }

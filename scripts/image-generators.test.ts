@@ -51,15 +51,23 @@ describe("image generators", () => {
     expect((await sharp(full).metadata()).format).toBe("webp");
     expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-800w.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-1200w.webp"))).toBe(true);
-    expect(fs.readFileSync(options.dataFile, "utf8")).toContain('"/posts/images/post/demo.jpg"');
+    expect(
+      JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
+    ).toMatchObject({ width: 24, height: 16 });
 
     const orphan = path.join(options.outputDirectory, "post", "orphan.webp");
     fs.writeFileSync(orphan, "orphan");
     expect(await generatePostImages(options)).toEqual({ generated: 0, reused: 1, removed: 1 });
+    expect(
+      JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
+    ).toMatchObject({ width: 24, height: 16 });
 
-    await writeFixture(source, "#0000ff", "jpeg");
+    await writeFixture(source, "#0000ff", "jpeg", { width: 16, height: 24 });
     fs.utimesSync(source, new Date(0), new Date(0));
     expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
+    expect(
+      JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
+    ).toMatchObject({ width: 16, height: 24 });
 
     fs.writeFileSync(path.join(options.outputDirectory, "leaked.jpg"), "source");
     await expect(generatePostImages(options)).rejects.toThrow("非生成文件");
@@ -85,7 +93,10 @@ describe("image generators", () => {
 
     expect(await generateCovers(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
     expect(await generateCovers(options)).toEqual({ generated: 0, reused: 1, removed: 0 });
-    expect(JSON.parse(fs.readFileSync(options.dataFile, "utf8"))).toHaveProperty("demo.png");
+    expect(JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["demo.png"]).toMatchObject({
+      width: 801,
+      height: 343,
+    });
     expect(
       await new Bun.Image(path.join(options.outputDirectory, "demo-400.webp")).metadata(),
     ).toEqual({ width: 400, height: 171, format: "webp" });

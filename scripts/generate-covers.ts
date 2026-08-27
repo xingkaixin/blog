@@ -33,6 +33,8 @@ type CoverMapping = {
   full: string;
   desktop: string;
   mobile: string;
+  width: number;
+  height: number;
 };
 
 export async function generateCovers(
@@ -63,10 +65,13 @@ export async function generateCovers(
   });
   for (const image of result.images) {
     const filename = image.key;
+    const { width, height } = await new Bun.Image(image.outputs.full).metadata();
     mappings[filename] = {
       mobile: `/cover/${path.basename(image.outputs.mobile)}`,
       desktop: `/cover/${path.basename(image.outputs.desktop)}`,
       full: `/cover/${path.basename(image.outputs.full)}`,
+      width,
+      height,
     };
   }
   writeDataFile(options.dataFile, mappings);
