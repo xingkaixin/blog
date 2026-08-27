@@ -26,6 +26,47 @@ afterEach(async () => {
 });
 
 describe("photo catalog editor", () => {
+  it.each(["{", "{}"])("repairs a damaged public index (%s) from control", async (damagedIndex) => {
+    const store = await catalogStore();
+    const originalIndex = await store.getText(PHOTO_CATALOG_INDEX_KEY);
+    const originalControl = await store.getText(PHOTO_CATALOG_CONTROL_KEY);
+    await store.put(PHOTO_CATALOG_INDEX_KEY, damagedIndex, {
+      contentType: "application/json",
+      cacheControl: "no-cache",
+    });
+
+    const catalog = await PhotoCatalogEditor.load(store);
+    await expect(catalog.repairPublicIndex()).resolves.toBe(true);
+
+    const repairedIndex = await store.getText(PHOTO_CATALOG_INDEX_KEY);
+    expect(JSON.parse(repairedIndex!.text)).toEqual(JSON.parse(originalIndex!.text));
+    await expect(store.getText(PHOTO_CATALOG_CONTROL_KEY)).resolves.toEqual(originalControl);
+  });
+
+  it.each(["{", "null"])("rejects a damaged index (%s) without control", async (damagedIndex) => {
+    const store = await catalogStore();
+    await store.delete(PHOTO_CATALOG_CONTROL_KEY);
+    await store.put(PHOTO_CATALOG_INDEX_KEY, damagedIndex, {
+      contentType: "application/json",
+      cacheControl: "no-cache",
+    });
+
+    await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
+  });
+
+  it.each(["{", "{}"])(
+    "rejects damaged control (%s) despite a valid index",
+    async (damagedControl) => {
+      const store = await catalogStore();
+      await store.put(PHOTO_CATALOG_CONTROL_KEY, damagedControl, {
+        contentType: "application/json",
+        cacheControl: "no-store",
+      });
+
+      await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
+    },
+  );
+
   it("preserves a publish interleaved with catalog reads", async () => {
     const store = await catalogStore();
     const publisher = await PhotoCatalogEditor.load(store);

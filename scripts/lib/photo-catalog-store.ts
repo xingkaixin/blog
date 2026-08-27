@@ -194,15 +194,14 @@ async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogSt
   // 先读取投影版本，避免用旧控制记录覆盖并发发布的新投影。
   const indexObject = await store.getText(PHOTO_CATALOG_INDEX_KEY);
   const controlObject = await store.getText(PHOTO_CATALOG_CONTROL_KEY);
-  const rawIndex = indexObject ? parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY) : null;
-  const control = controlObject
+  let control = controlObject
     ? parsePhotoCatalogControl(parseJson(controlObject.text, PHOTO_CATALOG_CONTROL_KEY))
-    : rawIndex
-      ? parseLegacyPhotoCatalogControl(rawIndex)
-      : null;
+    : null;
   let parsedPublicIndex: ParsedPhotoCatalogIndex | null = null;
-  if (rawIndex) {
+  if (indexObject) {
     try {
+      const rawIndex = parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY);
+      control ??= parseLegacyPhotoCatalogControl(rawIndex);
       parsedPublicIndex = parsePhotoCatalogIndexWithVersion(rawIndex);
     } catch (error) {
       if (!controlObject) {
