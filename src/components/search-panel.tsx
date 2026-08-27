@@ -115,13 +115,13 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         hideClose
         title="命令面板"
         description="搜索文章与项目、跳转页面或执行站点命令"
-        className="command-palette fixed bottom-0 left-0 top-auto max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
+        className="command-palette fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
       >
-        <div className="flex justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
+        <div className="flex shrink-0 justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
           <span className="h-1 w-9 rounded-full bg-ink-200" />
         </div>
 
-        <div className="flex h-[52px] items-center gap-3 border-b border-line px-4">
+        <div className="flex h-[52px] shrink-0 items-center gap-3 border-b border-line px-4">
           <SearchIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
           <input
             aria-label="搜索与命令"
@@ -153,10 +153,10 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
           id="command-palette-results"
           role="listbox"
           aria-label="命令面板结果"
-          className="min-h-64 overflow-y-auto sm:max-h-[430px]"
+          className="min-h-0 overflow-y-auto sm:max-h-[430px]"
         >
           {groups.length > 0 ? (
-            <div aria-live="polite" className="py-1.5">
+            <div aria-live="polite" className="min-h-64 py-1.5">
               {groups.map((group) => (
                 <section key={group.label} aria-label={group.label}>
                   <p className="px-4 pb-1 pt-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
@@ -263,7 +263,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
           ) : null}
         </div>
 
-        <div className="hidden h-10 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
+        <div className="hidden h-10 shrink-0 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
           <span>⏎ 打开</span>
           <span>↑↓ 移动</span>
           <span>⌘J 翻转世界</span>
