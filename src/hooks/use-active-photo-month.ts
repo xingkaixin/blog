@@ -29,7 +29,7 @@ export function useActivePhotoMonth(
       return undefined;
     }
 
-    const visibleEntries = new Map<Element, IntersectionObserverEntry>();
+    const visibleSections = new Set<Element>();
     const selectVisibleMonth = () => {
       if (window.scrollY <= 1) {
         setActiveMonth(periods[0].month);
@@ -39,20 +39,17 @@ export function useActivePhotoMonth(
         setActiveMonth(periods[periods.length - 1].month);
         return;
       }
-      const nearest = [...visibleEntries.values()].toSorted(
+      const nearest = [...visibleSections].toSorted(
         (left, right) =>
-          Math.abs(left.boundingClientRect.top - 112) -
-          Math.abs(right.boundingClientRect.top - 112),
+          Math.abs(left.getBoundingClientRect().top - 112) -
+          Math.abs(right.getBoundingClientRect().top - 112),
       )[0];
-      const month = nearest?.target.getAttribute("data-photo-month");
+      const month = nearest?.getAttribute("data-photo-month");
       if (month) {
         setActiveMonth((current) => (current === month ? current : month));
       }
     };
-    const releaseActiveMonthLock = () => {
-      if (activeMonthLockRef.current === null) {
-        return;
-      }
+    const handleScrollEnd = () => {
       activeMonthLockRef.current = null;
       selectVisibleMonth();
     };
@@ -60,14 +57,14 @@ export function useActivePhotoMonth(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            visibleEntries.set(entry.target, entry);
+            visibleSections.add(entry.target);
           } else {
-            visibleEntries.delete(entry.target);
+            visibleSections.delete(entry.target);
           }
         }
         const lockedMonth = activeMonthLockRef.current;
         if (lockedMonth !== null) {
-          const targetIsVisible = [...visibleEntries.keys()].some(
+          const targetIsVisible = [...visibleSections].some(
             (entry) => entry.getAttribute("data-photo-month") === lockedMonth,
           );
           if (!targetIsVisible) {
@@ -85,11 +82,11 @@ export function useActivePhotoMonth(
     for (const section of wall.querySelectorAll("[data-photo-month]")) {
       observer.observe(section);
     }
-    window.addEventListener("scrollend", releaseActiveMonthLock);
+    window.addEventListener("scrollend", handleScrollEnd);
     return () => {
       activeMonthLockRef.current = null;
       observer.disconnect();
-      window.removeEventListener("scrollend", releaseActiveMonthLock);
+      window.removeEventListener("scrollend", handleScrollEnd);
     };
   }, [enabled, periods]);
 

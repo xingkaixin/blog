@@ -71,6 +71,61 @@ afterEach(async () => {
 });
 
 describe("useActivePhotoMonth", () => {
+  it("updates the month at page edges without a pending jump", async () => {
+    const scrollY = vi.spyOn(window, "scrollY", "get").mockReturnValue(0);
+    vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+    await renderSession({ loadMonth: vi.fn() });
+
+    scrollY.mockReturnValue(2000 - window.innerHeight);
+    await act(async () => window.dispatchEvent(new Event("scrollend")));
+    expect(session.activeMonth).toBe("2026-04");
+
+    scrollY.mockReturnValue(0);
+    await act(async () => window.dispatchEvent(new Event("scrollend")));
+    expect(session.activeMonth).toBe("2026-08");
+  });
+
+  it("uses current section positions when scrolling ends between observer notifications", async () => {
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(100);
+    vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(2000);
+    let notify: (entries: IntersectionObserverEntry[]) => void = () => undefined;
+    const OriginalObserver = IntersectionObserver;
+    vi.spyOn(globalThis, "IntersectionObserver").mockImplementation(function (
+      callback: IntersectionObserverCallback,
+      options?: IntersectionObserverInit,
+    ) {
+      const observer = new OriginalObserver(callback, options);
+      notify = (entries) => callback(entries, observer);
+      return observer;
+    });
+    await renderSession({ loadMonth: vi.fn() });
+    const sections = [...container.querySelectorAll("section")].slice(0, 2);
+    const bounds = sections.map((section, index) =>
+      vi
+        .spyOn(section, "getBoundingClientRect")
+        .mockReturnValue(new DOMRect(0, 20 + index * 200, 100, 180)),
+    );
+    await act(async () =>
+      notify(
+        sections.map((target) => ({
+          target,
+          isIntersecting: true,
+          boundingClientRect: target.getBoundingClientRect(),
+          intersectionRatio: 1,
+          intersectionRect: target.getBoundingClientRect(),
+          rootBounds: null,
+          time: 0,
+        })),
+      ),
+    );
+    expect(session.activeMonth).toBe("2026-08");
+
+    bounds[0].mockReturnValue(new DOMRect(0, -20, 100, 180));
+    bounds[1].mockReturnValue(new DOMRect(0, 180, 100, 180));
+    await act(async () => window.dispatchEvent(new Event("scrollend")));
+    expect(session.activeMonth).toBe("2026-06");
+  });
+
   it("keeps the latest jump when an earlier month request finishes later", async () => {
     const april = deferredMonth("2026-04");
     const june = deferredMonth("2026-06");
