@@ -83,7 +83,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   };
 
   const handleInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (items.length === 0) {
+    // 部分输入法在候选词确认时已结束组合状态，但键码仍是 229。
+    if (items.length === 0 || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) {
       return;
     }
     if (event.key === "ArrowDown") {
