@@ -5,6 +5,10 @@ import { OPEN_SEARCH_EVENT } from "@/lib/site-events";
 const roots = new WeakMap<HTMLElement, Root>();
 
 export function openSearchDialog(container: HTMLElement): void {
+  if (!container.isConnected) {
+    return;
+  }
+
   const existing = roots.get(container);
   if (existing) {
     window.dispatchEvent(new Event(OPEN_SEARCH_EVENT));

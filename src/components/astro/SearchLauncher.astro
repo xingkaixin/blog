@@ -30,21 +30,14 @@
 <div data-search-root></div>
 
 <script>
+  import { openSearch } from "@/lib/search-launcher";
+
   const launcherFlag = "__blogSearchLauncherInstalled";
   const launcherWindow = window as Window & Record<string, unknown>;
 
   const isTypingTarget = (target: EventTarget | null) =>
     target instanceof HTMLElement &&
     (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
-
-  const openSearch = async () => {
-    const root = document.querySelector<HTMLElement>("[data-search-root]");
-    if (!root) {
-      return;
-    }
-    const { openSearchDialog } = await import("@/components/search-dialog-entry");
-    openSearchDialog(root);
-  };
 
   if (!launcherWindow[launcherFlag]) {
     launcherWindow[launcherFlag] = true;

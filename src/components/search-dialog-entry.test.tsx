@@ -1,0 +1,67 @@
+// @vitest-environment happy-dom
+
+import { act } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetSearchCache } from "@/lib/search";
+import { openSearch } from "@/lib/search-launcher";
+import { openSearchDialog } from "./search-dialog-entry";
+
+beforeEach(async () => {
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  resetSearchCache();
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("[]"));
+  await import("./search-panel");
+});
+
+afterEach(async () => {
+  await act(async () => document.dispatchEvent(new Event("astro:before-swap")));
+  document.body.replaceChildren();
+  vi.restoreAllMocks();
+});
+
+describe("search dialog entry", () => {
+  it.each(["before", "after"])("ignores opens started %s a page swap begins", async (timing) => {
+    const container = document.createElement("div");
+    container.dataset.searchRoot = "";
+    document.body.append(container);
+    await act(async () => {
+      const pending = timing === "before" ? openSearch() : null;
+      document.dispatchEvent(new Event("astro:before-swap"));
+      await (pending ?? openSearch());
+    });
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0);
+  });
+
+  it("ignores late open requests from a replaced page", async () => {
+    const oldContainer = document.createElement("div");
+    document.body.append(oldContainer);
+    document.dispatchEvent(new Event("astro:before-swap"));
+    const currentContainer = document.createElement("div");
+    oldContainer.replaceWith(currentContainer);
+
+    await act(async () => {
+      openSearchDialog(oldContainer);
+      openSearchDialog(currentContainer);
+    });
+
+    const dialogs = document.querySelectorAll('[role="dialog"]');
+    expect(dialogs).toHaveLength(1);
+  });
+
+  it("reuses the current root and unmounts it before replacing the page", async () => {
+    const container = document.createElement("div");
+    container.dataset.searchRoot = "";
+    document.body.append(container);
+    await act(async () => openSearch());
+    await act(async () => openSearch());
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+
+    await act(async () => document.dispatchEvent(new Event("astro:before-swap")));
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0);
+    const nextContainer = document.createElement("div");
+    nextContainer.dataset.searchRoot = "";
+    container.replaceWith(nextContainer);
+    await act(async () => openSearch());
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+  });
+});
