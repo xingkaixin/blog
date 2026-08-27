@@ -238,7 +238,7 @@ const pageTransition = {
         </div>
       </header>
 
-      <main id="main-content" transition:name="page-content" transition:animate={pageTransition}>
+      <main id="main-content" tabindex="-1" transition:name="page-content" transition:animate={pageTransition}>
         <slot />
       </main>
 
@@ -250,7 +250,10 @@ const pageTransition = {
 
     <script>
       import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+      import { skipToContent } from "@/lib/skip-to-content";
       import { registerBlogWebMcpTools } from "@/lib/webmcp";
+
+      document.addEventListener("click", skipToContent, true);
 
       registerBlogWebMcpTools(document).catch((error) => {
         console.error("Failed to register WebMCP tools", error);
