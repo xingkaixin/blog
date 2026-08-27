@@ -16,6 +16,7 @@ import {
 const temporaryDirectories: string[] = [];
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   await Promise.all(
     temporaryDirectories
       .splice(0)
@@ -55,6 +56,98 @@ describe("file photo store", () => {
 
     await store.delete("catalog/index.json");
     expect(await store.getText("catalog/index.json")).toBeNull();
+  });
+
+  it("keeps a slow writer exclusive after its lock becomes old", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const key = "catalog/index.json";
+    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const version = await store.put(key, "initial", options);
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    const waiting = Promise.withResolvers<"waiting">();
+    const writeFile = fs.writeFile;
+    vi.spyOn(fs, "writeFile").mockImplementation(async (...args) => {
+      if (args[1] === "first") {
+        entered.resolve();
+        await release.promise;
+      }
+      return writeFile(...args);
+    });
+    const open = fs.open;
+    let collisions = 0;
+    vi.spyOn(fs, "open").mockImplementation(async (...args) => {
+      try {
+        return await open(...args);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          "code" in error &&
+          error.code === "EEXIST" &&
+          ++collisions === 2
+        ) {
+          waiting.resolve("waiting");
+        }
+        throw error;
+      }
+    });
+
+    const first = store.put(key, "first", { ...options, expectedVersion: version });
+    let second: Promise<PromiseSettledResult<string>[]> | undefined;
+    try {
+      await entered.promise;
+      await fs.utimes(path.join(root, `${key}.lock`), new Date(0), new Date(0));
+      second = Promise.allSettled([
+        new FilePhotoObjectStore(root).put(key, "second", { ...options, expectedVersion: version }),
+      ]);
+      expect(await Promise.race([waiting.promise, second])).toBe("waiting");
+      release.resolve();
+      await first;
+      expect(await second).toMatchObject([
+        { status: "rejected", reason: expect.any(PhotoStoreConflictError) },
+      ]);
+      expect((await store.getText(key))?.text).toBe("first");
+    } finally {
+      release.resolve();
+      await Promise.allSettled([first, second]);
+    }
+  });
+
+  it("leaves an abandoned lock untouched and explains how to recover", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const key = "catalog/index.json";
+    const lock = path.join(root, `${key}.lock`);
+    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const version = await store.put(key, "initial", options);
+    await fs.writeFile(lock, "existing owner");
+    await fs.utimes(lock, new Date(0), new Date(0));
+
+    await expect(store.put(key, "next", { ...options, expectedVersion: version })).rejects.toThrow(
+      "确认所有写入进程已退出",
+    );
+    expect((await store.getText(key))?.text).toBe("initial");
+    expect(await fs.readFile(lock, "utf8")).toBe("existing owner");
+    await fs.rm(lock);
+    await store.put(key, "next", { ...options, expectedVersion: version });
+    expect((await store.getText(key))?.text).toBe("next");
+  }, 10_000);
+
+  it("releases its lock after an atomic write fails", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const key = "catalog/index.json";
+    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const version = await store.put(key, "initial", options);
+    vi.spyOn(fs, "rename").mockRejectedValueOnce(new Error("disk write failed"));
+
+    await expect(
+      store.put(key, "failed", { ...options, expectedVersion: version }),
+    ).rejects.toThrow("disk write failed");
+    expect((await store.getText(key))?.text).toBe("initial");
+    await store.put(key, "next", { ...options, expectedVersion: version });
+    expect((await store.getText(key))?.text).toBe("next");
   });
 
   it("rejects intermediate and root symbolic links", async () => {

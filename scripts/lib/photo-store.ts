@@ -220,30 +220,30 @@ async function withObjectLock<T>(target: string, operation: () => Promise<T>): P
   const lock = `${target}.lock`;
   const retryDelayMs = 20;
   const maximumAttempts = 250;
-  const staleLockMs = 30_000;
 
   for (let attempt = 0; attempt < maximumAttempts; attempt += 1) {
-    try {
-      const handle = await fs.open(lock, "wx");
-      try {
-        return await operation();
-      } finally {
-        await handle.close();
-        await fs.rm(lock, { force: true });
+    const handle = await fs.open(lock, "wx").catch((error: unknown) => {
+      if (isNodeError(error) && error.code === "EEXIST") {
+        return null;
       }
-    } catch (error) {
-      if (!isNodeError(error) || error.code !== "EEXIST") {
-        throw error;
-      }
-      const stats = await fs.stat(lock).catch(() => null);
-      if (stats && Date.now() - stats.mtimeMs > staleLockMs) {
-        await fs.rm(lock, { force: true });
-      }
+      throw error;
+    });
+    if (!handle) {
+      // 锁龄不能证明持有者已退出，慢写入或进程暂停时仍必须保持互斥。
       await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      continue;
+    }
+    try {
+      return await operation();
+    } finally {
+      await handle.close();
+      await fs.rm(lock, { force: true });
     }
   }
 
-  throw new Error(`等待对象锁超时: ${target}`);
+  throw new Error(
+    `等待对象锁超时: ${lock}；请等待当前写入完成。若锁为异常退出遗留，确认所有写入进程已退出后再删除此锁文件重试`,
+  );
 }
 
 function objectVersion(body: PhotoObjectBody): string {
