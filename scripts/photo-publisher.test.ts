@@ -112,8 +112,6 @@ describe("photo publisher", () => {
     const firstId = await hashPhotoFile(firstFile);
     const secondId = await hashPhotoFile(secondFile);
     const store = new MemoryPhotoStore();
-    const processFirst = vi.fn(async () => processedPhoto(firstId));
-    const processSecond = vi.fn(async () => processedPhoto(secondId));
     let initialReads = 0;
     let releaseInitialReads: (() => void) | undefined;
     const initialReadsReady = new Promise<void>((resolve) => {
@@ -135,12 +133,12 @@ describe("photo publisher", () => {
       publishPhotos({
         files: [firstFile],
         store,
-        processPhoto: processFirst,
+        processPhoto: async () => processedPhoto(firstId),
       }),
       publishPhotos({
         files: [secondFile],
         store,
-        processPhoto: processSecond,
+        processPhoto: async () => processedPhoto(secondId),
       }),
     ]);
 
@@ -165,8 +163,6 @@ describe("photo publisher", () => {
     expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
       unreferencedPeriodPaths.toSorted(),
     );
-    expect(processFirst).toHaveBeenCalledTimes(1);
-    expect(processSecond).toHaveBeenCalledTimes(1);
   });
 
   it("does not replay publish progress after the public index conflicts", async () => {
@@ -816,12 +812,11 @@ describe("photo publisher", () => {
     expect(store.objects.has(revivedPath)).toBe(true);
   });
 
-  it("records artifacts written by a publish whose catalog commit never wins", async () => {
+  it("recreates failed publish artifacts collected during a later commit retry", async () => {
     const file = await createSourceFile("failed catalog commit");
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
     const originalPut = store.put.bind(store);
-    const processPhoto = vi.fn(async () => processedPhoto(id));
     let conflictsRemaining = 5;
     store.put = async (key, body, options) => {
       if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
@@ -835,14 +830,10 @@ describe("photo publisher", () => {
       publishPhotos({
         files: [file],
         store,
-        processPhoto,
+        processPhoto: async () => processedPhoto(id),
         now: () => new Date("2026-08-02T12:00:00.000Z"),
       }),
     ).rejects.toThrow(PhotoStoreConflictError);
-
-    expect(processPhoto).toHaveBeenCalledTimes(1);
-    expect(store.writes.filter((key) => key.startsWith(`media/${id}/`))).toHaveLength(3);
-    expect(store.writes.filter((key) => key.startsWith("catalog/months/"))).toHaveLength(1);
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
@@ -859,16 +850,35 @@ describe("photo publisher", () => {
       ].toSorted(),
     );
 
+    let collectBeforeCommit = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && collectBeforeCommit) {
+        collectBeforeCommit = false;
+        await collectPhotoGarbage({
+          store,
+          now: () => new Date("2026-08-03T13:01:00.000Z"),
+        });
+      }
+      return originalPut(key, body, options);
+    };
+
     await publishPhotos({
       files: [file],
       store,
       processPhoto: async () => processedPhoto(id),
-      now: () => new Date("2026-08-02T13:00:00.000Z"),
+      now: () => new Date("2026-08-03T12:59:00.000Z"),
     });
     const recoveredIndex = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(recoveredIndex.photoMonths[id]).toBe("2026-04");
+    const referencedKeys = [
+      recoveredIndex.periods[0].path,
+      ...[480, 960, 2048].map((width) => `media/${id}/${width}.webp`),
+    ];
+    for (const key of referencedKeys) {
+      expect(store.objects.has(key), key).toBe(true);
+    }
     expect((await readControl(store)).retiredArtifacts).toEqual([]);
   });
 });

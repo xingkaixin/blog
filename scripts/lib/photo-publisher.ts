@@ -50,23 +50,20 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
   validateAlbum(options.album);
   const now = options.now?.() ?? new Date();
   const identifiedFiles = await identifyFiles(options.files);
-  const publishedPhotos = new Map<string, PhotoRecord>();
   const attemptedArtifacts = new Set<string>();
-  const writtenArtifacts = new Set<string>();
   try {
     await collectPhotoGarbageBestEffort(
       { store: options.store, now: () => now },
       options.onWarning,
     );
     try {
+      // 每次冲突重试都重新写入，上一轮上传的对象可能已被并发回收。
       return await editPhotoCatalog(options.store, (catalog) =>
         publishPhotosOnce(
           { ...options, now: () => now },
           catalog,
           identifiedFiles,
-          publishedPhotos,
           attemptedArtifacts,
-          writtenArtifacts,
         ),
       );
     } catch (error) {
@@ -90,9 +87,7 @@ async function publishPhotosOnce(
   options: PublishPhotosOptions,
   catalog: PhotoCatalogEditor,
   identifiedFiles: IdentifiedFile[],
-  publishedPhotos: Map<string, PhotoRecord>,
   attemptedArtifacts: Set<string>,
-  writtenArtifacts: Set<string>,
 ): Promise<PublishPhotosResult> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
   const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
@@ -122,10 +117,6 @@ async function publishPhotosOnce(
     pending,
     PROCESS_CONCURRENCY,
     async (identified, index) => {
-      const published = publishedPhotos.get(identified.id);
-      if (published) {
-        return published;
-      }
       options.onProgress?.({
         type: "processing",
         file: identified.file,
@@ -137,8 +128,7 @@ async function publishPhotosOnce(
         throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
       }
       const record = validateNewPhoto(photo, options.album?.id);
-      await uploadPhotoAssets(options.store, photo, attemptedArtifacts, writtenArtifacts);
-      publishedPhotos.set(photo.id, record);
+      await uploadPhotoAssets(options.store, photo, attemptedArtifacts);
       options.onProgress?.({
         type: "published",
         file: identified.file,
@@ -152,7 +142,6 @@ async function publishPhotosOnce(
   const { catalogChanged, updatedPeriods } = await catalog.commit(
     options.now?.() ?? new Date(),
     attemptedArtifacts,
-    writtenArtifacts,
   );
 
   return {
@@ -235,7 +224,6 @@ async function uploadPhotoAssets(
   store: PhotoObjectStore,
   photo: ProcessedPhoto,
   attemptedArtifacts: Set<string>,
-  writtenArtifacts: Set<string>,
 ): Promise<void> {
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
     const body = photo.variants.get(width);
@@ -243,15 +231,11 @@ async function uploadPhotoAssets(
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
     const key = photoMediaObjectKey(photo.id, width);
-    if (writtenArtifacts.has(key)) {
-      return;
-    }
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "image/webp",
       cacheControl: ASSET_CACHE_CONTROL,
     });
-    writtenArtifacts.add(key);
   });
 }
 

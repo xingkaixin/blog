@@ -133,7 +133,6 @@ export class PhotoCatalogEditor {
   async commit(
     generatedAt: Date,
     attemptedArtifacts: Set<string> = new Set(),
-    writtenArtifacts: Set<string> = new Set(),
   ): Promise<PhotoCatalogCommitResult> {
     const updatedPeriods = this.state.dirtyMonths().length;
     const domainChanged =
@@ -141,13 +140,7 @@ export class PhotoCatalogEditor {
       this.state.hasUnreferencedArtifacts(this.state.periods(), attemptedArtifacts);
     const catalogChanged = domainChanged || !this.state.publicIndexCurrent;
     if (domainChanged) {
-      await writePhotoCatalog(
-        this.store,
-        this.state,
-        generatedAt,
-        attemptedArtifacts,
-        writtenArtifacts,
-      );
+      await writePhotoCatalog(this.store, this.state, generatedAt, attemptedArtifacts);
     } else if (!this.state.publicIndexCurrent) {
       await writePhotoCatalogIndex(this.store, this.state);
     }
@@ -254,7 +247,6 @@ async function writePhotoCatalog(
   catalog: PhotoCatalogState,
   generatedAt: Date,
   attemptedArtifacts: Set<string> = new Set(),
-  writtenArtifacts: Set<string> = new Set(),
 ): Promise<void> {
   const nextPeriods = catalog.periods();
   const claimedArtifactKeys = catalog.claimedArtifactKeys();
@@ -276,14 +268,11 @@ async function writePhotoCatalog(
     if (claimedArtifactKeys.has(key)) {
       throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
     }
-    if (!writtenArtifacts.has(key)) {
-      attemptedArtifacts.add(key);
-      await store.put(key, body, {
-        contentType: "application/json; charset=utf-8",
-        cacheControl: SHARD_CACHE_CONTROL,
-      });
-      writtenArtifacts.add(key);
-    }
+    attemptedArtifacts.add(key);
+    await store.put(key, body, {
+      contentType: "application/json; charset=utf-8",
+      cacheControl: SHARD_CACHE_CONTROL,
+    });
     nextPeriods.set(month, {
       month,
       count: validatedShard.photos.length,
