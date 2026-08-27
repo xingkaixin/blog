@@ -91,7 +91,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           onLoadMonth={(period) => void loadMonth(period).catch(() => undefined)}
           onRetryMonth={retryMonth}
           onOpenPhoto={browsing.openPhoto}
-          onJumpMonth={(month) => void jumpToMonth(month)}
+          onJumpMonth={jumpToMonth}
         />
       )}
 

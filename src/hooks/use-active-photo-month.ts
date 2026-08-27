@@ -94,16 +94,12 @@ export function useActivePhotoMonth(
   }, [enabled, periods]);
 
   const jumpToMonth = useCallback(
-    async (month: string) => {
+    (month: string) => {
       const period = periods.find((candidate) => candidate.month === month);
       if (!period) {
         return;
       }
-      try {
-        await loadMonth(period);
-      } catch {
-        // 月份内的错误状态仍然是一个有效的跳转目标。
-      }
+      // 月份占位已在页面中，跳转不等待加载结果，避免旧请求改变当前位置。
       const target = document.getElementById(`photo-month-${month}`);
       setActiveMonth(month);
       activeMonthLockRef.current = activeMonth === month ? null : month;
@@ -111,6 +107,7 @@ export function useActivePhotoMonth(
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
         block: "start",
       });
+      void loadMonth(period).catch(() => undefined);
     },
     [activeMonth, loadMonth, periods],
   );
