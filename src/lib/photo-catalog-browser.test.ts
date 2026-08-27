@@ -23,7 +23,7 @@ const index: PhotoCatalogIndex = {
   photoMonths: { [photoId]: "2026-04" },
 };
 const month: PhotoMonthCatalog = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   month: "2026-04",
   photos: [
     {
@@ -210,7 +210,7 @@ describe("photo catalog browser", () => {
 
   it("does not scan unrelated loaded months", async () => {
     const unrelatedMonth: PhotoMonthCatalog = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       month: "2026-03",
       get photos(): PhotoMonthCatalog["photos"] {
         throw new Error("unrelated month was scanned");

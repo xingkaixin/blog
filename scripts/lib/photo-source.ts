@@ -18,7 +18,7 @@ const WEBP_EFFORT = 4;
 const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 100_000_000;
 
-export type ProcessedPhoto = Omit<PhotoRecord, "albumIds"> & {
+export type ProcessedPhoto = Omit<PhotoRecord, "albumIds" | "mediaRevision"> & {
   variants: Map<PhotoVariantWidth, Uint8Array>;
 };
 

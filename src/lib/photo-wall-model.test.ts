@@ -46,8 +46,8 @@ const index: PhotoCatalogIndex = {
   photoMonths: { [firstPhoto.id]: "2026-08", [secondPhoto.id]: "2026-07" },
 };
 const months: Record<string, PhotoMonthCatalog> = {
-  "2026-08": { schemaVersion: 1, month: "2026-08", photos: [firstPhoto] },
-  "2026-07": { schemaVersion: 1, month: "2026-07", photos: [secondPhoto] },
+  "2026-08": { schemaVersion: 2, month: "2026-08", photos: [firstPhoto] },
+  "2026-07": { schemaVersion: 2, month: "2026-07", photos: [secondPhoto] },
 };
 
 describe("photo wall model", () => {

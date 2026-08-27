@@ -39,6 +39,9 @@ describe("photo catalog control", () => {
 
   it("parses its own persisted contract without a public index version", () => {
     expect(parsePhotoCatalogControl(controlFixture)).toEqual(controlFixture);
+    expect(parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 1 })).toEqual(
+      controlFixture,
+    );
     expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 3 })).toThrow(
       "后台控制文档版本",
     );

@@ -121,7 +121,7 @@ function AlbumOverviewCard({
           >
             {photo && (
               <img
-                src={photoVariantUrl(baseUrl, photo.id, PHOTO_THUMBNAIL_WIDTH)}
+                src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
                 alt=""
                 width={photo.width}
                 height={photo.height}

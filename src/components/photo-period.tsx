@@ -183,7 +183,7 @@ function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: Phot
                   onClick={() => onOpenPhoto(photo)}
                 >
                   <img
-                    src={photoVariantUrl(baseUrl, photo.id, PHOTO_THUMBNAIL_WIDTH)}
+                    src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
                     srcSet={photoVariantSrcSet(baseUrl, photo)}
                     sizes="(max-width: 767px) 33vw, (max-width: 1199px) 34vw, 360px"
                     alt=""

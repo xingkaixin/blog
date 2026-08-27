@@ -45,7 +45,7 @@ describe("photo catalog migration", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
 
-    expect(control.schemaVersion).toBe(1);
+    expect(control.schemaVersion).toBe(2);
     expect(index.schemaVersion).toBe(3);
     await expect(migratePhotoCatalog(store)).resolves.toBe(false);
   });

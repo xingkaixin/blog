@@ -24,7 +24,7 @@ const index: PhotoCatalogIndex = {
   },
 };
 const months = periods.map((item, itemIndex): PhotoMonthCatalog => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   month: item.month,
   photos: [
     {

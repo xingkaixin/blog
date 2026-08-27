@@ -15,7 +15,7 @@ import {
 import { isPhotoTimestamp } from "../../src/lib/photo-timestamp";
 
 export const PHOTO_CATALOG_CONTROL_KEY = "catalog/control.json";
-export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 1 as const;
+export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 2 as const;
 
 export type PhotoDeletionClaim = {
   id: string;
@@ -50,7 +50,7 @@ const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
 
 export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
   const input = readRecord(value, "catalogControl");
-  if (input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION) {
+  if (input.schemaVersion !== 1 && input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION) {
     throw new Error("不支持的照片后台控制文档版本");
   }
   return parseControlFields(input);
@@ -174,11 +174,10 @@ function validateRetirements(
   const livePeriodPaths = new Set(index.periods.map((period) => period.path));
   for (const retired of retiredArtifacts) {
     for (const key of retired.objectKeys) {
-      const photoId = photoIdFromMediaObjectKey(key);
       if (retiredPhotoKeys.has(key)) {
         throw new Error(`待回收对象 ${key} 不能同时属于照片与产物队列`);
       }
-      if (livePeriodPaths.has(key) || (photoId !== null && index.photoMonths[photoId])) {
+      if (livePeriodPaths.has(key)) {
         throw new Error(`待回收产物 ${key} 仍被主 Catalog 引用`);
       }
     }

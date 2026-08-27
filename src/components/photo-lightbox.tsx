@@ -86,7 +86,7 @@ export function PhotoLightbox({
     }
     const preload = () => {
       const image = new Image();
-      image.src = photoVariantUrl(baseUrl, plan.photo.id, plan.width);
+      image.src = photoVariantUrl(baseUrl, plan.photo, plan.width);
     };
     if ("requestIdleCallback" in window) {
       const idleId = window.requestIdleCallback(preload, { timeout: 1_500 });
@@ -162,7 +162,7 @@ export function PhotoLightbox({
             key={photo.id}
             // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
             style={{ backgroundColor: photo.placeholderColor }}
-            src={photoVariantUrl(baseUrl, photo.id, PHOTO_FULL_WIDTH)}
+            src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
             srcSet={photoVariantSrcSet(baseUrl, photo, [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH])}
             sizes="100vw"
             alt=""

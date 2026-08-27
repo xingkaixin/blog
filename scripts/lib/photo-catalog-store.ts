@@ -1,9 +1,8 @@
-import { createHash } from "node:crypto";
-import { photoMediaObjectKey, photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
+import { randomBytes } from "node:crypto";
+import { photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-  PHOTO_VARIANT_WIDTHS,
   comparePhotosNewestFirst,
   parsePhotoCatalogIndexWithVersion,
   parsePhotoMonthCatalog,
@@ -118,22 +117,15 @@ export class PhotoCatalogEditor {
     return this.state.retirePhotos(photoIds, deleteAfter);
   }
 
-  assertArtifactsWritable(photoIds: Iterable<string>): void {
-    const claimedKeys = this.state.claimedArtifactKeys();
-    for (const photoId of photoIds) {
-      for (const width of PHOTO_VARIANT_WIDTHS) {
-        const key = photoMediaObjectKey(photoId, width);
-        if (claimedKeys.has(key)) {
-          throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
-        }
-      }
-    }
-  }
-
   async commit(
     generatedAt: Date,
     attemptedArtifacts: Set<string> = new Set(),
   ): Promise<PhotoCatalogCommitResult> {
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      this.state.monthsForArtifacts(attemptedArtifacts),
+    );
     const updatedPeriods = this.state.dirtyMonths().length;
     const domainChanged =
       this.state.domainChanged ||
@@ -165,6 +157,9 @@ export class PhotoCatalogEditor {
   ): Promise<{ photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] }> {
     const claim = this.state.claimGarbage(claimId, now, expiresAt);
     if (claim.photos.length > 0 || claim.artifacts.length > 0) {
+      const keys = [...claim.photos, ...claim.artifacts].flatMap((entry) => entry.objectKeys);
+      await loadPhotoCatalogMonths(this.store, this.state, this.state.monthsForArtifacts(keys));
+      this.state.assertArtifactsUnreferenced(keys);
       await writePhotoCatalogControl(this.store, this.state);
     }
     return claim;
@@ -235,6 +230,9 @@ async function loadPhotoCatalogMonths(
     .filter((month) => !catalog.hasLoadedMonth(month))
     .map((month) => catalog.period(month))
     .filter((period): period is PhotoPeriod => Boolean(period));
+  if (periods.length === 0) {
+    return;
+  }
   const index = photoCatalogIndexFromControl(catalog.currentControl());
   const loadedMonths = await readPhotoCatalogMonths(store, index, periods);
   for (const { shard } of loadedMonths) {
@@ -249,7 +247,6 @@ async function writePhotoCatalog(
   attemptedArtifacts: Set<string> = new Set(),
 ): Promise<void> {
   const nextPeriods = catalog.periods();
-  const claimedArtifactKeys = catalog.claimedArtifactKeys();
 
   await mapWithConcurrency(catalog.dirtyMonths(), WRITE_CONCURRENCY, async (month) => {
     const shard = catalog.monthForWrite(month);
@@ -263,15 +260,13 @@ async function writePhotoCatalog(
     shard.photos.sort(comparePhotosNewestFirst);
     const validatedShard = parsePhotoMonthCatalog(shard);
     const body = serializeJson(validatedShard);
-    const hash = createHash("sha256").update(body).digest("hex").slice(0, 24);
-    const key = photoMonthCatalogObjectKey(month, hash);
-    if (claimedArtifactKeys.has(key)) {
-      throw new Error(`照片对象 ${key} 正在回收，请稍后重试`);
-    }
+    // 即使内容恢复原样，也不能复用旧回收任务持有的对象路径。
+    const key = photoMonthCatalogObjectKey(month, randomBytes(12).toString("hex"));
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "application/json; charset=utf-8",
       cacheControl: SHARD_CACHE_CONTROL,
+      expectedVersion: null,
     });
     nextPeriods.set(month, {
       month,

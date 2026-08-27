@@ -200,7 +200,7 @@ describe("usePhotoBrowsingSession", () => {
 
 function monthCatalog(period: PhotoPeriod): PhotoMonthCatalog {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     month: period.month,
     photos: [
       {

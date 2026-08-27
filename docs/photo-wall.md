@@ -6,14 +6,16 @@
 
 ```text
 catalog/index.json
-catalog/months/2026-04.<content-hash>.json
-media/<photo-id>/480.webp
-media/<photo-id>/960.webp
-media/<photo-id>/2048.webp
+catalog/months/2026-04.<revision>.json
+media/<photo-id>/<media-revision>/480.webp
+media/<photo-id>/<media-revision>/960.webp
+media/<photo-id>/<media-revision>/2048.webp
 ```
 
 - `photo-id` 是原始文件内容的 128 位 SHA-256 前缀，同一文件重复发布不会生成重复照片。
 - 月份分片和图片使用不可变缓存；`catalog/index.json` 使用短缓存，并通过条件写避免并发发布互相覆盖。
+- 新上传的图片在月份记录中保存 `mediaRevision`，每次重新发布或提交重试使用新版本路径。
+  月份分片每次写入也使用新路径，即使内容相同也不复用，以免已过期的回收任务删除新产物。
 - 相册是 Catalog 中的逻辑关系，不依赖 R2 目录。把同一照片再次发布到另一个相册，只会更新索引。
 - 当前发布器只生成公开展示版本，不上传原始文件。
 
@@ -85,6 +87,13 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 在 macOS 上 HEIC 优先使用系统 `sips`，再回退到保留安全限制的 `heif-convert`；其他
 系统需要能从 `PATH` 调用 `heif-convert`。每次外部解码最长运行 60 秒，中间文件与源
 快照都写在系统临时目录，并在单张照片处理完成后删除。
+
+### 发布器升级
+
+月份 Catalog v2 保留对 v1 的读取兼容；没有 `mediaRevision` 的旧照片仍使用
+`media/<photo-id>/<尺寸>.webp`，无需搬迁已有图片。先部署新版站点，再使用新版发布器；
+旧版站点无法读取 v2 月份。所有发布和回收进程都应升级，停止旧版本进程后再运行新版命令。
+控制文档在下次写入时升级为 v2，使旧发布器拒绝继续写入；新版仍能读取 v1 控制文档。
 
 ## 本地预览
 

@@ -53,7 +53,7 @@ describe("photo source", () => {
         if (!candidates.has(metadata.width)) {
           candidates.set(
             metadata.width,
-            `${photoVariantUrl("/photos", photo.id, size)} ${metadata.width}w`,
+            `${photoVariantUrl("/photos", photo, size)} ${metadata.width}w`,
           );
         }
       }

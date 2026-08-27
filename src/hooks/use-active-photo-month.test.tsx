@@ -46,7 +46,7 @@ async function renderSession(options: Options) {
 function deferredMonth(month: string) {
   let finish: () => void = () => undefined;
   const promise = new Promise<PhotoMonthCatalog>((resolve) => {
-    finish = () => resolve({ schemaVersion: 1, month, photos: [] });
+    finish = () => resolve({ schemaVersion: 2, month, photos: [] });
   });
   return { promise, finish };
 }

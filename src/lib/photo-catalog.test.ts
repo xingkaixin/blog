@@ -31,7 +31,7 @@ const indexFixture: PhotoCatalogIndex = {
 };
 
 const monthFixture: PhotoMonthCatalog = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   month: "2026-04",
   photos: [
     {
@@ -55,6 +55,22 @@ describe("photo catalog", () => {
   it("parses a valid index and month shard", () => {
     expect(parsePhotoCatalogIndex(indexFixture)).toEqual(indexFixture);
     expect(parsePhotoMonthCatalog(monthFixture)).toEqual(monthFixture);
+  });
+
+  it("keeps legacy month media readable", () => {
+    expect(parsePhotoMonthCatalog({ ...monthFixture, schemaVersion: 1 })).toEqual(monthFixture);
+  });
+
+  it("preserves media revisions through parsing and URL generation", () => {
+    const photo = { ...monthFixture.photos[0], mediaRevision: "a".repeat(24) };
+    const parsed = parsePhotoMonthCatalog({ ...monthFixture, photos: [photo] });
+    expect(parsed.photos[0]).toEqual(photo);
+    const mediaBase = `/photos/media/${photo.id}/${photo.mediaRevision}`;
+    expect(photoVariantUrl("/photos", photo, 960)).toBe(`${mediaBase}/960.webp`);
+    expect(photoVariantSrcSet("/photos", photo, [960])).toBe(`${mediaBase}/960.webp 720w`);
+    expect(() => parsePhotoRecord({ ...photo, mediaRevision: "../invalid" })).toThrow(
+      "mediaRevision",
+    );
   });
 
   it("parses a photo without manufacturing a month shard", () => {
@@ -169,9 +185,9 @@ describe("photo catalog", () => {
     expect(catalogIndexUrl("https://photos.example.com/")).toBe(
       "https://photos.example.com/catalog/index.json",
     );
-    expect(
-      photoVariantUrl("/photo-preview/", "0123456789abcdef0123456789abcdef", PHOTO_DISPLAY_WIDTH),
-    ).toBe("/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp");
+    expect(photoVariantUrl("/photo-preview/", monthFixture.photos[0], PHOTO_DISPLAY_WIDTH)).toBe(
+      "/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp",
+    );
     expect(photoVariantSrcSet("/photo-preview/", monthFixture.photos[0], [960, 2048])).toBe(
       "/photo-preview/media/0123456789abcdef0123456789abcdef/960.webp 720w, /photo-preview/media/0123456789abcdef0123456789abcdef/2048.webp 1536w",
     );

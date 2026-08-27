@@ -233,7 +233,7 @@ export class PhotoCatalogState {
         objectKeys.add(oldPeriodPath);
       }
       const photoObjectKeys = PHOTO_VARIANT_WIDTHS.map((width) =>
-        photoMediaObjectKey(photo.id, width),
+        photoMediaObjectKey(photo.id, width, photo.mediaRevision),
       ).toSorted();
       this.#retiredObjects.set(photo.id, {
         photoId: photo.id,
@@ -255,19 +255,30 @@ export class PhotoCatalogState {
     periods: Map<string, PhotoPeriod>,
     objectKeys: Iterable<string>,
   ): boolean {
+    const keys = [...objectKeys];
     const retiredKeys = this.allRetiredObjectKeys();
-    const livePeriodPaths = periodPaths(periods);
-    return [...objectKeys].some(
-      (key) => !retiredKeys.has(key) && !this.isArtifactReferenced(livePeriodPaths, key),
-    );
+    const referencedKeys = this.referencedArtifactKeys(periods, keys);
+    return keys.some((key) => !retiredKeys.has(key) && !referencedKeys.has(key));
   }
 
-  claimedArtifactKeys(): Set<string> {
-    return new Set(
-      [...this.#retiredObjects.values(), ...this.#retiredArtifacts.values()]
-        .filter((entry) => entry.deletion !== undefined)
-        .flatMap((entry) => entry.objectKeys),
-    );
+  monthsForArtifacts(objectKeys: Iterable<string>): string[] {
+    return [
+      ...new Set(
+        [...objectKeys].flatMap((key) => {
+          const photoId = photoIdFromMediaObjectKey(key);
+          return photoId === null ? [] : (this.#photoMonths.get(photoId) ?? []);
+        }),
+      ),
+    ];
+  }
+
+  assertArtifactsUnreferenced(objectKeys: string[]): void {
+    const referencedKeys = this.referencedArtifactKeys(this.#periods, objectKeys);
+    for (const key of objectKeys) {
+      if (referencedKeys.has(key)) {
+        throw new Error(`待回收对象 ${key} 仍被主 Catalog 引用`);
+      }
+    }
   }
 
   prepareControl(
@@ -275,16 +286,14 @@ export class PhotoCatalogState {
     generatedAt: Date,
     attemptedArtifacts: Iterable<string>,
   ): PhotoCatalogControl {
-    const livePeriodPaths = periodPaths(periods);
     const replacedPeriodPaths = [...this.#periods]
       .filter(([month, period]) => periods.get(month)?.path !== period.path)
       .map(([, period]) => period.path);
     this.retireUnreferencedArtifacts(
-      livePeriodPaths,
+      periods,
       new Set([...attemptedArtifacts, ...replacedPeriodPaths]),
       generatedAt,
     );
-    this.keepOnlyUnreferencedRetirements(livePeriodPaths);
     this.removeEmptyAlbums(periods);
     return this.buildControl(periods, generatedAt.toISOString());
   }
@@ -356,17 +365,19 @@ export class PhotoCatalogState {
   }
 
   private retireUnreferencedArtifacts(
-    livePeriodPaths: Set<string>,
+    periods: Map<string, PhotoPeriod>,
     objectKeys: Iterable<string>,
     retiredAt: Date,
   ): void {
+    const keys = [...objectKeys];
     const retiredKeys = this.allRetiredObjectKeys();
-    const candidates = [...objectKeys]
+    const referencedKeys = this.referencedArtifactKeys(periods, keys);
+    const candidates = keys
       .filter((key) => {
         if (!isPhotoArtifactKey(key)) {
           throw new Error(`无法回收未知的照片对象路径 ${key}`);
         }
-        return !retiredKeys.has(key) && !this.isArtifactReferenced(livePeriodPaths, key);
+        return !retiredKeys.has(key) && !referencedKeys.has(key);
       })
       .toSorted();
     if (candidates.length === 0) {
@@ -383,29 +394,6 @@ export class PhotoCatalogState {
       deleteAfter,
     });
     this.#domainChanged = true;
-  }
-
-  private keepOnlyUnreferencedRetirements(livePeriodPaths: Set<string>): void {
-    for (const [photoId, entry] of this.#retiredObjects) {
-      const objectKeys = entry.objectKeys.filter(
-        (key) => !this.isArtifactReferenced(livePeriodPaths, key),
-      );
-      if (objectKeys.length === 0 || this.#photoMonths.has(photoId)) {
-        this.#retiredObjects.delete(photoId);
-      } else if (objectKeys.length !== entry.objectKeys.length) {
-        this.#retiredObjects.set(photoId, { ...entry, objectKeys });
-      }
-    }
-    for (const [retirementId, entry] of this.#retiredArtifacts) {
-      const objectKeys = entry.objectKeys.filter(
-        (key) => !this.isArtifactReferenced(livePeriodPaths, key),
-      );
-      if (objectKeys.length === 0) {
-        this.#retiredArtifacts.delete(retirementId);
-      } else if (objectKeys.length !== entry.objectKeys.length) {
-        this.#retiredArtifacts.set(retirementId, { ...entry, objectKeys });
-      }
-    }
   }
 
   private removeEmptyAlbums(periods: Map<string, PhotoPeriod>): void {
@@ -446,12 +434,23 @@ export class PhotoCatalogState {
     });
   }
 
-  private isArtifactReferenced(livePeriodPaths: Set<string>, key: string): boolean {
-    if (livePeriodPaths.has(key)) {
-      return true;
+  private referencedArtifactKeys(
+    periods: Map<string, PhotoPeriod>,
+    objectKeys: string[],
+  ): Set<string> {
+    const keys = periodPaths(periods);
+    for (const month of this.monthsForArtifacts(objectKeys)) {
+      const catalog = this.#months.get(month);
+      if (!catalog) {
+        throw new Error(`月份 ${month} 尚未加载，无法确认图片引用`);
+      }
+      for (const photo of catalog.photos) {
+        for (const width of PHOTO_VARIANT_WIDTHS) {
+          keys.add(photoMediaObjectKey(photo.id, width, photo.mediaRevision));
+        }
+      }
     }
-    const photoId = photoIdFromMediaObjectKey(key);
-    return photoId !== null && this.#photoMonths.has(photoId);
+    return keys;
   }
 
   private allRetiredObjectKeys(): Set<string> {

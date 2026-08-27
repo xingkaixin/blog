@@ -2,6 +2,7 @@ import {
   PHOTO_VARIANT_WIDTHS,
   isPhotoId,
   isPhotoMonth,
+  isPhotoRevision,
   monthFromPhotoMonthCatalogObjectKey,
   photoMediaObjectKey,
   type PhotoVariantWidth,
@@ -12,7 +13,7 @@ export { PHOTO_VARIANT_WIDTHS, isPhotoId } from "./photo-artifact";
 export type { PhotoVariantWidth } from "./photo-artifact";
 
 export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 3 as const;
-export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 1 as const;
+export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 2 as const;
 export const PHOTO_THUMBNAIL_WIDTH = PHOTO_VARIANT_WIDTHS[0];
 export const PHOTO_DISPLAY_WIDTH = PHOTO_VARIANT_WIDTHS[1];
 export const PHOTO_FULL_WIDTH = PHOTO_VARIANT_WIDTHS[2];
@@ -25,6 +26,7 @@ export type PhotoAlbum = {
 
 export type PhotoRecord = {
   id: string;
+  mediaRevision?: string;
   capturedAt: string;
   width: number;
   height: number;
@@ -182,12 +184,19 @@ function readPhotoMonths(value: unknown, field: string): Record<string, string> 
 function readPhoto(value: unknown, field: string): PhotoRecord {
   const photo = readRecord(value, field);
   const id = readString(photo.id, `${field}.id`);
+  const mediaRevision =
+    photo.mediaRevision === undefined
+      ? undefined
+      : readString(photo.mediaRevision, `${field}.mediaRevision`);
   const capturedAt = readTimestamp(photo.capturedAt, `${field}.capturedAt`);
   const albumIds = readStringArray(photo.albumIds, `${field}.albumIds`);
   const placeholderColor = readString(photo.placeholderColor, `${field}.placeholderColor`);
 
   if (!isPhotoId(id)) {
     throw new Error(`${field}.id 必须是 32 位十六进制内容 ID`);
+  }
+  if (mediaRevision !== undefined && !isPhotoRevision(mediaRevision)) {
+    throw new Error(`${field}.mediaRevision 必须是 24 位十六进制版本 ID`);
   }
   if (!albumIds.every(isPhotoAlbumId)) {
     throw new Error(`${field}.albumIds 包含无效的相册 ID`);
@@ -199,6 +208,7 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
 
   return {
     id,
+    ...(mediaRevision === undefined ? {} : { mediaRevision }),
     capturedAt,
     width: readInteger(photo.width, `${field}.width`, 1, MAX_IMAGE_DIMENSION),
     height: readInteger(photo.height, `${field}.height`, 1, MAX_IMAGE_DIMENSION),
@@ -324,7 +334,7 @@ export function parsePhotoCatalogContents(value: unknown, field: string): PhotoC
 
 export function parsePhotoMonthCatalog(value: unknown): PhotoMonthCatalog {
   const input = readRecord(value, "monthCatalog");
-  if (input.schemaVersion !== PHOTO_MONTH_CATALOG_SCHEMA_VERSION) {
+  if (input.schemaVersion !== 1 && input.schemaVersion !== PHOTO_MONTH_CATALOG_SCHEMA_VERSION) {
     throw new Error("不支持的照片月份 Catalog 版本");
   }
   if (!Array.isArray(input.photos)) {
@@ -428,15 +438,15 @@ export function photoObjectUrl(baseUrl: string, key: string): string {
 
 export function photoVariantUrl(
   baseUrl: string,
-  photoId: string,
+  photo: Pick<PhotoRecord, "id" | "mediaRevision">,
   width: PhotoVariantWidth,
 ): string {
-  return photoObjectUrl(baseUrl, photoMediaObjectKey(photoId, width));
+  return photoObjectUrl(baseUrl, photoMediaObjectKey(photo.id, width, photo.mediaRevision));
 }
 
 export function photoVariantSrcSet(
   baseUrl: string,
-  photo: Pick<PhotoRecord, "id" | "width" | "height">,
+  photo: Pick<PhotoRecord, "id" | "mediaRevision" | "width" | "height">,
   sizes: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
 ): string {
   const candidates = new Map<number, string>();
@@ -445,7 +455,7 @@ export function photoVariantSrcSet(
     const scale = Math.min(1, size / Math.max(photo.width, photo.height));
     const width = Math.max(1, Math.round(photo.width * scale));
     if (!candidates.has(width)) {
-      candidates.set(width, `${photoVariantUrl(baseUrl, photo.id, size)} ${width}w`);
+      candidates.set(width, `${photoVariantUrl(baseUrl, photo, size)} ${width}w`);
     }
   }
   return [...candidates.values()].join(", ");

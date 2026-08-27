@@ -2,8 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { isPhotoArtifactKey, photoMediaObjectKey } from "../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
+  PHOTO_VARIANT_WIDTHS,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   type PhotoVariantWidth,
@@ -14,6 +16,7 @@ import { publishPhotos } from "./lib/photo-publisher";
 import { retirePhotos } from "./lib/photo-retirement";
 import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
 import {
+  FilePhotoObjectStore,
   PhotoStoreConflictError,
   type PhotoObjectBody,
   type PhotoObjectStore,
@@ -84,10 +87,29 @@ async function createSourceFile(contents = "stable photo bytes"): Promise<string
   return file;
 }
 
-async function readControl(store: MemoryPhotoStore) {
+async function readControl(store: PhotoObjectStore) {
   return parsePhotoCatalogControl(
     JSON.parse((await store.getText(PHOTO_CATALOG_CONTROL_KEY))!.text),
   );
+}
+
+async function publishedObjectKeys(store: PhotoObjectStore): Promise<string[]> {
+  const index = parsePhotoCatalogIndex(
+    JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+  );
+  const keys: string[] = [];
+  for (const period of index.periods) {
+    keys.push(period.path);
+    const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(period.path))!.text));
+    for (const photo of month.photos) {
+      keys.push(
+        ...PHOTO_VARIANT_WIDTHS.map((width) =>
+          photoMediaObjectKey(photo.id, width, photo.mediaRevision),
+        ),
+      );
+    }
+  }
+  return keys;
 }
 
 function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"): ProcessedPhoto {
@@ -155,13 +177,13 @@ describe("photo publisher", () => {
     expect(month.photos.map((photo) => photo.id).toSorted()).toEqual(
       [firstId, secondId].toSorted(),
     );
-    const livePeriodPaths = new Set(index.periods.map((period) => period.path));
-    const unreferencedPeriodPaths = [...store.objects.keys()].filter(
-      (key) => key.startsWith("catalog/months/") && !livePeriodPaths.has(key),
+    const referencedKeys = new Set(await publishedObjectKeys(store));
+    const unreferencedKeys = [...store.objects.keys()].filter(
+      (key) => isPhotoArtifactKey(key) && !referencedKeys.has(key),
     );
     const control = await readControl(store);
     expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
-      unreferencedPeriodPaths.toSorted(),
+      unreferencedKeys.toSorted(),
     );
   });
 
@@ -255,7 +277,7 @@ describe("photo publisher", () => {
     expect(index.photoMonths[id]).toBeUndefined();
   });
 
-  it("publishes immutable assets and a content-addressed month before the index", async () => {
+  it("publishes immutable assets and a versioned month before the index", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
@@ -276,7 +298,9 @@ describe("photo publisher", () => {
       catalogChanged: true,
     });
     expect(store.writes.at(-1)).toBe(PHOTO_CATALOG_INDEX_KEY);
-    expect(store.objects.has(`media/${id}/480.webp`)).toBe(true);
+    for (const key of await publishedObjectKeys(store)) {
+      expect(store.objects.has(key), key).toBe(true);
+    }
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
@@ -289,6 +313,7 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(index.periods[0].path))!.text),
     );
     expect(month.photos[0]?.albumIds).toEqual(["japan-2026"]);
+    expect(month.photos[0]?.mediaRevision).toMatch(/^[a-f0-9]{24}$/);
   });
 
   it("publishes when opportunistic garbage collection cannot start", async () => {
@@ -538,6 +563,9 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     const oldPeriodPath = index.periods[0].path;
+    const mediaKeys = await publishedObjectKeys(store);
+    const thumbnailKey = mediaKeys.find((key) => key.endsWith("/480.webp"))!;
+    const displayKey = mediaKeys.find((key) => key.endsWith("/960.webp"))!;
 
     const retiredAt = new Date("2026-08-07T12:00:00.000Z");
     const result = await retirePhotos({
@@ -561,7 +589,7 @@ describe("photo publisher", () => {
     expect(updatedIndex).toEqual(expect.objectContaining({ albums: [], periods: [] }));
     expect(control.retiredObjects).toEqual([expect.any(Object)]);
     expect(store.objects.has(oldPeriodPath)).toBe(true);
-    expect(store.objects.has(`media/${id}/480.webp`)).toBe(true);
+    expect(store.objects.has(thumbnailKey)).toBe(true);
 
     expect(
       await collectPhotoGarbage({
@@ -576,7 +604,7 @@ describe("photo publisher", () => {
       failures: [],
     });
 
-    store.deleteFailures.set(`media/${id}/960.webp`, 1);
+    store.deleteFailures.set(displayKey, 1);
     expect(
       await collectPhotoGarbage({
         store,
@@ -589,12 +617,12 @@ describe("photo publisher", () => {
       pendingArtifacts: 0,
       failures: [
         {
-          objectKey: `media/${id}/960.webp`,
-          message: `temporary delete failure: media/${id}/960.webp`,
+          objectKey: displayKey,
+          message: `temporary delete failure: ${displayKey}`,
         },
       ],
     });
-    expect(store.objects.has(`media/${id}/960.webp`)).toBe(true);
+    expect(store.objects.has(displayKey)).toBe(true);
 
     expect(
       await retirePhotos({
@@ -614,7 +642,7 @@ describe("photo publisher", () => {
     expect(store.objects.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexBody);
     expect(store.versions.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexVersion);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
-    expect(store.objects.has(`media/${id}/960.webp`)).toBe(false);
+    expect(store.objects.has(displayKey)).toBe(false);
   });
 
   it("returns a committed deletion when opportunistic garbage collection fails", async () => {
@@ -709,7 +737,7 @@ describe("photo publisher", () => {
     expect(store.objects.has(replacedPath)).toBe(false);
   });
 
-  it("removes a revived month shard from the retirement queue", async () => {
+  it("keeps retired month paths separate when their contents are restored", async () => {
     const firstFile = await createSourceFile("first live photo");
     const secondFile = await createSourceFile("temporary second photo");
     const firstId = await hashPhotoFile(firstFile);
@@ -742,14 +770,13 @@ describe("photo publisher", () => {
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
-    expect(index.periods[0].path).toBe(revivedPath);
+    expect(index.periods[0].path).not.toBe(revivedPath);
+    expect(store.objects.get(index.periods[0].path)).toBe(store.objects.get(revivedPath));
     const control = await readControl(store);
-    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys)).not.toContain(
-      revivedPath,
-    );
+    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys)).toContain(revivedPath);
   });
 
-  it("does not delete a month shard revived by a concurrent mutation", async () => {
+  it("can restore month contents while their previous path is being collected", async () => {
     const firstFile = await createSourceFile("first live photo");
     const secondFile = await createSourceFile("temporary second photo");
     const firstId = await hashPhotoFile(firstFile);
@@ -796,21 +823,113 @@ describe("photo publisher", () => {
         store,
         now: () => new Date("2026-08-02T13:00:00.000Z"),
       }),
-    ).rejects.toThrow("正在回收");
+    ).resolves.toMatchObject({ retired: 1 });
     releaseDeletion.resolve(undefined);
     await garbageCollection;
-    await retirePhotos({
-      photoIds: [secondId],
-      store,
-      now: () => new Date("2026-08-02T13:00:00.000Z"),
-    });
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
-    expect(index.periods[0]?.path).toBe(revivedPath);
-    expect(store.objects.has(revivedPath)).toBe(true);
+    expect(index.periods[0]?.path).not.toBe(revivedPath);
+    expect(store.objects.has(revivedPath)).toBe(false);
+    for (const key of await publishedObjectKeys(store)) {
+      expect(store.objects.has(key), key).toBe(true);
+    }
   });
+
+  it("refuses to collect a media revision still referenced by a live month", async () => {
+    const file = await createSourceFile("live media must not be collected");
+    const store = new MemoryPhotoStore();
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async (_, id) => processedPhoto(id),
+    });
+    const keys = await publishedObjectKeys(store);
+    const mediaKey = keys.find((key) => key.startsWith("media/"))!;
+    const control = await readControl(store);
+    control.retiredArtifacts.push({
+      retirementId: "a".repeat(24),
+      objectKeys: [mediaKey],
+      deleteAfter: "2026-08-01T00:00:00.000Z",
+    });
+    await store.put(PHOTO_CATALOG_CONTROL_KEY, JSON.stringify(control), {
+      contentType: "application/json",
+      cacheControl: "no-store",
+    });
+
+    await expect(collectPhotoGarbage({ store })).rejects.toThrow("仍被主 Catalog 引用");
+    expect(store.deletes).toEqual([]);
+    for (const key of keys) {
+      expect(store.objects.has(key), key).toBe(true);
+    }
+  });
+
+  it.each(["memory", "filesystem"])(
+    "preserves republished objects after an expired worker resumes in %s",
+    async (backend) => {
+      const file = await createSourceFile("republished after expired garbage claim");
+      const id = await hashPhotoFile(file);
+      const store: PhotoObjectStore =
+        backend === "memory"
+          ? new MemoryPhotoStore()
+          : new FilePhotoObjectStore(path.join(path.dirname(file), "objects"));
+      const publish = (timestamp: string) =>
+        publishPhotos({
+          files: [file],
+          store,
+          processPhoto: async () => processedPhoto(id),
+          now: () => new Date(timestamp),
+        });
+      await publish("2026-08-01T12:00:00.000Z");
+      await retirePhotos({
+        photoIds: [id],
+        store,
+        now: () => new Date("2026-08-01T13:00:00.000Z"),
+      });
+
+      const deletionStarted = deferred<void>();
+      const releaseDeletion = deferred<void>();
+      const originalDelete = store.delete.bind(store);
+      let pause = true;
+      let paused = 0;
+      store.delete = async (key) => {
+        if (pause) {
+          if (++paused === 4) {
+            deletionStarted.resolve();
+          }
+          await releaseDeletion.promise;
+        }
+        return originalDelete(key);
+      };
+      const oldWorker = collectPhotoGarbage({
+        store,
+        now: () => new Date("2026-08-02T15:00:00.000Z"),
+      });
+      await deletionStarted.promise;
+      pause = false;
+      try {
+        await collectPhotoGarbage({
+          store,
+          now: () => new Date("2026-08-02T16:01:00.000Z"),
+        });
+        await publish("2026-08-02T16:02:00.000Z");
+        const republishedKeys = await publishedObjectKeys(store);
+        releaseDeletion.resolve();
+        await oldWorker;
+        const missing = (
+          await Promise.all(
+            republishedKeys.map(async (key) => ((await store.getText(key)) ? null : key)),
+          )
+        ).filter(Boolean);
+        expect(missing).toEqual([]);
+        expect((await readControl(store)).photoMonths[id]).toBe("2026-04");
+      } finally {
+        releaseDeletion.resolve();
+        await oldWorker;
+      }
+    },
+  );
 
   it("recreates failed publish artifacts collected during a later commit retry", async () => {
     const file = await createSourceFile("failed catalog commit");
@@ -842,12 +961,7 @@ describe("photo publisher", () => {
     expect(index.photoMonths).toEqual({});
     const control = await readControl(store);
     expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys).toSorted()).toEqual(
-      [
-        `media/${id}/480.webp`,
-        `media/${id}/960.webp`,
-        `media/${id}/2048.webp`,
-        ...[...store.objects.keys()].filter((key) => key.startsWith("catalog/months/")),
-      ].toSorted(),
+      [...store.objects.keys()].filter(isPhotoArtifactKey).toSorted(),
     );
 
     let collectBeforeCommit = true;
@@ -872,10 +986,8 @@ describe("photo publisher", () => {
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
     expect(recoveredIndex.photoMonths[id]).toBe("2026-04");
-    const referencedKeys = [
-      recoveredIndex.periods[0].path,
-      ...[480, 960, 2048].map((width) => `media/${id}/${width}.webp`),
-    ];
+    const referencedKeys = await publishedObjectKeys(store);
+    await collectPhotoGarbage({ store, now: () => new Date("2026-08-05T12:00:00.000Z") });
     for (const key of referencedKeys) {
       expect(store.objects.has(key), key).toBe(true);
     }

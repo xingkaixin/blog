@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { photoMediaObjectKey } from "../../src/lib/photo-artifact";
 import {
@@ -57,7 +58,6 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
       options.onWarning,
     );
     try {
-      // 每次冲突重试都重新写入，上一轮上传的对象可能已被并发回收。
       return await editPhotoCatalog(options.store, (catalog) =>
         publishPhotosOnce(
           { ...options, now: () => now },
@@ -111,7 +111,6 @@ async function publishPhotosOnce(
       await catalog.addPhotoToAlbum(identified.id, options.album.id);
     }
   }
-  catalog.assertArtifactsWritable(pending.map((photo) => photo.id));
 
   const processed = await mapWithConcurrency(
     pending,
@@ -127,8 +126,8 @@ async function publishPhotosOnce(
       if (photo.id !== identified.id) {
         throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
       }
-      const record = validateNewPhoto(photo, options.album?.id);
-      await uploadPhotoAssets(options.store, photo, attemptedArtifacts);
+      const record = createPhotoRecord(photo, options.album?.id);
+      await uploadPhotoAssets(options.store, record, photo.variants, attemptedArtifacts);
       options.onProgress?.({
         type: "published",
         file: identified.file,
@@ -153,9 +152,10 @@ async function publishPhotosOnce(
   };
 }
 
-function validateNewPhoto(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
+function createPhotoRecord(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
   return parsePhotoRecord({
     id: photo.id,
+    mediaRevision: randomBytes(12).toString("hex"),
     capturedAt: photo.capturedAt,
     width: photo.width,
     height: photo.height,
@@ -222,19 +222,21 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
-  photo: ProcessedPhoto,
+  photo: PhotoRecord,
+  variants: ProcessedPhoto["variants"],
   attemptedArtifacts: Set<string>,
 ): Promise<void> {
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
-    const body = photo.variants.get(width);
+    const body = variants.get(width);
     if (!body) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
-    const key = photoMediaObjectKey(photo.id, width);
+    const key = photoMediaObjectKey(photo.id, width, photo.mediaRevision);
     attemptedArtifacts.add(key);
     await store.put(key, body, {
       contentType: "image/webp",
       cacheControl: ASSET_CACHE_CONTROL,
+      expectedVersion: null,
     });
   });
 }

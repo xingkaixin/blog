@@ -32,5 +32,14 @@ describe("photo artifact keys", () => {
     expect(photoIdFromMediaObjectKey(`media/${photoId}/100.webp`)).toBeNull();
     expect(monthFromPhotoMonthCatalogObjectKey("catalog/months/2026-13.hash.json")).toBeNull();
     expect(isPhotoArtifactKey("catalog/index.json")).toBe(false);
+    expect(isPhotoArtifactKey(`media/${photoId}/invalid/960.webp`)).toBe(false);
+  });
+
+  it("identifies versioned media without changing the photo identity", () => {
+    const revision = "a".repeat(24);
+    const key = photoMediaObjectKey(photoId, 960, revision);
+    expect(key).toBe(`media/${photoId}/${revision}/960.webp`);
+    expect(photoIdFromMediaObjectKey(key)).toBe(photoId);
+    expect(isPhotoArtifactKey(key)).toBe(true);
   });
 });
