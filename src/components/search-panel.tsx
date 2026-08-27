@@ -70,6 +70,16 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     setActiveIndex(0);
   }, [query, status]);
 
+  useEffect(() => {
+    if (open && activeItem) {
+      itemRefs.current.get(activeItem.id)?.scrollIntoView({
+        behavior: "instant",
+        block: "nearest",
+        inline: "nearest",
+      });
+    }
+  }, [activeItem, open]);
+
   const activate = (item: SearchPaletteItem | undefined) => {
     if (!item) {
       return;
@@ -156,6 +166,13 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                   {group.items.map((item) => {
                     const itemIndex = itemIndexById.get(item.id) ?? 0;
                     const selected = itemIndex === activeIndex;
+                    const setItemRef = (element: HTMLElement | null) => {
+                      if (element) {
+                        itemRefs.current.set(item.id, element);
+                      } else {
+                        itemRefs.current.delete(item.id);
+                      }
+                    };
                     const itemClassName = cn(
                       "flex min-h-10 w-full items-center gap-2.5 px-4 py-2 text-left transition-colors",
                       selected
@@ -176,13 +193,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
 
                     return item.kind === "link" ? (
                       <a
-                        ref={(element) => {
-                          if (element) {
-                            itemRefs.current.set(item.id, element);
-                          } else {
-                            itemRefs.current.delete(item.id);
-                          }
-                        }}
+                        ref={setItemRef}
                         id={item.id}
                         key={item.id}
                         href={item.href}
@@ -198,6 +209,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                       </a>
                     ) : (
                       <button
+                        ref={setItemRef}
                         id={item.id}
                         key={item.id}
                         type="button"

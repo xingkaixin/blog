@@ -123,6 +123,34 @@ describe("search dialog entry", () => {
     }
   });
 
+  it("reveals keyboard selections without moving focus out of the search input", async () => {
+    const revealed: HTMLElement[] = [];
+    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(
+      function (this: HTMLElement) {
+        revealed.push(this);
+      },
+    );
+    const container = document.createElement("div");
+    document.body.append(container);
+    await act(async () => openSearchDialog(container));
+    const input = document.querySelector<HTMLInputElement>('input[aria-label="搜索与命令"]')!;
+    const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+    const selections = [
+      { key: "ArrowUp", item: options.at(-1)! },
+      { key: "ArrowDown", item: options[0] },
+      { key: "ArrowDown", item: options[1] },
+    ];
+    for (const { key, item } of selections) {
+      revealed.length = 0;
+      await act(async () =>
+        input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true })),
+      );
+      expect(input.getAttribute("aria-activedescendant")).toBe(item.id);
+      expect(revealed).toEqual([item]);
+      expect(document.activeElement).toBe(input);
+    }
+  });
+
   it.each(["isComposing", "keyCode"])(
     "leaves composition keys to the input method when marked by %s",
     async (marker) => {
