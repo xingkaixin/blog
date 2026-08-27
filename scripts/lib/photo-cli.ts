@@ -8,6 +8,7 @@ import { collectPhotoFiles, hashPhotoFile, type ProcessedPhoto } from "./photo-s
 import {
   createR2PhotoObjectStore,
   FilePhotoObjectStore,
+  R2PhotoObjectStore,
   type PhotoObjectStore,
 } from "./photo-store";
 
@@ -78,6 +79,7 @@ R2 环境变量:
   R2_ACCESS_KEY_ID
   R2_SECRET_ACCESS_KEY
   R2_PHOTO_BUCKET
+  R2_PHOTO_CONTROL_BUCKET
 `,
   delete: `从照片墙移除照片
 
@@ -367,6 +369,9 @@ async function runMigrateCommand(options: MigratePhotoCliOptions, io: PhotoCliIo
 
   const store = createStore(options.output, "迁移", io);
   try {
+    if (store instanceof R2PhotoObjectStore && (await store.migrateControl())) {
+      io.log("后台控制文档已核验迁入私有 bucket，公开副本已移除");
+    }
     const migrated = await migratePhotoCatalog(store);
     io.log(migrated ? "完成：Catalog 已迁移到当前格式" : "Catalog 已是当前格式，无需写入");
   } finally {

@@ -205,7 +205,9 @@ async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogSt
       parsedPublicIndex = parsePhotoCatalogIndexWithVersion(rawIndex);
     } catch (error) {
       if (!controlObject) {
-        throw error;
+        throw new Error("照片主索引缺少可用的后台控制状态，请先运行 photos:migrate -- --confirm", {
+          cause: error,
+        });
       }
     }
   }

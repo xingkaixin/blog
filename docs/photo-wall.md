@@ -4,6 +4,8 @@
 
 ## 存储结构
 
+公开 bucket（`R2_PHOTO_BUCKET`）：
+
 ```text
 catalog/index.json
 catalog/months/2026-04.<revision>.json
@@ -11,6 +13,9 @@ media/<photo-id>/<media-revision>/480.webp
 media/<photo-id>/<media-revision>/960.webp
 media/<photo-id>/<media-revision>/2048.webp
 ```
+
+私有 bucket（`R2_PHOTO_CONTROL_BUCKET`）只保存 `catalog/control.json`，不绑定公开域名、
+不开启 `r2.dev`，也不通过 Worker 暴露。后台控制状态包含待回收对象路径，不属于公开数据。
 
 - `photo-id` 是原始文件内容的 128 位 SHA-256 前缀，同一文件重复发布不会生成重复照片。
 - 月份分片和图片使用不可变缓存；`catalog/index.json` 使用短缓存，并通过条件写避免并发发布互相覆盖。
@@ -21,8 +26,8 @@ media/<photo-id>/<media-revision>/2048.webp
 
 ## 配置 R2
 
-1. 创建一个 R2 bucket，并为它创建仅限该 bucket 的 Object Read & Write S3 API 凭据。
-2. 在 bucket 的 Public access 设置中绑定 `photos.xingkaixin.me` 自定义域名。生产环境不要使用 `r2.dev` 地址。
+1. 创建独立的公开照片 bucket 和私有控制 bucket，并创建仅限这两个 bucket 的 Object Read & Write S3 API 凭据。
+2. 只在照片 bucket 的 Public access 设置中绑定 `photos.xingkaixin.me`。私有控制 bucket 保持所有公开入口关闭；生产环境不要使用 `r2.dev` 地址。
 3. 应用只读 CORS：
 
    ```bash
@@ -90,6 +95,14 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 快照都写在系统临时目录，并在单张照片处理完成后删除。
 
 ### 发布器升级
+
+从单 bucket 升级时，先停止所有照片发布、删除和回收进程，创建私有 bucket 并配置
+`R2_PHOTO_CONTROL_BUCKET`，再执行 `bun run photos:migrate -- --confirm`。
+迁移会校验并复制控制文档，读取确认私有副本与原文一致后才删除公开副本；不会搬迁图片。
+私有副本已存在但内容不一致时会停止，必须先核对，不能覆盖它继续迁移。
+这是停写迁移，不能与旧发布器并发执行；迁移后所有写入方必须使用新版配置。
+完成后执行 `bun run photos:verify`，该命令要求公开控制文档返回 403 或 404。
+仅修改代码或配置不会移除线上已有的公开副本。
 
 月份 Catalog v2 保留对 v1 的读取兼容；没有 `mediaRevision` 的旧照片仍使用
 `media/<photo-id>/<尺寸>.webp`，无需搬迁已有图片。先部署新版站点，再使用新版发布器；

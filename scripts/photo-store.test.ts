@@ -4,7 +4,9 @@ import os from "node:os";
 import path from "node:path";
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
 import {
+  createR2PhotoObjectStore,
   FilePhotoObjectStore,
   PhotoStoreConflictError,
   R2PhotoObjectStore,
@@ -77,6 +79,35 @@ describe("file photo store", () => {
 });
 
 describe("R2 photo store", () => {
+  it("keeps control reads and writes out of the public bucket", async () => {
+    const { store, send } = r2Store();
+    send
+      .mockResolvedValueOnce({ ETag: '"v1"', Body: { transformToString: async () => "control" } })
+      .mockResolvedValueOnce({ ETag: '"v2"' });
+
+    await store.getText(PHOTO_CATALOG_CONTROL_KEY);
+    await store.put(PHOTO_CATALOG_CONTROL_KEY, "control", {
+      contentType: "application/json",
+      cacheControl: "no-store",
+      expectedVersion: '"v1"',
+    });
+    const buckets = send.mock.calls.map(([command]) => command.input.Bucket);
+    expect(buckets).toEqual(["photo-control", "photo-control"]);
+  });
+
+  it("requires a distinct private control bucket", () => {
+    const environment = {
+      R2_ACCOUNT_ID: "account",
+      R2_ACCESS_KEY_ID: "key",
+      R2_SECRET_ACCESS_KEY: "secret",
+      R2_PHOTO_BUCKET: "photos",
+    };
+    expect(() => createR2PhotoObjectStore(environment)).toThrow("R2_PHOTO_CONTROL_BUCKET");
+    expect(() =>
+      createR2PhotoObjectStore({ ...environment, R2_PHOTO_CONTROL_BUCKET: "photos" }),
+    ).toThrow("不同");
+  });
+
   it("maps get, put, and delete operations to S3 commands", async () => {
     const { store, send, destroy } = r2Store();
     send
@@ -161,15 +192,14 @@ function r2Store() {
   const send = vi.fn();
   const destroy = vi.fn();
   const client = { send, destroy } as unknown as R2PhotoClient;
-  const store = new R2PhotoObjectStore(
-    {
-      accountId: "account",
-      accessKeyId: "key",
-      secretAccessKey: "secret",
-      bucket: "photos",
-    },
-    client,
-  );
+  const options = {
+    accountId: "account",
+    accessKeyId: "key",
+    secretAccessKey: "secret",
+    bucket: "photos",
+    controlBucket: "photo-control",
+  };
+  const store = new R2PhotoObjectStore(options, client);
   return { store, send, destroy };
 }
 

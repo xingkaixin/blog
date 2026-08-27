@@ -8,6 +8,7 @@ import {
   S3Client,
   type PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
+import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
 
 export type PhotoObjectBody = string | Uint8Array;
 
@@ -41,6 +42,7 @@ export type R2PhotoStoreOptions = {
   accessKeyId: string;
   secretAccessKey: string;
   bucket: string;
+  controlBucket: string;
 };
 
 export type R2PhotoClient = Pick<S3Client, "send" | "destroy">;
@@ -51,7 +53,8 @@ type R2EnvironmentKey =
   | "R2_ACCOUNT_ID"
   | "R2_ACCESS_KEY_ID"
   | "R2_SECRET_ACCESS_KEY"
-  | "R2_PHOTO_BUCKET";
+  | "R2_PHOTO_BUCKET"
+  | "R2_PHOTO_CONTROL_BUCKET";
 
 function resolveObjectPath(rootDirectory: string, key: string): string {
   const root = path.resolve(rootDirectory);
@@ -250,9 +253,14 @@ function objectVersion(body: PhotoObjectBody): string {
 export class R2PhotoObjectStore implements PhotoObjectStore {
   readonly bucket: string;
   readonly client: R2PhotoClient;
+  private readonly controlBucket: string;
 
   constructor(options: R2PhotoStoreOptions, client?: R2PhotoClient) {
+    if (!options.controlBucket || options.controlBucket === options.bucket) {
+      throw new Error("R2_PHOTO_CONTROL_BUCKET 必须指定与公开照片 bucket 不同的私有 bucket");
+    }
     this.bucket = options.bucket;
+    this.controlBucket = options.controlBucket;
     this.client =
       client ??
       new S3Client({
@@ -266,10 +274,14 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
   }
 
   async getText(key: string): Promise<PhotoTextObject | null> {
+    return this.readText(this.bucketForKey(key), key);
+  }
+
+  private async readText(bucket: string, key: string): Promise<PhotoTextObject | null> {
     try {
       const response = await this.client.send(
         new GetObjectCommand({
-          Bucket: this.bucket,
+          Bucket: bucket,
           Key: key,
         }),
       );
@@ -293,7 +305,7 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
 
   async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
     const input: PutObjectCommandInput = {
-      Bucket: this.bucket,
+      Bucket: this.bucketForKey(key),
       Key: key,
       Body: body,
       ContentType: options.contentType,
@@ -318,7 +330,7 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
   async delete(key: string): Promise<void> {
     await this.client.send(
       new DeleteObjectCommand({
-        Bucket: this.bucket,
+        Bucket: this.bucketForKey(key),
         Key: key,
       }),
     );
@@ -326,6 +338,38 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
 
   close(): void {
     this.client.destroy();
+  }
+
+  async migrateControl(): Promise<boolean> {
+    const key = PHOTO_CATALOG_CONTROL_KEY;
+    const source = await this.readText(this.bucket, key);
+    if (!source) {
+      return false;
+    }
+    parsePhotoCatalogControl(JSON.parse(source.text));
+    const destination = await this.getText(key);
+    if (destination && destination.text !== source.text) {
+      throw new Error("私有与公开控制文档不一致；请停止所有发布器并核对数据，不会覆盖或删除");
+    }
+    if (!destination) {
+      await this.put(key, source.text, {
+        contentType: "application/json; charset=utf-8",
+        cacheControl: "no-store",
+        expectedVersion: null,
+      });
+    }
+    const copied = await this.getText(key);
+    const current = await this.readText(this.bucket, key);
+    if (copied?.text !== source.text || current?.version !== source.version) {
+      throw new Error("迁移期间控制文档发生变化；已保留公开副本，请停止所有发布器后核对数据");
+    }
+    // 迁移是停写操作；R2 未承诺支持 DeleteObject 的条件删除。
+    await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    return true;
+  }
+
+  private bucketForKey(key: string): string {
+    return key === PHOTO_CATALOG_CONTROL_KEY ? this.controlBucket : this.bucket;
   }
 }
 
@@ -336,12 +380,14 @@ export function createR2PhotoObjectStore(
   const accessKeyId = readEnvironmentVariable(environment, "R2_ACCESS_KEY_ID");
   const secretAccessKey = readEnvironmentVariable(environment, "R2_SECRET_ACCESS_KEY");
   const bucket = readEnvironmentVariable(environment, "R2_PHOTO_BUCKET");
+  const controlBucket = readEnvironmentVariable(environment, "R2_PHOTO_CONTROL_BUCKET");
 
   return new R2PhotoObjectStore({
     accountId,
     accessKeyId,
     secretAccessKey,
     bucket,
+    controlBucket,
   });
 }
 

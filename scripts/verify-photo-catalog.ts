@@ -11,11 +11,28 @@ import {
 } from "../src/lib/photo-catalog";
 import { siteConfig } from "../src/lib/site";
 import { mapWithConcurrency } from "./lib/concurrency";
+import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
 
 export type PhotoCatalogLoader = (url: string) => Promise<unknown>;
 
 const MAX_COMPACT_CATALOG_BYTES = 256 * 1024;
 const SHARD_READ_CONCURRENCY = 8;
+
+export async function verifyPhotoControlPrivacy(
+  photoBaseUrl: string,
+  request: (url: string, options: RequestInit) => Promise<Response> = fetch,
+): Promise<void> {
+  const response = await request(photoObjectUrl(photoBaseUrl, PHOTO_CATALOG_CONTROL_KEY), {
+    method: "HEAD",
+    cache: "no-store",
+    redirect: "error",
+  });
+  if (response.status !== 403 && response.status !== 404) {
+    throw new Error(
+      `后台控制文档必须不可公开访问，当前响应 ${response.status}；请完成私有存储迁移`,
+    );
+  }
+}
 
 export async function verifyPublishedPhotoCatalog(
   photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl,
@@ -60,7 +77,8 @@ async function loadJson(url: string): Promise<unknown> {
 if (import.meta.main) {
   const photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
   console.log(`正在验证照片 Catalog: ${catalogIndexUrl(photoBaseUrl)}`);
-  verifyPublishedPhotoCatalog(photoBaseUrl)
+  verifyPhotoControlPrivacy(photoBaseUrl)
+    .then(() => verifyPublishedPhotoCatalog(photoBaseUrl))
     .then((catalog) => {
       const photoCount = Object.keys(catalog.photoMonths).length;
       const compactBytes = compactCatalogBytes(catalog);

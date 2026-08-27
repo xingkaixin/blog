@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { verifyPublishedPhotoCatalog } from "./verify-photo-catalog";
+import { verifyPhotoControlPrivacy, verifyPublishedPhotoCatalog } from "./verify-photo-catalog";
 
 const catalog = {
   schemaVersion: 3,
@@ -42,6 +42,25 @@ function shard(month: string, photoId: string) {
 }
 
 describe("photo catalog deployment", () => {
+  it("blocks public control documents and uncertain privacy checks", async () => {
+    for (const status of [200, 302, 500]) {
+      await expect(
+        verifyPhotoControlPrivacy(
+          "https://photos.example.com",
+          async () => new Response(null, { status }),
+        ),
+      ).rejects.toThrow(`当前响应 ${status}`);
+    }
+    for (const status of [403, 404]) {
+      await expect(
+        verifyPhotoControlPrivacy(
+          "https://photos.example.com",
+          async () => new Response(null, { status }),
+        ),
+      ).resolves.toBeUndefined();
+    }
+  });
+
   it("accepts the current published schema", async () => {
     const load = vi.fn(async () => catalog);
 
