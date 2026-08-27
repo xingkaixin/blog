@@ -28,9 +28,14 @@ export type PhotoNavigation = {
   total: number;
 };
 
+export class PhotoCatalogNotFoundError extends Error {}
+
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
   readonly request: PhotoCatalogRequest;
+  private pendingIndex:
+    | { signal: AbortSignal | undefined; request: Promise<PhotoCatalogIndex> }
+    | undefined;
   private readonly pendingMonths = new Map<
     string,
     { signal: AbortSignal | undefined; request: Promise<PhotoMonthCatalog> }
@@ -45,11 +50,21 @@ export class PhotoCatalogBrowser {
     if (!this.baseUrl) {
       throw new Error("照片存储地址尚未配置");
     }
-    const value = await this.request(catalogIndexUrl(this.baseUrl), {
+    if (this.pendingIndex && this.pendingIndex.signal === signal) {
+      return this.pendingIndex.request;
+    }
+    const request = this.request(catalogIndexUrl(this.baseUrl), {
       cache: "no-cache",
       signal,
-    });
-    return parsePhotoCatalogIndex(value);
+    })
+      .then(parsePhotoCatalogIndex)
+      .finally(() => {
+        if (this.pendingIndex?.request === request) {
+          this.pendingIndex = undefined;
+        }
+      });
+    this.pendingIndex = { signal, request };
+    return request;
   }
 
   loadMonth(
@@ -170,7 +185,10 @@ async function requestJson(
 ): Promise<unknown> {
   const response = await fetch(url, options);
   if (!response.ok) {
-    throw new Error(`照片 Catalog 请求失败 (${response.status})`);
+    const message = `照片 Catalog 请求失败 (${response.status})`;
+    throw response.status === 404 || response.status === 410
+      ? new PhotoCatalogNotFoundError(message)
+      : new Error(message);
   }
   return response.json();
 }

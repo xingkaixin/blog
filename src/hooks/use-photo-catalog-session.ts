@@ -5,7 +5,11 @@ import type {
   PhotoPeriod,
   PhotoRecord,
 } from "@/lib/photo-catalog";
-import { PhotoCatalogBrowser, resolveCatalogPhoto } from "@/lib/photo-catalog-browser";
+import {
+  PhotoCatalogBrowser,
+  PhotoCatalogNotFoundError,
+  resolveCatalogPhoto,
+} from "@/lib/photo-catalog-browser";
 
 export type PhotoCatalogSessionState =
   | { status: "loading" }
@@ -26,33 +30,35 @@ export function usePhotoCatalogSession(baseUrl: string) {
   const [monthErrors, setMonthErrors] = useState<MonthErrors>({});
   const monthsRef = useRef<MonthCatalogs>({});
   const requestControllerRef = useRef<AbortController | null>(null);
-  const generationRef = useRef(0);
 
-  const reload = useCallback(async () => {
+  const reset = useCallback(() => {
     requestControllerRef.current?.abort();
     const controller = new AbortController();
-    const generation = generationRef.current + 1;
     const emptyMonths: MonthCatalogs = {};
     requestControllerRef.current = controller;
-    generationRef.current = generation;
     monthsRef.current = emptyMonths;
     setMonths(emptyMonths);
     setMonthErrors({});
+    return controller;
+  }, []);
+
+  const reload = useCallback(async () => {
+    const controller = reset();
     setState({ status: "loading" });
 
     try {
       const index = await browser.loadIndex(controller.signal);
-      if (generationRef.current === generation) {
+      if (!controller.signal.aborted) {
         setState({ status: "ready", index });
       }
     } catch (error) {
-      if (controller.signal.aborted || generationRef.current !== generation) {
+      if (controller.signal.aborted) {
         return;
       }
       console.error("加载照片 Catalog 失败", error);
       setState({ status: "error", message: readableError(error) });
     }
-  }, [browser]);
+  }, [browser, reset]);
 
   useEffect(() => {
     void reload();
@@ -66,13 +72,13 @@ export function usePhotoCatalogSession(baseUrl: string) {
       if (loaded) {
         return loaded;
       }
-      const generation = generationRef.current;
+      const controller = requestControllerRef.current;
       try {
-        if (!index) {
+        if (!index || !controller) {
           throw new Error("照片主 Catalog 尚未加载");
         }
-        const month = await browser.loadMonth(index, period, requestControllerRef.current?.signal);
-        if (generationRef.current !== generation) {
+        const month = await browser.loadMonth(index, period, controller.signal);
+        if (controller.signal.aborted) {
           return month;
         }
         const nextMonths = { ...monthsRef.current, [period.month]: month };
@@ -88,7 +94,25 @@ export function usePhotoCatalogSession(baseUrl: string) {
         });
         return month;
       } catch (error) {
-        if (generationRef.current === generation && !requestControllerRef.current?.signal.aborted) {
+        if (
+          error instanceof PhotoCatalogNotFoundError &&
+          controller &&
+          !controller.signal.aborted
+        ) {
+          try {
+            const latest = await browser.loadIndex(controller.signal);
+            const replacement = latest.periods.find((item) => item.month === period.month);
+            if (!controller.signal.aborted && replacement?.path !== period.path) {
+              reset();
+              setState({ status: "ready", index: latest });
+            }
+          } catch (refreshError) {
+            if (!controller.signal.aborted) {
+              console.error("刷新照片 Catalog 失败", refreshError);
+            }
+          }
+        }
+        if (controller && !controller.signal.aborted) {
           console.error(`加载照片月份 ${period.month} 失败`, error);
           setMonthErrors((current) => ({
             ...current,
@@ -98,7 +122,7 @@ export function usePhotoCatalogSession(baseUrl: string) {
         throw error;
       }
     },
-    [browser, index],
+    [browser, index, reset],
   );
 
   const retryMonth = useCallback(
