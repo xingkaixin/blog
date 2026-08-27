@@ -77,7 +77,7 @@ export async function generateResponsiveImages<Key extends string>(
     const outputPaths = outputEntries.map(([, output]) => output);
     plans.push({
       key: source.key,
-      fingerprintParts: [rendererFingerprint, fs.readFileSync(source.file)],
+      fingerprint: () => fingerprint([rendererFingerprint, fs.readFileSync(source.file)]),
       outputs: outputPaths,
       generate: async () => {
         for (const output of outputPaths) {

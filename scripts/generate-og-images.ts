@@ -344,7 +344,7 @@ export async function generateOgImages(
   const plans: ArtifactPlan[] = [
     {
       key: "site",
-      fingerprintParts: siteFingerprintParts(options.rendererFingerprint),
+      fingerprint: () => fingerprint(siteFingerprintParts(options.rendererFingerprint)),
       outputs: [siteOutput],
       generate: () => options.renderSite(siteOutput),
     },
@@ -352,11 +352,10 @@ export async function generateOgImages(
       const output = path.join(options.outputDirectory, `${post.slug}.png`);
       return {
         key: `post:${post.slug}`,
-        fingerprintParts: postFingerprintParts(
-          post,
-          options.rendererFingerprint,
-          options.coverSource(post),
-        ),
+        fingerprint: () =>
+          fingerprint(
+            postFingerprintParts(post, options.rendererFingerprint, options.coverSource(post)),
+          ),
         outputs: [output],
         generate: () => options.renderPost(post, output),
       };

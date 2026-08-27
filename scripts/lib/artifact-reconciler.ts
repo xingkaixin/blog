@@ -17,7 +17,7 @@ type ArtifactManifest = {
 
 export type ArtifactPlan = {
   key: string;
-  fingerprintParts: Array<string | Buffer>;
+  fingerprint(): string;
   outputs: string[];
   generate(): Promise<void>;
 };
@@ -53,7 +53,7 @@ export async function reconcileArtifacts(
     options.plans,
     options.concurrency ?? 1,
     async (plan): Promise<"generated" | "reused"> => {
-      const currentFingerprint = fingerprint(plan.fingerprintParts);
+      const currentFingerprint = plan.fingerprint();
       const currentEntry = manifest.entries[plan.key];
       if (
         currentEntry?.fingerprint === currentFingerprint &&

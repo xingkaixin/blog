@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
+import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
 
 const temporaryDirectories: string[] = [];
 
@@ -22,7 +22,7 @@ describe("artifact reconciliation", () => {
     const plans: ArtifactPlan[] = [
       {
         key: "demo",
-        fingerprintParts: ["renderer", "source"],
+        fingerprint: () => fingerprint(["renderer", "source"]),
         outputs: [output],
         generate: async () => {
           renders += 1;
@@ -66,6 +66,7 @@ describe("artifact reconciliation", () => {
     const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
     expect(manifest.version).toBe(2);
     expect(manifest.entries.demo.outputFingerprints).toHaveLength(1);
+    expect(manifest.entries.demo.fingerprint).toBe(fingerprint(["renderer", "source"]));
   });
 });
 

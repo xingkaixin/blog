@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PublishedPost } from "../src/lib/published-post";
 import { checkGeneratedArtifacts } from "./check-generated-artifacts";
 import { generateCovers, type GenerateCoversOptions } from "./generate-covers";
@@ -13,12 +13,33 @@ import { generatePostImages, type GeneratePostImagesOptions } from "./generate-p
 const temporaryDirectories: string[] = [];
 
 afterEach(() => {
+  vi.restoreAllMocks();
   for (const directory of temporaryDirectories.splice(0)) {
     fs.rmSync(directory, { force: true, recursive: true });
   }
 });
 
 describe("image generators", () => {
+  it("does not read queued responsive sources before converting the first image", async () => {
+    const options = createPostImageOptions();
+    fs.mkdirSync(options.sourceDirectory, { recursive: true });
+    const sources = ["a.jpg", "b.jpg", "c.jpg"].map((name) =>
+      path.join(options.sourceDirectory, name),
+    );
+    await Promise.all(sources.map((source) => writeFixture(source, "#ff0000", "jpeg")));
+    const read = vi.spyOn(fs, "readFileSync");
+    const generation = generatePostImages(options);
+    try {
+      const sourceReads = read.mock.calls
+        .map(([file]) => file)
+        .filter((file) => sources.includes(String(file)));
+      expect(sourceReads).toEqual([sources[0]]);
+    } finally {
+      await generation;
+    }
+    expect(await generatePostImages(options)).toEqual({ generated: 0, reused: 3, removed: 0 });
+  });
+
   it("generates post images from private sources and invalidates by content", async () => {
     const options = createPostImageOptions();
     const source = path.join(options.sourceDirectory, "post", "demo.jpg");
@@ -152,6 +173,47 @@ describe("image generators", () => {
     fs.rmSync(path.join(outputDirectory, "site.png"));
     expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 1, removed: 0 });
     expect(renders).toEqual(["site", "demo", "demo", "site", "demo", "site"]);
+  });
+
+  it("reads OG sources only when a render slot is available", async () => {
+    const root = createTemporaryDirectory();
+    const release = Promise.withResolvers<void>();
+    const reads: string[] = [];
+    const posts = Array.from({ length: 12 }, (_, index): PublishedPost => ({
+      slug: `post-${index}`,
+      title: `Post ${index}`,
+      date: "2026-08-27",
+      summary: "Summary",
+      tags: [],
+      cover: "demo.png",
+      coverAlt: "Demo cover",
+    }));
+    const generation = generateOgImages({
+      outputDirectory: path.join(root, "output"),
+      cacheFile: path.join(root, "cache.json"),
+      posts,
+      rendererFingerprint: "renderer-v1",
+      concurrency: 2,
+      coverSource: (post) => {
+        reads.push(post.slug);
+        return Buffer.from(post.slug);
+      },
+      renderPost: async (post, output) => {
+        await release.promise;
+        fs.writeFileSync(output, post.title);
+      },
+      renderSite: async (output) => {
+        await release.promise;
+        fs.writeFileSync(output, "site");
+      },
+    });
+    try {
+      expect(reads).toEqual([posts[0].slug]);
+    } finally {
+      release.resolve();
+      await generation;
+    }
+    expect(reads).toEqual(posts.map((post) => post.slug));
   });
 });
 
