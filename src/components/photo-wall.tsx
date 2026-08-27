@@ -75,6 +75,10 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           baseUrl={normalizedBaseUrl}
           albumCount={catalogState.index.albums.length}
           items={model.overviewItems}
+          failedPeriods={catalogModel.overviewPeriods.filter(
+            (period) => period.month in monthErrors,
+          )}
+          onRetryMonth={retryMonth}
           onOpenAlbum={browsing.openTimeline}
         />
       )}

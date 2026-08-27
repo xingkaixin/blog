@@ -1,4 +1,4 @@
-import { PHOTO_THUMBNAIL_WIDTH, photoVariantUrl } from "@/lib/photo-catalog";
+import { PHOTO_THUMBNAIL_WIDTH, photoVariantUrl, type PhotoPeriod } from "@/lib/photo-catalog";
 import type { AlbumOverviewItem } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
@@ -6,13 +6,40 @@ type PhotoOverviewProps = {
   baseUrl: string;
   albumCount: number;
   items: AlbumOverviewItem[];
+  failedPeriods: PhotoPeriod[];
+  onRetryMonth: (period: PhotoPeriod) => void;
   onOpenAlbum: (albumId: string | null) => void;
 };
 
-export function PhotoOverview({ baseUrl, albumCount, items, onOpenAlbum }: PhotoOverviewProps) {
+export function PhotoOverview({
+  baseUrl,
+  albumCount,
+  items,
+  failedPeriods,
+  onRetryMonth,
+  onOpenAlbum,
+}: PhotoOverviewProps) {
   return (
     <div className="mx-auto max-w-320 px-3 pt-8 sm:px-5 lg:px-8 lg:pt-[30px]">
       <PhotoArchiveHeader detail={`${albumCount} 个相册 · ${items[0]?.count ?? 0} 张照片`} />
+      {failedPeriods.length > 0 && (
+        <div
+          role="alert"
+          className="mt-6 flex items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3"
+        >
+          <div>
+            <p className="text-sm font-medium text-ink-800">相册预览加载失败</p>
+            <p className="mt-1 text-xs text-ink-500">请检查网络后重试。</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => failedPeriods.forEach(onRetryMonth)}
+            className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          >
+            重试预览
+          </button>
+        </div>
+      )}
       <div className="mt-[26px] grid gap-[26px] sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
           <AlbumOverviewCard
