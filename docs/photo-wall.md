@@ -64,7 +64,8 @@ bun run photos:publish -- ~/Pictures/Japan/favorite.heic \
 
 移除照片时必须提供原始照片文件，并显式添加 `--confirm`。发布器会先从公开
 Catalog 移除照片，再分别记录 Retired Photo 的 WebP 与不再被引用的 Retired Artifact。
-对象至少保留 25 小时，确保仍持有旧 Catalog 缓存的访问者不会遇到 404：
+回收器确认公开索引已撤下引用后，对象至少再保留 25 小时，确保仍持有旧 Catalog
+缓存的访问者不会遇到 404。公开索引更新失败时不会开始计时；后续命令会重试同步：
 
 ```bash
 bun run photos:delete -- ~/Pictures/Japan/favorite.heic --confirm
@@ -93,7 +94,9 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 月份 Catalog v2 保留对 v1 的读取兼容；没有 `mediaRevision` 的旧照片仍使用
 `media/<photo-id>/<尺寸>.webp`，无需搬迁已有图片。先部署新版站点，再使用新版发布器；
 旧版站点无法读取 v2 月份。所有发布和回收进程都应升级，停止旧版本进程后再运行新版命令。
-控制文档在下次写入时升级为 v2，使旧发布器拒绝继续写入；新版仍能读取 v1 控制文档。
+控制文档在下次写入时升级为 v3，使旧发布器拒绝继续写入；新版仍能读取 v1、v2 控制文档。
+新回收记录的 `deleteAfter` 为 `null`，确认公开索引已更新后才写入回收时间。旧控制文档中的
+待回收记录会重新确认公开索引并等待完整宽限期，因此首次升级可能延后回收，但不会搬迁图片。
 
 ## 本地预览
 

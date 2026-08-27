@@ -108,13 +108,13 @@ export class PhotoCatalogEditor {
     }
   }
 
-  async retirePhotos(photoIds: string[], deleteAfter: string): Promise<Set<string>> {
+  async retirePhotos(photoIds: string[]): Promise<Set<string>> {
     await loadPhotoCatalogMonths(
       this.store,
       this.state,
       photoIds.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
     );
-    return this.state.retirePhotos(photoIds, deleteAfter);
+    return this.state.retirePhotos(photoIds);
   }
 
   async commit(
@@ -152,11 +152,18 @@ export class PhotoCatalogEditor {
 
   async claimGarbage(
     claimId: string,
-    now: Date,
-    expiresAt: string,
+    now: () => Date,
+    claimDurationMs: number,
   ): Promise<{ photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] }> {
-    const claim = this.state.claimGarbage(claimId, now, expiresAt);
-    if (claim.photos.length > 0 || claim.artifacts.length > 0) {
+    if (this.state.pendingRetiredPhotos === 0 && this.state.pendingRetiredArtifacts === 0) {
+      return { photos: [], artifacts: [] };
+    }
+    await this.repairPublicIndex();
+    const claimedAt = now();
+    const scheduled = this.state.scheduleRetirements(claimedAt);
+    const expiresAt = new Date(claimedAt.getTime() + claimDurationMs).toISOString();
+    const claim = this.state.claimGarbage(claimId, claimedAt, expiresAt);
+    if (scheduled || claim.photos.length > 0 || claim.artifacts.length > 0) {
       const keys = [...claim.photos, ...claim.artifacts].flatMap((entry) => entry.objectKeys);
       await loadPhotoCatalogMonths(this.store, this.state, this.state.monthsForArtifacts(keys));
       this.state.assertArtifactsUnreferenced(keys);

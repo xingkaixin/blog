@@ -207,7 +207,7 @@ export class PhotoCatalogState {
     this.markMonthDirty(month);
   }
 
-  retirePhotos(photoIds: string[], deleteAfter: string): Set<string> {
+  retirePhotos(photoIds: string[]): Set<string> {
     const targets = photoIds.map((photoId) => {
       const month = this.#photoMonths.get(photoId);
       const photo = month
@@ -238,7 +238,7 @@ export class PhotoCatalogState {
       this.#retiredObjects.set(photo.id, {
         photoId: photo.id,
         objectKeys: photoObjectKeys,
-        deleteAfter,
+        deleteAfter: null,
       });
       for (const key of photoObjectKeys) {
         objectKeys.add(key);
@@ -292,7 +292,6 @@ export class PhotoCatalogState {
     this.retireUnreferencedArtifacts(
       periods,
       new Set([...attemptedArtifacts, ...replacedPeriodPaths]),
-      generatedAt,
     );
     this.removeEmptyAlbums(periods);
     return this.buildControl(periods, generatedAt.toISOString());
@@ -306,6 +305,9 @@ export class PhotoCatalogState {
   }
 
   recordControlWrite(version: string, control: PhotoCatalogControl): void {
+    if (this.#domainChanged) {
+      this.#publicIndexCurrent = false;
+    }
     this.#controlVersion = version;
     this.#generatedAt = control.generatedAt;
     this.#periods = new Map(control.periods.map((period) => [period.month, period]));
@@ -318,6 +320,23 @@ export class PhotoCatalogState {
     this.#publicIndexCurrent = true;
   }
 
+  scheduleRetirements(now: Date): boolean {
+    if (!this.#publicIndexCurrent) {
+      throw new Error("公开照片索引尚未同步，不能安排回收");
+    }
+    const pending = [...this.#retiredObjects.values(), ...this.#retiredArtifacts.values()].filter(
+      (entry) => entry.deleteAfter === null,
+    );
+    if (pending.length === 0) {
+      return false;
+    }
+    const deleteAfter = new Date(now.getTime() + 25 * 60 * 60 * 1_000).toISOString();
+    for (const entry of pending) {
+      entry.deleteAfter = deleteAfter;
+    }
+    return true;
+  }
+
   claimGarbage(
     claimId: string,
     now: Date,
@@ -325,6 +344,7 @@ export class PhotoCatalogState {
   ): { photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] } {
     const claim = { id: claimId, expiresAt } satisfies PhotoDeletionClaim;
     const canClaim = (entry: RetiredPhotoObjects | RetiredArtifactBatch) =>
+      entry.deleteAfter !== null &&
       Date.parse(entry.deleteAfter) <= now.getTime() &&
       (entry.deletion === undefined ||
         entry.deletion.id === claimId ||
@@ -367,7 +387,6 @@ export class PhotoCatalogState {
   private retireUnreferencedArtifacts(
     periods: Map<string, PhotoPeriod>,
     objectKeys: Iterable<string>,
-    retiredAt: Date,
   ): void {
     const keys = [...objectKeys];
     const retiredKeys = this.allRetiredObjectKeys();
@@ -383,15 +402,14 @@ export class PhotoCatalogState {
     if (candidates.length === 0) {
       return;
     }
-    const deleteAfter = photoRetirementDeadline(retiredAt);
     const retirementId = createHash("sha256")
-      .update(`${deleteAfter}\n${candidates.join("\n")}`)
+      .update(candidates.join("\n"))
       .digest("hex")
       .slice(0, 24);
     this.#retiredArtifacts.set(retirementId, {
       retirementId,
       objectKeys: candidates,
-      deleteAfter,
+      deleteAfter: null,
     });
     this.#domainChanged = true;
   }
@@ -423,12 +441,12 @@ export class PhotoCatalogState {
       ),
       retiredObjects: [...this.#retiredObjects.values()].toSorted(
         (left, right) =>
-          left.deleteAfter.localeCompare(right.deleteAfter) ||
+          (left.deleteAfter ?? "").localeCompare(right.deleteAfter ?? "") ||
           left.photoId.localeCompare(right.photoId),
       ),
       retiredArtifacts: [...this.#retiredArtifacts.values()].toSorted(
         (left, right) =>
-          left.deleteAfter.localeCompare(right.deleteAfter) ||
+          (left.deleteAfter ?? "").localeCompare(right.deleteAfter ?? "") ||
           left.retirementId.localeCompare(right.retirementId),
       ),
     });
@@ -485,10 +503,6 @@ export class PhotoCatalogState {
 
 function periodPaths(periods: Map<string, PhotoPeriod>): Set<string> {
   return new Set([...periods.values()].map((period) => period.path));
-}
-
-export function photoRetirementDeadline(retiredAt: Date): string {
-  return new Date(retiredAt.getTime() + 25 * 60 * 60 * 1_000).toISOString();
 }
 
 function copyPhoto(photo: PhotoRecord): PhotoRecord {

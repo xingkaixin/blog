@@ -1,5 +1,4 @@
 import { isPhotoId } from "../../src/lib/photo-catalog";
-import { photoRetirementDeadline } from "./photo-catalog-state";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { PhotoObjectStore } from "./photo-store";
@@ -19,11 +18,10 @@ export type RetirePhotosResult = {
 };
 
 export async function retirePhotos(options: RetirePhotosOptions): Promise<RetirePhotosResult> {
-  const now = options.now?.() ?? new Date();
   const result = await editPhotoCatalog(options.store, (catalog) =>
-    retirePhotosOnce({ ...options, now: () => now }, catalog),
+    retirePhotosOnce(options, catalog),
   );
-  await collectPhotoGarbageBestEffort({ store: options.store, now: () => now }, options.onWarning);
+  await collectPhotoGarbageBestEffort(options, options.onWarning);
   return result;
 }
 
@@ -57,10 +55,7 @@ async function retirePhotosOnce(
     };
   }
 
-  const objectKeys = await catalog.retirePhotos(
-    activePhotoIds,
-    photoRetirementDeadline(options.now?.() ?? new Date()),
-  );
+  const objectKeys = await catalog.retirePhotos(activePhotoIds);
   const { updatedPeriods } = await catalog.commit(options.now?.() ?? new Date());
 
   return {

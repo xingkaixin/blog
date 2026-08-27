@@ -42,7 +42,7 @@ describe("photo catalog control", () => {
     expect(parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 1 })).toEqual(
       controlFixture,
     );
-    expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 3 })).toThrow(
+    expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 4 })).toThrow(
       "后台控制文档版本",
     );
   });
@@ -51,6 +51,40 @@ describe("photo catalog control", () => {
     expect(parseLegacyPhotoCatalogControl({ ...controlFixture, schemaVersion: version })).toEqual(
       controlFixture,
     );
+  });
+
+  it.each([1, 2])("requires publication confirmation for v%i retirements", (schemaVersion) => {
+    const retired = {
+      photoId: "f".repeat(32),
+      objectKeys: [`media/${"f".repeat(32)}/960.webp`],
+      deleteAfter: "2026-08-08T13:00:00.000Z",
+      deletion: { id: "a".repeat(24), expiresAt: "2026-08-09T13:00:00.000Z" },
+    };
+    const control = parsePhotoCatalogControl({
+      ...controlFixture,
+      schemaVersion,
+      retiredObjects: [retired],
+    });
+    expect(control.retiredObjects).toEqual([
+      { ...retired, deleteAfter: null, deletion: undefined },
+    ]);
+    expect(parsePhotoCatalogControl(control)).toEqual(control);
+  });
+
+  it("rejects deletion claims without a confirmed publication", () => {
+    expect(() =>
+      parsePhotoCatalogControl({
+        ...controlFixture,
+        retiredArtifacts: [
+          {
+            retirementId: "a".repeat(24),
+            objectKeys: [`media/${"f".repeat(32)}/960.webp`],
+            deleteAfter: null,
+            deletion: { id: "b".repeat(24), expiresAt: "2026-08-09T13:00:00.000Z" },
+          },
+        ],
+      }),
+    ).toThrow("尚未确认公开索引");
   });
 
   it("validates retired immutable artifacts", () => {

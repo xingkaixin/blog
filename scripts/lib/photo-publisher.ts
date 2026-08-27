@@ -49,26 +49,21 @@ type IdentifiedFile = PhotoSourceSnapshot;
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
   validateAlbum(options.album);
-  const now = options.now?.() ?? new Date();
   const identifiedFiles = await identifyFiles(options.files);
   const attemptedArtifacts = new Set<string>();
   try {
-    await collectPhotoGarbageBestEffort(
-      { store: options.store, now: () => now },
-      options.onWarning,
-    );
+    await collectPhotoGarbageBestEffort(options, options.onWarning);
     try {
       return await editPhotoCatalog(options.store, (catalog) =>
-        publishPhotosOnce(
-          { ...options, now: () => now },
-          catalog,
-          identifiedFiles,
-          attemptedArtifacts,
-        ),
+        publishPhotosOnce(options, catalog, identifiedFiles, attemptedArtifacts),
       );
     } catch (error) {
       try {
-        await recordFailedPublishArtifacts(options.store, attemptedArtifacts, now);
+        await recordFailedPublishArtifacts(
+          options.store,
+          attemptedArtifacts,
+          options.now?.() ?? new Date(),
+        );
       } catch (retirementError) {
         const failure = new AggregateError(
           [error, retirementError],
@@ -80,6 +75,7 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
     }
   } finally {
     await Promise.all(identifiedFiles.map((file) => file.dispose()));
+    await collectPhotoGarbageBestEffort(options, options.onWarning);
   }
 }
 

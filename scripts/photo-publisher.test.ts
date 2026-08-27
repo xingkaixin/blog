@@ -277,6 +277,129 @@ describe("photo publisher", () => {
     expect(index.photoMonths[id]).toBeUndefined();
   });
 
+  it.each(["collection", "retirement"])(
+    "preserves publicly referenced objects until %s repairs the index and its cache expires",
+    async (recovery) => {
+      const file = await createSourceFile("retirement while the public index is unavailable");
+      const id = await hashPhotoFile(file);
+      const store = new MemoryPhotoStore();
+      let now = new Date("2026-08-01T12:00:00.000Z");
+      await publishPhotos({
+        files: [file],
+        store,
+        processPhoto: async () => processedPhoto(id),
+        now: () => now,
+      });
+      const keys = await publishedObjectKeys(store);
+      const originalPut = store.put.bind(store);
+      let unavailable = true;
+      store.put = async (key, body, options) => {
+        if (key === PHOTO_CATALOG_INDEX_KEY && unavailable) {
+          throw new Error("public index unavailable");
+        }
+        return originalPut(key, body, options);
+      };
+
+      await expect(retirePhotos({ photoIds: [id], store, now: () => now })).rejects.toThrow(
+        "public index unavailable",
+      );
+      now = new Date("2026-08-02T14:00:00.000Z");
+      await expect(collectPhotoGarbage({ store, now: () => now })).rejects.toThrow(
+        "public index unavailable",
+      );
+      expect(keys.filter((key) => !store.objects.has(key))).toEqual([]);
+
+      unavailable = false;
+      if (recovery === "collection") {
+        await collectPhotoGarbage({ store, now: () => now });
+      } else {
+        await retirePhotos({ photoIds: [id], store, now: () => now });
+      }
+      const index = parsePhotoCatalogIndex(
+        JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+      );
+      expect(index.photoMonths[id]).toBeUndefined();
+      expect(store.deletes).toEqual([]);
+      now = new Date("2026-08-03T14:59:59.000Z");
+      expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+        removedObjects: 0,
+      });
+      now = new Date("2026-08-03T15:00:00.000Z");
+      expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+        removedObjects: keys.length,
+        pendingPhotos: 0,
+        pendingArtifacts: 0,
+      });
+    },
+  );
+
+  it("starts the retirement grace period after a delayed public write completes", async () => {
+    const file = await createSourceFile("retirement with a delayed public write");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    let now = new Date("2026-08-01T12:00:00.000Z");
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      now: () => now,
+    });
+    const originalPut = store.put.bind(store);
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY) {
+        now = new Date("2026-08-02T14:00:00.000Z");
+      }
+      return originalPut(key, body, options);
+    };
+
+    await retirePhotos({ photoIds: [id], store, now: () => now });
+    const result = await collectPhotoGarbage({ store, now: () => now });
+    expect(result.removedObjects).toBe(0);
+    expect(store.deletes).toEqual([]);
+    now = new Date("2026-08-03T15:00:00.000Z");
+    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+      removedObjects: 4,
+    });
+  });
+
+  it("recovers a failed publication confirmation without shortening the grace period", async () => {
+    const file = await createSourceFile("retirement confirmation fails after publication");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    let now = new Date("2026-08-01T12:00:00.000Z");
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      now: () => now,
+    });
+    const originalPut = store.put.bind(store);
+    let failConfirmation = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && failConfirmation) {
+        const control = parsePhotoCatalogControl(JSON.parse(String(body)));
+        if (control.retiredObjects.some((entry) => entry.deleteAfter !== null)) {
+          failConfirmation = false;
+          throw new Error("confirmation unavailable");
+        }
+      }
+      return originalPut(key, body, options);
+    };
+    const onWarning = vi.fn();
+
+    await retirePhotos({ photoIds: [id], store, now: () => now, onWarning });
+    expect(onWarning).toHaveBeenCalledWith("照片对象回收未完成: confirmation unavailable");
+    now = new Date("2026-08-02T14:00:00.000Z");
+    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+      removedObjects: 0,
+    });
+    expect(store.deletes).toEqual([]);
+    now = new Date("2026-08-03T15:00:00.000Z");
+    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+      removedObjects: 4,
+    });
+  });
+
   it("publishes immutable assets and a versioned month before the index", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);

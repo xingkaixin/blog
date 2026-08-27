@@ -38,10 +38,9 @@ type GarbageClaim = {
 export async function collectPhotoGarbage(
   options: CollectPhotoGarbageOptions,
 ): Promise<CollectPhotoGarbageResult> {
-  const now = options.now?.() ?? new Date();
   const claimId = randomBytes(12).toString("hex");
   const claim = await editPhotoCatalog(options.store, (catalog) =>
-    claimPhotoGarbage({ ...options, now: () => now }, claimId, catalog),
+    claimPhotoGarbage(options, claimId, catalog),
   );
   if (claim.photos.length === 0 && claim.artifacts.length === 0) {
     return {
@@ -100,9 +99,11 @@ async function claimPhotoGarbage(
   claimId: string,
   catalog: PhotoCatalogEditor,
 ): Promise<GarbageClaim> {
-  const now = options.now?.() ?? new Date();
-  const expiresAt = new Date(now.getTime() + GARBAGE_CLAIM_DURATION_MS).toISOString();
-  const { photos, artifacts } = await catalog.claimGarbage(claimId, now, expiresAt);
+  const { photos, artifacts } = await catalog.claimGarbage(
+    claimId,
+    options.now ?? (() => new Date()),
+    GARBAGE_CLAIM_DURATION_MS,
+  );
   return {
     id: claimId,
     photos,

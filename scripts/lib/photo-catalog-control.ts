@@ -15,7 +15,7 @@ import {
 import { isPhotoTimestamp } from "../../src/lib/photo-timestamp";
 
 export const PHOTO_CATALOG_CONTROL_KEY = "catalog/control.json";
-export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 2 as const;
+export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 3 as const;
 
 export type PhotoDeletionClaim = {
   id: string;
@@ -25,14 +25,14 @@ export type PhotoDeletionClaim = {
 export type RetiredPhotoObjects = {
   photoId: string;
   objectKeys: string[];
-  deleteAfter: string;
+  deleteAfter: string | null;
   deletion?: PhotoDeletionClaim;
 };
 
 export type RetiredArtifactBatch = {
   retirementId: string;
   objectKeys: string[];
-  deleteAfter: string;
+  deleteAfter: string | null;
   deletion?: PhotoDeletionClaim;
 };
 
@@ -50,7 +50,11 @@ const RETIREMENT_ID_PATTERN = /^[a-f0-9]{24}$/;
 
 export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
   const input = readRecord(value, "catalogControl");
-  if (input.schemaVersion !== 1 && input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION) {
+  if (
+    input.schemaVersion !== 1 &&
+    input.schemaVersion !== 2 &&
+    input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION
+  ) {
     throw new Error("不支持的照片后台控制文档版本");
   }
   return parseControlFields(input);
@@ -87,6 +91,13 @@ function parseControlFields(input: Record<string, unknown>): PhotoCatalogControl
   const retiredObjects = readRetiredObjects(input.retiredObjects);
   const retiredArtifacts = readRetiredArtifacts(input.retiredArtifacts);
   validateRetirements(contents, retiredObjects, retiredArtifacts);
+  if (input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION) {
+    // 旧版本的时间从控制文档提交起算，不能证明公开索引的缓存已过期。
+    for (const entry of [...retiredObjects, ...retiredArtifacts]) {
+      entry.deleteAfter = null;
+      entry.deletion = undefined;
+    }
+  }
   return {
     schemaVersion: PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
     ...contents,
@@ -116,8 +127,7 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
     return {
       photoId,
       objectKeys,
-      deleteAfter: readTimestamp(entry.deleteAfter, `${field}.deleteAfter`),
-      deletion: readDeletionClaim(entry.deletion, `${field}.deletion`),
+      ...readRetirementSchedule(entry, field),
     };
   });
   assertUnique(
@@ -145,8 +155,7 @@ function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
     return {
       retirementId,
       objectKeys,
-      deleteAfter: readTimestamp(entry.deleteAfter, `${field}.deleteAfter`),
-      deletion: readDeletionClaim(entry.deletion, `${field}.deletion`),
+      ...readRetirementSchedule(entry, field),
     };
   });
   assertUnique(
@@ -182,6 +191,16 @@ function validateRetirements(
       }
     }
   }
+}
+
+function readRetirementSchedule(entry: Record<string, unknown>, field: string) {
+  const deleteAfter =
+    entry.deleteAfter === null ? null : readTimestamp(entry.deleteAfter, `${field}.deleteAfter`);
+  const deletion = readDeletionClaim(entry.deletion, `${field}.deletion`);
+  if (deleteAfter === null && deletion !== undefined) {
+    throw new Error(`${field} 尚未确认公开索引，不能领取回收任务`);
+  }
+  return { deleteAfter, deletion };
 }
 
 function readDeletionClaim(value: unknown, field: string): PhotoDeletionClaim | undefined {
