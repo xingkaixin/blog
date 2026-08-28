@@ -26,6 +26,7 @@ export const siteContacts = {
 } as const;
 
 export type SiteContactId = keyof typeof siteContacts;
+export type SiteContact = (typeof siteContacts)[SiteContactId];
 
 export const siteConfig = {
   title: "行开心的颠倒世界",
