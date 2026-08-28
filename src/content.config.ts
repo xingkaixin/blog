@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
-import { createPostFrontmatterSchema } from "@/lib/post-schema";
+import { createPostFrontmatterSchema, POST_FILE_PATTERN } from "@/lib/post-schema";
 import { parsePostSlug } from "@/lib/published-post";
 
 const postFrontmatterSchema = createPostFrontmatterSchema(
@@ -11,7 +11,7 @@ const postFrontmatterSchema = createPostFrontmatterSchema(
 const posts = defineCollection({
   // 平铺匹配，与 readPublishedPosts 的发现规则保持一致；子目录由后者显式报错拦下。
   loader: glob({
-    pattern: "*.md",
+    pattern: POST_FILE_PATTERN,
     base: "./content/posts",
     generateId: ({ entry }) => parsePostSlug(entry.replace(/\.md$/, ""), "post filename"),
   }),

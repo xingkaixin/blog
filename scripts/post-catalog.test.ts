@@ -14,15 +14,34 @@ coverAlt: Cover
 Body`;
 
 describe("post catalog", () => {
+  it("rejects unquoted YAML dates before generating artifacts", () => {
+    const source = publishedSource.replace("'2026-07-11'", "2026-07-11");
+    expect(() => parsePublishedPost("unquoted-date", source)).toThrow("date");
+  });
   it("normalizes published post metadata", () => {
     expect(parsePublishedPost("new-post", publishedSource)).toMatchObject({
       slug: "new-post",
       date: "2026-07-11",
       tags: ["astro", "testing"],
     });
-    expect(
-      parsePublishedPost("unquoted-date", publishedSource.replace("'2026-07-11'", "2026-07-11")),
-    ).toMatchObject({ date: "2026-07-11" });
+  });
+
+  it("accepts TOML frontmatter with the same metadata contract", () => {
+    const source = `+++
+title = "New post"
+date = "2026-07-11"
+summary = "Summary"
+tags = ["astro", "testing"]
+cover = "agent-friendly-tool.png"
+coverAlt = "Cover"
++++
+Body`;
+    expect(parsePublishedPost("new-post", source)).toEqual(
+      parsePublishedPost("new-post", publishedSource),
+    );
+    expect(() =>
+      parsePublishedPost("new-post", source.replace('date = "2026-07-11"', "date = 2026-07-11")),
+    ).toThrow("date");
   });
 
   it("excludes drafts", () => {
@@ -51,9 +70,9 @@ describe("post catalog", () => {
         "duplicate-title",
         publishedSource.replace("title: New post", "title: New post\ntitle: Duplicate"),
       ),
-    ).toThrow("Map keys must be unique");
+    ).toThrow("duplicated mapping key");
     expect(() => parsePublishedPost("missing-frontmatter", "Body only")).toThrow(
-      "frontmatter delimiter",
+      "Invalid frontmatter",
     );
   });
 

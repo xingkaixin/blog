@@ -4,14 +4,13 @@ import { z } from "astro/zod";
 import { isCalendarDate } from "./calendar-date";
 import { canonicalTag } from "./post-tag";
 
-const CALENDAR_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+export const POST_FILE_PATTERN = "*.md";
 const COVER_FILENAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|webp)$/i;
 const COVER_MISSING_MESSAGE = "Cover image not found";
 
 export const calendarDateSchema = z
   .string()
-  .regex(CALENDAR_DATE_PATTERN, "date must use YYYY-MM-DD")
-  .refine(isCalendarDate, "date must be a valid calendar date");
+  .refine(isCalendarDate, "date must be a valid YYYY-MM-DD calendar date");
 
 const tagsSchema = z
   .array(z.string().transform(canonicalTag).pipe(z.string().min(1)))
