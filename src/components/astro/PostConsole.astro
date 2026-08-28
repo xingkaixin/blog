@@ -3,12 +3,9 @@ import PostFilter from "@/components/astro/PostFilter.astro";
 import PostPreview from "@/components/astro/PostPreview.astro";
 import { ProjectStickers } from "@/components/project-stickers";
 import { resolveCover } from "@/lib/covers";
-import { buildPostTaxonomy } from "@/lib/post-tags";
+import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
-import {
-  relatedPostConsoleItems,
-  type PostConsoleItem,
-} from "@/lib/post-console";
+import type { PostConsoleItem } from "@/lib/post-console";
 
 type Props = {
   posts: PostConsoleItem[];
@@ -165,7 +162,7 @@ const previewPost = posts[0];
 
     {
       previewPost && (
-        <PostPreview post={previewPost} related={relatedPostConsoleItems(posts, previewPost)} />
+        <PostPreview post={previewPost} related={relatedPosts(posts, previewPost)} />
       )
     }
   </div>

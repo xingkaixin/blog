@@ -17,16 +17,3 @@ export function matchesPostConsoleFilter(
     (!filter.tag || post.tags.includes(filter.tag))
   );
 }
-
-export function relatedPostConsoleItems<T extends Pick<PublishedPost, "slug" | "tags">>(
-  posts: T[],
-  post: T,
-  limit = 2,
-): T[] {
-  const tags = new Set(post.tags);
-  return posts
-    .filter(
-      (candidate) => candidate.slug !== post.slug && candidate.tags.some((tag) => tags.has(tag)),
-    )
-    .slice(0, limit);
-}

@@ -1,8 +1,5 @@
-import {
-  matchesPostConsoleFilter,
-  relatedPostConsoleItems,
-  type PostConsoleFilter,
-} from "./post-console";
+import { matchesPostConsoleFilter, type PostConsoleFilter } from "./post-console";
+import { relatedPosts } from "./post-tags";
 import { postHref } from "./published-post";
 
 type PostConsoleRow = {
@@ -60,11 +57,11 @@ export function initializePostConsole(root: HTMLElement): void {
     setText(preview, "[data-preview-reading-minutes]", `${post.readingMinutes} min`);
     setText(preview, "[data-preview-tags]", post.tags.join(" · "));
 
-    const relatedPosts = relatedPostConsoleItems(posts, post);
+    const recommendations = relatedPosts(posts, post);
     const related = preview.querySelector<HTMLElement>("[data-preview-related]");
     if (related) {
       related.replaceChildren(
-        ...relatedPosts.map((item) => {
+        ...recommendations.map((item) => {
           const link = document.createElement("a");
           link.href = postHref(item.slug);
           link.className =
@@ -76,7 +73,7 @@ export function initializePostConsole(root: HTMLElement): void {
     }
     const relatedSection = preview.querySelector<HTMLElement>("[data-preview-related-section]");
     if (relatedSection) {
-      relatedSection.hidden = relatedPosts.length === 0;
+      relatedSection.hidden = recommendations.length === 0;
     }
   };
 
@@ -154,12 +151,15 @@ export function initializePostConsole(root: HTMLElement): void {
         return;
       }
       event.preventDefault();
-      const currentIndex = Math.max(
-        0,
-        visibleRows.findIndex((row) => row === root.ownerDocument.activeElement),
-      );
+      const currentIndex = visibleRows.indexOf(root.ownerDocument.activeElement as HTMLElement);
       const direction = event.key === "ArrowDown" ? 1 : -1;
-      visibleRows[(currentIndex + direction + visibleRows.length) % visibleRows.length].focus();
+      const nextIndex =
+        currentIndex < 0
+          ? direction > 0
+            ? 0
+            : visibleRows.length - 1
+          : (currentIndex + direction + visibleRows.length) % visibleRows.length;
+      visibleRows[nextIndex].focus();
     });
 
   applyFilter();

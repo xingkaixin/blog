@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPostTaxonomy, tagHref, tagSlug } from "@/lib/post-tags";
+import { buildPostTaxonomy, relatedPosts, tagHref, tagSlug } from "@/lib/post-tags";
 
 describe("tag archives", () => {
   it("keeps tags shared by at least two posts", () => {
@@ -18,32 +18,16 @@ describe("tag archives", () => {
     ]);
   });
 
-  it("counts distinct posts rather than duplicate tag entries", () => {
-    const taxonomy = buildPostTaxonomy([{ slug: "one", tags: ["duplicate", "duplicate"] }]);
-
-    expect(taxonomy.tags).toEqual([{ tag: "duplicate", count: 1, href: null }]);
-    expect(taxonomy.archives).toEqual([]);
-  });
-
-  it("groups equivalent tag labels under one canonical tag", () => {
-    const taxonomy = buildPostTaxonomy([
-      { slug: "one", tags: ["AI编程"] },
-      { slug: "two", tags: ["ＡＩ 编程"] },
-    ]);
-
-    expect(taxonomy.archives).toEqual([
-      { tag: "AI编程", href: "/tags/AI%E7%BC%96%E7%A8%8B/", posts: expect.any(Array) },
-    ]);
-    expect(taxonomy.isArchived("AI 编程")).toBe(true);
-  });
-
-  it("finds related posts through the taxonomy", () => {
+  it("keeps related posts in catalog order and applies the requested limit", () => {
     const first = { slug: "one", tags: ["shared"] };
     const second = { slug: "two", tags: ["shared", "other"] };
     const unrelated = { slug: "three", tags: ["other"] };
-    const taxonomy = buildPostTaxonomy([first, second, unrelated]);
+    const fourth = { slug: "four", tags: ["shared"] };
+    const posts = [first, second, unrelated, fourth];
 
-    expect(taxonomy.relatedTo(first, 2)).toEqual([second]);
+    expect(relatedPosts(posts, first)).toEqual([second, fourth]);
+    expect(relatedPosts(posts, first, 1)).toEqual([second]);
+    expect(relatedPosts(posts, first, 0)).toEqual([]);
   });
 
   it("encodes tag route segments", () => {

@@ -52,6 +52,16 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("initializePostConsole", () => {
+  it.each([
+    ["ArrowDown", "first"],
+    ["ArrowUp", "third"],
+  ])("enters the list at %s when no row has focus", (key, slug) => {
+    const list = root.querySelector<HTMLElement>("[data-post-console-list]")!;
+    list.tabIndex = -1;
+    list.focus();
+    list.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    expect(document.activeElement).toBe(root.querySelector(`[data-post-row="${slug}"]`));
+  });
   it("keeps duplicate filter controls on the same state", () => {
     button("按年份筛选文章", "2025").click();
     expect(visiblePostSlugs()).toEqual(["third"]);
