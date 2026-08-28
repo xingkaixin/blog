@@ -52,7 +52,7 @@ function personSchema() {
     "@id": `${siteConfig.url}/#person`,
     name: siteConfig.author,
     url: `${siteConfig.url}/about/`,
-    email: siteContacts.email.href,
+    email: siteContacts.email.value,
     description: siteConfig.about,
     sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],
   };
@@ -119,7 +119,6 @@ function buildGraph(meta: PageMeta) {
     description: meta.description,
     inLanguage: siteConfig.language,
     datePublished: meta.publishedTime,
-    dateModified: meta.publishedTime,
     author: { "@id": `${siteConfig.url}/#person` },
     publisher: { "@id": `${siteConfig.url}/#person` },
     image: {

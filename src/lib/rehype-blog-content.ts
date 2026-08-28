@@ -1,5 +1,17 @@
 import { resolvePostImage } from "./post-images";
 import { createHeadingIdAllocator } from "./post-toc";
+import { siteConfig } from "./site";
+
+const siteOrigin = new URL(siteConfig.url).origin;
+
+function isExternalWebLink(href: string): boolean {
+  try {
+    const url = new URL(href, siteConfig.url);
+    return (url.protocol === "https:" || url.protocol === "http:") && url.origin !== siteOrigin;
+  } catch {
+    return false;
+  }
+}
 
 type HastNode = {
   type?: string;
@@ -51,7 +63,7 @@ export function rehypeBlogContent() {
 
       if (node.tagName === "a" && typeof node.properties?.href === "string") {
         const href = node.properties.href;
-        if (href.startsWith("http")) {
+        if (isExternalWebLink(href)) {
           node.properties = {
             ...node.properties,
             target: "_blank",

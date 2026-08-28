@@ -68,8 +68,10 @@ describe("SEO metadata", () => {
     const article = graph.find((node) => node["@type"] === "BlogPosting");
     const breadcrumb = graph.find((node) => node["@type"] === "BreadcrumbList");
 
+    expect(article).not.toHaveProperty("dateModified");
+
     expect(person).toMatchObject({
-      email: siteContacts.email.href,
+      email: siteContacts.email.value,
       sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],
     });
     expect(article).toMatchObject({

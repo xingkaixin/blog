@@ -92,11 +92,9 @@ Body`;
       { slug: "oldest-post", date: "2026-07-09", tags: ["archive-only"] },
     ];
     const sitemap = buildSitemap(posts);
-    expect(sitemapEntry(sitemap, "/")).toContain("<lastmod>2026-07-11</lastmod>");
-    expect(sitemapEntry(sitemap, "/tags/")).toContain("<lastmod>2026-07-11</lastmod>");
-    expect(sitemapEntry(sitemap, "/tags/archive-only/")).toContain("<lastmod>2026-07-10</lastmod>");
-    expect(sitemapEntry(sitemap, "/posts/new-post/")).toContain("<lastmod>2026-07-11</lastmod>");
-    expect(sitemapEntry(sitemap, "/photos/")).not.toContain("<lastmod>");
+    for (const pathname of ["/", "/tags/", "/tags/archive-only/", "/posts/new-post/", "/photos/"]) {
+      expect(sitemapEntry(sitemap, pathname)).not.toContain("<lastmod>");
+    }
     expect(sitemap).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });

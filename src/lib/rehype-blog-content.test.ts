@@ -4,6 +4,26 @@ import { tocFromHeadings } from "@/lib/post-toc";
 import { rehypeBlogContent } from "@/lib/rehype-blog-content";
 
 describe("rehype blog content", () => {
+  it.each([
+    "https://xingkaixin.me/posts/one/",
+    "/about/",
+    "#heading",
+    "mailto:me@example.com",
+    "http-invalid",
+    "https://[",
+  ])("leaves local and non-web links unchanged: %s", (href) => {
+    const link = { type: "element", tagName: "a", properties: { href } };
+    rehypeBlogContent()({ type: "root", children: [link] });
+    expect(link.properties).toEqual({ href });
+  });
+  it.each(["//example.com/post/", "http://example.com/", "https://xingkaixin.me.example.com/"])(
+    "opens external web links separately: %s",
+    (href) => {
+      const link = { type: "element", tagName: "a", properties: { href } };
+      rehypeBlogContent()({ type: "root", children: [link] });
+      expect(link.properties).toMatchObject({ href, target: "_blank", rel: "noreferrer" });
+    },
+  );
   it("normalizes headings and external links", () => {
     const heading = {
       type: "element",
