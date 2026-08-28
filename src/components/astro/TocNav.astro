@@ -93,86 +93,80 @@ const { items } = Astro.props;
           }
         }
 
-        type TocWindow = Window & { blogTocControllerInstalled?: boolean };
-        const tocWindow = window as TocWindow;
+        let previousActiveId: string | null = null;
+        let animationFrame = 0;
 
-        if (!tocWindow.blogTocControllerInstalled) {
-          tocWindow.blogTocControllerInstalled = true;
-          let previousActiveId: string | null = null;
-          let animationFrame = 0;
-
-          function updateActiveHeading() {
-            const links = Array.from(document.querySelectorAll("[data-toc-link]"));
-            if (!links.length) {
-              return;
-            }
-
-            const ids = [
-              ...new Set(
-                links
-                  .map((link) => link.getAttribute("data-toc-link"))
-                  .filter((id): id is string => Boolean(id)),
-              ),
-            ];
-            const headings = ids
-              .map((id) => document.getElementById(id))
-              .filter((heading): heading is HTMLElement => Boolean(heading));
-
-            if (!headings.length) {
-              return;
-            }
-
-            const visibleIds = headings
-              .filter((heading) => heading.getBoundingClientRect().top <= TOC_ACTIVE_OFFSET)
-              .map((heading) => heading.id);
-            const isAtPageEnd =
-              window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-            const activeId = resolveActiveTocId(
-              headings.map((heading) => heading.id),
-              visibleIds,
-              isAtPageEnd,
-            );
-
-            if (activeId && activeId !== previousActiveId) {
-              previousActiveId = activeId;
-              setActive(links, activeId);
-            }
+        function updateActiveHeading() {
+          const links = Array.from(document.querySelectorAll("[data-toc-link]"));
+          if (!links.length) {
+            return;
           }
 
-          function scheduleUpdate() {
-            if (animationFrame) {
-              return;
-            }
-            animationFrame = requestAnimationFrame(() => {
-              animationFrame = 0;
-              updateActiveHeading();
-            });
+          const ids = [
+            ...new Set(
+              links
+                .map((link) => link.getAttribute("data-toc-link"))
+                .filter((id): id is string => Boolean(id)),
+            ),
+          ];
+          const headings = ids
+            .map((id) => document.getElementById(id))
+            .filter((heading): heading is HTMLElement => Boolean(heading));
+
+          if (!headings.length) {
+            return;
           }
 
-          function initialize() {
-            if (animationFrame) {
-              cancelAnimationFrame(animationFrame);
-              animationFrame = 0;
-            }
-            previousActiveId = null;
-            scheduleUpdate();
-          }
+          const visibleIds = headings
+            .filter((heading) => heading.getBoundingClientRect().top <= TOC_ACTIVE_OFFSET)
+            .map((heading) => heading.id);
+          const isAtPageEnd =
+            window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+          const activeId = resolveActiveTocId(
+            headings.map((heading) => heading.id),
+            visibleIds,
+            isAtPageEnd,
+          );
 
-          window.addEventListener("scroll", scheduleUpdate, { passive: true });
-          document.addEventListener("astro:page-load", initialize);
-          document.addEventListener("astro:before-swap", () => {
-            if (animationFrame) {
-              cancelAnimationFrame(animationFrame);
-              animationFrame = 0;
-            }
-            previousActiveId = null;
-          });
-          document.addEventListener("click", (event) => {
-            const target = event.target instanceof Element ? event.target.closest("[data-toc-link]") : null;
-            target?.closest("details")?.removeAttribute("open");
-          });
-          initialize();
+          if (activeId && activeId !== previousActiveId) {
+            previousActiveId = activeId;
+            setActive(links, activeId);
+          }
         }
+
+        function scheduleUpdate() {
+          if (animationFrame) {
+            return;
+          }
+          animationFrame = requestAnimationFrame(() => {
+            animationFrame = 0;
+            updateActiveHeading();
+          });
+        }
+
+        function initialize() {
+          if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = 0;
+          }
+          previousActiveId = null;
+          scheduleUpdate();
+        }
+
+        window.addEventListener("scroll", scheduleUpdate, { passive: true });
+        document.addEventListener("astro:page-load", initialize);
+        document.addEventListener("astro:before-swap", () => {
+          if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+            animationFrame = 0;
+          }
+          previousActiveId = null;
+        });
+        document.addEventListener("click", (event) => {
+          const target = event.target instanceof Element ? event.target.closest("[data-toc-link]") : null;
+          target?.closest("details")?.removeAttribute("open");
+        });
+        initialize();
       </script>
     </>
   )

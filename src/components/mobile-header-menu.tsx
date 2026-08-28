@@ -11,6 +11,7 @@ import {
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
+import { siteShortcuts } from "@/lib/site-shortcuts";
 import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {
@@ -124,7 +125,9 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
           <button type="button" onClick={toggleTheme} className={menuItem}>
             <MoonStarIcon aria-hidden="true" className="h-4 w-4" />
             翻转世界
-            <span className="ml-auto font-mono text-[10px] text-ink-400">⌘J</span>
+            <span className="ml-auto font-mono text-[10px] text-ink-400">
+              {siteShortcuts.theme.hint}
+            </span>
           </button>
         </nav>
       </div>

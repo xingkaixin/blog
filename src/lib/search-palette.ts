@@ -1,3 +1,4 @@
+import { siteShortcuts } from "@/lib/site-shortcuts";
 import { buildPostTaxonomy } from "./post-tags";
 import { primaryProjectUrl, projects, rankProjects, type Project } from "./projects";
 import { postHref } from "./published-post";
@@ -44,7 +45,7 @@ const themeItem: SearchPaletteThemeCommand & { keywords: string } = {
   kind: "theme",
   glyph: "›",
   title: "翻转世界",
-  hint: "⌘J",
+  hint: siteShortcuts.theme.hint,
   keywords: "主题 亮色 暗色 theme dark light",
 };
 const routeItems: SearchablePaletteItem[] = [...routeLinks, themeItem];

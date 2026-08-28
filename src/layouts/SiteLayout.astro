@@ -249,7 +249,7 @@ const pageTransition = {
     </div>
 
     <script>
-      import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+      import { installSiteShortcuts } from "@/lib/site-shortcuts";
       import { skipToContent } from "@/lib/skip-to-content";
       import { registerBlogWebMcpTools } from "@/lib/webmcp";
 
@@ -267,16 +267,7 @@ const pageTransition = {
         }
       });
 
-      const isTypingTarget = (target: EventTarget | null) =>
-        target instanceof HTMLElement &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
-
-      window.addEventListener("keydown", (event) => {
-        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "j" && !isTypingTarget(event.target)) {
-          event.preventDefault();
-          window.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
-        }
-      });
+      installSiteShortcuts(window);
     </script>
     <script is:inline define:vars={{ analyticsHost }}>
       if (location.hostname === analyticsHost) {

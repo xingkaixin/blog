@@ -1,4 +1,6 @@
 ---
+import { siteShortcuts } from "@/lib/site-shortcuts";
+
 type Props = {
   mode: "cruise" | "progress";
   label: string;
@@ -8,7 +10,7 @@ type Props = {
 const {
   mode,
   label,
-  hint = "⌘K 命令面板 · ⌘J 翻转世界",
+  hint = `${siteShortcuts.search.hint} 命令面板 · ${siteShortcuts.theme.hint} 翻转世界`,
 } = Astro.props;
 ---
 

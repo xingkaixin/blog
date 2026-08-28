@@ -1,3 +1,7 @@
+---
+import { siteShortcuts } from "@/lib/site-shortcuts";
+---
+
 <button
   type="button"
   data-search-trigger
@@ -24,7 +28,7 @@
   <kbd
     class="hidden shrink-0 rounded-[4px] border border-ink-200 bg-surface px-1.5 py-0.5 font-mono text-[10px] font-normal text-ink-400 sm:inline-flex"
   >
-    ⌘K
+    {siteShortcuts.search.hint}
   </kbd>
 </button>
 <div data-search-root>
@@ -45,33 +49,11 @@
 <script>
   import { openSearch } from "@/lib/search-launcher";
 
-  const launcherFlag = "__blogSearchLauncherInstalled";
-  const launcherWindow = window as Window & Record<string, unknown>;
-
-  const isTypingTarget = (target: EventTarget | null) =>
-    target instanceof HTMLElement &&
-    (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
-
-  if (!launcherWindow[launcherFlag]) {
-    launcherWindow[launcherFlag] = true;
-    document.addEventListener("click", (event) => {
-      if ((event.target as Element | null)?.closest("[data-search-trigger]")) {
-        void openSearch();
-      } else if ((event.target as Element | null)?.closest("[data-search-reload]")) {
-        window.location.reload();
-      }
-    });
-    window.addEventListener("keydown", (event) => {
-      if (isTypingTarget(event.target)) {
-        return;
-      }
-      const key = event.key.toLowerCase();
-      const commandShortcut = (event.metaKey || event.ctrlKey) && key === "k";
-      const slashShortcut = !event.metaKey && !event.ctrlKey && !event.altKey && key === "/";
-      if (commandShortcut || slashShortcut) {
-        event.preventDefault();
-        void openSearch();
-      }
-    });
-  }
+  document.addEventListener("click", (event) => {
+    if ((event.target as Element | null)?.closest("[data-search-trigger]")) {
+      void openSearch();
+    } else if ((event.target as Element | null)?.closest("[data-search-reload]")) {
+      window.location.reload();
+    }
+  });
 </script>

@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetSearchCache } from "@/lib/search";
 import { openSearch } from "@/lib/search-launcher";
+import { installSiteShortcuts } from "@/lib/site-shortcuts";
 import { PhotoLightbox } from "./photo-lightbox";
 import { openSearchDialog } from "./search-dialog-entry";
 
@@ -22,6 +23,20 @@ afterEach(async () => {
 });
 
 describe("search dialog entry", () => {
+  it("boots the search dialog from the first keyboard shortcut", async () => {
+    const container = document.createElement("div");
+    container.dataset.searchRoot = "";
+    document.body.append(container);
+    const uninstall = installSiteShortcuts(window);
+    try {
+      await act(async () => {
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+      });
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    } finally {
+      uninstall();
+    }
+  });
   it("keeps keyboard selection when scrolling moves results under a stationary pointer", async () => {
     const container = document.createElement("div");
     document.body.append(container);

@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+import { siteShortcuts } from "@/lib/site-shortcuts";
 import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {
@@ -270,7 +271,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         <div className="hidden h-10 shrink-0 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
           <span>⏎ 打开</span>
           <span>↑↓ 移动</span>
-          <span>⌘J 翻转世界</span>
+          <span>{siteShortcuts.theme.hint} 翻转世界</span>
           <span className="ml-auto">esc 关闭</span>
         </div>
       </DialogContent>
