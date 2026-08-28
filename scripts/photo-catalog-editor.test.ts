@@ -26,6 +26,35 @@ afterEach(async () => {
 });
 
 describe("photo catalog editor", () => {
+  it("loads untouched months from the persisted snapshot after local changes", async () => {
+    const store = await catalogStore();
+    const catalog = await PhotoCatalogEditor.load(store);
+    await catalog.addPhotos([
+      {
+        id: "b".repeat(32),
+        capturedAt: "2026-07-01T12:00:00+08:00",
+        width: 100,
+        height: 100,
+        albumIds: [],
+        placeholderColor: "#abcdef",
+      },
+    ]);
+    await catalog.addPhotoToAlbum(photoId, "trip");
+    await catalog.commit(new Date(generatedAt));
+  });
+
+  it("inspects publication without reading month shards", async () => {
+    const store = await catalogStore();
+    const catalog = await PhotoCatalogEditor.load(store);
+    const get = store.getText.bind(store);
+    const reads: string[] = [];
+    store.getText = async (key) => {
+      reads.push(key);
+      return get(key);
+    };
+    await catalog.inspectPhotos([photoId]);
+    expect(reads).toEqual([]);
+  });
   it.each(["{", "{}"])("repairs a damaged public index (%s) from control", async (damagedIndex) => {
     const store = await catalogStore();
     const originalIndex = await store.getText(PHOTO_CATALOG_INDEX_KEY);

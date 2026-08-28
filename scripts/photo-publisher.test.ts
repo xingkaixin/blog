@@ -128,6 +128,38 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
+  it.each([1, 5])("tracks deletion shards across %i control conflicts", async (conflicts) => {
+    const files = await Promise.all([createSourceFile("delete-a"), createSourceFile("delete-b")]);
+    const ids = await Promise.all(files.map(hashPhotoFile));
+    const store = new MemoryPhotoStore();
+    await publishPhotos({ files, store, processPhoto: async (_file, id) => processedPhoto(id) });
+    const put = store.put.bind(store);
+    let remaining = conflicts;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY && remaining > 0) {
+        remaining -= 1;
+        throw new PhotoStoreConflictError(key);
+      }
+      return put(key, body, options);
+    };
+    const result = retirePhotos({ photoIds: [ids[0]], store });
+    if (conflicts === 5) {
+      await expect(result).rejects.toThrow(PhotoStoreConflictError);
+    } else {
+      await result;
+    }
+    const control = await readControl(store);
+    const accounted = new Set([
+      ...(await publishedObjectKeys(store)),
+      ...control.retiredArtifacts.flatMap((entry) => entry.objectKeys),
+      ...control.retiredObjects.flatMap((entry) => entry.objectKeys),
+    ]);
+    const orphaned = [...store.objects.keys()].filter(
+      (key) => isPhotoArtifactKey(key) && !accounted.has(key),
+    );
+    expect(orphaned).toEqual([]);
+  });
+
   it("processes once and reports publication only after control retries commit", async () => {
     const file = await createSourceFile("publish through control conflicts");
     const id = await hashPhotoFile(file);

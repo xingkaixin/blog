@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
+import { isPhotoArtifactKey, photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
@@ -46,10 +46,14 @@ export class PhotoCatalogEditor {
   private constructor(
     private readonly store: PhotoObjectStore,
     private readonly state: PhotoCatalogState,
+    private readonly attemptedArtifacts: Set<string>,
   ) {}
 
-  static async load(store: PhotoObjectStore): Promise<PhotoCatalogEditor> {
-    return new PhotoCatalogEditor(store, await loadPhotoCatalog(store));
+  static async load(
+    store: PhotoObjectStore,
+    attemptedArtifacts = new Set<string>(),
+  ): Promise<PhotoCatalogEditor> {
+    return new PhotoCatalogEditor(store, await loadPhotoCatalog(store), attemptedArtifacts);
   }
 
   get generatedAt(): string | null {
@@ -74,11 +78,6 @@ export class PhotoCatalogEditor {
 
   async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, PhotoCatalogPhotoStatus>> {
     const ids = [...new Set(photoIds)];
-    await loadPhotoCatalogMonths(
-      this.store,
-      this.state,
-      ids.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
-    );
     return new Map(
       ids.map((photoId) => [
         photoId,
@@ -119,8 +118,12 @@ export class PhotoCatalogEditor {
 
   async commit(
     generatedAt: Date,
-    attemptedArtifacts: Set<string> = new Set(),
+    artifacts: Set<string> = new Set(),
   ): Promise<PhotoCatalogCommitResult> {
+    for (const key of artifacts) {
+      this.attemptedArtifacts.add(key);
+    }
+    const attemptedArtifacts = this.attemptedArtifacts;
     await loadPhotoCatalogMonths(
       this.store,
       this.state,
@@ -187,7 +190,35 @@ export async function editPhotoCatalog<T>(
   store: PhotoObjectStore,
   operation: (catalog: PhotoCatalogEditor) => Promise<T>,
 ): Promise<T> {
-  return retryPhotoCatalogMutation(async () => operation(await PhotoCatalogEditor.load(store)));
+  const attemptedArtifacts = new Set<string>();
+  const trackedStore: PhotoObjectStore = {
+    getText: (key) => store.getText(key),
+    delete: (key) => store.delete(key),
+    put: async (key, body, options) => {
+      if (options.expectedVersion === null && isPhotoArtifactKey(key)) {
+        attemptedArtifacts.add(key);
+      }
+      return store.put(key, body, options);
+    },
+  };
+  const load = () => PhotoCatalogEditor.load(trackedStore, attemptedArtifacts);
+  try {
+    return await retryPhotoCatalogMutation(async () => operation(await load()));
+  } catch (error) {
+    if (attemptedArtifacts.size > 0) {
+      try {
+        await retryPhotoCatalogMutation(async () => (await load()).commit(new Date()));
+      } catch (retirementError) {
+        const failure = new AggregateError(
+          [error, retirementError],
+          "照片编辑失败，且无法记录已写入的待回收产物",
+          { cause: retirementError },
+        );
+        throw failure;
+      }
+    }
+    throw error;
+  }
 }
 
 async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogState> {
@@ -241,7 +272,10 @@ async function loadPhotoCatalogMonths(
   if (periods.length === 0) {
     return;
   }
-  const index = photoCatalogIndexFromControl(catalog.currentControl());
+  const index = catalog.loadedIndex;
+  if (!index) {
+    return;
+  }
   const loadedMonths = await readPhotoCatalogMonths(store, index, periods);
   for (const { shard } of loadedMonths) {
     catalog.loadMonth(shard);

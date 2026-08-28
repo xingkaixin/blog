@@ -9,6 +9,7 @@ import {
   PHOTO_VARIANT_WIDTHS,
   monthFromCapturedAt,
   type PhotoAlbum,
+  type PhotoCatalogIndex,
   type PhotoMonthCatalog,
   type PhotoPeriod,
   type PhotoRecord,
@@ -16,6 +17,7 @@ import {
 import {
   PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
   parsePhotoCatalogControl,
+  photoCatalogIndexFromControl,
   type PhotoCatalogControl,
   type PhotoDeletionClaim,
   type RetiredArtifactBatch,
@@ -23,6 +25,7 @@ import {
 } from "./photo-catalog-control";
 
 type PhotoCatalogStateOptions = {
+  loadedIndex?: PhotoCatalogIndex;
   generatedAt: string | null;
   controlVersion: string | null;
   publicIndexVersion: string | null;
@@ -35,6 +38,7 @@ type PhotoCatalogStateOptions = {
 };
 
 export class PhotoCatalogState {
+  #loadedIndex: PhotoCatalogIndex | null;
   #generatedAt: string | null;
   #controlVersion: string | null;
   #publicIndexVersion: string | null;
@@ -49,6 +53,7 @@ export class PhotoCatalogState {
   #domainChanged = false;
 
   private constructor(options: PhotoCatalogStateOptions) {
+    this.#loadedIndex = options.loadedIndex ?? null;
     this.#generatedAt = options.generatedAt;
     this.#controlVersion = options.controlVersion;
     this.#publicIndexVersion = options.publicIndexVersion;
@@ -82,6 +87,7 @@ export class PhotoCatalogState {
     },
   ): PhotoCatalogState {
     return new PhotoCatalogState({
+      loadedIndex: photoCatalogIndexFromControl(control),
       generatedAt: control.generatedAt,
       controlVersion: versions.control,
       publicIndexVersion: versions.publicIndex,
@@ -92,6 +98,10 @@ export class PhotoCatalogState {
       retiredObjects: control.retiredObjects,
       retiredArtifacts: control.retiredArtifacts,
     });
+  }
+
+  get loadedIndex(): PhotoCatalogIndex | null {
+    return this.#loadedIndex;
   }
 
   get generatedAt(): string | null {
@@ -308,6 +318,7 @@ export class PhotoCatalogState {
     if (this.#domainChanged) {
       this.#publicIndexCurrent = false;
     }
+    this.#loadedIndex = photoCatalogIndexFromControl(control);
     this.#controlVersion = version;
     this.#generatedAt = control.generatedAt;
     this.#periods = new Map(control.periods.map((period) => [period.month, period]));
