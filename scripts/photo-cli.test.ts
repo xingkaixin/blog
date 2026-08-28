@@ -7,6 +7,14 @@ import {
 } from "./lib/photo-cli";
 
 describe("photo CLI", () => {
+  it("makes orphan scans explicit and exclusive to garbage collection", () => {
+    expect(parsePhotoCliArguments("gc", ["--confirm", "--scan"])).toMatchObject({
+      scan: true,
+      confirm: true,
+    });
+    expect(parsePhotoCliArguments("gc", ["--confirm"])).toMatchObject({ scan: false });
+    expect(() => parsePhotoCliArguments("publish", ["--scan"])).toThrow("未知选项");
+  });
   it("parses publish options into one explicit command state", () => {
     expect(
       parsePhotoCliArguments("publish", [

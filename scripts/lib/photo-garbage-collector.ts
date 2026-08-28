@@ -1,15 +1,18 @@
 import { randomBytes } from "node:crypto";
+import { isPhotoArtifactKey } from "../../src/lib/photo-artifact";
 import { mapWithConcurrency } from "./concurrency";
 import type { RetiredArtifactBatch } from "./photo-catalog-control";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import type { PhotoObjectStore } from "./photo-store";
 
 const DELETE_CONCURRENCY = 8;
+const ORPHAN_MINIMUM_AGE_MS = 2 * 60 * 60 * 1_000;
 const GARBAGE_CLAIM_DURATION_MS = 60 * 60 * 1_000;
 
 export type CollectPhotoGarbageOptions = {
   store: PhotoObjectStore;
   now?: () => Date;
+  scan?: boolean;
 };
 
 export type CollectPhotoGarbageResult = {
@@ -35,6 +38,21 @@ type GarbageClaim = {
 export async function collectPhotoGarbage(
   options: CollectPhotoGarbageOptions,
 ): Promise<CollectPhotoGarbageResult> {
+  if (options.scan) {
+    const now = options.now?.() ?? new Date();
+    const candidates: string[] = [];
+    for (const prefix of ["media/", "catalog/months/"]) {
+      for await (const object of options.store.list(prefix)) {
+        if (
+          isPhotoArtifactKey(object.key) &&
+          object.lastModified.getTime() < now.getTime() - ORPHAN_MINIMUM_AGE_MS
+        ) {
+          candidates.push(object.key);
+        }
+      }
+    }
+    await editPhotoCatalog(options.store, (catalog) => catalog.retireArtifacts(candidates, now));
+  }
   const claimId = randomBytes(12).toString("hex");
   const claim = await editPhotoCatalog(options.store, (catalog) =>
     claimPhotoGarbage(options, claimId, catalog),

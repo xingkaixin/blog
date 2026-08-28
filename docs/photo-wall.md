@@ -68,9 +68,9 @@ bun run photos:publish -- ~/Pictures/Japan/favorite.heic \
 ```
 
 移除照片时必须提供原始照片文件，并显式添加 `--confirm`。发布器会先从公开
-Catalog 移除照片，再分别记录 Retired Photo 的 WebP 与不再被引用的 Retired Artifact。
+Catalog 移除照片，再把旧 WebP 与不再被引用的月份文件统一记入产物回收队列。
 回收器确认公开索引已撤下引用后，对象至少再保留 25 小时，确保仍持有旧 Catalog
-缓存的访问者不会遇到 404。公开索引更新失败时不会开始计时；后续命令会重试同步：
+缓存的访问者不会遇到 404。公开索引更新失败时不会开始计时；需要通过 `photos:migrate -- --confirm` 显式修复投影后再运行回收：
 
 ```bash
 bun run photos:delete -- ~/Pictures/Japan/favorite.heic --confirm
@@ -80,21 +80,23 @@ bun run photos:delete -- ~/Pictures/Japan/favorite.heic --confirm
 
 ```bash
 bun run photos:gc -- --confirm
+bun run photos:gc -- --confirm --scan  # 额外扫描异常退出遗留的孤儿对象
 ```
 
 被替换的月份分片和目录提交失败前已经上传的对象也会进入同一回收流程。回收进度与失败
 对象保存在 Catalog/命令输出中；即使某个对象暂时删除失败，重复运行也会从未完成记录继续。
 
+`--scan` 只列出 `media/` 与 `catalog/months/`，将超过两小时、未被引用且未在回收队列中的产物登记回收；仍保留完整的 25 小时宽限期。普通 GC 不扫描存储，也不修复公开索引。如果首次发布异常退出、尚无公开索引，扫描只建立控制文档；先运行 `photos:migrate -- --confirm`，再运行 GC 开始宽限期。删除后可立即重新发布同一照片，新旧版本使用不同路径。
+
 如果原始文件已经不存在，可以先从月份 Catalog 中确认照片 ID，再使用本地脚本或
 Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏链接。
 
-支持 DNG、HEIC、HEIF、JPEG、PNG 与 WebP。发布器会先建立源文件快照，内容 ID、EXIF
-和像素衍生物始终来自同一文件状态。源文件上限为 256 MiB，解码上限为一亿像素。
-提交冲突时复用本次发布的转码结果，不重复解码；图片仍上传到新的版本路径。
+支持 DNG、HEIC、HEIF、JPEG、PNG 与 WebP。发布器先流式计算内容 ID，只对尚未发布的照片建立源快照，并再次校验 ID；EXIF 和像素衍生物来自同一文件状态。源文件上限为 256 MiB，解码上限为一亿像素。
+提交冲突时复用已上传的媒体版本，不重复解码或上传。
 新增和复用通知只在 Catalog 提交完成后输出，失败的尝试不会报告成功。
 在 macOS 上 HEIC 优先使用系统 `sips`，再回退到保留安全限制的 `heif-convert`；其他
 系统需要能从 `PATH` 调用 `heif-convert`。每次外部解码最长运行 60 秒，解码中间文件在
-单张照片处理完成后删除；源快照和转码缓存保存在系统临时目录，整次发布结束后清理。
+单张照片处理完成后删除；源快照在该照片上传完成后立即清理，同时最多处理两张。
 
 ### 发布器升级
 
@@ -109,7 +111,7 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 月份 Catalog v2 保留对 v1 的读取兼容；没有 `mediaRevision` 的旧照片仍使用
 `media/<photo-id>/<尺寸>.webp`，无需搬迁已有图片。先部署新版站点，再使用新版发布器；
 旧版站点无法读取 v2 月份。所有发布和回收进程都应升级，停止旧版本进程后再运行新版命令。
-控制文档在下次写入时升级为 v3，使旧发布器拒绝继续写入；新版仍能读取 v1、v2 控制文档。
+控制文档在下次写入时升级为 v4，使旧发布器拒绝继续写入；新版仍能读取 v1、v2、v3 控制文档。
 新回收记录的 `deleteAfter` 为 `null`，确认公开索引已更新后才写入回收时间。旧控制文档中的
 待回收记录会重新确认公开索引并等待完整宽限期，因此首次升级可能延后回收，但不会搬迁图片。
 

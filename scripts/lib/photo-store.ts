@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
   type PutObjectCommandInput,
@@ -23,7 +24,10 @@ export type PhotoTextObject = {
   version: string;
 };
 
+export type PhotoStoredObject = { key: string; lastModified: Date };
+
 export interface PhotoObjectStore {
+  list(prefix: string): AsyncIterable<PhotoStoredObject>;
   getText(key: string): Promise<PhotoTextObject | null>;
   put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string>;
   delete(key: string): Promise<void>;
@@ -73,6 +77,53 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
 
   constructor(rootDirectory: string) {
     this.rootDirectory = path.resolve(rootDirectory);
+  }
+
+  async *list(prefix: string): AsyncIterable<PhotoStoredObject> {
+    if (prefix) {
+      resolveObjectPath(this.rootDirectory, prefix);
+    }
+    const directoryPrefix = prefix.slice(0, prefix.lastIndexOf("/") + 1);
+    yield* this.listDirectory(directoryPrefix, prefix);
+  }
+
+  private async *listDirectory(
+    directoryKey: string,
+    prefix: string,
+  ): AsyncIterable<PhotoStoredObject> {
+    const directory = directoryKey
+      ? resolveObjectPath(this.rootDirectory, directoryKey)
+      : this.rootDirectory;
+    let entries;
+    try {
+      await assertSafeDirectory(this.rootDirectory, directory, false);
+      entries = await fs.readdir(directory, { withFileTypes: true });
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return;
+      }
+      throw error;
+    }
+    for (const entry of entries) {
+      const key = `${directoryKey}${entry.name}`;
+      if (entry.isSymbolicLink()) {
+        throw new Error(`对象不能是符号链接: ${key}`);
+      }
+      if (entry.isDirectory()) {
+        yield* this.listDirectory(`${key}/`, prefix);
+      } else if (entry.isFile() && key.startsWith(prefix)) {
+        const target = await resolveSafeObjectPath(this.rootDirectory, key, false);
+        const stats = await fs.stat(target).catch((error) => {
+          if (isNodeError(error) && error.code === "ENOENT") {
+            return null;
+          }
+          throw error;
+        });
+        if (stats) {
+          yield { key, lastModified: stats.mtime };
+        }
+      }
+    }
   }
 
   async getText(key: string): Promise<PhotoTextObject | null> {
@@ -271,6 +322,36 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
           secretAccessKey: options.secretAccessKey,
         },
       });
+  }
+
+  async *list(prefix: string): AsyncIterable<PhotoStoredObject> {
+    let continuationToken: string | undefined;
+    do {
+      const page = await this.client.send(
+        new ListObjectsV2Command({
+          Bucket: this.bucketForKey(prefix),
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        }),
+      );
+      for (const object of page.Contents ?? []) {
+        if (
+          !object.Key ||
+          !object.LastModified ||
+          !Number.isFinite(object.LastModified.getTime())
+        ) {
+          throw new Error("R2 对象列表缺少有效的 key 或修改时间");
+        }
+        yield { key: object.Key, lastModified: object.LastModified };
+      }
+      if (!page.IsTruncated) {
+        return;
+      }
+      if (!page.NextContinuationToken || page.NextContinuationToken === continuationToken) {
+        throw new Error("R2 对象列表缺少有效的下一页游标");
+      }
+      continuationToken = page.NextContinuationToken;
+    } while (continuationToken);
   }
 
   async getText(key: string): Promise<PhotoTextObject | null> {

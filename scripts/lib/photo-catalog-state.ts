@@ -189,6 +189,19 @@ export class PhotoCatalogState {
     return true;
   }
 
+  assertPhotosPublishable(photos: PhotoRecord[]): void {
+    const retiredKeys = this.allRetiredObjectKeys();
+    for (const photo of photos) {
+      if (
+        PHOTO_VARIANT_WIDTHS.some((width) =>
+          retiredKeys.has(photoMediaObjectKey(photo.id, width, photo.mediaRevision)),
+        )
+      ) {
+        throw new Error(`照片 ${photo.id} 的产物已进入回收队列，请重新发布`);
+      }
+    }
+  }
+
   addPhoto(photo: PhotoRecord): void {
     const month = monthFromCapturedAt(photo.capturedAt);
     const monthCatalog = this.#months.get(month) ?? {
@@ -366,7 +379,7 @@ export class PhotoCatalogState {
     this.#domainChanged = true;
   }
 
-  private retireUnreferencedArtifacts(
+  retireUnreferencedArtifacts(
     periods: Map<string, PhotoPeriod>,
     objectKeys: Iterable<string>,
   ): void {

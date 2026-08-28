@@ -2,7 +2,12 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
 import {
@@ -25,6 +30,21 @@ afterEach(async () => {
 });
 
 describe("file photo store", () => {
+  it("lists nested objects by prefix without following symbolic links", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const keys = ["media/a/480.webp", "media/b/960.webp", "catalog/index.json"];
+    for (const key of keys) {
+      await store.put(key, "data", { contentType: "text/plain", cacheControl: "no-store" });
+    }
+    const objects = await Array.fromAsync(store.list("media/"));
+    expect(objects.map((object) => object.key).toSorted()).toEqual(keys.slice(0, 2));
+    expect(objects.every((object) => Number.isFinite(object.lastModified.getTime()))).toBe(true);
+    expect(await Array.fromAsync(store.list("missing/"))).toEqual([]);
+    await fs.symlink(path.join(root, "catalog"), path.join(root, "media/linked"));
+    await expect(Array.fromAsync(store.list("media/"))).rejects.toThrow("符号链接");
+    await expect(Array.fromAsync(store.list("../"))).rejects.toThrow("无效的对象 key");
+  });
   it("writes concurrent photo variants into a new directory", async () => {
     const root = temporaryDirectory();
     const store = new FilePhotoObjectStore(root);
@@ -172,6 +192,32 @@ describe("file photo store", () => {
 });
 
 describe("R2 photo store", () => {
+  it("lists every page with modification times and fails on missing cursors", async () => {
+    const { store, send } = r2Store();
+    const lastModified = new Date("2026-08-01T00:00:00Z");
+    send
+      .mockResolvedValueOnce({
+        Contents: [{ Key: "media/a", LastModified: lastModified }],
+        IsTruncated: true,
+        NextContinuationToken: "page-2",
+      })
+      .mockResolvedValueOnce({
+        Contents: [{ Key: "media/b", LastModified: lastModified }],
+        IsTruncated: false,
+      });
+    expect(await Array.fromAsync(store.list("media/"))).toEqual([
+      { key: "media/a", lastModified },
+      { key: "media/b", lastModified },
+    ]);
+    expect(send.mock.calls[1][0]).toBeInstanceOf(ListObjectsV2Command);
+    expect(send.mock.calls[1][0].input).toEqual({
+      Bucket: "photos",
+      Prefix: "media/",
+      ContinuationToken: "page-2",
+    });
+    send.mockResolvedValueOnce({ IsTruncated: true });
+    await expect(Array.fromAsync(store.list("media/"))).rejects.toThrow("下一页游标");
+  });
   it("keeps control reads and writes out of the public bucket", async () => {
     const { store, send } = r2Store();
     send

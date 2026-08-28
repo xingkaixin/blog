@@ -11,7 +11,7 @@ import {
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { migratePhotoCatalog } from "./lib/photo-catalog-store";
+import { migratePhotoCatalog, PhotoCatalogEditor } from "./lib/photo-catalog-store";
 import { collectPhotoGarbage } from "./lib/photo-garbage-collector";
 import { publishPhotos } from "./lib/photo-publisher";
 import { retirePhotos } from "./lib/photo-retirement";
@@ -33,6 +33,14 @@ class MemoryPhotoStore implements PhotoObjectStore {
   readonly deletes: string[] = [];
   readonly deleteFailures = new Map<string, number>();
   nextVersion = 0;
+  readonly modified = new Map<string, Date>();
+  async *list(prefix: string) {
+    for (const key of this.objects.keys()) {
+      if (key.startsWith(prefix)) {
+        yield { key, lastModified: this.modified.get(key) ?? new Date(0) };
+      }
+    }
+  }
 
   async getText(key: string): Promise<PhotoTextObject | null> {
     this.reads.push(key);
@@ -129,6 +137,65 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
+  it("tracks orphaned first uploads without inventing a public catalog", async () => {
+    const store = new MemoryPhotoStore();
+    const key = `media/${"f".repeat(32)}/960.webp`;
+    store.objects.set(key, new Uint8Array([1]));
+    await collectPhotoGarbage({ store, scan: true });
+    expect((await readControl(store)).retiredArtifacts[0].objectKeys).toEqual([key]);
+    expect(store.objects.has(PHOTO_CATALOG_INDEX_KEY)).toBe(false);
+    expect(store.deletes).toEqual([]);
+    await migratePhotoCatalog(store);
+    await collectPhotoGarbage({ store });
+    expect((await readControl(store)).retiredArtifacts[0].deleteAfter).not.toBeNull();
+  });
+
+  it("rejects a paused publisher whose media has entered orphan retirement", async () => {
+    const store = new MemoryPhotoStore();
+    const photo = {
+      ...processedPhoto("f".repeat(32)),
+      mediaRevision: "a".repeat(24),
+      albumIds: [],
+    };
+    const key = photoMediaObjectKey(photo.id, 960, photo.mediaRevision);
+    store.objects.set(key, new Uint8Array([1]));
+    await collectPhotoGarbage({ store, scan: true });
+    const catalog = await PhotoCatalogEditor.load(store);
+    await expect(catalog.addPhotos([photo])).rejects.toThrow("已进入回收队列");
+  });
+  it("discovers artifacts left behind by a terminated process", async () => {
+    const file = await createSourceFile("orphan scan");
+    const store = new MemoryPhotoStore();
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async (_, id) => processedPhoto(id),
+    });
+    const orphan = `media/${"a".repeat(32)}/${"b".repeat(24)}/960.webp`;
+    const shard = `catalog/months/2020-01.${"c".repeat(24)}.json`;
+    const fresh = `media/${"d".repeat(32)}/${"e".repeat(24)}/480.webp`;
+    const now = new Date("2026-08-28T12:00:00Z");
+    for (const key of [orphan, shard, fresh, "media/unknown.txt"]) {
+      store.objects.set(key, new Uint8Array([1]));
+    }
+    store.modified.set(fresh, new Date(now.getTime() - 2 * 60 * 60 * 1000));
+    const liveKeys = await publishedObjectKeys(store);
+    const publicBefore = store.objects.get(PHOTO_CATALOG_INDEX_KEY);
+    await collectPhotoGarbage({ store, now: () => now });
+    expect((await readControl(store)).retiredArtifacts).toEqual([]);
+    await collectPhotoGarbage({ store, scan: true, now: () => now });
+    const retired = (await readControl(store)).retiredArtifacts.flatMap(
+      (entry) => entry.objectKeys,
+    );
+    expect(retired.toSorted()).toEqual([orphan, shard].toSorted());
+    expect(store.objects.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicBefore);
+    expect(store.deletes).toEqual([]);
+    await collectPhotoGarbage({ store, now: () => new Date(now.getTime() + 25 * 60 * 60 * 1000) });
+    expect(store.deletes.toSorted()).toEqual([orphan, shard].toSorted());
+    expect([...liveKeys, fresh, "media/unknown.txt"].every((key) => store.objects.has(key))).toBe(
+      true,
+    );
+  });
   it("rejects source changes between identification and processing", async () => {
     const file = await createSourceFile("identified source");
     const store = new MemoryPhotoStore();
@@ -687,6 +754,7 @@ describe("photo publisher", () => {
     const slowStarted = deferred<void>();
     const releaseSlow = deferred<void>();
     const processedSources: string[] = [];
+    let slowSource = "";
     let settled = false;
 
     const operation = publishPhotos({
@@ -698,6 +766,7 @@ describe("photo publisher", () => {
           await slowStarted.promise;
           throw new Error("processing failed");
         }
+        slowSource = source;
         slowStarted.resolve(undefined);
         await releaseSlow.promise;
         expect(await fs.readFile(source, "utf8")).toBe("slow photo");
@@ -710,7 +779,7 @@ describe("photo publisher", () => {
     await slowStarted.promise;
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(settled).toBe(false);
-    await fs.access(processedSources[1]);
+    await fs.access(slowSource);
 
     releaseSlow.resolve(undefined);
     await expect(operation).rejects.toThrow("processing failed");

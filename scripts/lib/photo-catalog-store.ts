@@ -85,6 +85,7 @@ export class PhotoCatalogEditor {
   }
 
   async addPhotos(photos: PhotoRecord[]): Promise<void> {
+    this.state.assertPhotosPublishable(photos);
     await loadPhotoCatalogMonths(
       this.store,
       this.state,
@@ -135,6 +136,21 @@ export class PhotoCatalogEditor {
     return true;
   }
 
+  async retireArtifacts(objectKeys: string[], now: Date): Promise<void> {
+    if (!this.state.publicIndexCurrent) {
+      return;
+    }
+    await loadPhotoCatalogMonths(this.store, this.state, this.state.monthsForArtifacts(objectKeys));
+    if (!this.state.hasUnreferencedArtifacts(this.state.periods(), objectKeys)) {
+      return;
+    }
+    this.state.retireUnreferencedArtifacts(this.state.periods(), objectKeys);
+    const control = this.state.generatedAt
+      ? this.state.currentControl()
+      : this.state.prepareControl(this.state.periods(), now, []);
+    await writeControlDocument(this.store, this.state, control);
+  }
+
   async claimGarbage(
     claimId: string,
     now: () => Date,
@@ -173,6 +189,7 @@ export async function editPhotoCatalog<T>(
 ): Promise<T> {
   const attemptedArtifacts = new Set<string>();
   const trackedStore: PhotoObjectStore = {
+    list: (prefix) => store.list(prefix),
     getText: (key) => store.getText(key),
     delete: (key) => store.delete(key),
     put: async (key, body, options) => {

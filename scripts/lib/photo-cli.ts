@@ -35,6 +35,7 @@ export type DeletePhotoCliOptions = CommonOptions & {
 
 export type GarbageCollectPhotoCliOptions = CommonOptions & {
   command: "gc";
+  scan: boolean;
   confirm: boolean;
 };
 
@@ -99,6 +100,7 @@ R2 环境变量:
 
 选项:
   --confirm               确认回收到期对象
+  --scan                  扫描两小时前遗留的孤儿产物并加入延迟回收
   --output <目录>         操作本地目录；省略时操作 R2
   --help                  显示帮助
 `,
@@ -189,6 +191,14 @@ export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]
   if (command === "delete") {
     return { command, inputs: parsed.inputs, ...common, confirm: parsed.flags.has("--confirm") };
   }
+  if (command === "gc") {
+    return {
+      command,
+      ...common,
+      confirm: parsed.flags.has("--confirm"),
+      scan: parsed.flags.has("--scan"),
+    };
+  }
   return { command, ...common, confirm: parsed.flags.has("--confirm") };
 }
 
@@ -207,7 +217,7 @@ const COMMAND_ARGUMENTS = {
     positionalLabel: null,
   },
   delete: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: null },
-  gc: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: "回收" },
+  gc: { valueOptions: [], flagOptions: ["--confirm", "--scan"], positionalLabel: "回收" },
   migrate: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: "迁移" },
 } as const satisfies Record<
   PhotoCommandName,
@@ -342,7 +352,7 @@ async function runGarbageCollectCommand(
 
   const store = createStore(options.output, "回收", io);
   try {
-    const result = await collectPhotoGarbage({ store });
+    const result = await collectPhotoGarbage({ store, scan: options.scan });
     io.log(
       `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingArtifacts} 批产物待回收`,
     );
