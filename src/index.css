@@ -346,13 +346,15 @@ body {
 }
 
 .t-dropdown {
+  visibility: hidden;
   transform-origin: top left;
   transform: translateY(-4px) scale(0.97);
   opacity: 0;
   pointer-events: none;
   transition:
     transform var(--duration-quick) var(--ease-smooth-out),
-    opacity var(--duration-quick) var(--ease-smooth-out);
+    opacity var(--duration-quick) var(--ease-smooth-out),
+    visibility 0s var(--duration-quick);
   will-change: transform, opacity;
 }
 
@@ -361,15 +363,11 @@ body {
 }
 
 .t-dropdown.is-open {
+  visibility: visible;
+  transition-delay: 0s;
   transform: translateY(0) scale(1);
   opacity: 1;
   pointer-events: auto;
-}
-
-.t-dropdown.is-closing {
-  transform: translateY(-4px) scale(0.97);
-  opacity: 0;
-  pointer-events: none;
 }
 
 .header-sticker-entry {
@@ -507,10 +505,11 @@ body {
     scroll-behavior: auto;
   }
 
-  .t-dropdown,
-  .t-dropdown.is-closing {
+  .t-dropdown {
     transform: none;
-    transition: opacity var(--duration-quick) var(--ease-smooth-out);
+    transition:
+      opacity var(--duration-quick) var(--ease-smooth-out),
+      visibility 0s var(--duration-quick);
     will-change: opacity;
   }
 

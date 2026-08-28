@@ -17,9 +17,6 @@ type MobileHeaderMenuProps = {
   currentPath: string;
 };
 
-type MenuState = "closed" | "open" | "closing";
-
-const MENU_CLOSE_FALLBACK_MS = 150;
 const menuItem =
   "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
 const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
@@ -33,48 +30,17 @@ const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
 const routes = mobileNavigation();
 
 export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
-  const [menuState, setMenuState] = useState<MenuState>("closed");
+  const [open, setOpen] = useState(false);
   const menuId = useId();
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const firstItemRef = useRef<HTMLAnchorElement>(null);
-  const closeTimerRef = useRef<number | null>(null);
-  const open = menuState === "open";
-
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimerRef.current !== null) {
-      window.clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
+  const closeMenu = useCallback(() => {
+    if (menuRef.current?.contains(document.activeElement)) {
+      triggerRef.current?.focus();
     }
+    setOpen(false);
   }, []);
-
-  const openMenu = useCallback(() => {
-    clearCloseTimer();
-    setMenuState("open");
-  }, [clearCloseTimer]);
-
-  const closeMenu = useCallback(
-    (restoreFocus = false) => {
-      clearCloseTimer();
-      setMenuState("closing");
-      const duration =
-        Number.parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue("--duration-quick"),
-        ) || MENU_CLOSE_FALLBACK_MS;
-
-      closeTimerRef.current = window.setTimeout(() => {
-        setMenuState("closed");
-        closeTimerRef.current = null;
-      }, duration);
-
-      if (restoreFocus) {
-        requestAnimationFrame(() => triggerRef.current?.focus());
-      }
-    },
-    [clearCloseTimer],
-  );
-
-  useEffect(() => () => clearCloseTimer(), [clearCloseTimer]);
 
   useEffect(() => {
     if (!open) {
@@ -88,7 +54,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        closeMenu(true);
+        closeMenu();
       }
     };
 
@@ -119,7 +85,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
         aria-label={open ? "关闭导航" : "打开导航"}
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => (open ? closeMenu() : openMenu())}
+        onClick={() => (open ? closeMenu() : setOpen(true))}
         className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[8px] border border-line bg-surface text-ink-600 transition-[transform,background-color] hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.96]"
       >
         <MenuIcon aria-hidden="true" className="h-4 w-4" />
@@ -128,14 +94,11 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
       <div
         id={menuId}
         data-origin="top-right"
-        data-state={menuState}
         aria-hidden={!open}
         inert={!open}
         className={cn(
           "t-dropdown absolute right-0 top-11 z-30 w-56 rounded-[10px] border border-line bg-surface p-2 shadow-[0_22px_60px_-36px_rgba(0,0,0,0.5)]",
-          menuState === "open" && "is-open",
-          menuState === "closing" && "is-closing",
-          menuState === "closed" && "invisible",
+          open && "is-open",
         )}
       >
         <nav aria-label="移动端导航" className="space-y-1">
