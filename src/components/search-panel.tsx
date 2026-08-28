@@ -1,5 +1,5 @@
 import { SearchIcon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
@@ -64,11 +64,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     () => new Map(items.map((item, index) => [item.id, index])),
     [items],
   );
-  const activeItem = items[activeIndex] ?? items[0];
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query, status]);
+  const currentIndex = activeIndex < items.length ? activeIndex : 0;
+  const activeItem = items[currentIndex];
 
   useEffect(() => {
     if (open && activeItem) {
@@ -99,10 +96,10 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActiveIndex((current) => (current + 1) % items.length);
+      setActiveIndex((currentIndex + 1) % items.length);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActiveIndex((current) => (current - 1 + items.length) % items.length);
+      setActiveIndex((currentIndex - 1 + items.length) % items.length);
     } else if (event.key === "Enter") {
       event.preventDefault();
       activate(activeItem);
@@ -112,7 +109,6 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        hideClose
         title="命令面板"
         description="搜索文章与项目、跳转页面或执行站点命令"
         className="command-palette fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
@@ -130,7 +126,10 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             autoComplete="off"
             enterKeyHint="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setActiveIndex(0);
+            }}
             onKeyDown={handleInputKeyDown}
             placeholder="搜索文章、项目、页面或命令…"
             className="min-w-0 flex-1 bg-transparent font-mono text-sm text-ink-800 outline-none placeholder:text-ink-400"
@@ -164,7 +163,12 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                   </p>
                   {group.items.map((item) => {
                     const itemIndex = itemIndexById.get(item.id) ?? 0;
-                    const selected = itemIndex === activeIndex;
+                    const selected = itemIndex === currentIndex;
+                    const selectOnPointerMove = (event: PointerEvent<HTMLElement>) => {
+                      if (event.pointerType === "mouse") {
+                        setActiveIndex(itemIndex);
+                      }
+                    };
                     const setItemRef = (element: HTMLElement | null) => {
                       if (element) {
                         itemRefs.current.set(item.id, element);
@@ -200,7 +204,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                         role="option"
                         aria-selected={selected}
                         className={itemClassName}
-                        onMouseEnter={() => setActiveIndex(itemIndex)}
+                        onPointerMove={selectOnPointerMove}
                         onFocus={() => setActiveIndex(itemIndex)}
                         onClick={() => onOpenChange(false)}
                       >
@@ -215,7 +219,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                         role="option"
                         aria-selected={selected}
                         className={itemClassName}
-                        onMouseEnter={() => setActiveIndex(itemIndex)}
+                        onPointerMove={selectOnPointerMove}
                         onFocus={() => setActiveIndex(itemIndex)}
                         onClick={() => activate(item)}
                       >

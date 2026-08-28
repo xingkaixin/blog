@@ -1,5 +1,4 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { XIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +9,6 @@ export const DialogTitle = DialogPrimitive.Title;
 export const DialogDescription = DialogPrimitive.Description;
 
 type DialogContentProps = ComponentProps<typeof DialogPrimitive.Popup> & {
-  hideClose?: boolean;
   title?: string;
   description?: string;
   backdropClassName?: string;
@@ -19,7 +17,6 @@ type DialogContentProps = ComponentProps<typeof DialogPrimitive.Popup> & {
 export function DialogContent({
   className,
   children,
-  hideClose,
   title,
   description,
   backdropClassName,
@@ -47,15 +44,6 @@ export function DialogContent({
           </DialogPrimitive.Description>
         )}
         {children}
-        {!hideClose && (
-          <DialogPrimitive.Close
-            aria-label="关闭搜索面板"
-            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-line bg-surface text-ink-500 transition-colors hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-          >
-            <XIcon aria-hidden="true" className="h-4 w-4" />
-            <span className="sr-only">关闭</span>
-          </DialogPrimitive.Close>
-        )}
       </DialogPrimitive.Popup>
     </DialogPrimitive.Portal>
   );

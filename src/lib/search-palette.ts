@@ -68,7 +68,7 @@ export function buildSearchPalette(
       .filter(({ tag, href }) => href !== null && matchesSearchQuery(tag, normalizedQuery))
       .slice(0, 5)
       .map<SearchPaletteLink>(({ tag, count, href }) => ({
-        id: `tag-${tag}`,
+        id: `tag-${encodeURIComponent(tag)}`,
         kind: "link",
         glyph: "⌗",
         title: `${tag} · ${count} 篇`,

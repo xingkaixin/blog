@@ -22,6 +22,56 @@ afterEach(async () => {
 });
 
 describe("search dialog entry", () => {
+  it("keeps keyboard selection when scrolling moves results under a stationary pointer", async () => {
+    const container = document.createElement("div");
+    document.body.append(container);
+    await act(async () => openSearchDialog(container));
+    const input = document.querySelector<HTMLInputElement>('input[aria-label="搜索与命令"]')!;
+    const options = [...document.querySelectorAll<HTMLElement>('[role="option"]')];
+    await act(async () =>
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true })),
+    );
+    const active = input.getAttribute("aria-activedescendant");
+    await act(async () => options[1].dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(input.getAttribute("aria-activedescendant")).toBe(active);
+    await act(async () =>
+      options[1].dispatchEvent(
+        new PointerEvent("pointermove", { bubbles: true, pointerType: "touch" }),
+      ),
+    );
+    expect(input.getAttribute("aria-activedescendant")).toBe(active);
+    await act(async () =>
+      options[1].dispatchEvent(
+        new PointerEvent("pointermove", { bubbles: true, pointerType: "mouse" }),
+      ),
+    );
+    expect(input.getAttribute("aria-activedescendant")).toBe(options[1].id);
+  });
+
+  it("keeps the highlighted option consistent while filtering a longer result list", async () => {
+    const container = document.createElement("div");
+    document.body.append(container);
+    await act(async () => openSearchDialog(container));
+    const input = document.querySelector<HTMLInputElement>('input[aria-label="搜索与命令"]')!;
+    await act(async () =>
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true })),
+    );
+    const highlights: (string | null)[] = [];
+    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(
+      function (this: HTMLElement) {
+        highlights.push(this.getAttribute("aria-selected"));
+      },
+    );
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
+        input,
+        "主题",
+      );
+      input.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    });
+    expect(highlights).not.toHaveLength(0);
+    expect(highlights.every((value) => value === "true")).toBe(true);
+  });
   it.each(["before", "after"])("ignores opens started %s a page swap begins", async (timing) => {
     const container = document.createElement("div");
     container.dataset.searchRoot = "";

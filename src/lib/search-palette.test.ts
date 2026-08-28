@@ -20,6 +20,14 @@ const posts: SearchIndexItem[] = [
 ];
 
 describe("search palette", () => {
+  it("produces valid option IDs for tags containing spaces", () => {
+    const items = buildSearchPalette(
+      "Code Review",
+      posts.map((post) => ({ ...post, tags: ["Code Review"] })),
+    ).flatMap((group) => group.items);
+    expect(items.some((item) => item.id.startsWith("tag-"))).toBe(true);
+    expect(items.every((item) => !/\s/.test(item.id))).toBe(true);
+  });
   it("builds recent posts and global commands before searching", () => {
     const groups = buildSearchPalette("", posts);
 
@@ -42,7 +50,7 @@ describe("search palette", () => {
     expect(groups.find(({ label }) => label === "标签")).toMatchObject({
       items: [
         {
-          id: "tag-AI编程",
+          id: "tag-AI%E7%BC%96%E7%A8%8B",
           href: "/tags/AI%E7%BC%96%E7%A8%8B/",
         },
       ],

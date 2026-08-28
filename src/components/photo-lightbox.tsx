@@ -120,7 +120,6 @@ export function PhotoLightbox({
       }}
     >
       <DialogContent
-        hideClose
         title="照片大图"
         description={formatPhotoCapturedAt(photo.capturedAt)}
         finalFocus={getPhotoTile}
