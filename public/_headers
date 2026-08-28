@@ -2,5 +2,5 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cloud.umami.is https://static.cloudflareinsights.com; connect-src 'self' https://cloud.umami.is https://cloudflareinsights.com https://photos.xingkaixin.me; img-src 'self' data: https://photos.xingkaixin.me; style-src 'self' 'unsafe-inline'; font-src 'self' data:; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://umami.xingkaixin.me https://static.cloudflareinsights.com; connect-src 'self' https://umami.xingkaixin.me https://cloudflareinsights.com https://photos.xingkaixin.me; img-src 'self' data: https://photos.xingkaixin.me; style-src 'self' 'unsafe-inline'; font-src 'self' data:; upgrade-insecure-requests
   Permissions-Policy: camera=(), microphone=(), geolocation=()
