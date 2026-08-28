@@ -129,7 +129,7 @@ describe("photo catalog browser", () => {
     });
   });
 
-  it("deduplicates month requests and retries failures", async () => {
+  it("retries failed month requests", async () => {
     const request = vi
       .fn<PhotoCatalogRequest>()
       .mockRejectedValueOnce(new Error("offline"))
@@ -137,9 +137,7 @@ describe("photo catalog browser", () => {
     const browser = new PhotoCatalogBrowser("https://photos.example.com", request);
 
     await expect(browser.loadMonth(index, period)).rejects.toThrow("offline");
-    const first = browser.loadMonth(index, period);
-    const second = browser.loadMonth(index, period);
-    await expect(Promise.all([first, second])).resolves.toEqual([month, month]);
+    await expect(browser.loadMonth(index, period)).resolves.toEqual(month);
     expect(request).toHaveBeenCalledTimes(2);
   });
 
@@ -196,38 +194,13 @@ describe("photo catalog browser", () => {
 
   it("loads only the month selected by the authoritative locator", async () => {
     const loadMonth = vi.fn(async () => month);
-    await expect(resolveCatalogPhoto(index, photoId, {}, loadMonth)).resolves.toEqual(
-      month.photos[0],
-    );
+    await expect(resolveCatalogPhoto(index, photoId, loadMonth)).resolves.toEqual(month.photos[0]);
     expect(loadMonth).toHaveBeenCalledTimes(1);
 
     loadMonth.mockClear();
     await expect(
-      resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", {}, loadMonth),
+      resolveCatalogPhoto(index, "ffffffffffffffffffffffffffffffff", loadMonth),
     ).resolves.toBeNull();
-    expect(loadMonth).not.toHaveBeenCalled();
-  });
-
-  it("does not scan unrelated loaded months", async () => {
-    const unrelatedMonth: PhotoMonthCatalog = {
-      schemaVersion: 2,
-      month: "2026-03",
-      get photos(): PhotoMonthCatalog["photos"] {
-        throw new Error("unrelated month was scanned");
-      },
-    };
-    const loadMonth = vi.fn(async () => {
-      throw new Error("the target month is already loaded");
-    });
-
-    await expect(
-      resolveCatalogPhoto(
-        index,
-        photoId,
-        { "2026-03": unrelatedMonth, [month.month]: month },
-        loadMonth,
-      ),
-    ).resolves.toEqual(month.photos[0]);
     expect(loadMonth).not.toHaveBeenCalled();
   });
 

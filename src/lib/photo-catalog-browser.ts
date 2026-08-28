@@ -36,10 +36,6 @@ export class PhotoCatalogBrowser {
   private pendingIndex:
     | { signal: AbortSignal | undefined; request: Promise<PhotoCatalogIndex> }
     | undefined;
-  private readonly pendingMonths = new Map<
-    string,
-    { signal: AbortSignal | undefined; request: Promise<PhotoMonthCatalog> }
-  >();
 
   constructor(baseUrl: string, request: PhotoCatalogRequest = requestJson) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
@@ -72,37 +68,23 @@ export class PhotoCatalogBrowser {
     period: PhotoPeriod,
     signal?: AbortSignal,
   ): Promise<PhotoMonthCatalog> {
-    const pending = this.pendingMonths.get(period.path);
-    if (pending && pending.signal === signal) {
-      return pending.request;
-    }
-
-    const request = this.request(photoObjectUrl(this.baseUrl, period.path), {
+    return this.request(photoObjectUrl(this.baseUrl, period.path), {
       cache: "force-cache",
       signal,
-    })
-      .then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)))
-      .finally(() => {
-        if (this.pendingMonths.get(period.path)?.request === request) {
-          this.pendingMonths.delete(period.path);
-        }
-      });
-    this.pendingMonths.set(period.path, { signal, request });
-    return request;
+    }).then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)));
   }
 }
 
 export async function resolveCatalogPhoto(
   index: PhotoCatalogIndex,
   photoId: string,
-  loadedMonths: Readonly<Record<string, PhotoMonthCatalog>>,
   loadMonth: (period: PhotoPeriod) => Promise<PhotoMonthCatalog>,
 ): Promise<PhotoRecord | null> {
   const period = locatePhotoPeriod(index, photoId);
   if (!period) {
     return null;
   }
-  const month = loadedMonths[period.month] ?? (await loadMonth(period));
+  const month = await loadMonth(period);
   return month.photos.find((photo) => photo.id === photoId) ?? null;
 }
 

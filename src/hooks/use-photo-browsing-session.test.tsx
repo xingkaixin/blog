@@ -89,7 +89,8 @@ describe("usePhotoBrowsingSession", () => {
         index,
         months,
         monthErrors: {},
-        loadMonth: vi.fn(async () => undefined),
+        requestMonth: vi.fn(async () => undefined),
+        retryMonth: vi.fn(),
         resolvePhoto: vi.fn().mockResolvedValue(photo),
       });
       scrollY = 420;
@@ -115,7 +116,8 @@ describe("usePhotoBrowsingSession", () => {
       index,
       months,
       monthErrors: {},
-      loadMonth: vi.fn(async () => undefined),
+      requestMonth: vi.fn(async () => undefined),
+      retryMonth: vi.fn(),
       resolvePhoto: vi.fn().mockResolvedValue(photo),
     };
     await renderSession(options);
@@ -158,12 +160,13 @@ describe("usePhotoBrowsingSession", () => {
         Object.values(sparseMonths).map((month) => [month.photos[0].id, month.month]),
       ),
     };
-    const loadMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
+    const requestMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
     const options: BrowsingOptions = {
       index: sparseIndex,
       months: { "2026-06": sparseMonths["2026-06"] },
       monthErrors: {},
-      loadMonth,
+      requestMonth,
+      retryMonth: vi.fn(),
       resolvePhoto: async (photoId) => sparseMonths[sparseIndex.photoMonths[photoId]].photos[0],
     };
 
@@ -171,7 +174,7 @@ describe("usePhotoBrowsingSession", () => {
     await act(async () => session.openTimeline("trip"));
     await act(async () => session.openPhoto(selected));
 
-    const requestedMonths = loadMonth.mock.calls.map(([period]) => period.month);
+    const requestedMonths = requestMonth.mock.calls.map(([period]) => period.month);
     expect(requestedMonths).toEqual(["2026-08", "2026-04"]);
     expect(session.navigation).toEqual({
       previous: undefined,
@@ -193,22 +196,23 @@ describe("usePhotoBrowsingSession", () => {
   });
 
   it("keeps the current photo visible while a failed adjacent month is retried", async () => {
-    const loadMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
+    const requestMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
     const options: BrowsingOptions = {
       index,
       months: { "2026-04": months["2026-04"] },
       monthErrors: { "2026-03": "offline" },
-      loadMonth,
+      requestMonth,
+      retryMonth: vi.fn(),
       resolvePhoto: vi.fn().mockResolvedValue(photo),
     };
     await renderSession(options);
     await act(async () => session.openPhoto(photo));
     expect(session.navigation?.status).toBe("error");
     expect(session.selectedPhoto).toEqual(photo);
-    expect(loadMonth).not.toHaveBeenCalledWith(periods[2]);
+    expect(requestMonth).not.toHaveBeenCalledWith(periods[2]);
 
     await act(async () => session.retryNavigation());
-    expect(loadMonth).toHaveBeenCalledWith(periods[2]);
+    expect(options.retryMonth).toHaveBeenCalledWith(periods[2]);
     await renderSession({ ...options, months, monthErrors: {} });
     expect(session.navigation).toMatchObject({
       next: months["2026-03"].photos[0],
@@ -218,13 +222,14 @@ describe("usePhotoBrowsingSession", () => {
   });
 
   it("coordinates view, selection, URL, and adjacent loading", async () => {
-    const loadMonth = vi.fn(async () => undefined);
+    const requestMonth = vi.fn(async () => undefined);
 
     await renderSession({
       index,
       months: { "2026-04": months["2026-04"] },
       monthErrors: {},
-      loadMonth,
+      requestMonth,
+      retryMonth: vi.fn(),
       resolvePhoto: vi.fn().mockResolvedValue(photo),
     });
     await act(async () => session.openTimeline("trip"));
@@ -234,8 +239,8 @@ describe("usePhotoBrowsingSession", () => {
     await act(async () => session.openPhoto(photo));
     expect(session.selectedPhoto).toEqual(photo);
     expect(window.location.hash).toBe(`#album=trip&photo=${photo.id}`);
-    expect(loadMonth).toHaveBeenCalledWith(periods[0]);
-    expect(loadMonth).toHaveBeenCalledWith(periods[2]);
+    expect(requestMonth).toHaveBeenCalledWith(periods[0]);
+    expect(requestMonth).toHaveBeenCalledWith(periods[2]);
 
     await act(async () => session.returnToOverview());
     expect(session.view).toEqual({ mode: "overview" });
@@ -251,7 +256,8 @@ describe("usePhotoBrowsingSession", () => {
       index,
       months,
       monthErrors: {},
-      loadMonth: vi.fn(async () => undefined),
+      requestMonth: vi.fn(async () => undefined),
+      retryMonth: vi.fn(),
       resolvePhoto: vi.fn().mockResolvedValue(null),
     });
 
@@ -269,7 +275,8 @@ describe("usePhotoBrowsingSession", () => {
         index,
         months,
         monthErrors: {},
-        loadMonth: vi.fn(async () => undefined),
+        requestMonth: vi.fn(async () => undefined),
+        retryMonth: vi.fn(),
         resolvePhoto: vi.fn().mockResolvedValue(photo),
       };
       await renderSession(options);

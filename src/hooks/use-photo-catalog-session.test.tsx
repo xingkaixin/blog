@@ -63,6 +63,25 @@ afterEach(async () => {
 });
 
 describe("usePhotoCatalogSession", () => {
+  it("shares the state-publishing promise for one in-flight month", async () => {
+    const response = deferred<Response>();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockImplementation(async (url) =>
+        requestUrl(url).endsWith("catalog/index.json") ? jsonResponse(index) : response.promise,
+      );
+    await renderSession();
+    let first!: Promise<PhotoMonthCatalog>;
+    let second!: Promise<PhotoMonthCatalog>;
+    await act(async () => {
+      first = session.loadMonth(periods[0]);
+      second = session.loadMonth(periods[0]);
+      response.resolve(jsonResponse(months[0]));
+      await Promise.all([first, second]);
+    });
+    expect(first).toBe(second);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
   it.each([404, 410])("refreshes an expired month reference after HTTP %s", async (status) => {
     const replacement = { ...periods[0], path: `catalog/months/2026-04.${"f".repeat(24)}.json` };
     const latest = { ...index, periods: [replacement, periods[1]] };

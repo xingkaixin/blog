@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from "react";
 import type { PhotoRecord } from "@/lib/photo-catalog";
 import { resolvePhotoSelection } from "@/lib/photo-catalog-browser";
 
@@ -25,6 +25,9 @@ export function usePhotoSelection({
   const [retryCount, setRetryCount] = useState(0);
   const lastPhotoRef = useRef<PhotoRecord | null>(null);
   const resolutionGenerationRef = useRef(0);
+  const isSelected = useEffectEvent(
+    (id: string) => state.status === "ready" && state.photo.id === id,
+  );
 
   useEffect(() => {
     if (!catalogReady) {
@@ -39,13 +42,12 @@ export function usePhotoSelection({
       return undefined;
     }
 
+    if (isSelected(photoId)) {
+      return undefined;
+    }
     const generation = resolutionGenerationRef.current + 1;
     resolutionGenerationRef.current = generation;
-    setState((current) =>
-      current.status === "ready" && current.photo.id === photoId
-        ? current
-        : { status: "loading", photoId },
-    );
+    setState({ status: "loading", photoId });
 
     void resolvePhotoSelection(photoId, resolvePhoto).then((result) => {
       if (resolutionGenerationRef.current !== generation) {

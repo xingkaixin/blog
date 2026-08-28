@@ -21,7 +21,8 @@ type UsePhotoBrowsingSessionOptions = {
   index: PhotoCatalogIndex | null;
   months: Readonly<Record<string, PhotoMonthCatalog>>;
   monthErrors: Readonly<Record<string, string>>;
-  loadMonth: (period: PhotoPeriod) => Promise<unknown>;
+  requestMonth: (period: PhotoPeriod) => void;
+  retryMonth: (period: PhotoPeriod) => void;
   resolvePhoto: (photoId: string) => Promise<PhotoRecord | null>;
 };
 
@@ -35,7 +36,8 @@ export function usePhotoBrowsingSession({
   index,
   months,
   monthErrors,
-  loadMonth,
+  requestMonth,
+  retryMonth,
   resolvePhoto,
 }: UsePhotoBrowsingSessionOptions) {
   const { location, navigate } = usePhotoLocation(index);
@@ -64,21 +66,27 @@ export function usePhotoBrowsingSession({
       index && displayPhoto ? planPhotoNavigation(index, displayPhoto, albumId, months) : null,
     [albumId, displayPhoto, index, months],
   );
-  const loadNavigation = useCallback(
-    (retry = false) => {
-      if (!selectedPhoto || !navigationPlan) {
-        return;
+  useEffect(() => {
+    if (!selectedPhoto || !navigationPlan) {
+      return;
+    }
+    for (const period of navigationPlan.pendingPeriods) {
+      if (!monthErrors[period.month]) {
+        requestMonth(period);
       }
-      for (const period of navigationPlan.pendingPeriods) {
-        if (retry || !monthErrors[period.month]) {
-          void loadMonth(period).catch(() => undefined);
-        }
-      }
-    },
-    [loadMonth, monthErrors, navigationPlan, selectedPhoto],
-  );
+    }
+  }, [requestMonth, monthErrors, navigationPlan, selectedPhoto]);
 
-  useEffect(() => loadNavigation(), [loadNavigation]);
+  const retryNavigation = useCallback(() => {
+    if (!selectedPhoto || !navigationPlan) {
+      return;
+    }
+    for (const period of navigationPlan.pendingPeriods) {
+      if (monthErrors[period.month]) {
+        retryMonth(period);
+      }
+    }
+  }, [retryMonth, monthErrors, navigationPlan, selectedPhoto]);
 
   const navigation: PhotoBrowsingNavigation | null = navigationPlan && {
     ...navigationPlan.navigation,
@@ -131,7 +139,7 @@ export function usePhotoBrowsingSession({
     selectedPhoto,
     displayPhoto,
     navigation,
-    retryNavigation: () => loadNavigation(true),
+    retryNavigation,
     retryPhoto,
     openPhoto,
     selectPhoto,

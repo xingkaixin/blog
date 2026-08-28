@@ -17,7 +17,7 @@ export type AlbumOverviewItem = {
   photos: PhotoRecord[];
 };
 
-type AlbumOverviewSummary = Omit<AlbumOverviewItem, "photos">;
+type AlbumOverviewSummary = Omit<AlbumOverviewItem, "photos"> & { previewPeriods: PhotoPeriod[] };
 
 export type PhotoAlbumSummary = PhotoAlbum & {
   count: number;
@@ -39,7 +39,6 @@ export type PhotoWallModel = PhotoTimelineModel & {
 };
 
 type PhotoWallCatalogModel = PhotoTimelineModel & {
-  periods: PhotoPeriod[];
   overviewPeriods: PhotoPeriod[];
   overviewSummaries: AlbumOverviewSummary[];
 };
@@ -55,7 +54,6 @@ export function buildPhotoWallCatalogModel(
       selectedAlbum: undefined,
       albumSummaries: [],
       visiblePeriods: [],
-      periods: [],
       overviewPeriods: [],
       overviewSummaries: [],
       allPhotoCount: 0,
@@ -66,8 +64,6 @@ export function buildPhotoWallCatalogModel(
 
   const albumCounts = new Map(index.albums.map((album) => [album.id, 0]));
   const periodsByAlbum = new Map(index.albums.map((album) => [album.id, [] as PhotoPeriod[]]));
-  const previewCounts = new Map(index.albums.map((album) => [album.id, 0]));
-  const previewMonths = new Set(index.periods.slice(0, 1).map((period) => period.month));
   let allPhotoCount = 0;
 
   for (const period of index.periods) {
@@ -79,11 +75,6 @@ export function buildPhotoWallCatalogModel(
       }
       albumCounts.set(albumId, (albumCounts.get(albumId) ?? 0) + count);
       albumPeriods.push(period);
-      const previewCount = previewCounts.get(albumId) ?? 0;
-      if (previewCount < PREVIEW_PHOTO_COUNT) {
-        previewMonths.add(period.month);
-        previewCounts.set(albumId, previewCount + count);
-      }
     }
   }
 
@@ -101,6 +92,7 @@ export function buildPhotoWallCatalogModel(
       title: "全部",
       count: allPhotoCount,
       meta: formatPeriodRange(index.periods),
+      previewPeriods: previewPeriods(index.periods, null),
     },
     ...index.albums.map((album) => {
       const periods = periodsByAlbum.get(album.id) ?? [];
@@ -109,16 +101,19 @@ export function buildPhotoWallCatalogModel(
         title: album.title,
         count: albumCounts.get(album.id) ?? 0,
         meta: formatPeriodRange(periods),
+        previewPeriods: previewPeriods(periods, album.id),
       };
     }),
   ];
 
+  const previewMonths = new Set(
+    overviewSummaries.flatMap((summary) => summary.previewPeriods.map((period) => period.month)),
+  );
   return {
     selectedAlbumId,
     selectedAlbum,
     albumSummaries,
     visiblePeriods,
-    periods: index.periods,
     overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
     overviewSummaries,
     allPhotoCount,
@@ -131,31 +126,35 @@ export function buildPhotoWallModel(
   catalog: PhotoWallCatalogModel,
   monthCatalogs: Record<string, PhotoMonthCatalog>,
 ): PhotoWallModel {
-  const { overviewSummaries, periods, ...timeline } = catalog;
-  const allPhotos = periods.flatMap((period) => monthCatalogs[period.month]?.photos ?? []);
-  const previewPhotos = new Map(
-    catalog.albumSummaries.map((album) => [album.id, [] as PhotoRecord[]]),
-  );
-
-  for (const photo of allPhotos) {
-    for (const albumId of photo.albumIds) {
-      const photos = previewPhotos.get(albumId);
-      if (photos && photos.length < PREVIEW_PHOTO_COUNT) {
-        photos.push(photo);
-      }
-    }
-  }
-
+  const { overviewSummaries, ...timeline } = catalog;
   return {
     ...timeline,
-    overviewItems: overviewSummaries.map((summary) => ({
+    overviewItems: overviewSummaries.map(({ previewPeriods, ...summary }) => ({
       ...summary,
-      photos:
-        summary.id === null
-          ? allPhotos.slice(0, PREVIEW_PHOTO_COUNT)
-          : (previewPhotos.get(summary.id) ?? []),
+      photos: previewPeriods.every((period) => monthCatalogs[period.month])
+        ? previewPeriods
+            .flatMap((period) =>
+              monthCatalogs[period.month].photos.filter(
+                (photo) => summary.id === null || photo.albumIds.includes(summary.id),
+              ),
+            )
+            .slice(0, PREVIEW_PHOTO_COUNT)
+        : [],
     })),
   };
+}
+
+function previewPeriods(periods: PhotoPeriod[], albumId: string | null): PhotoPeriod[] {
+  const result: PhotoPeriod[] = [];
+  let count = 0;
+  for (const period of periods) {
+    result.push(period);
+    count += albumId === null ? period.count : (period.albumCounts[albumId] ?? 0);
+    if (count >= PREVIEW_PHOTO_COUNT) {
+      break;
+    }
+  }
+  return result;
 }
 
 export function formatPeriodRange(periods: PhotoPeriod[]): string {

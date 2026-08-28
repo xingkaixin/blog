@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
@@ -59,6 +59,7 @@ export function PhotoPeriodSection({
   onOpenPhoto,
 }: PhotoPeriodSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const requestVisible = useEffectEvent(onVisible);
   const expectedCount = albumId ? (period.albumCounts[albumId] ?? 0) : period.count;
   const photos = useMemo(
     () =>
@@ -72,22 +73,21 @@ export function PhotoPeriodSection({
       return undefined;
     }
     if (!("IntersectionObserver" in window)) {
-      onVisible();
+      requestVisible();
       return undefined;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          onVisible();
-          observer.disconnect();
+          requestVisible();
         }
       },
       { rootMargin: "1400px 0px" },
     );
     observer.observe(section);
     return () => observer.disconnect();
-  }, [error, monthCatalog, onVisible]);
+  }, [error, monthCatalog, period]);
 
   return (
     <section
@@ -135,6 +135,7 @@ function PhotoPeriodPlaceholder({ count }: { count: number }) {
 
   return (
     <div
+      role="status"
       aria-label="正在加载这个月份的照片"
       className="photo-period-placeholder grid grid-cols-3 gap-0.5 md:grid-cols-4 md:gap-1"
       style={style}

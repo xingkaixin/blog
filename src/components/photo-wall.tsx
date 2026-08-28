@@ -22,6 +22,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     monthErrors,
     reload: loadCatalog,
     loadMonth,
+    requestMonth,
     retryMonth,
     resolvePhoto,
   } = usePhotoCatalogSession(normalizedBaseUrl);
@@ -29,7 +30,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     index,
     months: monthCatalogs,
     monthErrors,
-    loadMonth,
+    requestMonth,
+    retryMonth,
     resolvePhoto,
   });
   const photoView = browsing.view;
@@ -37,25 +39,28 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     () => buildPhotoWallCatalogModel(index, photoView),
     [index, photoView],
   );
-  const model = useMemo(
-    () => buildPhotoWallModel(catalogModel, monthCatalogs),
-    [catalogModel, monthCatalogs],
+  const overviewItems = useMemo(
+    () =>
+      photoView.mode === "overview"
+        ? buildPhotoWallModel(catalogModel, monthCatalogs).overviewItems
+        : [],
+    [catalogModel, monthCatalogs, photoView.mode],
   );
 
   useEffect(() => {
     for (const period of catalogModel.visiblePeriods.slice(0, INITIAL_PERIOD_COUNT)) {
-      void loadMonth(period).catch(() => undefined);
+      requestMonth(period);
     }
-  }, [catalogModel.visiblePeriods, loadMonth]);
+  }, [catalogModel.visiblePeriods, requestMonth]);
 
   useEffect(() => {
     if (photoView.mode !== "overview") {
       return;
     }
     for (const period of catalogModel.overviewPeriods) {
-      void loadMonth(period).catch(() => undefined);
+      requestMonth(period);
     }
-  }, [catalogModel.overviewPeriods, loadMonth, photoView.mode]);
+  }, [catalogModel.overviewPeriods, requestMonth, photoView.mode]);
 
   const { activeMonth, wallRef, jumpToMonth } = useActivePhotoMonth(
     photoView.mode === "timeline",
@@ -74,7 +79,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
         <PhotoOverview
           baseUrl={normalizedBaseUrl}
           albumCount={catalogState.index.albums.length}
-          items={model.overviewItems}
+          items={overviewItems}
           failedPeriods={catalogModel.overviewPeriods.filter(
             (period) => period.month in monthErrors,
           )}
@@ -85,14 +90,14 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       {catalogState.status === "ready" && photoView.mode === "timeline" && (
         <PhotoTimeline
           baseUrl={normalizedBaseUrl}
-          model={model}
+          model={catalogModel}
           monthCatalogs={monthCatalogs}
           monthErrors={monthErrors}
           activeMonth={activeMonth}
           wallRef={wallRef}
           onReturn={browsing.returnToOverview}
           onSelectAlbum={browsing.selectAlbum}
-          onLoadMonth={(period) => void loadMonth(period).catch(() => undefined)}
+          onLoadMonth={requestMonth}
           onRetryMonth={retryMonth}
           onOpenPhoto={browsing.openPhoto}
           onJumpMonth={jumpToMonth}

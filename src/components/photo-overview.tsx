@@ -60,6 +60,7 @@ export function PhotoWallLoading() {
     <div className="mx-auto max-w-320 px-3 pt-8 sm:px-5 lg:px-8 lg:pt-[30px]">
       <PhotoArchiveHeader />
       <div
+        role="status"
         aria-label="正在加载相册"
         className="mt-[26px] grid gap-[26px] sm:grid-cols-2 lg:grid-cols-3"
       >

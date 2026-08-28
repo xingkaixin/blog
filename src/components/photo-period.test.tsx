@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { act } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { PhotoMonthCatalog } from "@/lib/photo-catalog";
@@ -21,6 +23,66 @@ const monthCatalog: PhotoMonthCatalog = {
 };
 
 describe("photo period", () => {
+  it("keeps its observer across unrelated renders and renews it for a catalog reset", async () => {
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+    const instances: {
+      callback: IntersectionObserverCallback;
+      disconnect: ReturnType<typeof vi.fn>;
+    }[] = [];
+    class Observer {
+      disconnect = vi.fn();
+      observe = vi.fn();
+      constructor(callback: IntersectionObserverCallback) {
+        instances.push({ callback, disconnect: this.disconnect });
+      }
+    }
+    vi.stubGlobal("IntersectionObserver", Observer);
+    const period = {
+      month: monthCatalog.month,
+      count: 3,
+      albumCounts: {},
+      path: "catalog/months/2026-08.aaaaaaaaaaaaaaaaaaaaaaaa.json",
+    };
+    const props = {
+      baseUrl: "/photos",
+      period,
+      albumId: null,
+      eager: false,
+      containerWidth: 800,
+      onRetry: vi.fn(),
+      onOpenPhoto: vi.fn(),
+    };
+    const onVisible = vi.fn();
+    try {
+      await act(async () => root.render(<PhotoPeriodSection {...props} onVisible={vi.fn()} />));
+      await act(async () =>
+        root.render(<PhotoPeriodSection {...props} containerWidth={900} onVisible={onVisible} />),
+      );
+      expect(instances).toHaveLength(1);
+      expect(container.querySelector('[role="status"]')?.getAttribute("aria-label")).toContain(
+        "正在加载",
+      );
+      await act(async () =>
+        instances[0].callback(
+          [{ isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        ),
+      );
+      expect(onVisible).toHaveBeenCalledOnce();
+      expect(instances[0].disconnect).not.toHaveBeenCalled();
+      await act(async () =>
+        root.render(<PhotoPeriodSection {...props} period={{ ...period }} onVisible={onVisible} />),
+      );
+      expect(instances).toHaveLength(2);
+    } finally {
+      await act(async () => root.unmount());
+      container.remove();
+      vi.unstubAllGlobals();
+    }
+  });
   it.each([800, 1040])("matches image sizes to tiles in a %ipx container", (containerWidth) => {
     const container = document.createElement("div");
     container.innerHTML = renderToStaticMarkup(

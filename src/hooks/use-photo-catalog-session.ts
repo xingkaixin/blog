@@ -29,10 +29,12 @@ export function usePhotoCatalogSession(baseUrl: string) {
   const [months, setMonths] = useState<MonthCatalogs>({});
   const [monthErrors, setMonthErrors] = useState<MonthErrors>({});
   const monthsRef = useRef<MonthCatalogs>({});
+  const pendingRef = useRef(new Map<string, Promise<PhotoMonthCatalog>>());
   const requestControllerRef = useRef<AbortController | null>(null);
 
   const reset = useCallback(() => {
     requestControllerRef.current?.abort();
+    pendingRef.current.clear();
     const controller = new AbortController();
     const emptyMonths: MonthCatalogs = {};
     requestControllerRef.current = controller;
@@ -67,62 +69,81 @@ export function usePhotoCatalogSession(baseUrl: string) {
 
   const index = state.status === "ready" ? state.index : null;
   const loadMonth = useCallback(
-    async (period: PhotoPeriod): Promise<PhotoMonthCatalog> => {
+    (period: PhotoPeriod): Promise<PhotoMonthCatalog> => {
       const loaded = monthsRef.current[period.month];
       if (loaded) {
-        return loaded;
+        return Promise.resolve(loaded);
       }
-      const controller = requestControllerRef.current;
-      try {
-        if (!index || !controller) {
-          throw new Error("照片主 Catalog 尚未加载");
-        }
-        const month = await browser.loadMonth(index, period, controller.signal);
-        if (controller.signal.aborted) {
+      const pending = pendingRef.current.get(period.path);
+      if (pending) {
+        return pending;
+      }
+      const request = (async () => {
+        const controller = requestControllerRef.current;
+        try {
+          if (!index || !controller) {
+            throw new Error("照片主 Catalog 尚未加载");
+          }
+          const month = await browser.loadMonth(index, period, controller.signal);
+          if (controller.signal.aborted) {
+            return month;
+          }
+          const nextMonths = { ...monthsRef.current, [period.month]: month };
+          monthsRef.current = nextMonths;
+          setMonths(nextMonths);
+          setMonthErrors((current) => {
+            if (!(period.month in current)) {
+              return current;
+            }
+            const next = { ...current };
+            delete next[period.month];
+            return next;
+          });
           return month;
-        }
-        const nextMonths = { ...monthsRef.current, [period.month]: month };
-        monthsRef.current = nextMonths;
-        setMonths(nextMonths);
-        setMonthErrors((current) => {
-          if (!(period.month in current)) {
-            return current;
-          }
-          const next = { ...current };
-          delete next[period.month];
-          return next;
-        });
-        return month;
-      } catch (error) {
-        if (
-          error instanceof PhotoCatalogNotFoundError &&
-          controller &&
-          !controller.signal.aborted
-        ) {
-          try {
-            const latest = await browser.loadIndex(controller.signal);
-            const replacement = latest.periods.find((item) => item.month === period.month);
-            if (!controller.signal.aborted && replacement?.path !== period.path) {
-              reset();
-              setState({ status: "ready", index: latest });
-            }
-          } catch (refreshError) {
-            if (!controller.signal.aborted) {
-              console.error("刷新照片 Catalog 失败", refreshError);
+        } catch (error) {
+          if (
+            error instanceof PhotoCatalogNotFoundError &&
+            controller &&
+            !controller.signal.aborted
+          ) {
+            try {
+              const latest = await browser.loadIndex(controller.signal);
+              const replacement = latest.periods.find((item) => item.month === period.month);
+              if (!controller.signal.aborted && replacement?.path !== period.path) {
+                reset();
+                setState({ status: "ready", index: latest });
+              }
+            } catch (refreshError) {
+              if (!controller.signal.aborted) {
+                console.error("刷新照片 Catalog 失败", refreshError);
+              }
             }
           }
+          if (controller && !controller.signal.aborted) {
+            console.error(`加载照片月份 ${period.month} 失败`, error);
+            setMonthErrors((current) => ({
+              ...current,
+              [period.month]: readableError(error),
+            }));
+          }
+          throw error;
         }
-        if (controller && !controller.signal.aborted) {
-          console.error(`加载照片月份 ${period.month} 失败`, error);
-          setMonthErrors((current) => ({
-            ...current,
-            [period.month]: readableError(error),
-          }));
+      })().finally(() => {
+        if (pendingRef.current.get(period.path) === request) {
+          pendingRef.current.delete(period.path);
         }
-        throw error;
-      }
+      });
+      pendingRef.current.set(period.path, request);
+      return request;
     },
     [browser, index, reset],
+  );
+
+  const requestMonth = useCallback(
+    (period: PhotoPeriod) => {
+      void loadMonth(period).catch(() => undefined);
+    },
+    [loadMonth],
   );
 
   const retryMonth = useCallback(
@@ -132,9 +153,9 @@ export function usePhotoCatalogSession(baseUrl: string) {
         delete next[period.month];
         return next;
       });
-      void loadMonth(period).catch(() => undefined);
+      requestMonth(period);
     },
-    [loadMonth],
+    [requestMonth],
   );
 
   const resolvePhoto = useCallback(
@@ -142,7 +163,7 @@ export function usePhotoCatalogSession(baseUrl: string) {
       if (!index) {
         return Promise.reject(new Error("照片主 Catalog 尚未加载"));
       }
-      return resolveCatalogPhoto(index, photoId, monthsRef.current, loadMonth);
+      return resolveCatalogPhoto(index, photoId, loadMonth);
     },
     [index, loadMonth],
   );
@@ -154,6 +175,7 @@ export function usePhotoCatalogSession(baseUrl: string) {
     monthErrors,
     reload,
     loadMonth,
+    requestMonth,
     retryMonth,
     resolvePhoto,
   };

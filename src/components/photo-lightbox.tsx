@@ -173,7 +173,7 @@ export function PhotoLightbox({
               type="button"
               aria-label="上一张照片"
               onClick={() => onSelect(previous)}
-              className="absolute left-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:inline-flex"
+              className="absolute left-3 top-1/2 sr-only focus:not-sr-only h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:not-sr-only sm:inline-flex"
             >
               <ChevronLeftIcon aria-hidden="true" className="h-5 w-5" />
             </button>
@@ -183,7 +183,7 @@ export function PhotoLightbox({
               type="button"
               aria-label="下一张照片"
               onClick={() => onSelect(next)}
-              className="absolute right-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:inline-flex"
+              className="absolute right-3 top-1/2 sr-only focus:not-sr-only h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:not-sr-only sm:inline-flex"
             >
               <ChevronRightIcon aria-hidden="true" className="h-5 w-5" />
             </button>

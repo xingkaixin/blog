@@ -63,6 +63,14 @@ afterEach(async () => {
 });
 
 describe("usePhotoSelection", () => {
+  it("does not resolve a photo already selected before the URL update", async () => {
+    const resolvePhoto = vi.fn().mockResolvedValue(firstPhoto);
+    const options = { catalogReady: true, photoId: null, resolvePhoto, onMissing: vi.fn() };
+    await renderSelection(options);
+    await act(async () => selection.select(firstPhoto));
+    await renderSelection({ ...options, photoId: firstPhoto.id });
+    expect(resolvePhoto).not.toHaveBeenCalled();
+  });
   it("ignores an older resolution after the URL selects another photo", async () => {
     const first = deferred<PhotoRecord | null>();
     const second = deferred<PhotoRecord | null>();
