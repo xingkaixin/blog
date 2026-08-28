@@ -48,9 +48,13 @@ export class PhotoCatalogEditor {
 
   static async load(
     store: PhotoObjectStore,
-    attemptedArtifacts = new Set<string>(),
+    options: { attemptedArtifacts?: Set<string>; migrateLegacy?: boolean } = {},
   ): Promise<PhotoCatalogEditor> {
-    return new PhotoCatalogEditor(store, await loadPhotoCatalog(store), attemptedArtifacts);
+    return new PhotoCatalogEditor(
+      store,
+      await loadPhotoCatalog(store, options.migrateLegacy),
+      options.attemptedArtifacts ?? new Set(),
+    );
   }
 
   get generatedAt(): string | null {
@@ -100,13 +104,7 @@ export class PhotoCatalogEditor {
     return this.state.retirePhotos(photoIds);
   }
 
-  async commit(
-    generatedAt: Date,
-    artifacts: Set<string> = new Set(),
-  ): Promise<PhotoCatalogCommitResult> {
-    for (const key of artifacts) {
-      this.attemptedArtifacts.add(key);
-    }
+  async commit(generatedAt: Date): Promise<PhotoCatalogCommitResult> {
     const attemptedArtifacts = this.attemptedArtifacts;
     await loadPhotoCatalogMonths(
       this.store,
@@ -142,10 +140,9 @@ export class PhotoCatalogEditor {
     now: () => Date,
     claimDurationMs: number,
   ): Promise<RetiredArtifactBatch[]> {
-    if (this.state.pendingRetiredArtifacts === 0) {
+    if (!this.state.publicIndexCurrent || this.state.pendingRetiredArtifacts === 0) {
       return [];
     }
-    await this.repairPublicIndex();
     const claimedAt = now();
     const scheduled = this.state.scheduleRetirements(claimedAt);
     const expiresAt = new Date(claimedAt.getTime() + claimDurationMs).toISOString();
@@ -172,6 +169,7 @@ export class PhotoCatalogEditor {
 export async function editPhotoCatalog<T>(
   store: PhotoObjectStore,
   operation: (catalog: PhotoCatalogEditor) => Promise<T>,
+  prepare?: (store: PhotoObjectStore) => Promise<void>,
 ): Promise<T> {
   const attemptedArtifacts = new Set<string>();
   const trackedStore: PhotoObjectStore = {
@@ -184,8 +182,9 @@ export async function editPhotoCatalog<T>(
       return store.put(key, body, options);
     },
   };
-  const load = () => PhotoCatalogEditor.load(trackedStore, attemptedArtifacts);
+  const load = () => PhotoCatalogEditor.load(trackedStore, { attemptedArtifacts });
   try {
+    await prepare?.(trackedStore);
     return await retryPhotoCatalogMutation(async () => operation(await load()));
   } catch (error) {
     if (attemptedArtifacts.size > 0) {
@@ -204,7 +203,10 @@ export async function editPhotoCatalog<T>(
   }
 }
 
-async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogState> {
+async function loadPhotoCatalog(
+  store: PhotoObjectStore,
+  migrateLegacy = false,
+): Promise<PhotoCatalogState> {
   // 先读取投影版本，避免用旧控制记录覆盖并发发布的新投影。
   const indexObject = await store.getText(PHOTO_CATALOG_INDEX_KEY);
   const controlObject = await store.getText(PHOTO_CATALOG_CONTROL_KEY);
@@ -215,7 +217,12 @@ async function loadPhotoCatalog(store: PhotoObjectStore): Promise<PhotoCatalogSt
   if (indexObject) {
     try {
       const rawIndex = parseJson(indexObject.text, PHOTO_CATALOG_INDEX_KEY);
-      control ??= parseLegacyPhotoCatalogControl(rawIndex);
+      if (!control) {
+        if (!migrateLegacy) {
+          throw new Error("缺少后台控制状态");
+        }
+        control = parseLegacyPhotoCatalogControl(rawIndex);
+      }
       parsedPublicIndex = parsePhotoCatalogIndexWithVersion(rawIndex);
     } catch (error) {
       if (!controlObject) {
@@ -345,7 +352,10 @@ async function writePhotoCatalogIndex(
 }
 
 export async function migratePhotoCatalog(store: PhotoObjectStore): Promise<boolean> {
-  return editPhotoCatalog(store, (catalog) => catalog.repairPublicIndex());
+  return retryPhotoCatalogMutation(async () => {
+    const catalog = await PhotoCatalogEditor.load(store, { migrateLegacy: true });
+    return catalog.repairPublicIndex();
+  });
 }
 
 async function writePublicIndex(

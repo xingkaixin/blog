@@ -129,6 +129,47 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
+  it("rejects source changes between identification and processing", async () => {
+    const file = await createSourceFile("identified source");
+    const store = new MemoryPhotoStore();
+    const get = store.getText.bind(store);
+    store.getText = async (key) => {
+      await fs.writeFile(file, "changed source");
+      return get(key);
+    };
+    const processPhoto = vi.fn();
+    await expect(publishPhotos({ files: [file], store, processPhoto })).rejects.toThrow(
+      "源文件在识别后发生变化",
+    );
+    expect(processPhoto).not.toHaveBeenCalled();
+    expect(store.writes).toEqual([]);
+  });
+
+  it("disposes each source snapshot before catalog commit", async () => {
+    const files = await Promise.all([
+      createSourceFile("snapshot-a"),
+      createSourceFile("snapshot-b"),
+      createSourceFile("snapshot-c"),
+    ]);
+    const store = new MemoryPhotoStore();
+    const sources: string[] = [];
+    const put = store.put.bind(store);
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_CONTROL_KEY) {
+        await Promise.all(sources.map((source) => expect(fs.access(source)).rejects.toThrow()));
+      }
+      return put(key, body, options);
+    };
+    await publishPhotos({
+      files,
+      store,
+      processPhoto: async (source, id) => {
+        sources.push(source);
+        return processedPhoto(id);
+      },
+    });
+    expect(sources).toHaveLength(3);
+  });
   it("can republish a deleted photo before its old media is collected", async () => {
     const file = await createSourceFile("republish immediately");
     const id = await hashPhotoFile(file);
@@ -210,8 +251,8 @@ describe("photo publisher", () => {
     expect(visibleAtNotification).toEqual([true]);
     expect(result).toMatchObject({ published: 1, reused: 0 });
     const mediaWrites = store.writes.filter((key) => key.startsWith("media/"));
-    expect(mediaWrites).toHaveLength(9);
-    expect(new Set(mediaWrites).size).toBe(9);
+    expect(mediaWrites).toHaveLength(3);
+    expect(new Set(mediaWrites).size).toBe(3);
     await expect(fs.access(path.dirname(processPhoto.mock.calls[0][0]))).rejects.toThrow();
   });
 
@@ -432,61 +473,56 @@ describe("photo publisher", () => {
     expect(index.photoMonths[id]).toBeUndefined();
   });
 
-  it.each(["collection", "retirement"])(
-    "preserves publicly referenced objects until %s repairs the index and its cache expires",
-    async (recovery) => {
-      const file = await createSourceFile("retirement while the public index is unavailable");
-      const id = await hashPhotoFile(file);
-      const store = new MemoryPhotoStore();
-      let now = new Date("2026-08-01T12:00:00.000Z");
-      await publishPhotos({
-        files: [file],
-        store,
-        processPhoto: async () => processedPhoto(id),
-        now: () => now,
-      });
-      const keys = await publishedObjectKeys(store);
-      const originalPut = store.put.bind(store);
-      let unavailable = true;
-      store.put = async (key, body, options) => {
-        if (key === PHOTO_CATALOG_INDEX_KEY && unavailable) {
-          throw new Error("public index unavailable");
-        }
-        return originalPut(key, body, options);
-      };
-
-      await expect(retirePhotos({ photoIds: [id], store, now: () => now })).rejects.toThrow(
-        "public index unavailable",
-      );
-      now = new Date("2026-08-02T14:00:00.000Z");
-      await expect(collectPhotoGarbage({ store, now: () => now })).rejects.toThrow(
-        "public index unavailable",
-      );
-      expect(keys.filter((key) => !store.objects.has(key))).toEqual([]);
-
-      unavailable = false;
-      if (recovery === "collection") {
-        await collectPhotoGarbage({ store, now: () => now });
-      } else {
-        await migratePhotoCatalog(store);
-        await collectPhotoGarbage({ store, now: () => now });
+  it("preserves publicly referenced objects until explicit repair and cache expiry", async () => {
+    const file = await createSourceFile("retirement while the public index is unavailable");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    let now = new Date("2026-08-01T12:00:00.000Z");
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => processedPhoto(id),
+      now: () => now,
+    });
+    const keys = await publishedObjectKeys(store);
+    const originalPut = store.put.bind(store);
+    let unavailable = true;
+    store.put = async (key, body, options) => {
+      if (key === PHOTO_CATALOG_INDEX_KEY && unavailable) {
+        throw new Error("public index unavailable");
       }
-      const index = parsePhotoCatalogIndex(
-        JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-      );
-      expect(index.photoMonths[id]).toBeUndefined();
-      expect(store.deletes).toEqual([]);
-      now = new Date("2026-08-03T14:59:59.000Z");
-      expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
-        removedObjects: 0,
-      });
-      now = new Date("2026-08-03T15:00:00.000Z");
-      expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
-        removedObjects: keys.length,
-        pendingArtifacts: 0,
-      });
-    },
-  );
+      return originalPut(key, body, options);
+    };
+
+    await expect(retirePhotos({ photoIds: [id], store, now: () => now })).rejects.toThrow(
+      "public index unavailable",
+    );
+    now = new Date("2026-08-02T14:00:00.000Z");
+    const writes = store.writes.length;
+    await expect(collectPhotoGarbage({ store, now: () => now })).resolves.toMatchObject({
+      removedObjects: 0,
+    });
+    expect(store.writes).toHaveLength(writes);
+    expect(keys.filter((key) => !store.objects.has(key))).toEqual([]);
+
+    unavailable = false;
+    await migratePhotoCatalog(store);
+    await collectPhotoGarbage({ store, now: () => now });
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    expect(index.photoMonths[id]).toBeUndefined();
+    expect(store.deletes).toEqual([]);
+    now = new Date("2026-08-03T14:59:59.000Z");
+    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+      removedObjects: 0,
+    });
+    now = new Date("2026-08-03T15:00:00.000Z");
+    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
+      removedObjects: keys.length,
+      pendingArtifacts: 0,
+    });
+  });
 
   it("starts the retirement grace period after a delayed public write completes", async () => {
     const file = await createSourceFile("retirement with a delayed public write");
@@ -602,7 +638,7 @@ describe("photo publisher", () => {
     const warnings: string[] = [];
     let failed = false;
     store.getText = async (key) => {
-      if (!failed) {
+      if (!failed && store.objects.has(PHOTO_CATALOG_INDEX_KEY)) {
         failed = true;
         throw new Error("garbage catalog unavailable");
       }
@@ -674,7 +710,7 @@ describe("photo publisher", () => {
     await slowStarted.promise;
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(settled).toBe(false);
-    await Promise.all(processedSources.map((source) => fs.access(source)));
+    await fs.access(processedSources[1]);
 
     releaseSlow.resolve(undefined);
     await expect(operation).rejects.toThrow("processing failed");
@@ -741,7 +777,7 @@ describe("photo publisher", () => {
     expect(month.photos[0]?.albumIds).toEqual(["favorites", "japan-2026"]);
   });
 
-  it("migrates the combined catalog into control and public documents", async () => {
+  it("requires explicit migration of a combined catalog before publication", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
     const store = new MemoryPhotoStore();
@@ -766,6 +802,11 @@ describe("photo publisher", () => {
     store.versions.delete(PHOTO_CATALOG_CONTROL_KEY);
     store.writes.length = 0;
 
+    await expect(
+      publishPhotos({ files: [file], store, processPhoto: async () => processedPhoto(id) }),
+    ).rejects.toThrow("photos:migrate");
+    expect(store.writes).toEqual([]);
+    await expect(migratePhotoCatalog(store)).resolves.toBe(true);
     const result = await publishPhotos({
       files: [file],
       store,
@@ -774,7 +815,7 @@ describe("photo publisher", () => {
       },
     });
 
-    expect(result.catalogChanged).toBe(true);
+    expect(result.catalogChanged).toBe(false);
     expect(store.writes).toEqual([PHOTO_CATALOG_CONTROL_KEY, PHOTO_CATALOG_INDEX_KEY]);
     const migrated = JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text);
     expect(migrated).toMatchObject({ schemaVersion: 3, photoMonths: { [id]: "2026-04" } });

@@ -1,5 +1,4 @@
 import { randomBytes } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 import { photoMediaObjectKey } from "../../src/lib/photo-artifact";
 import {
@@ -7,13 +6,12 @@ import {
   isPhotoAlbumId,
   parsePhotoRecord,
   type PhotoRecord,
-  type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
-import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
+import { editPhotoCatalog, PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { ProcessedPhoto } from "./photo-source";
-import { snapshotPhotoFile, type PhotoSourceSnapshot } from "./photo-source";
+import { hashPhotoFile, snapshotPhotoFile } from "./photo-source";
 import type { PhotoObjectStore } from "./photo-store";
 
 const ASSET_CACHE_CONTROL = "public, max-age=31536000, immutable";
@@ -47,142 +45,96 @@ export type PublishPhotosResult = {
   catalogChanged: boolean;
 };
 
-type IdentifiedFile = PhotoSourceSnapshot;
-type PreparedPhoto = Omit<ProcessedPhoto, "variants"> & {
-  variants: Map<PhotoVariantWidth, string>;
-};
+type IdentifiedFile = { file: string; id: string };
 
 export async function publishPhotos(options: PublishPhotosOptions): Promise<PublishPhotosResult> {
   validateAlbum(options.album);
-  const identifiedFiles = await identifyFiles(options.files);
-  const attemptedArtifacts = new Set<string>();
-  const preparedPhotos = new Map<string, PreparedPhoto>();
-  try {
-    await collectPhotoGarbageBestEffort(options, options.onWarning);
-    const { completed, ...result } = await editPhotoCatalog(options.store, (catalog) =>
-      publishPhotosOnce(options, catalog, identifiedFiles, attemptedArtifacts, preparedPhotos),
-    ).catch(async (error: unknown) => {
-      try {
-        await recordFailedPublishArtifacts(
-          options.store,
-          attemptedArtifacts,
-          options.now?.() ?? new Date(),
-        );
-      } catch (retirementError) {
-        const failure = new AggregateError(
-          [error, retirementError],
-          "照片发布失败，且无法记录已写入的待回收产物",
-        );
-        throw failure;
-      }
-      throw error;
-    });
-    for (const progress of completed) {
-      options.onProgress?.(progress);
-    }
-    return result;
-  } finally {
-    await Promise.all(identifiedFiles.map((file) => file.dispose()));
-    await collectPhotoGarbageBestEffort(options, options.onWarning);
-  }
-}
-
-async function publishPhotosOnce(
-  options: PublishPhotosOptions,
-  catalog: PhotoCatalogEditor,
-  identifiedFiles: IdentifiedFile[],
-  attemptedArtifacts: Set<string>,
-  preparedPhotos: Map<string, PreparedPhoto>,
-): Promise<PublishPhotosResult & { completed: PublishProgress[] }> {
+  const identifiedFiles = await mapWithConcurrency(
+    options.files,
+    READ_CONCURRENCY,
+    async (file) => ({ file, id: await hashPhotoFile(file) }),
+  );
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
-  const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
-  applyAlbum(catalog, options.album);
-  const pending: IdentifiedFile[] = [];
-  const completed: PublishProgress[] = [];
-  let reused = identifiedFiles.length - uniqueFiles.length;
-
-  for (const identified of uniqueFiles) {
-    const status = photoStatuses.get(identified.id);
-    if (!status) {
-      pending.push(identified);
-      continue;
-    }
-
-    reused += 1;
-    completed.push({ type: "reused", file: identified.file });
-    if (options.album) {
-      await catalog.addPhotoToAlbum(identified.id, options.album.id);
-    }
-  }
-
-  const processed = await mapWithConcurrency(
-    pending,
-    PROCESS_CONCURRENCY,
-    async (identified, index) => {
-      let photo = preparedPhotos.get(identified.id);
-      if (!photo) {
+  const preparedPhotos = new Map<string, PhotoRecord>();
+  const { completed, ...result } = await editPhotoCatalog(
+    options.store,
+    (catalog) => publishPhotosOnce(options, catalog, identifiedFiles, preparedPhotos),
+    async (store) => {
+      const catalog = await PhotoCatalogEditor.load(store);
+      applyAlbum(catalog, options.album);
+      const published = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
+      const pending = uniqueFiles.filter((file) => !published.get(file.id));
+      await mapWithConcurrency(pending, PROCESS_CONCURRENCY, async (identified, index) => {
         options.onProgress?.({
           type: "processing",
           file: identified.file,
           index: index + 1,
           total: pending.length,
         });
-        photo = await preparePhoto(identified, options.processPhoto);
-        preparedPhotos.set(identified.id, photo);
-      }
-      const record = createPhotoRecord(photo, options.album?.id);
-      await uploadPhotoAssets(options.store, record, photo.variants, attemptedArtifacts);
-      completed.push({
-        type: "published",
-        file: identified.file,
-        photoId: photo.id,
+        const snapshot = await snapshotPhotoFile(identified.file);
+        try {
+          if (snapshot.id !== identified.id) {
+            throw new Error(`照片源文件在识别后发生变化，请重新发布: ${identified.file}`);
+          }
+          const photo = await options.processPhoto(snapshot.source, identified.id);
+          if (photo.id !== identified.id) {
+            throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
+          }
+          const record = createPhotoRecord(photo, options.album?.id);
+          await uploadPhotoAssets(store, record, photo.variants);
+          preparedPhotos.set(record.id, record);
+        } finally {
+          await snapshot.dispose();
+        }
       });
-      return record;
     },
   );
+  await collectPhotoGarbageBestEffort(options, options.onWarning);
+  for (const progress of completed) {
+    options.onProgress?.(progress);
+  }
+  return result;
+}
 
-  await catalog.addPhotos(processed);
-  const { catalogChanged, updatedPeriods } = await catalog.commit(
-    options.now?.() ?? new Date(),
-    attemptedArtifacts,
-  );
-
+async function publishPhotosOnce(
+  options: PublishPhotosOptions,
+  catalog: PhotoCatalogEditor,
+  identifiedFiles: IdentifiedFile[],
+  preparedPhotos: Map<string, PhotoRecord>,
+): Promise<PublishPhotosResult & { completed: PublishProgress[] }> {
+  const uniqueFiles = uniqueFilesByContent(identifiedFiles);
+  const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
+  applyAlbum(catalog, options.album);
+  const pending: PhotoRecord[] = [];
+  const completed: PublishProgress[] = [];
+  for (const identified of uniqueFiles) {
+    if (photoStatuses.get(identified.id)) {
+      completed.push({ type: "reused", file: identified.file });
+      if (options.album) {
+        await catalog.addPhotoToAlbum(identified.id, options.album.id);
+      }
+    } else {
+      const photo = preparedPhotos.get(identified.id);
+      if (!photo) {
+        throw new Error(`照片 ${identified.id} 在准备期间被移除，请重新发布`);
+      }
+      pending.push(photo);
+      completed.push({ type: "published", file: identified.file, photoId: photo.id });
+    }
+  }
+  await catalog.addPhotos(pending);
+  const { catalogChanged, updatedPeriods } = await catalog.commit(options.now?.() ?? new Date());
   return {
     completed,
     discovered: identifiedFiles.length,
-    published: processed.length,
-    reused,
+    published: pending.length,
+    reused: identifiedFiles.length - pending.length,
     updatedPeriods,
     catalogChanged,
   };
 }
 
-async function preparePhoto(
-  identified: IdentifiedFile,
-  processPhoto: PublishPhotosOptions["processPhoto"],
-): Promise<PreparedPhoto> {
-  const { variants, ...photo } = await processPhoto(identified.source, identified.id);
-  if (photo.id !== identified.id) {
-    throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
-  }
-  // 复用源快照的临时目录，让重试缓存随发布结束清理，避免整批图片常驻内存。
-  const files = await mapWithConcurrency(
-    PHOTO_VARIANT_WIDTHS,
-    PROCESS_CONCURRENCY,
-    async (width): Promise<[PhotoVariantWidth, string]> => {
-      const body = variants.get(width);
-      if (!body) {
-        throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
-      }
-      const file = path.join(path.dirname(identified.source), `${width}.webp`);
-      await fs.writeFile(file, body);
-      return [width, file];
-    },
-  );
-  return { ...photo, variants: new Map(files) };
-}
-
-function createPhotoRecord(photo: PreparedPhoto, albumId: string | undefined): PhotoRecord {
+function createPhotoRecord(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
   return parsePhotoRecord({
     id: photo.id,
     mediaRevision: randomBytes(12).toString("hex"),
@@ -225,20 +177,6 @@ function applyAlbum(catalog: PhotoCatalogEditor, album: PublishAlbum | undefined
   return false;
 }
 
-async function identifyFiles(files: string[]): Promise<IdentifiedFile[]> {
-  const snapshots: IdentifiedFile[] = [];
-  try {
-    return await mapWithConcurrency(files, READ_CONCURRENCY, async (file) => {
-      const snapshot = await snapshotPhotoFile(file);
-      snapshots.push(snapshot);
-      return snapshot;
-    });
-  } catch (error) {
-    await Promise.all(snapshots.map((snapshot) => snapshot.dispose()));
-    throw error;
-  }
-}
-
 function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
   const seen = new Set<string>();
   return files.filter((file) => {
@@ -253,35 +191,18 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 async function uploadPhotoAssets(
   store: PhotoObjectStore,
   photo: PhotoRecord,
-  variants: PreparedPhoto["variants"],
-  attemptedArtifacts: Set<string>,
+  variants: ProcessedPhoto["variants"],
 ): Promise<void> {
   await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
-    const file = variants.get(width);
-    if (!file) {
+    const body = variants.get(width);
+    if (!body) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
-    const key = photoMediaObjectKey(photo.id, width, photo.mediaRevision);
-    const body = await fs.readFile(file);
-    attemptedArtifacts.add(key);
-    await store.put(key, body, {
+    await store.put(photoMediaObjectKey(photo.id, width, photo.mediaRevision), body, {
       contentType: "image/webp",
       cacheControl: ASSET_CACHE_CONTROL,
       expectedVersion: null,
     });
-  });
-}
-
-async function recordFailedPublishArtifacts(
-  store: PhotoObjectStore,
-  attemptedArtifacts: Set<string>,
-  failedAt: Date,
-): Promise<void> {
-  if (attemptedArtifacts.size === 0) {
-    return;
-  }
-  await editPhotoCatalog(store, async (catalog) => {
-    await catalog.commit(failedAt, attemptedArtifacts);
   });
 }
 

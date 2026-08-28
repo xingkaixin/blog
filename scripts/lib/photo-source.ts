@@ -67,8 +67,14 @@ export function isSupportedPhoto(file: string): boolean {
 }
 
 export async function hashPhotoFile(file: string): Promise<string> {
+  await assertSourceSize(file);
   const hash = createHash("sha256");
+  let bytes = 0;
   for await (const chunk of createReadStream(file)) {
+    bytes += chunk.length;
+    if (bytes > MAX_SOURCE_BYTES) {
+      throw new Error(`照片文件不能超过 ${MAX_SOURCE_BYTES} 字节: ${file}`);
+    }
     hash.update(chunk);
   }
   return hash.digest("hex").slice(0, 32);
