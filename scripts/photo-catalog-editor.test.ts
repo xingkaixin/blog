@@ -142,8 +142,8 @@ describe("photo catalog editor", () => {
 
     await expect(catalog.inspectPhotos([photoId, absentPhotoId])).resolves.toEqual(
       new Map([
-        [photoId, "published"],
-        [absentPhotoId, "absent"],
+        [photoId, true],
+        [absentPhotoId, false],
       ]),
     );
   });

@@ -11,6 +11,7 @@ import {
   type PhotoVariantWidth,
 } from "../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
+import { migratePhotoCatalog } from "./lib/photo-catalog-store";
 import { collectPhotoGarbage } from "./lib/photo-garbage-collector";
 import { publishPhotos } from "./lib/photo-publisher";
 import { retirePhotos } from "./lib/photo-retirement";
@@ -128,6 +129,21 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
+  it("can republish a deleted photo before its old media is collected", async () => {
+    const file = await createSourceFile("republish immediately");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const options = { files: [file], store, processPhoto: async () => processedPhoto(id) };
+    await publishPhotos(options);
+    const oldKeys = await publishedObjectKeys(store);
+    await retirePhotos({ photoIds: [id], store });
+    await publishPhotos(options);
+    const newKeys = await publishedObjectKeys(store);
+    expect(newKeys.some((key) => oldKeys.includes(key))).toBe(false);
+    await collectPhotoGarbage({ store, now: () => new Date(Date.now() + 26 * 60 * 60 * 1000) });
+    expect(oldKeys.some((key) => store.objects.has(key))).toBe(false);
+    expect(newKeys.every((key) => store.objects.has(key))).toBe(true);
+  });
   it.each([1, 5])("tracks deletion shards across %i control conflicts", async (conflicts) => {
     const files = await Promise.all([createSourceFile("delete-a"), createSourceFile("delete-b")]);
     const ids = await Promise.all(files.map(hashPhotoFile));
@@ -152,7 +168,6 @@ describe("photo publisher", () => {
     const accounted = new Set([
       ...(await publishedObjectKeys(store)),
       ...control.retiredArtifacts.flatMap((entry) => entry.objectKeys),
-      ...control.retiredObjects.flatMap((entry) => entry.objectKeys),
     ]);
     const orphaned = [...store.objects.keys()].filter(
       (key) => isPhotoArtifactKey(key) && !accounted.has(key),
@@ -379,7 +394,7 @@ describe("photo publisher", () => {
 
     const result = await retirePhotos({ photoIds: [id], store });
 
-    expect(result).toMatchObject({ retired: 1, alreadyRetired: 0, updatedPeriods: 1 });
+    expect(result).toMatchObject({ retired: 1, updatedPeriods: 1 });
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
     );
@@ -408,10 +423,8 @@ describe("photo publisher", () => {
     await expect(retirePhotos({ photoIds: [id], store })).rejects.toThrow(
       "public index unavailable",
     );
-    await expect(retirePhotos({ photoIds: [id], store })).resolves.toMatchObject({
-      retired: 0,
-      alreadyRetired: 1,
-    });
+    await expect(retirePhotos({ photoIds: [id], store })).rejects.toThrow("不存在照片");
+    await migratePhotoCatalog(store);
 
     const index = parsePhotoCatalogIndex(
       JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
@@ -455,7 +468,8 @@ describe("photo publisher", () => {
       if (recovery === "collection") {
         await collectPhotoGarbage({ store, now: () => now });
       } else {
-        await retirePhotos({ photoIds: [id], store, now: () => now });
+        await migratePhotoCatalog(store);
+        await collectPhotoGarbage({ store, now: () => now });
       }
       const index = parsePhotoCatalogIndex(
         JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
@@ -469,7 +483,6 @@ describe("photo publisher", () => {
       now = new Date("2026-08-03T15:00:00.000Z");
       expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
         removedObjects: keys.length,
-        pendingPhotos: 0,
         pendingArtifacts: 0,
       });
     },
@@ -520,7 +533,7 @@ describe("photo publisher", () => {
     store.put = async (key, body, options) => {
       if (key === PHOTO_CATALOG_CONTROL_KEY && failConfirmation) {
         const control = parsePhotoCatalogControl(JSON.parse(String(body)));
-        if (control.retiredObjects.some((entry) => entry.deleteAfter !== null)) {
+        if (control.retiredArtifacts.some((entry) => entry.deleteAfter !== null)) {
           failConfirmation = false;
           throw new Error("confirmation unavailable");
         }
@@ -745,7 +758,7 @@ describe("photo publisher", () => {
       JSON.stringify({
         ...JSON.parse(indexObject!.text),
         schemaVersion: 2,
-        retiredObjects: control.retiredObjects,
+        retiredObjects: [],
         retiredArtifacts: control.retiredArtifacts,
       }),
     );
@@ -841,8 +854,6 @@ describe("photo publisher", () => {
 
     expect(result).toEqual({
       retired: 1,
-      alreadyRetired: 0,
-      retiredObjects: 4,
       updatedPeriods: 1,
     });
     const updatedIndex = parsePhotoCatalogIndex(
@@ -852,7 +863,7 @@ describe("photo publisher", () => {
     const publicIndexVersion = store.versions.get(PHOTO_CATALOG_INDEX_KEY);
     let control = await readControl(store);
     expect(updatedIndex).toEqual(expect.objectContaining({ albums: [], periods: [] }));
-    expect(control.retiredObjects).toEqual([expect.any(Object)]);
+    expect(control.retiredArtifacts).toHaveLength(2);
     expect(store.objects.has(oldPeriodPath)).toBe(true);
     expect(store.objects.has(thumbnailKey)).toBe(true);
 
@@ -864,8 +875,7 @@ describe("photo publisher", () => {
     ).toEqual({
       removedObjects: 0,
       failedObjects: 0,
-      pendingPhotos: 1,
-      pendingArtifacts: 1,
+      pendingArtifacts: 2,
       failures: [],
     });
 
@@ -878,8 +888,7 @@ describe("photo publisher", () => {
     ).toEqual({
       removedObjects: 3,
       failedObjects: 1,
-      pendingPhotos: 1,
-      pendingArtifacts: 0,
+      pendingArtifacts: 1,
       failures: [
         {
           objectKey: displayKey,
@@ -889,20 +898,8 @@ describe("photo publisher", () => {
     });
     expect(store.objects.has(displayKey)).toBe(true);
 
-    expect(
-      await retirePhotos({
-        photoIds: [id],
-        store,
-        now: () => new Date("2026-08-08T14:01:00.000Z"),
-      }),
-    ).toEqual({
-      retired: 0,
-      alreadyRetired: 1,
-      retiredObjects: 0,
-      updatedPeriods: 0,
-    });
+    await collectPhotoGarbage({ store, now: () => new Date("2026-08-08T14:01:00.000Z") });
     control = await readControl(store);
-    expect(control.retiredObjects).toEqual([]);
     expect(control.retiredArtifacts).toEqual([]);
     expect(store.objects.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexBody);
     expect(store.versions.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexVersion);

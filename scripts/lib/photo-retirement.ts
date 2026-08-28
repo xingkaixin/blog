@@ -12,8 +12,6 @@ export type RetirePhotosOptions = {
 
 export type RetirePhotosResult = {
   retired: number;
-  alreadyRetired: number;
-  retiredObjects: number;
   updatedPeriods: number;
 };
 
@@ -38,30 +36,15 @@ async function retirePhotosOnce(
   }
 
   const statuses = await catalog.inspectPhotos(photoIds);
-  const alreadyRetired = photoIds.filter((photoId) => statuses.get(photoId) === "retired");
-  const activePhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "published");
-  const absentPhotoIds = photoIds.filter((photoId) => statuses.get(photoId) === "absent");
-  if (absentPhotoIds.length > 0) {
-    throw new Error(`Catalog 中不存在照片 ${absentPhotoIds[0]}`);
+  const absentPhotoId = photoIds.find((photoId) => !statuses.get(photoId));
+  if (absentPhotoId) {
+    throw new Error(`Catalog 中不存在照片 ${absentPhotoId}`);
   }
-
-  if (activePhotoIds.length === 0) {
-    await catalog.commit(options.now?.() ?? new Date());
-    return {
-      retired: 0,
-      alreadyRetired: alreadyRetired.length,
-      retiredObjects: 0,
-      updatedPeriods: 0,
-    };
-  }
-
-  const objectKeys = await catalog.retirePhotos(activePhotoIds);
+  await catalog.retirePhotos(photoIds);
   const { updatedPeriods } = await catalog.commit(options.now?.() ?? new Date());
 
   return {
-    retired: activePhotoIds.length,
-    alreadyRetired: alreadyRetired.length,
-    retiredObjects: objectKeys.size,
+    retired: photoIds.length,
     updatedPeriods,
   };
 }

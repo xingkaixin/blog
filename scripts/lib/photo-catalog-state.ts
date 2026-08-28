@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import {
   isPhotoArtifactKey,
   photoIdFromMediaObjectKey,
@@ -17,11 +16,11 @@ import {
 import {
   PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
   parsePhotoCatalogControl,
+  artifactRetirementId,
   photoCatalogIndexFromControl,
   type PhotoCatalogControl,
   type PhotoDeletionClaim,
   type RetiredArtifactBatch,
-  type RetiredPhotoObjects,
 } from "./photo-catalog-control";
 
 type PhotoCatalogStateOptions = {
@@ -33,7 +32,6 @@ type PhotoCatalogStateOptions = {
   albums?: Iterable<PhotoAlbum>;
   periods?: Iterable<PhotoPeriod>;
   photoMonths?: Iterable<readonly [string, string]>;
-  retiredObjects?: Iterable<RetiredPhotoObjects>;
   retiredArtifacts?: Iterable<RetiredArtifactBatch>;
 };
 
@@ -47,7 +45,6 @@ export class PhotoCatalogState {
   #months = new Map<string, PhotoMonthCatalog>();
   #periods: Map<string, PhotoPeriod>;
   #photoMonths: Map<string, string>;
-  #retiredObjects: Map<string, RetiredPhotoObjects>;
   #retiredArtifacts: Map<string, RetiredArtifactBatch>;
   #dirtyMonths = new Set<string>();
   #domainChanged = false;
@@ -61,9 +58,6 @@ export class PhotoCatalogState {
     this.#albums = new Map([...(options.albums ?? [])].map((album) => [album.id, album]));
     this.#periods = new Map([...(options.periods ?? [])].map((period) => [period.month, period]));
     this.#photoMonths = new Map(options.photoMonths);
-    this.#retiredObjects = new Map(
-      [...(options.retiredObjects ?? [])].map((entry) => [entry.photoId, entry]),
-    );
     this.#retiredArtifacts = new Map(
       [...(options.retiredArtifacts ?? [])].map((entry) => [entry.retirementId, entry]),
     );
@@ -95,7 +89,6 @@ export class PhotoCatalogState {
       albums: control.albums,
       periods: control.periods,
       photoMonths: Object.entries(control.photoMonths),
-      retiredObjects: control.retiredObjects,
       retiredArtifacts: control.retiredArtifacts,
     });
   }
@@ -124,10 +117,6 @@ export class PhotoCatalogState {
     return this.#domainChanged;
   }
 
-  get pendingRetiredPhotos(): number {
-    return this.#retiredObjects.size;
-  }
-
   get pendingRetiredArtifacts(): number {
     return this.#retiredArtifacts.size;
   }
@@ -143,10 +132,6 @@ export class PhotoCatalogState {
 
   photoMonth(photoId: string): string | undefined {
     return this.#photoMonths.get(photoId);
-  }
-
-  isPhotoRetired(photoId: string): boolean {
-    return this.#retiredObjects.has(photoId);
   }
 
   album(albumId: string): PhotoAlbum | undefined {
@@ -217,7 +202,7 @@ export class PhotoCatalogState {
     this.markMonthDirty(month);
   }
 
-  retirePhotos(photoIds: string[]): Set<string> {
+  retirePhotos(photoIds: string[]): void {
     const targets = photoIds.map((photoId) => {
       const month = this.#photoMonths.get(photoId);
       const photo = month
@@ -238,23 +223,14 @@ export class PhotoCatalogState {
       this.#photoMonths.delete(photo.id);
       this.markMonthDirty(month);
 
-      const oldPeriodPath = this.#periods.get(month)?.path;
-      if (oldPeriodPath) {
-        objectKeys.add(oldPeriodPath);
-      }
       const photoObjectKeys = PHOTO_VARIANT_WIDTHS.map((width) =>
         photoMediaObjectKey(photo.id, width, photo.mediaRevision),
-      ).toSorted();
-      this.#retiredObjects.set(photo.id, {
-        photoId: photo.id,
-        objectKeys: photoObjectKeys,
-        deleteAfter: null,
-      });
+      );
       for (const key of photoObjectKeys) {
         objectKeys.add(key);
       }
     }
-    return objectKeys;
+    this.retireUnreferencedArtifacts(this.#periods, objectKeys);
   }
 
   dirtyMonths(): string[] {
@@ -335,7 +311,7 @@ export class PhotoCatalogState {
     if (!this.#publicIndexCurrent) {
       throw new Error("公开照片索引尚未同步，不能安排回收");
     }
-    const pending = [...this.#retiredObjects.values(), ...this.#retiredArtifacts.values()].filter(
+    const pending = [...this.#retiredArtifacts.values()].filter(
       (entry) => entry.deleteAfter === null,
     );
     if (pending.length === 0) {
@@ -348,46 +324,41 @@ export class PhotoCatalogState {
     return true;
   }
 
-  claimGarbage(
-    claimId: string,
-    now: Date,
-    expiresAt: string,
-  ): { photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] } {
+  claimGarbage(claimId: string, now: Date, expiresAt: string): RetiredArtifactBatch[] {
     const claim = { id: claimId, expiresAt } satisfies PhotoDeletionClaim;
-    const canClaim = (entry: RetiredPhotoObjects | RetiredArtifactBatch) =>
-      entry.deleteAfter !== null &&
-      Date.parse(entry.deleteAfter) <= now.getTime() &&
-      (entry.deletion === undefined ||
-        entry.deletion.id === claimId ||
-        Date.parse(entry.deletion.expiresAt) <= now.getTime());
-    const photos = [...this.#retiredObjects.values()].filter(canClaim);
-    const artifacts = [...this.#retiredArtifacts.values()].filter(canClaim);
-    for (const entry of [...photos, ...artifacts]) {
+    const artifacts = [...this.#retiredArtifacts.values()].filter(
+      (entry) =>
+        entry.deleteAfter !== null &&
+        Date.parse(entry.deleteAfter) <= now.getTime() &&
+        (entry.deletion === undefined || Date.parse(entry.deletion.expiresAt) <= now.getTime()),
+    );
+    for (const entry of artifacts) {
       entry.deletion = { ...claim };
     }
-    return { photos: photos.map(copyRetiredPhoto), artifacts: artifacts.map(copyRetiredArtifact) };
+    return artifacts.map(copyRetiredArtifact);
   }
 
   finishGarbageClaim(
     claimId: string,
-    claimedPhotos: RetiredPhotoObjects[],
     claimedArtifacts: RetiredArtifactBatch[],
     failedKeys: Set<string>,
   ): void {
-    this.finishClaimedEntries(
-      claimedPhotos,
-      this.#retiredObjects,
-      (entry) => entry.photoId,
-      claimId,
-      failedKeys,
-    );
-    this.finishClaimedEntries(
-      claimedArtifacts,
-      this.#retiredArtifacts,
-      (entry) => entry.retirementId,
-      claimId,
-      failedKeys,
-    );
+    for (const claimed of claimedArtifacts) {
+      const current = this.#retiredArtifacts.get(claimed.retirementId);
+      if (current?.deletion?.id !== claimId) {
+        continue;
+      }
+      const remainingKeys = current.objectKeys.filter((key) => failedKeys.has(key));
+      if (remainingKeys.length === 0) {
+        this.#retiredArtifacts.delete(claimed.retirementId);
+      } else {
+        this.#retiredArtifacts.set(claimed.retirementId, {
+          ...current,
+          objectKeys: remainingKeys,
+          deletion: undefined,
+        });
+      }
+    }
   }
 
   private markMonthDirty(month: string): void {
@@ -413,10 +384,7 @@ export class PhotoCatalogState {
     if (candidates.length === 0) {
       return;
     }
-    const retirementId = createHash("sha256")
-      .update(candidates.join("\n"))
-      .digest("hex")
-      .slice(0, 24);
+    const retirementId = artifactRetirementId(candidates);
     this.#retiredArtifacts.set(retirementId, {
       retirementId,
       objectKeys: candidates,
@@ -450,11 +418,6 @@ export class PhotoCatalogState {
       photoMonths: Object.fromEntries(
         [...this.#photoMonths].toSorted(([left], [right]) => left.localeCompare(right)),
       ),
-      retiredObjects: [...this.#retiredObjects.values()].toSorted(
-        (left, right) =>
-          (left.deleteAfter ?? "").localeCompare(right.deleteAfter ?? "") ||
-          left.photoId.localeCompare(right.photoId),
-      ),
       retiredArtifacts: [...this.#retiredArtifacts.values()].toSorted(
         (left, right) =>
           (left.deleteAfter ?? "").localeCompare(right.deleteAfter ?? "") ||
@@ -483,32 +446,7 @@ export class PhotoCatalogState {
   }
 
   private allRetiredObjectKeys(): Set<string> {
-    return new Set([
-      ...[...this.#retiredObjects.values()].flatMap((entry) => entry.objectKeys),
-      ...[...this.#retiredArtifacts.values()].flatMap((entry) => entry.objectKeys),
-    ]);
-  }
-
-  private finishClaimedEntries<Entry extends RetiredPhotoObjects | RetiredArtifactBatch>(
-    claimedEntries: Entry[],
-    currentEntries: Map<string, Entry>,
-    entryId: (entry: Entry) => string,
-    claimId: string,
-    failedKeys: Set<string>,
-  ): void {
-    for (const claimed of claimedEntries) {
-      const id = entryId(claimed);
-      const current = currentEntries.get(id);
-      if (current?.deletion?.id !== claimId) {
-        continue;
-      }
-      const remainingKeys = current.objectKeys.filter((key) => failedKeys.has(key));
-      if (remainingKeys.length === 0) {
-        currentEntries.delete(id);
-      } else {
-        currentEntries.set(id, { ...current, objectKeys: remainingKeys, deletion: undefined });
-      }
-    }
+    return new Set([...this.#retiredArtifacts.values()].flatMap((entry) => entry.objectKeys));
   }
 }
 
@@ -522,14 +460,6 @@ function copyPhoto(photo: PhotoRecord): PhotoRecord {
 
 function copyPeriod(period: PhotoPeriod): PhotoPeriod {
   return { ...period, albumCounts: { ...period.albumCounts } };
-}
-
-function copyRetiredPhoto(entry: RetiredPhotoObjects): RetiredPhotoObjects {
-  return {
-    ...entry,
-    objectKeys: [...entry.objectKeys],
-    deletion: entry.deletion && { ...entry.deletion },
-  };
 }
 
 function copyRetiredArtifact(entry: RetiredArtifactBatch): RetiredArtifactBatch {

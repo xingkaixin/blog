@@ -322,9 +322,7 @@ async function runDeleteCommand(options: DeletePhotoCliOptions, io: PhotoCliIo):
       store,
       onWarning: (message) => io.error(message),
     });
-    io.log(
-      `完成：移除 ${result.retired} 张照片，已有 ${result.alreadyRetired} 张在回收队列，延迟回收 ${result.retiredObjects} 个对象，更新 ${result.updatedPeriods} 个月份`,
-    );
+    io.log(`完成：移除 ${result.retired} 张照片，更新 ${result.updatedPeriods} 个月份`);
   } finally {
     store.close?.();
   }
@@ -346,7 +344,7 @@ async function runGarbageCollectCommand(
   try {
     const result = await collectPhotoGarbage({ store });
     io.log(
-      `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingPhotos} 张照片和 ${result.pendingArtifacts} 批产物待回收`,
+      `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingArtifacts} 批产物待回收`,
     );
     for (const failure of result.failures) {
       io.error(`- ${failure.objectKey}: ${failure.message}`);

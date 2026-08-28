@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import {
   isPhotoArtifactKey,
   monthFromPhotoMonthCatalogObjectKey,
@@ -15,18 +16,11 @@ import {
 import { isPhotoTimestamp } from "../../src/lib/photo-timestamp";
 
 export const PHOTO_CATALOG_CONTROL_KEY = "catalog/control.json";
-export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 3 as const;
+export const PHOTO_CATALOG_CONTROL_SCHEMA_VERSION = 4 as const;
 
 export type PhotoDeletionClaim = {
   id: string;
   expiresAt: string;
-};
-
-export type RetiredPhotoObjects = {
-  photoId: string;
-  objectKeys: string[];
-  deleteAfter: string | null;
-  deletion?: PhotoDeletionClaim;
 };
 
 export type RetiredArtifactBatch = {
@@ -42,7 +36,6 @@ export type PhotoCatalogControl = {
   albums: PhotoAlbum[];
   periods: PhotoPeriod[];
   photoMonths: Record<string, string>;
-  retiredObjects: RetiredPhotoObjects[];
   retiredArtifacts: RetiredArtifactBatch[];
 };
 
@@ -53,6 +46,7 @@ export function parsePhotoCatalogControl(value: unknown): PhotoCatalogControl {
   if (
     input.schemaVersion !== 1 &&
     input.schemaVersion !== 2 &&
+    input.schemaVersion !== 3 &&
     input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION
   ) {
     throw new Error("不支持的照片后台控制文档版本");
@@ -88,12 +82,16 @@ function parseControlFields(input: Record<string, unknown>): PhotoCatalogControl
     },
     "catalogControl",
   );
-  const retiredObjects = readRetiredObjects(input.retiredObjects);
-  const retiredArtifacts = readRetiredArtifacts(input.retiredArtifacts);
-  validateRetirements(contents, retiredObjects, retiredArtifacts);
-  if (input.schemaVersion !== PHOTO_CATALOG_CONTROL_SCHEMA_VERSION) {
+  const retiredArtifacts = [
+    ...(input.schemaVersion === PHOTO_CATALOG_CONTROL_SCHEMA_VERSION
+      ? []
+      : readRetiredObjects(input.retiredObjects)),
+    ...readRetiredArtifacts(input.retiredArtifacts),
+  ];
+  validateRetirements(contents, retiredArtifacts);
+  if (input.schemaVersion === 1 || input.schemaVersion === 2) {
     // 旧版本的时间从控制文档提交起算，不能证明公开索引的缓存已过期。
-    for (const entry of [...retiredObjects, ...retiredArtifacts]) {
+    for (const entry of retiredArtifacts) {
       entry.deleteAfter = null;
       entry.deletion = undefined;
     }
@@ -101,16 +99,15 @@ function parseControlFields(input: Record<string, unknown>): PhotoCatalogControl
   return {
     schemaVersion: PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
     ...contents,
-    retiredObjects,
     retiredArtifacts,
   };
 }
 
-function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
+function readRetiredObjects(value: unknown): RetiredArtifactBatch[] {
   if (!Array.isArray(value)) {
     throw new Error("catalogControl.retiredObjects 必须是数组");
   }
-  const entries = value.map((item, index): RetiredPhotoObjects => {
+  const entries = value.map((item, index): RetiredArtifactBatch => {
     const field = `catalogControl.retiredObjects[${index}]`;
     const entry = readRecord(item, field);
     const photoId = readString(entry.photoId, `${field}.photoId`);
@@ -125,13 +122,13 @@ function readRetiredObjects(value: unknown): RetiredPhotoObjects[] {
       }
     }
     return {
-      photoId,
+      retirementId: artifactRetirementId(objectKeys),
       objectKeys,
       ...readRetirementSchedule(entry, field),
     };
   });
   assertUnique(
-    entries.map((entry) => entry.photoId),
+    entries.map((entry) => entry.retirementId),
     "catalogControl.retiredObjects",
   );
   return entries;
@@ -169,23 +166,25 @@ function readRetiredArtifacts(value: unknown): RetiredArtifactBatch[] {
   return entries;
 }
 
+export function artifactRetirementId(keys: string[]): string {
+  return createHash("sha256").update(keys.toSorted().join("\n")).digest("hex").slice(0, 24);
+}
+
 function validateRetirements(
   index: PhotoCatalogContents,
-  retiredObjects: RetiredPhotoObjects[],
   retiredArtifacts: RetiredArtifactBatch[],
 ): void {
-  for (const retired of retiredObjects) {
-    if (index.photoMonths[retired.photoId]) {
-      throw new Error(`照片 ${retired.photoId} 不能同时处于发布与待回收状态`);
-    }
-  }
-  const retiredPhotoKeys = new Set(retiredObjects.flatMap((entry) => entry.objectKeys));
+  assertUnique(
+    retiredArtifacts.map((entry) => entry.retirementId),
+    "catalogControl.retiredArtifacts",
+  );
+  assertUnique(
+    retiredArtifacts.flatMap((entry) => entry.objectKeys),
+    "catalogControl.retiredArtifacts.objectKeys",
+  );
   const livePeriodPaths = new Set(index.periods.map((period) => period.path));
   for (const retired of retiredArtifacts) {
     for (const key of retired.objectKeys) {
-      if (retiredPhotoKeys.has(key)) {
-        throw new Error(`待回收对象 ${key} 不能同时属于照片与产物队列`);
-      }
       if (livePeriodPaths.has(key)) {
         throw new Error(`待回收产物 ${key} 仍被主 Catalog 引用`);
       }

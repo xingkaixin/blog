@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { mapWithConcurrency } from "./concurrency";
-import type { RetiredArtifactBatch, RetiredPhotoObjects } from "./photo-catalog-control";
+import type { RetiredArtifactBatch } from "./photo-catalog-control";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import type { PhotoObjectStore } from "./photo-store";
 
@@ -15,7 +15,6 @@ export type CollectPhotoGarbageOptions = {
 export type CollectPhotoGarbageResult = {
   removedObjects: number;
   failedObjects: number;
-  pendingPhotos: number;
   pendingArtifacts: number;
   failures: PhotoGarbageFailure[];
 };
@@ -29,9 +28,7 @@ type GarbageDeletionResult = { status: "removed" } | { status: "failed"; message
 
 type GarbageClaim = {
   id: string;
-  photos: RetiredPhotoObjects[];
   artifacts: RetiredArtifactBatch[];
-  pendingPhotos: number;
   pendingArtifacts: number;
 };
 
@@ -42,22 +39,16 @@ export async function collectPhotoGarbage(
   const claim = await editPhotoCatalog(options.store, (catalog) =>
     claimPhotoGarbage(options, claimId, catalog),
   );
-  if (claim.photos.length === 0 && claim.artifacts.length === 0) {
+  if (claim.artifacts.length === 0) {
     return {
       removedObjects: 0,
       failedObjects: 0,
-      pendingPhotos: claim.pendingPhotos,
       pendingArtifacts: claim.pendingArtifacts,
       failures: [],
     };
   }
 
-  const objectKeys = [
-    ...new Set([
-      ...claim.photos.flatMap((entry) => entry.objectKeys),
-      ...claim.artifacts.flatMap((entry) => entry.objectKeys),
-    ]),
-  ];
+  const objectKeys = [...new Set(claim.artifacts.flatMap((entry) => entry.objectKeys))];
   const deletionResults = new Map<string, GarbageDeletionResult>(
     await mapWithConcurrency(
       objectKeys,
@@ -99,16 +90,14 @@ async function claimPhotoGarbage(
   claimId: string,
   catalog: PhotoCatalogEditor,
 ): Promise<GarbageClaim> {
-  const { photos, artifacts } = await catalog.claimGarbage(
+  const artifacts = await catalog.claimGarbage(
     claimId,
     options.now ?? (() => new Date()),
     GARBAGE_CLAIM_DURATION_MS,
   );
   return {
     id: claimId,
-    photos,
     artifacts,
-    pendingPhotos: catalog.pendingRetiredPhotos,
     pendingArtifacts: catalog.pendingRetiredArtifacts,
   };
 }
@@ -123,7 +112,7 @@ async function finishPhotoGarbageCollection(
       .filter(([, result]) => result.status === "failed")
       .map(([objectKey]) => objectKey),
   );
-  await catalog.finishGarbage(claim.id, claim.photos, claim.artifacts, failedKeys);
+  await catalog.finishGarbage(claim.id, claim.artifacts, failedKeys);
   const failures: PhotoGarbageFailure[] = [];
   for (const [objectKey, result] of deletionResults) {
     if (result.status === "failed") {
@@ -135,7 +124,6 @@ async function finishPhotoGarbageCollection(
     removedObjects: [...deletionResults.values()].filter((result) => result.status === "removed")
       .length,
     failedObjects: failures.length,
-    pendingPhotos: catalog.pendingRetiredPhotos,
     pendingArtifacts: catalog.pendingRetiredArtifacts,
     failures,
   };

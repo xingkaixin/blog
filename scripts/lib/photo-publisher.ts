@@ -103,10 +103,7 @@ async function publishPhotosOnce(
 
   for (const identified of uniqueFiles) {
     const status = photoStatuses.get(identified.id);
-    if (status === "retired") {
-      throw new Error(`照片 ${identified.id} 正在延迟回收，请在回收完成后重新发布`);
-    }
-    if (status !== "published") {
+    if (!status) {
       pending.push(identified);
       continue;
     }

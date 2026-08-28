@@ -23,7 +23,6 @@ import {
   photoCatalogIndexFromControl,
   type PhotoCatalogControl,
   type RetiredArtifactBatch,
-  type RetiredPhotoObjects,
 } from "./photo-catalog-control";
 import { PhotoCatalogState } from "./photo-catalog-state";
 import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
@@ -34,8 +33,6 @@ const CONTROL_CACHE_CONTROL = "no-store";
 const READ_CONCURRENCY = 8;
 const WRITE_CONCURRENCY = 2;
 const CATALOG_COMMIT_ATTEMPTS = 5;
-
-export type PhotoCatalogPhotoStatus = "published" | "retired" | "absent";
 
 export type PhotoCatalogCommitResult = {
   catalogChanged: boolean;
@@ -60,10 +57,6 @@ export class PhotoCatalogEditor {
     return this.state.generatedAt;
   }
 
-  get pendingRetiredPhotos(): number {
-    return this.state.pendingRetiredPhotos;
-  }
-
   get pendingRetiredArtifacts(): number {
     return this.state.pendingRetiredArtifacts;
   }
@@ -76,18 +69,9 @@ export class PhotoCatalogEditor {
     return this.state.upsertAlbum(album);
   }
 
-  async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, PhotoCatalogPhotoStatus>> {
+  async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, boolean>> {
     const ids = [...new Set(photoIds)];
-    return new Map(
-      ids.map((photoId) => [
-        photoId,
-        this.state.isPhotoRetired(photoId)
-          ? "retired"
-          : this.state.photoMonth(photoId)
-            ? "published"
-            : "absent",
-      ]),
-    );
+    return new Map(ids.map((photoId) => [photoId, this.state.photoMonth(photoId) !== undefined]));
   }
 
   async addPhotoToAlbum(photoId: string, albumId: string): Promise<boolean> {
@@ -107,7 +91,7 @@ export class PhotoCatalogEditor {
     }
   }
 
-  async retirePhotos(photoIds: string[]): Promise<Set<string>> {
+  async retirePhotos(photoIds: string[]): Promise<void> {
     await loadPhotoCatalogMonths(
       this.store,
       this.state,
@@ -157,17 +141,17 @@ export class PhotoCatalogEditor {
     claimId: string,
     now: () => Date,
     claimDurationMs: number,
-  ): Promise<{ photos: RetiredPhotoObjects[]; artifacts: RetiredArtifactBatch[] }> {
-    if (this.state.pendingRetiredPhotos === 0 && this.state.pendingRetiredArtifacts === 0) {
-      return { photos: [], artifacts: [] };
+  ): Promise<RetiredArtifactBatch[]> {
+    if (this.state.pendingRetiredArtifacts === 0) {
+      return [];
     }
     await this.repairPublicIndex();
     const claimedAt = now();
     const scheduled = this.state.scheduleRetirements(claimedAt);
     const expiresAt = new Date(claimedAt.getTime() + claimDurationMs).toISOString();
     const claim = this.state.claimGarbage(claimId, claimedAt, expiresAt);
-    if (scheduled || claim.photos.length > 0 || claim.artifacts.length > 0) {
-      const keys = [...claim.photos, ...claim.artifacts].flatMap((entry) => entry.objectKeys);
+    if (scheduled || claim.length > 0) {
+      const keys = claim.flatMap((entry) => entry.objectKeys);
       await loadPhotoCatalogMonths(this.store, this.state, this.state.monthsForArtifacts(keys));
       this.state.assertArtifactsUnreferenced(keys);
       await writePhotoCatalogControl(this.store, this.state);
@@ -177,11 +161,10 @@ export class PhotoCatalogEditor {
 
   async finishGarbage(
     claimId: string,
-    photos: RetiredPhotoObjects[],
     artifacts: RetiredArtifactBatch[],
     failedKeys: Set<string>,
   ): Promise<void> {
-    this.state.finishGarbageClaim(claimId, photos, artifacts, failedKeys);
+    this.state.finishGarbageClaim(claimId, artifacts, failedKeys);
     await writePhotoCatalogControl(this.store, this.state);
   }
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PHOTO_CATALOG_CONTROL_SCHEMA_VERSION,
+  artifactRetirementId,
   parseLegacyPhotoCatalogControl,
   parsePhotoCatalogControl,
   photoCatalogIndexFromControl,
@@ -22,7 +23,6 @@ const controlFixture: PhotoCatalogControl = {
     },
   ],
   photoMonths: { [photoId]: "2026-04" },
-  retiredObjects: [],
   retiredArtifacts: [],
 };
 
@@ -39,18 +39,22 @@ describe("photo catalog control", () => {
 
   it("parses its own persisted contract without a public index version", () => {
     expect(parsePhotoCatalogControl(controlFixture)).toEqual(controlFixture);
-    expect(parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 1 })).toEqual(
-      controlFixture,
-    );
-    expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 4 })).toThrow(
+    expect(
+      parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 1, retiredObjects: [] }),
+    ).toEqual(controlFixture);
+    expect(() => parsePhotoCatalogControl({ ...controlFixture, schemaVersion: 5 })).toThrow(
       "后台控制文档版本",
     );
   });
 
   it.each([1, 2])("migrates combined catalog version %i", (version) => {
-    expect(parseLegacyPhotoCatalogControl({ ...controlFixture, schemaVersion: version })).toEqual(
-      controlFixture,
-    );
+    expect(
+      parseLegacyPhotoCatalogControl({
+        ...controlFixture,
+        schemaVersion: version,
+        retiredObjects: [],
+      }),
+    ).toEqual(controlFixture);
   });
 
   it.each([1, 2])("requires publication confirmation for v%i retirements", (schemaVersion) => {
@@ -65,8 +69,13 @@ describe("photo catalog control", () => {
       schemaVersion,
       retiredObjects: [retired],
     });
-    expect(control.retiredObjects).toEqual([
-      { ...retired, deleteAfter: null, deletion: undefined },
+    expect(control.retiredArtifacts).toEqual([
+      {
+        retirementId: artifactRetirementId(retired.objectKeys),
+        objectKeys: retired.objectKeys,
+        deleteAfter: null,
+        deletion: undefined,
+      },
     ]);
     expect(parsePhotoCatalogControl(control)).toEqual(control);
   });
@@ -116,37 +125,29 @@ describe("photo catalog control", () => {
     ).toThrow("仍被主 Catalog 引用");
   });
 
-  it("validates retired object tombstones", () => {
-    const retiredPhotoId = "ffffffffffffffffffffffffffffffff";
-    const retired = parsePhotoCatalogControl({
+  it("migrates v3 photo retirements without losing their schedule or claim", () => {
+    const objectKeys = [`media/${"f".repeat(32)}/960.webp`];
+    const schedule = {
+      deleteAfter: "2026-08-08T13:00:00.000Z",
+      deletion: { id: "a".repeat(24), expiresAt: "2026-08-09T13:00:00.000Z" },
+    };
+    const control = parsePhotoCatalogControl({
       ...controlFixture,
-      retiredObjects: [
-        {
-          photoId: retiredPhotoId,
-          objectKeys: [`media/${retiredPhotoId}/960.webp`, periodPath],
-          deleteAfter: "2026-08-08T13:00:00.000Z",
-        },
-      ],
+      schemaVersion: 3,
+      retiredObjects: [{ photoId: "f".repeat(32), objectKeys, ...schedule }],
     });
-    expect(retired.retiredObjects).toHaveLength(1);
-    expect(() =>
-      parsePhotoCatalogControl({
-        ...controlFixture,
-        retiredObjects: [
-          {
-            photoId,
-            objectKeys: [`media/${photoId}/960.webp`],
-            deleteAfter: "2026-08-08T13:00:00.000Z",
-          },
-        ],
-      }),
-    ).toThrow("不能同时");
+    expect(control.retiredArtifacts).toEqual([
+      { retirementId: artifactRetirementId(objectKeys), objectKeys, ...schedule },
+    ]);
+    expect(control).not.toHaveProperty("retiredObjects");
+    expect(parsePhotoCatalogControl(control)).toEqual(control);
   });
 
   it("rejects invalid retirement timestamps", () => {
     expect(() =>
       parsePhotoCatalogControl({
         ...controlFixture,
+        schemaVersion: 3,
         retiredObjects: [
           {
             photoId: "ffffffffffffffffffffffffffffffff",
