@@ -9,6 +9,7 @@ import { checkGeneratedArtifacts } from "./check-generated-artifacts";
 import { generateCovers, type GenerateCoversOptions } from "./generate-covers";
 import { generateOgImages, type GenerateOgImagesOptions } from "./generate-og-images";
 import { generatePostImages, type GeneratePostImagesOptions } from "./generate-post-images";
+import * as artifacts from "./lib/artifact-reconciler";
 
 const temporaryDirectories: string[] = [];
 
@@ -20,6 +21,26 @@ afterEach(() => {
 });
 
 describe("image generators", () => {
+  it.each(["satori/package.json", "src/lib/calendar-date.ts"])(
+    "invalidates the default OG renderer when %s changes",
+    async (dependency) => {
+      const fingerprints: string[] = [];
+      vi.spyOn(artifacts, "reconcileArtifacts").mockImplementation(async (options) => {
+        fingerprints.push(options.plans[0].fingerprint());
+        return { generated: 0, reused: options.plans.length, removed: 0 };
+      });
+      await generateOgImages();
+      const read = fs.readFileSync;
+      vi.spyOn(fs, "readFileSync").mockImplementation((file, options) => {
+        const data = read(file, options);
+        return String(file).endsWith(dependency)
+          ? Buffer.concat([Buffer.from(data), Buffer.from("changed renderer dependency")])
+          : data;
+      });
+      await generateOgImages();
+      expect(fingerprints[1]).not.toBe(fingerprints[0]);
+    },
+  );
   it("does not read queued responsive sources before converting the first image", async () => {
     const options = createPostImageOptions();
     fs.mkdirSync(options.sourceDirectory, { recursive: true });
@@ -51,9 +72,16 @@ describe("image generators", () => {
     expect((await sharp(full).metadata()).format).toBe("webp");
     expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-800w.webp"))).toBe(true);
     expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-1200w.webp"))).toBe(true);
-    expect(
-      JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
-    ).toMatchObject({ width: 24, height: 16 });
+    const mapping = JSON.parse(fs.readFileSync(options.dataFile, "utf8"))[
+      "/posts/images/post/demo.jpg"
+    ];
+    expect(mapping).toEqual({
+      webp: "/posts/images/post/demo.webp",
+      mobile: "/posts/images/post/demo-800w.webp",
+      desktop: "/posts/images/post/demo-1200w.webp",
+      width: 24,
+      height: 16,
+    });
 
     const orphan = path.join(options.outputDirectory, "post", "orphan.webp");
     fs.writeFileSync(orphan, "orphan");

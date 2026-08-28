@@ -17,7 +17,7 @@ const COVER_DIR = path.join(ROOT, "src", "assets", "cover");
 const OUTPUT_DIR = path.join(ROOT, "public", "og");
 const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
 const FONT_DIR = path.join(ROOT, "scripts", "assets", "fonts");
-const CACHE_FILE = path.join(ROOT, ".astro", "og-cache.json");
+const CACHE_FILE = path.join(ROOT, ".cache", "og-manifest.json");
 // 每张 OG 图要经 satori 渲染 1200x630 SVG 再由 sharp 编码 PNG。冷缓存下全量并发的
 // 峰值内存随文章数线性增长，固定窗口把它压成常量。66 篇冷构建实测（10 核）：
 // 无上限 5.6s/900MB，8 并发 5.7s/656MB，6 并发 6.1s/546MB，4 并发 8.7s/501MB。
@@ -375,6 +375,8 @@ export async function generateOgImages(
 function defaultOptions(): GenerateOgImagesOptions {
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
+    fs.readFileSync(fileURLToPath(new URL("../src/lib/calendar-date.ts", import.meta.url))),
+    fs.readFileSync(fileURLToPath(import.meta.resolve("satori/package.json"))),
     fs.readFileSync(LOGO_PATH),
     ...FONT_FILES.map(({ file }) => fs.readFileSync(path.join(FONT_DIR, file))),
     JSON.stringify(sharp.versions),

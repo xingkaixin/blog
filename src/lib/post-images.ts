@@ -1,7 +1,6 @@
 import postImageData from "./generated/post-images.json";
 
 export type ResponsivePostImage = {
-  src: string;
   webp: string;
   mobile: string;
   desktop: string;
