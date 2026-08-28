@@ -74,6 +74,51 @@ afterEach(async () => {
 });
 
 describe("usePhotoBrowsingSession", () => {
+  it("lets application lightbox closure reveal the selected tile without history scrolling", async () => {
+    await renderSession({
+      index,
+      months,
+      monthErrors: {},
+      requestMonth: vi.fn(),
+      retryMonth: vi.fn(),
+      resolvePhoto: vi.fn().mockResolvedValue(photo),
+    });
+    await act(async () => session.openPhoto(photo));
+    const scroll = vi.spyOn(window, "scrollTo").mockClear();
+    await travel(() => session.closePhoto(), "");
+    await act(async () => {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+    expect(scroll).not.toHaveBeenCalled();
+    await travel(() => history.forward(), `#photo=${photo.id}`);
+    scroll.mockClear();
+    await travel(() => history.back(), "");
+    await act(async () => {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+    expect(scroll).toHaveBeenCalled();
+  });
+
+  it("returns to the existing overview entry before leaving photos", async () => {
+    history.replaceState({}, "", "/about/");
+    history.pushState({}, "", "/photos/");
+    await renderSession({
+      index,
+      months,
+      monthErrors: {},
+      requestMonth: vi.fn(),
+      retryMonth: vi.fn(),
+      resolvePhoto: vi.fn().mockResolvedValue(photo),
+    });
+    await act(async () => session.openTimeline("trip"));
+    await act(async () => session.selectAlbum(null));
+    await travel(() => session.returnToOverview(), "");
+    await act(async () => {
+      history.back();
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+    expect(window.location.pathname).toBe("/about/");
+  });
   it("restores each view's scroll position on same-page history traversal", async () => {
     let scrollY = 0;
     vi.spyOn(window, "scrollY", "get").mockImplementation(() => scrollY);

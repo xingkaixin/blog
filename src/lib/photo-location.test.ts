@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PhotoCatalogIndex } from "@/lib/photo-catalog";
 import {
   overviewLocationHref,
+  planOverviewOpen,
   planPhotoClose,
   planPhotoOpen,
   planPhotoSelection,
@@ -29,6 +30,19 @@ const index: PhotoCatalogIndex = {
 };
 
 describe("photo location", () => {
+  it("preserves timeline provenance across album changes and direct links", () => {
+    const timeline = planTimelineOpen("https://example.com/photos/", { index: 1 }, "trip");
+    const selected = planTimelineSelection(timeline.href, timeline.state, null);
+    expect(planOverviewOpen(selected.href, selected.state)).toEqual({ history: "back" });
+    expect(planOverviewOpen(selected.href, { index: 1 })).toEqual({
+      history: "replace",
+      href: "https://example.com/photos/",
+      state: { index: 1 },
+    });
+    expect(planPhotoClose(`${selected.href}&photo=${photoId}`, selected.state).history).toBe(
+      "replace",
+    );
+  });
   it("normalizes legacy and invalid photo wall URLs", () => {
     const location = readPhotoLocation(
       `https://example.com/photos/?album=trip#photo=${photoId}`,
@@ -82,7 +96,7 @@ describe("photo location", () => {
     expect(planTimelineOpen(opened.href, opened.state, null)).toEqual({
       history: "push",
       href: "https://example.com/photos/#album=",
-      state: { position: 3 },
+      state: { position: 3, photoWall: { kind: "timeline" } },
     });
     expect(planTimelineSelection(opened.href, opened.state, "trip")).toEqual({
       history: "replace",

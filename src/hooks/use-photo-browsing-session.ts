@@ -114,7 +114,7 @@ export function usePhotoBrowsingSession({
   const closePhoto = useCallback(() => {
     // 先切换本地状态以立即播放退出动画，URL 随后收敛到同一结果。
     dismiss();
-    navigate(planPhotoClose(window.location.href, window.history.state));
+    navigate(planPhotoClose(window.location.href, window.history.state), "manual");
   }, [dismiss, navigate]);
   const openTimeline = useCallback(
     (albumId: string | null) => {
@@ -130,7 +130,8 @@ export function usePhotoBrowsingSession({
   );
   const returnToOverview = useCallback(() => {
     dismiss();
-    navigate(planOverviewOpen(window.location.href, window.history.state), "top");
+    const plan = planOverviewOpen(window.location.href, window.history.state);
+    navigate(plan, plan.history === "back" ? "preserve" : "top");
   }, [dismiss, navigate]);
 
   return {

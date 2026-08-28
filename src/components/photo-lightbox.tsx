@@ -45,6 +45,11 @@ export function PhotoLightbox({
   onSelect,
   onRetryNavigation,
 }: PhotoLightboxProps) {
+  const revealOnClose = useRef(false);
+  const close = () => {
+    revealOnClose.current = true;
+    onClose();
+  };
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const { previous, next } = navigation;
   const albumTitleById = useMemo(
@@ -60,6 +65,7 @@ export function PhotoLightbox({
     if (!open) {
       return undefined;
     }
+    revealOnClose.current = false;
     const connection = (
       navigator as Navigator & {
         connection?: { saveData?: boolean; effectiveType?: string };
@@ -105,8 +111,13 @@ export function PhotoLightbox({
   return (
     <Dialog
       open={open}
-      onOpenChange={(nextOpen) => !nextOpen && onClose()}
-      onOpenChangeComplete={(nextOpen) => !nextOpen && revealIfOutsideViewport(getPhotoTile())}
+      onOpenChange={(nextOpen) => !nextOpen && close()}
+      onOpenChangeComplete={(nextOpen) => {
+        if (!nextOpen && revealOnClose.current) {
+          revealOnClose.current = false;
+          revealIfOutsideViewport(getPhotoTile());
+        }
+      }}
     >
       <DialogContent
         hideClose
@@ -138,7 +149,7 @@ export function PhotoLightbox({
           <button
             type="button"
             aria-label="关闭大图"
-            onClick={onClose}
+            onClick={close}
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/8 text-[#f0efea] transition-[transform,background-color] hover:bg-white/14 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96]"
           >
             <XIcon aria-hidden="true" className="h-5 w-5" />

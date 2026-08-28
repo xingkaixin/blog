@@ -16,10 +16,7 @@ export type PhotoLocationNavigationPlan = {
 
 export type PhotoNavigationPlan = { history: "back" } | PhotoLocationNavigationPlan;
 
-type PhotoHistoryEntry = {
-  kind: "lightbox";
-  photoId: string;
-};
+type PhotoHistoryEntry = { kind: "lightbox"; photoId: string } | { kind: "timeline" };
 
 export function readPhotoLocation(href: string, index: PhotoCatalogIndex): PhotoLocation {
   const url = new URL(href);
@@ -106,18 +103,19 @@ export function planPhotoSelection(
   return {
     history: "replace",
     href: photoLocationHref(href, photoId),
-    state: entry
-      ? {
-          ...withoutPhotoHistoryEntry(state),
-          photoWall: { ...entry, photoId } satisfies PhotoHistoryEntry,
-        }
-      : withoutPhotoHistoryEntry(state),
+    state:
+      entry?.kind === "lightbox"
+        ? {
+            ...withoutPhotoHistoryEntry(state),
+            photoWall: { ...entry, photoId } satisfies PhotoHistoryEntry,
+          }
+        : withoutPhotoHistoryEntry(state),
   };
 }
 
 export function planPhotoClose(href: string, state: unknown): PhotoNavigationPlan {
   const entry = readPhotoHistoryEntry(state);
-  return entry
+  return entry?.kind === "lightbox"
     ? { history: "back" }
     : {
         history: "replace",
@@ -134,7 +132,10 @@ export function planTimelineOpen(
   return {
     history: "push",
     href: timelineLocationHref(href, albumId),
-    state: withoutPhotoHistoryEntry(state),
+    state: {
+      ...withoutPhotoHistoryEntry(state),
+      photoWall: { kind: "timeline" } satisfies PhotoHistoryEntry,
+    },
   };
 }
 
@@ -146,11 +147,20 @@ export function planTimelineSelection(
   return {
     history: "replace",
     href: timelineLocationHref(href, albumId),
-    state: withoutPhotoHistoryEntry(state),
+    state:
+      readPhotoHistoryEntry(state)?.kind === "timeline"
+        ? {
+            ...withoutPhotoHistoryEntry(state),
+            photoWall: { kind: "timeline" } satisfies PhotoHistoryEntry,
+          }
+        : withoutPhotoHistoryEntry(state),
   };
 }
 
-export function planOverviewOpen(href: string, state: unknown): PhotoLocationNavigationPlan {
+export function planOverviewOpen(href: string, state: unknown): PhotoNavigationPlan {
+  if (readPhotoHistoryEntry(state)?.kind === "timeline") {
+    return { history: "back" };
+  }
   return {
     history: "replace",
     href: overviewLocationHref(href),
@@ -177,6 +187,9 @@ function readPhotoHistoryEntry(value: unknown): PhotoHistoryEntry | null {
     return null;
   }
   const kind = Reflect.get(entry, "kind");
+  if (kind === "timeline") {
+    return { kind };
+  }
   const photoId = Reflect.get(entry, "photoId");
   return kind === "lightbox" && typeof photoId === "string" && isPhotoId(photoId)
     ? { kind, photoId }

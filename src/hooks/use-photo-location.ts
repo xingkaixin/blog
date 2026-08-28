@@ -10,6 +10,7 @@ import {
 export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   const [location, setLocation] = useState<PhotoLocation | null>(null);
   const pendingScroll = useRef<ScrollToOptions | null>(null);
+  const suppressNextRestore = useRef(false);
 
   const syncFromUrl = useEffectEvent(() => {
     if (!index) {
@@ -27,16 +28,20 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
     const pathname = window.location.pathname;
     const syncHistory = (event: PopStateEvent) => {
       pendingScroll.current = null;
+      const suppressRestore = suppressNextRestore.current;
+      suppressNextRestore.current = false;
       if (window.location.pathname !== pathname) {
         return;
       }
       // 同页历史由照片浏览会话消费，跨页历史继续交给 Astro。
       event.stopImmediatePropagation();
-      pendingScroll.current = {
-        left: event.state?.scrollX ?? 0,
-        top: event.state?.scrollY ?? 0,
-        behavior: "instant",
-      };
+      if (!suppressRestore) {
+        pendingScroll.current = {
+          left: event.state?.scrollX ?? 0,
+          top: event.state?.scrollY ?? 0,
+          behavior: "instant",
+        };
+      }
       syncFromUrl();
     };
     const syncHash = () => {
@@ -73,7 +78,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   }, [location]);
 
   const navigate = useCallback(
-    (plan: PhotoNavigationPlan, scroll: "top" | "preserve" = "preserve") => {
+    (plan: PhotoNavigationPlan, scroll: "top" | "preserve" | "manual" = "preserve") => {
       if (!index) {
         return;
       }
@@ -81,6 +86,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
       const position = { scrollX: window.scrollX, scrollY: window.scrollY };
       history.replaceState({ ...history.state, ...position }, "");
       if (plan.history === "back") {
+        suppressNextRestore.current = scroll === "manual";
         applyPhotoNavigation(plan, history);
         return;
       }
