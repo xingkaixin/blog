@@ -177,6 +177,14 @@
         "173653fdd8175d7a18be88123f820834662f2a4d976f2d8d5ee70484a2558ab7"
       ]
     },
+    "agent-swarm-collusion.png": {
+      "fingerprint": "5746aa60ad1b1f41fb24e22f57b584488ec12eb7b4dad89ba8a3e7b328a37b86",
+      "outputFingerprints": [
+        "db845918c3c0800fe08fc7b411ae78addbab02f4c584b0e177fb64a5062c55d3",
+        "86d16df3ea5275bcac3473b6cfd540a3e34c519c839dc8ebffce2b74628422c9",
+        "aa87a271baa71774309e48916ddff96bde175c649c2d1322d292dad4617bf169"
+      ]
+    },
     "agent-swarm-context.png": {
       "fingerprint": "7482dbf5cb5bd2faf08ba935847258337b3b805cb5a018cb4ff8edf3b8a709fa",
       "outputFingerprints": [
@@ -489,12 +497,28 @@
         "d71a47dcbe7c62c7968f6a06365e5bc59451288efc9edf217137c6b62daea19a"
       ]
     },
+    "review-bottleneck-pipeline.png": {
+      "fingerprint": "ff74314ec3cb57e9b54b90e6acab08646648b3c6e1eed75bed563340ca65bb92",
+      "outputFingerprints": [
+        "0dbeb0fe8a28ffe0f9f5b01a08fff29fb15e755ad6e613904a61e33e8d47a81e",
+        "d8c5524455bf056291b52e4deb218a9d0f654961528924e2228bd0b4fe6eef9b",
+        "dc05f46ce260ccfa3d2f2f1db62c11a604a174c8103fb6467ed6d717e4354a86"
+      ]
+    },
     "rhythm-in-ai-coding.png": {
       "fingerprint": "587224b2e45173eb528cf37902df551833686d8137068bc5e14838cb7bac246a",
       "outputFingerprints": [
         "fa7f61868a8a32aa5f3afb58b218be23d83566e11d1dd178b41a7fd40c706460",
         "a6c4fc1aa8963e58b01f72520fa20ae4cde89fdad14099bd1663662b5070bc36",
         "26e9ef6c912f0e3ccd09aabf8fe3e06ba006132528cabd693a0f11b9e2ffd9d2"
+      ]
+    },
+    "sdk-is-dying.png": {
+      "fingerprint": "996e2f43ca04d9823fb5465cd481c355dbdad132207b30ae9beb7cac031c596d",
+      "outputFingerprints": [
+        "ba029d15e5aa0f990c9fb396aa6e8e1c78fa78eeb9d8a0c80b8bda62930754c5",
+        "5d500c12866f0f210c9d12594316806e3948b9f37b92a44bb42f56512fca89fb",
+        "7ee67dcce61c2f828d7748870e5f1ea3ffceb338281caf00773ab0933d8321a1"
       ]
     },
     "search-before-create.png": {

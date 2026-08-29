@@ -377,6 +377,30 @@
         "bf5c6236c489f8ad2a55e3e7b06801ad88e099915efb7289bdd6eef15f0af430"
       ]
     },
+    "/posts/images/agent-swarm-collusion/agent-swarm-collusion-01.png": {
+      "fingerprint": "f5d82e5e4e2547aacbec06e3e2b946b9cfa881346243231de855371c2dab86da",
+      "outputFingerprints": [
+        "181ffbd24e0ac90a1202969756a6c389482ceea51cf537edcd87bfae334994b5",
+        "6bd5c06fac6c5a5e0e5e758e929be186687d94482658ee90b42d20606bd555c9",
+        "a55d2c584064834b042805aa75ddd3bd1a584fd32f99434561e586ba476b25d3"
+      ]
+    },
+    "/posts/images/agent-swarm-collusion/agent-swarm-collusion-02.png": {
+      "fingerprint": "1eea0cf19573bc53b52eea7bb89a544a5adc54be496777da5426a74513191951",
+      "outputFingerprints": [
+        "7a332cd112e2008c19644fe05eec897a4274fe6aa6a597f5c79702e7f6598e00",
+        "54987cf6e36a6904c47ae393b6775e32b55c8105314ea217e333149f5c00e56e",
+        "56ba249425709251bcef0a59f0ac4c166ece3af423b4eee0db07d469f9de1b6f"
+      ]
+    },
+    "/posts/images/agent-swarm-collusion/agent-swarm-collusion-cover.png": {
+      "fingerprint": "75071fec334db31e459902cebbc31ea71f7c751aac81252545bace1f16f94952",
+      "outputFingerprints": [
+        "aa87a271baa71774309e48916ddff96bde175c649c2d1322d292dad4617bf169",
+        "a736822b56bec51c6c4799447df408b140753ca16eb02aced67dec531c9ffea1",
+        "4b564bb34f800f4eae5764e8b71db28353342f81f756db9d0737ee3a0d1e2047"
+      ]
+    },
     "/posts/images/agent-swarm-context/agent-swarm-context-01.png": {
       "fingerprint": "6f529e9db51762877a45bb05135e743a29f1a3aeb29fba2434c63e9119710c75",
       "outputFingerprints": [
@@ -1185,6 +1209,38 @@
         "ca01c0fb74c68e8ce15a830f5c34494a8ea802bb0b164e05e700ccefa1783aeb"
       ]
     },
+    "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01.png": {
+      "fingerprint": "cda20300594aaf5a9f08dd8042026f00c94857a5c4837bb1c46a787591e2c7cb",
+      "outputFingerprints": [
+        "50a5c72b8db827fad1a4d531ce832069b0191a53da7b4ab280a59e4426ddca12",
+        "ba72d0b2a35b057029350e4a46157041fbb8f6cd371ad65a3c7176f7426bde3e",
+        "d18fff5f9aa7599d8bd9a70a585bccafa379386c7b11242de50667016dffbb06"
+      ]
+    },
+    "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-02.png": {
+      "fingerprint": "e0a83d2e40ee4906dad0f05764a197685d587aee81f3b2161d6adbb3e431c317",
+      "outputFingerprints": [
+        "fd2e5c8e1c60ddbe9124d68ed82ba515a227d24acfccd542373127cbe4b940b4",
+        "93cee920f1a138c45267f49b946b6ab7c6a5035c6687889499ae2b348b1ffafc",
+        "ac02459b08038a444f245cc70f47f9fd0eb5c86c8c392ef7262085e027562166"
+      ]
+    },
+    "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-03.png": {
+      "fingerprint": "7674facca94f0001ba6c33ea909e4d3a838b4f2bd9f2866247dcf235b3ef4c44",
+      "outputFingerprints": [
+        "751904c0c86417643b7594dbd41c6b671b79c54cc3737e039b159ee70e67c3cd",
+        "4a606b20f18481b8d48355be8ae373571f152273724eaec28691307c09081d24",
+        "1ca35b9c1b86794c81c4dbc6c6c30373f8751028bbfbb97b3daf77ecc5eac78a"
+      ]
+    },
+    "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-cover.png": {
+      "fingerprint": "b0c61a0bf6859fe273b4ffdcedbf9d7febfff0a148f2e4ef97e6da8cb75f33e6",
+      "outputFingerprints": [
+        "dc05f46ce260ccfa3d2f2f1db62c11a604a174c8103fb6467ed6d717e4354a86",
+        "fa5c570bb0d87b3449ef2a0d265ecdbb5c1d30d5b507909e69dba21533ec038b",
+        "bb1ec2c6015e514f8856fe406c37b1918a1b755085f6c300c66cec57513ce506"
+      ]
+    },
     "/posts/images/rhythm-in-ai-coding/rhythm-01.png": {
       "fingerprint": "a09da814877b98a75267a39cd5d48eed3b56205c729819a1faa1a1ec6daacea9",
       "outputFingerprints": [
@@ -1207,6 +1263,30 @@
         "06a1b45dbb837fa606f5d0e7cf297a219f917e0a745fb6a58d67b1e0aaa01fdc",
         "cf7796e776a3a327bae1a9785b5a87bffdc30ec2ab0038f1651b6fd54f694918",
         "773b343ab90fca84860d8d8f025f8ae1363869c9472898e7d0d96a31a88d8ad8"
+      ]
+    },
+    "/posts/images/sdk-is-dying/sdk-is-dying-01.png": {
+      "fingerprint": "1866e49b655784c7f29485be147ab46d95105ace55f8f1bf586abf775572e1e7",
+      "outputFingerprints": [
+        "1cdd9bc94619f024cca318534f4b0a59d2e186544197ccc3d77e344f09fa7496",
+        "6be94ac93112f6ab543510135325d22b2ef79e97f22de57e00bfb7a2dfe5f621",
+        "9b613ccc5ab43b8e2bd53a4bb1f2fd843af73a5246b6e47c3305bb1f2837a7af"
+      ]
+    },
+    "/posts/images/sdk-is-dying/sdk-is-dying-02.png": {
+      "fingerprint": "4a9c6af22346bfe65eae29c95d614c1fb70e337512a6cd918012d7ae540d204e",
+      "outputFingerprints": [
+        "a59209426057d81987c12adfdfbeadfb03506460931240136313ce9d7a208e78",
+        "644d6b9ea60df550375e50035ed715134ec0927d31435597b2fce8fca33543c5",
+        "6c1da53c4da72745263e5b66375b60ac898a438ea05cf2cdd0826cd98b8d0282"
+      ]
+    },
+    "/posts/images/sdk-is-dying/sdk-is-dying-cover.png": {
+      "fingerprint": "203be9c8f2c31670daf6de4cd748019efa4fb64c983958d8112d76a493940f67",
+      "outputFingerprints": [
+        "7ee67dcce61c2f828d7748870e5f1ea3ffceb338281caf00773ab0933d8321a1",
+        "719806dfc3b273169e56e9e4f782e2874dcdd442bda018d887588e43cad3a833",
+        "2b447ed8d3e1d33bf4845121f1b2634e406954dba483e54c7d4d328801556119"
       ]
     },
     "/posts/images/search-before-create/search-before-create-01.png": {

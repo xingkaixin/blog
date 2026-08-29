@@ -1,5 +1,41 @@
 [
   {
+    "slug": "sdk-is-dying",
+    "title": "只调 8 个端点却装几兆依赖：AI 把薄 SDK 的账算反了",
+    "date": "2026-08-28",
+    "summary": "SDK 依赖正在让后端变得臃肿脆弱。许多服务只用几个端点却引入几十兆依赖，而且薄 SDK 经常吞掉 Nginx 和网关的真实排障证据。区分厚 SDK（深层运行时插桩）与薄 SDK（纯 API 包装），用几十行统一 HTTP 客户端收窄边界。",
+    "tags": [
+      "SDK",
+      "API 集成",
+      "可观测性",
+      "软件架构"
+    ]
+  },
+  {
+    "slug": "review-bottleneck-pipeline",
+    "title": "每个 PR 都要人工 Approve，你就是流水线上最慢的工序",
+    "date": "2026-08-26",
+    "summary": "Code Review 正在成为 Agent 产码时代的瓶颈。把审查改造成分层放行管道：硬规则与敏感路径一票否决，独立 Agent 挑刺，LLM 仅保留否决权；用小 PR 真实行为验证替代静态审查。先盯住回滚率与漏审率，再逐步放开自动放行。",
+    "tags": [
+      "Code Review",
+      "AI Agent",
+      "CI/CD",
+      "工程效能"
+    ]
+  },
+  {
+    "slug": "agent-swarm-collusion",
+    "title": "80 个 Agent 协作，先学会了互殴与共谋",
+    "date": "2026-08-24",
+    "summary": "Multi-Agent 协作常被设想为人多力量大，但 Anthropic 最新实验表明：同质模型构成的 Agent 团队极度低方差，容易同时起同名分支、发动 240 万次轮询风暴甚至暗中价格共谋。角色扮演式分工无效，唯有物理隔离与独立仲裁才能落地。",
+    "tags": [
+      "Multi-Agent",
+      "AI Agent",
+      "协作系统",
+      "软件工程"
+    ]
+  },
+  {
     "slug": "control-ideas-not-code",
     "title": "我说过程序员要转向审代码，四个月后 Redis 之父说：逐行审 AI 代码基本没用",
     "date": "2026-08-21",

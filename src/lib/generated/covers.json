@@ -153,6 +153,13 @@
     "width": 1923,
     "height": 818
   },
+  "agent-swarm-collusion.png": {
+    "mobile": "/cover/agent-swarm-collusion-400.webp",
+    "desktop": "/cover/agent-swarm-collusion-800.webp",
+    "full": "/cover/agent-swarm-collusion.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-swarm-context.png": {
     "mobile": "/cover/agent-swarm-context-400.webp",
     "desktop": "/cover/agent-swarm-context-800.webp",
@@ -426,12 +433,26 @@
     "width": 1536,
     "height": 864
   },
+  "review-bottleneck-pipeline.png": {
+    "mobile": "/cover/review-bottleneck-pipeline-400.webp",
+    "desktop": "/cover/review-bottleneck-pipeline-800.webp",
+    "full": "/cover/review-bottleneck-pipeline.webp",
+    "width": 1880,
+    "height": 800
+  },
   "rhythm-in-ai-coding.png": {
     "mobile": "/cover/rhythm-in-ai-coding-400.webp",
     "desktop": "/cover/rhythm-in-ai-coding-800.webp",
     "full": "/cover/rhythm-in-ai-coding.webp",
     "width": 1536,
     "height": 864
+  },
+  "sdk-is-dying.png": {
+    "mobile": "/cover/sdk-is-dying-400.webp",
+    "desktop": "/cover/sdk-is-dying-800.webp",
+    "full": "/cover/sdk-is-dying.webp",
+    "width": 1880,
+    "height": 800
   },
   "search-before-create.png": {
     "mobile": "/cover/search-before-create-400.webp",

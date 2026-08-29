@@ -328,6 +328,27 @@
     "width": 1206,
     "height": 848
   },
+  "/posts/images/agent-swarm-collusion/agent-swarm-collusion-01.png": {
+    "webp": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-01.webp",
+    "mobile": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-01-800w.webp",
+    "desktop": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/agent-swarm-collusion/agent-swarm-collusion-02.png": {
+    "webp": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-02.webp",
+    "mobile": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-02-800w.webp",
+    "desktop": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/agent-swarm-collusion/agent-swarm-collusion-cover.png": {
+    "webp": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-cover.webp",
+    "mobile": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-cover-800w.webp",
+    "desktop": "/posts/images/agent-swarm-collusion/agent-swarm-collusion-cover-1200w.webp",
+    "width": 1880,
+    "height": 800
+  },
   "/posts/images/agent-swarm-context/agent-swarm-context-01.png": {
     "webp": "/posts/images/agent-swarm-context/agent-swarm-context-01.webp",
     "mobile": "/posts/images/agent-swarm-context/agent-swarm-context-01-800w.webp",
@@ -1035,6 +1056,34 @@
     "width": 2752,
     "height": 1536
   },
+  "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01.png": {
+    "webp": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01.webp",
+    "mobile": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01-800w.webp",
+    "desktop": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-02.png": {
+    "webp": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-02.webp",
+    "mobile": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-02-800w.webp",
+    "desktop": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-03.png": {
+    "webp": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-03.webp",
+    "mobile": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-03-800w.webp",
+    "desktop": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-03-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-cover.png": {
+    "webp": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-cover.webp",
+    "mobile": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-cover-800w.webp",
+    "desktop": "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-cover-1200w.webp",
+    "width": 1880,
+    "height": 800
+  },
   "/posts/images/rhythm-in-ai-coding/rhythm-01.png": {
     "webp": "/posts/images/rhythm-in-ai-coding/rhythm-01.webp",
     "mobile": "/posts/images/rhythm-in-ai-coding/rhythm-01-800w.webp",
@@ -1055,6 +1104,27 @@
     "desktop": "/posts/images/rhythm-in-ai-coding/rhythm-03-1200w.webp",
     "width": 1672,
     "height": 941
+  },
+  "/posts/images/sdk-is-dying/sdk-is-dying-01.png": {
+    "webp": "/posts/images/sdk-is-dying/sdk-is-dying-01.webp",
+    "mobile": "/posts/images/sdk-is-dying/sdk-is-dying-01-800w.webp",
+    "desktop": "/posts/images/sdk-is-dying/sdk-is-dying-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/sdk-is-dying/sdk-is-dying-02.png": {
+    "webp": "/posts/images/sdk-is-dying/sdk-is-dying-02.webp",
+    "mobile": "/posts/images/sdk-is-dying/sdk-is-dying-02-800w.webp",
+    "desktop": "/posts/images/sdk-is-dying/sdk-is-dying-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/sdk-is-dying/sdk-is-dying-cover.png": {
+    "webp": "/posts/images/sdk-is-dying/sdk-is-dying-cover.webp",
+    "mobile": "/posts/images/sdk-is-dying/sdk-is-dying-cover-800w.webp",
+    "desktop": "/posts/images/sdk-is-dying/sdk-is-dying-cover-1200w.webp",
+    "width": 1880,
+    "height": 800
   },
   "/posts/images/search-before-create/search-before-create-01.png": {
     "webp": "/posts/images/search-before-create/search-before-create-01.webp",
