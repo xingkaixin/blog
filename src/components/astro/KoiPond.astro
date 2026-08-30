@@ -1,0 +1,175 @@
+---
+/**
+ * 锦鲤池：WebGL2 实时水面。渲染代码在滚进视口时才动态载入，
+ * 并只在可见且用户未要求减少动效时消耗 GPU。
+ */
+---
+
+<figure class="pond">
+  <div class="pond-stage" data-pond-stage>
+    <canvas
+      class="pond-canvas"
+      data-pond-canvas
+      role="img"
+      aria-label="一片实时模拟的池水，七尾锦鲤在睡莲下游动，点击水面会漾开涟漪"></canvas>
+    <p class="pond-hint" data-pond-hint>点击或拖动水面 · 涟漪会扩散并逐渐消散</p>
+  </div>
+  <figcaption class="pond-caption">
+    <span>WebGL2 · 波动方程 1024×342 格点 · 120 Hz 定步长 · 色散与浅水非线性</span>
+    <span>解析导数噪声波场 · 曲率驱动焦散 · 7 尾锦鲤</span>
+  </figcaption>
+</figure>
+
+<style>
+  .pond-stage {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 2 / 1;
+    border-radius: 10px;
+    background: #0d2b2b;
+    box-shadow: 0 0 0 1px var(--line);
+    cursor: crosshair;
+    /* 纵向留给页面滚动，只有横向拖动用来划水 */
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* 池子的世界坐标是 3:1，窄屏改用更高的取景框并横向裁切，画面才不会被压扁。
+     宽度必须由高度和 aspect-ratio 推出：一旦让 canvas 的内在尺寸参与布局，
+     绘制缓冲会把自己撑大，再触发 ResizeObserver，一路放大到像素上限。 */
+  .pond-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    translate: -50% -50%;
+    aspect-ratio: 3 / 1;
+    height: 100%;
+    width: auto;
+  }
+
+  @media (min-width: 40rem) {
+    .pond-stage {
+      aspect-ratio: 3 / 1;
+    }
+  }
+
+  .pond-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(6, 26, 24, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    transition: opacity var(--duration-very-slow) var(--ease-smooth-out);
+  }
+
+  .pond-hint.is-hidden {
+    opacity: 0;
+  }
+
+  .pond-fail {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 24px;
+    color: #cfe3da;
+    text-align: center;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .pond-caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 20px;
+    margin-top: 10px;
+    color: var(--ink-400);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pond-stage {
+      cursor: default;
+    }
+
+    .pond-hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import type { PondHandle } from "@/lib/koi-pond/pond";
+
+  let pond: PondHandle | null = null;
+  let pending: IntersectionObserver | null = null;
+  // 每次拆除都作废在途的挂载，避免动态 import 落地时页面已经切走
+  let generation = 0;
+
+  function teardown() {
+    generation++;
+    pending?.disconnect();
+    pending = null;
+    pond?.destroy();
+    pond = null;
+  }
+
+  async function mount(stage: HTMLElement, canvas: HTMLCanvasElement) {
+    const hint = stage.querySelector<HTMLElement>("[data-pond-hint]");
+    const mine = generation;
+    const { createPond } = await import("@/lib/koi-pond/pond");
+    if (mine !== generation) {return;}
+
+    const result = createPond(canvas, {
+      animated: !matchMedia("(prefers-reduced-motion: reduce)").matches,
+      onFirstDrop: () => hint?.classList.add("is-hidden"),
+    });
+
+    if (!result.ok) {
+      hint?.remove();
+      const message = document.createElement("p");
+      message.className = "pond-fail";
+      message.textContent = result.reason;
+      stage.append(message);
+      return;
+    }
+    pond = result.pond;
+  }
+
+  function setup() {
+    teardown();
+    const stage = document.querySelector<HTMLElement>("[data-pond-stage]");
+    const canvas = stage?.querySelector<HTMLCanvasElement>("[data-pond-canvas]");
+    if (!stage || !canvas) {return;}
+
+    // 池子在页面中下部，滚近了再拉取渲染代码，关于页首屏不为它付出 JS 成本
+    pending = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {return;}
+        teardown();
+        void mount(stage, canvas);
+      },
+      { rootMargin: "200px" },
+    );
+    pending.observe(stage);
+  }
+
+  document.addEventListener("astro:page-load", setup);
+  document.addEventListener("astro:before-swap", teardown);
+</script>
