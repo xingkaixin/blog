@@ -62,7 +62,10 @@ const meta = {
         !postMeta.toc.length && "mx-auto max-w-[860px]",
       ]}
     >
-      <header class="order-1 min-w-0 border-b border-line pb-5 lg:col-start-1 lg:row-start-1">
+      <header
+        class="order-1 min-w-0 border-b border-line pb-5 lg:col-start-1 lg:row-start-1"
+        data-post-header
+      >
         <Breadcrumb items={[{ name: "首页", url: "/" }, { name: postMeta.title }]} />
         <h1 class="mt-4 max-w-[30ch] text-balance font-display text-4xl leading-[1.15] text-ink-800 [overflow-wrap:anywhere] sm:text-5xl">
           {postMeta.title}

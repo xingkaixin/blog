@@ -31,9 +31,10 @@ type Props = {
   meta: PageMeta;
   noindex?: boolean;
   status?: string;
+  smartHeader?: boolean;
 };
 
-const { meta, noindex = false, status } = Astro.props;
+const { meta, noindex = false, status, smartHeader = meta.type === "article" } = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const image = pageImage(meta);
 const title = pageTitle(meta);
@@ -190,7 +191,10 @@ const pageTransition = {
         跳到正文
       </a>
 
-      <header class="sticky top-0 z-20 border-b border-line bg-surface">
+      <header
+        class="sticky top-0 z-20 border-b border-line bg-surface"
+        data-smart-header={smartHeader ? "" : undefined}
+      >
         <div class="mx-auto flex h-[60px] max-w-320 items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
           <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="返回首页">
             <img
@@ -249,6 +253,7 @@ const pageTransition = {
     </div>
 
     <script>
+      import { attachSmartHeader, type SmartHeaderController } from "@/lib/smart-header";
       import { installSiteShortcuts } from "@/lib/site-shortcuts";
       import { skipToContent } from "@/lib/skip-to-content";
       import { registerBlogWebMcpTools } from "@/lib/webmcp";
@@ -268,6 +273,31 @@ const pageTransition = {
       });
 
       installSiteShortcuts(window);
+
+      let headerController: SmartHeaderController | null = null;
+
+      function setupSmartHeader() {
+        headerController?.destroy();
+        headerController = null;
+
+        const header = document.querySelector<HTMLElement>("header[data-smart-header]");
+        if (!header) {
+          return;
+        }
+
+        const thresholdTarget = document.querySelector<HTMLElement>("[data-post-header]");
+        headerController = attachSmartHeader({
+          header,
+          thresholdTarget,
+          isLocked: () => Boolean(header.querySelector('button[aria-expanded="true"]')),
+        });
+      }
+
+      document.addEventListener("astro:page-load", setupSmartHeader);
+      document.addEventListener("astro:before-swap", () => {
+        headerController?.destroy();
+        headerController = null;
+      });
     </script>
     <script is:inline define:vars={{ analyticsHost }}>
       if (location.hostname === analyticsHost) {
