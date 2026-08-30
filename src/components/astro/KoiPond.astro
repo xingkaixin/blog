@@ -5,20 +5,14 @@
  */
 ---
 
-<figure class="pond">
-  <div class="pond-stage" data-pond-stage>
-    <canvas
-      class="pond-canvas"
-      data-pond-canvas
-      role="img"
-      aria-label="一片实时模拟的池水，七尾锦鲤在睡莲下游动，点击水面会漾开涟漪"></canvas>
-    <p class="pond-hint" data-pond-hint>点击或拖动水面 · 涟漪会扩散并逐渐消散</p>
-  </div>
-  <figcaption class="pond-caption">
-    <span>WebGL2 · 波动方程 1024×342 格点 · 120 Hz 定步长 · 色散与浅水非线性</span>
-    <span>解析导数噪声波场 · 曲率驱动焦散 · 7 尾锦鲤</span>
-  </figcaption>
-</figure>
+<div class="pond-stage" data-pond-stage>
+  <canvas
+    class="pond-canvas"
+    data-pond-canvas
+    role="img"
+    aria-label="一片实时模拟的池水，七尾锦鲤在睡莲下游动，点击水面会漾开涟漪"></canvas>
+  <p class="pond-hint" data-pond-hint>点击或拖动水面 · 涟漪会扩散并逐渐消散</p>
+</div>
 
 <style>
   .pond-stage {
@@ -88,19 +82,6 @@
     text-align: center;
     font-size: 0.8125rem;
     line-height: 1.7;
-  }
-
-  .pond-caption {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 4px 20px;
-    margin-top: 10px;
-    color: var(--ink-400);
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    line-height: 1.6;
-    letter-spacing: 0.04em;
   }
 
   @media (prefers-reduced-motion: reduce) {
