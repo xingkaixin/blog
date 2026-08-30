@@ -1,7 +1,7 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import ContactCard from "@/components/astro/ContactCard.astro";
-import { primaryProjectUrl, projects } from "@/lib/projects";
+import KoiPond from "@/components/astro/KoiPond.astro";
 import { siteConfig, siteContacts } from "@/lib/site";
 
 const meta = {
@@ -16,18 +16,6 @@ const meta = {
 };
 
 const contacts = Object.values(siteContacts);
-const featuredProjectIds = new Set(["yomitomo", "codesesh"]);
-const featuredProjects = projects.filter((project) => featuredProjectIds.has(project.id));
-const stack = [
-  ["框架", "Astro 7 + TypeScript"],
-  ["交互", "React 19 islands"],
-  ["样式", "Tailwind CSS 4"],
-  ["内容", "Content Collections + Markdown"],
-  ["组件", "Base UI"],
-  ["验证", "Vitest + Bun"],
-  ["部署", "Cloudflare Pages"],
-] as const;
-
 ---
 
 <SiteLayout meta={meta} status="ABOUT · SHANGHAI">
@@ -38,8 +26,7 @@ const stack = [
       </p>
       <div class="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-3 lg:block lg:space-y-1">
         <a href="#intro" class="outline-link">简介</a>
-        <a href="#working-on" class="outline-link">在做什么</a>
-        <a href="#stack" class="outline-link">这个站怎么搭</a>
+        <a href="#pond" class="outline-link">池塘</a>
         <a href="#contact" class="outline-link">联系</a>
       </div>
     </nav>
@@ -68,46 +55,15 @@ const stack = [
         </blockquote>
       </section>
 
-      <section id="working-on" class="mt-12 scroll-mt-20">
-        <p class="section-kicker">在做什么</p>
-        <div class="mt-3 border-t border-line">
-          {
-            featuredProjects.map((project) => (
-              <a
-                href={primaryProjectUrl(project)}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="group grid gap-1 border-b border-ink-100 py-3.5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-4"
-              >
-                <span class="font-medium text-ink-800 transition-colors group-hover:text-accent">
-                  {project.name}
-                </span>
-                <span class="text-[13px] leading-6 text-ink-500">{project.description}</span>
-              </a>
-            ))
-          }
-          <div class="grid gap-1 border-b border-ink-100 py-3.5 sm:grid-cols-[110px_minmax(0,1fr)] sm:gap-4">
-            <span class="font-medium text-ink-800">写字</span>
-            <span class="text-[13px] leading-6 text-ink-500">
-              记录 AI 编程、Agent 工程、产品观察，以及生活里值得留下的片段。
-            </span>
-          </div>
+      <section id="pond" class="mt-12 scroll-mt-20">
+        <p class="section-kicker">池塘</p>
+        <p class="mt-3 text-[14px] leading-7 text-ink-500">
+          水面由波动方程实时求解。长波比短波跑得快，一次落点会散开成不断拉长的波列；两道涟漪相遇先叠加，再被浅水非线性轻微改写。
+        </p>
+        <div class="mt-5">
+          <KoiPond />
         </div>
-      </section>
-
-      <section id="stack" class="mt-12 scroll-mt-20">
-        <p class="section-kicker">这个站怎么搭</p>
-        <dl class="mt-3 border-t border-line">
-          {
-            stack.map(([label, value]) => (
-              <div class="grid grid-cols-[76px_minmax(0,1fr)] border-b border-ink-100 py-2.5 text-[13px]">
-                <dt class="font-mono text-[10px] text-ink-400">{label}</dt>
-                <dd class="text-ink-600">{value}</dd>
-              </div>
-            ))
-          }
-        </dl>
-        <p class="mt-4 font-mono text-[10px] leading-5 text-ink-400">
+        <p class="mt-6 font-mono text-[10px] leading-5 text-ink-400">
           源码公开在 <a
             href="https://github.com/xingkaixin/blog"
             target="_blank"
