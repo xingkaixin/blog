@@ -5,10 +5,13 @@
  *   3. 按水面法线折射、焦散与反射合成最终画面
  */
 
+import { Fishing, FishingPhase, type FishingStatus } from "./fishing";
+import { drawFishingOverlay } from "./fishing-overlay";
 import { createKoiSchool, KOI_COUNT } from "./koi";
 import { COMP_FS, SIM_FS, UNDER_FS, VS } from "./shaders";
 
 export interface PondHandle {
+  setFishing(active: boolean): void;
   destroy(): void;
 }
 
@@ -17,6 +20,8 @@ export type PondResult = { ok: true; pond: PondHandle } | { ok: false; reason: s
 export interface PondOptions {
   /** false 时只渲染一帧静止水面：不自动落雨、不响应指针。用于 prefers-reduced-motion。 */
   animated: boolean;
+  overlay: HTMLCanvasElement;
+  onFishingChange: (status: FishingStatus) => void;
   /** 首次由指针触发涟漪时回调一次，用于收起操作提示。 */
   onFirstDrop?: () => void;
 }
@@ -66,6 +71,10 @@ function buildPond(
   canvas: HTMLCanvasElement,
   options: PondOptions,
 ): PondResult {
+  const overlayCtx = options.overlay.getContext("2d");
+  if (!overlayCtx) {
+    return { ok: false, reason: "当前浏览器不支持 Canvas 2D，无法显示垂钓互动。" };
+  }
   /* --- GL 工具 --------------------------------------------------------- */
 
   function compile(type: number, src: string): WebGLShader {
@@ -200,6 +209,8 @@ function buildPond(
     }
   }
 
+  const fishing = new Fishing(koi, addDrop, options.onFishingChange);
+
   let nextAuto = 1.2;
   function autoDrops(t: number): void {
     if (t < nextAuto) {
@@ -214,10 +225,23 @@ function buildPond(
   let viewW = 0;
   let viewH = 0;
   let renderScale = 1.0;
+  let overlayWidth = 0;
+  let overlayHeight = 0;
 
   function resize(): void {
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const overlayRect = options.overlay.getBoundingClientRect();
+    overlayWidth = overlayRect.width;
+    overlayHeight = overlayRect.height;
+    fishing.constrain(...hookBounds());
+    const overlayW = Math.max(2, Math.round(overlayWidth * dpr));
+    const overlayH = Math.max(2, Math.round(overlayHeight * dpr));
+    if (options.overlay.width !== overlayW || options.overlay.height !== overlayH) {
+      options.overlay.width = overlayW;
+      options.overlay.height = overlayH;
+      overlayCtx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
     let w = Math.max(2, Math.round(rect.width * dpr * renderScale));
     let h = Math.max(2, Math.round(rect.height * dpr * renderScale));
     if (w * h > MAX_VIEW_PIXELS) {
@@ -247,6 +271,7 @@ function buildPond(
 
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
+  resizeObserver.observe(options.overlay);
   resize();
 
   /* --- 渲染 ------------------------------------------------------------ */
@@ -270,7 +295,7 @@ function buildPond(
   let simAcc = 0;
 
   function render(t: number, dt: number): void {
-    koi.update(t, dt);
+    fishing.update(t, dt);
 
     gl.bindVertexArray(quadVao);
     gl.disable(gl.BLEND);
@@ -309,6 +334,7 @@ function buildPond(
     bindTex(0, under!.tex, progComp.u("uUnder"));
     bindTex(1, simA.tex, progComp.u("uRip"));
     drawTo(null);
+    drawFishingOverlay(overlayCtx!, fishing, t, overlayWidth, overlayHeight);
   }
 
   /* --- 主循环 ---------------------------------------------------------- */
@@ -390,6 +416,8 @@ function buildPond(
   /* --- 指针交互 -------------------------------------------------------- */
 
   let dragFrom: [number, number] | null = null;
+  let pointerId: number | null = null;
+  let lastPointerY: number | null = null;
   let notifiedFirstDrop = false;
 
   function toUv(e: PointerEvent): [number, number] {
@@ -398,6 +426,17 @@ function buildPond(
   }
 
   function onPointerDown(e: PointerEvent): void {
+    if (!e.isPrimary || e.button !== 0) {
+      return;
+    }
+    if (fishing.state.phase !== FishingPhase.Idle) {
+      lastPointerY = e.clientY;
+      const [u, v] = toUv(e);
+      moveHook(u * WORLD_W, v);
+      fishing.strike();
+      return;
+    }
+    pointerId = e.pointerId;
     canvas.setPointerCapture(e.pointerId);
     dragFrom = toUv(e);
     addDrop(dragFrom[0], dragFrom[1], 0.03);
@@ -408,7 +447,18 @@ function buildPond(
   }
 
   function onPointerMove(e: PointerEvent): void {
+    if (!e.isPrimary) {
+      return;
+    }
     const to = toUv(e);
+    if (fishing.state.phase !== FishingPhase.Idle) {
+      if (e.pointerType === "mouse" && lastPointerY !== null && lastPointerY - e.clientY > 7) {
+        fishing.strike();
+      }
+      lastPointerY = e.clientY;
+      moveHook(to[0] * WORLD_W, to[1]);
+      return;
+    }
     if (!dragFrom) {
       addDrop(to[0], to[1], 0.0018); // 悬停时留下极轻的痕迹
       return;
@@ -429,7 +479,65 @@ function buildPond(
   }
 
   function onPointerEnd(): void {
+    if (pointerId !== null && canvas.hasPointerCapture(pointerId)) {
+      canvas.releasePointerCapture(pointerId);
+    }
+    pointerId = null;
     dragFrom = null;
+    lastPointerY = null;
+  }
+
+  function moveHook(x: number, y: number): void {
+    fishing.move(x, y);
+    fishing.constrain(...hookBounds());
+  }
+
+  function hookBounds(): [number, number] {
+    const halfView = Math.max(0, overlayWidth / Math.max(1, overlayHeight) / 2 - 0.08);
+    return [Math.max(0.08, 1.5 - halfView), Math.min(2.92, 1.5 + halfView)];
+  }
+
+  function setFishing(active: boolean): void {
+    if (!options.animated) {
+      return;
+    }
+    onPointerEnd();
+    fishing.setActive(active);
+  }
+
+  function onKeyDown(e: KeyboardEvent): void {
+    if (e.altKey || e.ctrlKey || e.metaKey) {
+      return;
+    }
+    if (e.key === "Escape") {
+      setFishing(false);
+      return;
+    }
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (e.repeat) {
+        return;
+      }
+      if (fishing.state.phase === FishingPhase.Idle) {
+        setFishing(true);
+      } else {
+        fishing.strike();
+      }
+      return;
+    }
+    if (fishing.state.phase === FishingPhase.Idle) {
+      return;
+    }
+    const direction = {
+      ArrowLeft: [-0.09, 0],
+      ArrowRight: [0.09, 0],
+      ArrowUp: [0, 0.06],
+      ArrowDown: [0, -0.06],
+    }[e.key];
+    if (direction) {
+      e.preventDefault();
+      moveHook(fishing.bobber.x + direction[0], fishing.bobber.y + direction[1]);
+    }
   }
 
   if (options.animated) {
@@ -438,13 +546,16 @@ function buildPond(
     canvas.addEventListener("pointerup", onPointerEnd);
     canvas.addEventListener("pointercancel", onPointerEnd);
     canvas.addEventListener("pointerleave", onPointerEnd);
+    canvas.addEventListener("keydown", onKeyDown);
   }
 
   return {
     ok: true,
     pond: {
+      setFishing,
       destroy() {
         stop();
+        onPointerEnd();
         visibilityObserver.disconnect();
         resizeObserver.disconnect();
         document.removeEventListener("visibilitychange", syncRunning);
@@ -453,6 +564,8 @@ function buildPond(
         canvas.removeEventListener("pointerup", onPointerEnd);
         canvas.removeEventListener("pointercancel", onPointerEnd);
         canvas.removeEventListener("pointerleave", onPointerEnd);
+        canvas.removeEventListener("keydown", onKeyDown);
+        overlayCtx.clearRect(0, 0, overlayWidth, overlayHeight);
         progSim.dispose();
         progUnder.dispose();
         progComp.dispose();

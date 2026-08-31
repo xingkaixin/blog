@@ -9,9 +9,29 @@
   <canvas
     class="pond-canvas"
     data-pond-canvas
-    role="img"
-    aria-label="一片实时模拟的池水，七尾锦鲤在睡莲下游动，点击水面会漾开涟漪"></canvas>
-  <p class="pond-hint" data-pond-hint>点击或拖动水面 · 涟漪会扩散并逐渐消散</p>
+    role="button"
+    tabindex="0"
+    aria-label="池塘水面"
+    aria-describedby="pond-instructions"></canvas>
+  <canvas class="pond-overlay" data-pond-overlay aria-hidden="true"></canvas>
+  <p class="pond-hint" data-pond-hint role="status" aria-live="polite" aria-atomic="true">点击或拖动水面 · 也可以拿起竹竿钓鱼</p>
+  <div class="pond-dock" data-pond-dock hidden>
+    <button type="button" class="pond-rod" data-pond-rod aria-pressed="false">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 21 21 3" stroke="#d6b876" stroke-width="2" />
+        <path d="M21 3c0 6-6 10-6 14" stroke-width="1.2" />
+        <circle cx="15" cy="17" r="2" fill="#ee532f" stroke-width="0.8" />
+      </svg>
+      <span data-pond-rod-label>竹竿垂钓</span>
+    </button>
+    <span class="pond-basket" aria-label="累计钓获，鱼儿随后放回池中">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m4 10 2 10h12l2-10M3 10h18M8 10l4-7 4 7M10 13v4m4-4v4" />
+      </svg>
+      <span data-pond-count>0 尾</span>
+    </span>
+  </div>
+  <p id="pond-instructions" class="sr-only">七尾锦鲤在池中游动。点击或横向拖动水面划水。拿起竹竿后，移动指针或轻点水面放置浮漂；鱼儿咬钩时点击或向上移动鼠标提竿。键盘按回车开始，方向键移动浮漂，回车或空格提竿，Escape 放下竹竿。钓获后会把鱼儿放回池中。</p>
 </div>
 
 <style>
@@ -43,6 +63,19 @@
     width: auto;
   }
 
+  .pond-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .pond-stage:has(.pond-canvas:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
   @media (min-width: 40rem) {
     .pond-stage {
       aspect-ratio: 3 / 1;
@@ -51,23 +84,94 @@
 
   .pond-hint {
     position: absolute;
-    bottom: 12px;
+    top: 12px;
     left: 12px;
     margin: 0;
     padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(6, 26, 24, 0.4);
+    max-width: calc(100% - 24px);
+    border-radius: 6px;
+    background: rgba(6, 26, 24, 0.76);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     color: rgba(255, 255, 255, 0.92);
     font-size: 0.75rem;
     letter-spacing: 0.04em;
     pointer-events: none;
-    transition: opacity var(--duration-very-slow) var(--ease-smooth-out);
+    transition: opacity var(--duration-quick) var(--ease-smooth-out);
   }
 
   .pond-hint.is-hidden {
     opacity: 0;
+  }
+
+  .pond-stage[data-fishing="bite"] .pond-hint,
+  .pond-stage[data-fishing="reeling"] .pond-hint {
+    color: #ffe1a0;
+  }
+
+  .pond-dock {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(235, 245, 240, 0.24);
+    border-radius: 7px;
+    background: rgba(6, 26, 24, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #edf4ed;
+    cursor: default;
+  }
+
+  .pond-dock[hidden] {
+    display: none;
+  }
+
+  .pond-rod {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    min-width: 112px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    color: inherit;
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: transform var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .pond-rod:active {
+    transform: scale(0.97);
+  }
+
+  .pond-rod:focus-visible {
+    outline: 2px solid #b2e8d5;
+    outline-offset: -3px;
+  }
+
+  .pond-rod[aria-pressed="true"] {
+    color: #a1ead3;
+  }
+
+  .pond-basket {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 10px;
+    border-left: 1px solid rgba(235, 245, 240, 0.2);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pond-rod:hover {
+      background: rgba(235, 245, 240, 0.08);
+    }
   }
 
   .pond-fail {
@@ -89,7 +193,8 @@
       cursor: default;
     }
 
-    .pond-hint {
+    .pond-hint,
+    .pond-dock {
       display: none;
     }
   }
@@ -97,11 +202,14 @@
 
 <script>
   import type { PondHandle } from "@/lib/koi-pond/pond";
+  import type { FishingStatus } from "@/lib/koi-pond/fishing";
 
   let pond: PondHandle | null = null;
   let pending: IntersectionObserver | null = null;
   // 每次拆除都作废在途的挂载，避免动态 import 落地时页面已经切走
   let generation = 0;
+  let controls: AbortController | null = null;
+  const motion = matchMedia("(prefers-reduced-motion: reduce)");
 
   function teardown() {
     generation++;
@@ -109,21 +217,57 @@
     pending = null;
     pond?.destroy();
     pond = null;
+    controls?.abort();
+    controls = null;
   }
 
   async function mount(stage: HTMLElement, canvas: HTMLCanvasElement) {
     const hint = stage.querySelector<HTMLElement>("[data-pond-hint]");
+    const overlay = stage.querySelector<HTMLCanvasElement>("[data-pond-overlay]");
+    const dock = stage.querySelector<HTMLElement>("[data-pond-dock]");
+    const button = stage.querySelector<HTMLButtonElement>("[data-pond-rod]");
+    const label = stage.querySelector<HTMLElement>("[data-pond-rod-label]");
+    const count = stage.querySelector<HTMLElement>("[data-pond-count]");
+    if (!hint || !overlay || !dock || !button || !label || !count) {return;}
     const mine = generation;
-    const { createPond } = await import("@/lib/koi-pond/pond");
+    const [{ createPond }, { KOI_SPECIES, FishingPhase }] = await Promise.all([
+      import("@/lib/koi-pond/pond"),
+      import("@/lib/koi-pond/fishing"),
+    ]);
     if (mine !== generation) {return;}
 
+    const messages: Record<FishingStatus["phase"], string> = {
+      idle: "点击或拖动水面 · 也可以拿起竹竿钓鱼",
+      waiting: "移动浮漂靠近鱼儿 · 咬钩时点击提竿",
+      nibble: "鱼儿正在试探 · 再等一等",
+      bite: "咬钩了！点击、向上提竿或按空格",
+      reeling: "钓到了！",
+    };
+    const updateFishing = (status: FishingStatus) => {
+      stage.dataset.fishing = status.phase;
+      button.setAttribute("aria-pressed", String(status.phase !== "idle"));
+      label.textContent = status.phase === "idle" ? "竹竿垂钓" : "放下竹竿";
+      count.textContent = `${status.caught} 尾`;
+      hint.classList.remove("is-hidden");
+      hint.textContent = status.catch
+        ? `钓获 ${KOI_SPECIES[status.catch.palette].name} · ${status.catch.length} cm`
+        : status.missed ? "鱼儿脱钩了 · 稍等片刻再试试" : messages[status.phase];
+    };
+    updateFishing({ phase: FishingPhase.Idle, caught: 0 });
+    canvas.tabIndex = motion.matches ? -1 : 0;
+    canvas.setAttribute("role", motion.matches ? "img" : "button");
     const result = createPond(canvas, {
-      animated: !matchMedia("(prefers-reduced-motion: reduce)").matches,
+      animated: !motion.matches,
+      overlay,
+      onFishingChange: updateFishing,
       onFirstDrop: () => hint?.classList.add("is-hidden"),
     });
 
     if (!result.ok) {
       hint?.remove();
+      dock.hidden = true;
+      canvas.tabIndex = -1;
+      canvas.setAttribute("role", "img");
       const message = document.createElement("p");
       message.className = "pond-fail";
       message.textContent = result.reason;
@@ -131,6 +275,13 @@
       return;
     }
     pond = result.pond;
+    dock.hidden = motion.matches;
+    controls = new AbortController();
+    button.addEventListener("click", () => {
+      const active = button.getAttribute("aria-pressed") !== "true";
+      pond?.setFishing(active);
+      if (active) {canvas.focus({ preventScroll: true });}
+    }, { signal: controls.signal });
   }
 
   function setup() {
@@ -153,4 +304,5 @@
 
   document.addEventListener("astro:page-load", setup);
   document.addEventListener("astro:before-swap", teardown);
+  motion.addEventListener("change", setup);
 </script>
