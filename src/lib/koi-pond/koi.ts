@@ -79,12 +79,19 @@ const TRACKS: readonly KoiTrack[] = [
 
 export const KOI_COUNT = TRACKS.length;
 
+export interface KoiLure {
+  index: number;
+  x: number;
+  y: number;
+  biting: boolean;
+}
+
 export interface KoiSchool {
   /** 每尾 vec4：xy = 位置，zw = 朝向 */
   readonly a: Float32Array;
   /** 每尾 vec4：x = 半长，y = 尾摆相位，z = 摆幅，w = 配色编号 */
   readonly b: Float32Array;
-  update(t: number, dt: number): void;
+  update(t: number, dt: number, lure?: KoiLure, hidden?: number): void;
 }
 
 export function createKoiSchool(): KoiSchool {
@@ -92,8 +99,9 @@ export function createKoiSchool(): KoiSchool {
   const b = new Float32Array(32);
   const dir = TRACKS.map(() => [1, 0]);
   const tailPhase = TRACKS.map(() => Math.random() * 6.28);
+  const offsets = TRACKS.map(() => [0, 0]);
 
-  function update(t: number, dt: number): void {
+  function update(t: number, dt: number, lure?: KoiLure, hidden = -1): void {
     for (let i = 0; i < TRACKS.length; i++) {
       const k = TRACKS[i];
       const a0 = k.omega[0] * t + k.phase[0];
@@ -103,11 +111,25 @@ export function createKoiSchool(): KoiSchool {
 
       const x = k.center[0] + k.amp[0] * Math.sin(a0) + 0.045 * Math.sin(b0);
       const y = k.center[1] + k.amp[1] * Math.sin(a1) + 0.03 * Math.sin(b1);
-      const vx = k.amp[0] * k.omega[0] * Math.cos(a0) + 0.045 * 2.37 * k.omega[0] * Math.cos(b0);
-      const vy = k.amp[1] * k.omega[1] * Math.cos(a1) + 0.03 * 1.91 * k.omega[1] * Math.cos(b1);
+      let vx = k.amp[0] * k.omega[0] * Math.cos(a0) + 0.045 * 2.37 * k.omega[0] * Math.cos(b0);
+      let vy = k.amp[1] * k.omega[1] * Math.cos(a1) + 0.03 * 1.91 * k.omega[1] * Math.cos(b1);
+
+      const offset = offsets[i];
+      const heading = dir[i];
+      const attracted = lure?.index === i;
+      const targetX = attracted ? lure.x - heading[0] * k.half * 0.85 - x : 0;
+      const targetY = attracted ? lure.y - heading[1] * k.half * 0.85 - y : 0;
+      const blend = 1 - Math.exp(-dt * (attracted ? 2.5 : 0.8));
+      const dx = (targetX - offset[0]) * blend;
+      const dy = (targetY - offset[1]) * blend;
+      offset[0] += dx;
+      offset[1] += dy;
+      if (dt > 0) {
+        vx += dx / dt;
+        vy += dy / dt;
+      }
 
       const speed = Math.hypot(vx, vy);
-      const heading = dir[i];
       if (speed > 1e-5) {
         // 朝向按指数收敛跟随速度方向，转身才有惯性而不是瞬时折角
         const blend = 1 - Math.exp(-dt * 3.0);
@@ -117,10 +139,10 @@ export function createKoiSchool(): KoiSchool {
         heading[0] /= len;
         heading[1] /= len;
       }
-      tailPhase[i] += dt * (5.0 + 60.0 * speed);
+      tailPhase[i] += dt * (attracted && lure.biting ? 36 : 5.0 + 60.0 * speed);
 
-      a[i * 4] = x;
-      a[i * 4 + 1] = y;
+      a[i * 4] = i === hidden ? -10 : x + offset[0];
+      a[i * 4 + 1] = i === hidden ? -10 : y + offset[1];
       a[i * 4 + 2] = heading[0];
       a[i * 4 + 3] = heading[1];
       b[i * 4] = k.half;
@@ -130,5 +152,6 @@ export function createKoiSchool(): KoiSchool {
     }
   }
 
+  update(0, 0);
   return { a, b, update };
 }
