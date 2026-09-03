@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/_astro/*",
+    "/cover/*",
+    "/fonts/*",
+    "/og/*",
+    "/posts/images/*",
+    "/avatar.webp",
+    "/f1-car.png",
+    "/feed.xml",
+    "/finish-flag.png",
+    "/logo.svg",
+    "/robots.txt",
+    "/search-index.json",
+    "/sitemap.xml"
+  ]
+}

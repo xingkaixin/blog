@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { unified } from "@astrojs/markdown-remark";
 import react from "@astrojs/react";
+import { agentMarkdown } from "@iannuttall/seo-graph-astro";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
@@ -18,7 +19,10 @@ export default defineConfig({
   site: siteConfig.url,
   output: "static",
   trailingSlash: "always",
-  integrations: [react()],
+  integrations: [
+    react(),
+    agentMarkdown({ cloudflareHeaders: false, routeMigrationWarnings: false }),
+  ],
   markdown: {
     shikiConfig: { theme: "css-variables" },
     processor: unified({ remarkPlugins: [remarkGfm], rehypePlugins: [rehypeBlogContent] }),

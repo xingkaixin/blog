@@ -3,6 +3,7 @@ import PostConsole from "@/components/astro/PostConsole.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
 import type { PostConsoleItem } from "@/lib/post-console";
+import { postHref } from "@/lib/published-post";
 import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { siteConfig } from "@/lib/site";
 
@@ -20,5 +21,22 @@ const meta = {
 ---
 
 <SiteLayout meta={meta} status={`HOME · ${posts.length} POSTS`}>
+  <h1 class="sr-only">{siteConfig.title}</h1>
+  <template data-agent-content>
+    <h1>{siteConfig.title}</h1>
+    <p>{siteConfig.description}</p>
+    <h2>全部文章</h2>
+    <ul>
+      {
+        posts.map((post) => (
+          <li>
+            <a href={postHref(post.slug)}>{post.title}</a>
+            {" — "}<time datetime={post.date}>{post.date}</time>
+            <p>{post.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </template>
   <PostConsole posts={posts} />
 </SiteLayout>
