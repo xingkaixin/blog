@@ -166,7 +166,7 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
         {projectRows.map((row) => (
           <div
             key={row[0].id}
-            className="project-row grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))] lg:gap-3.5"
+            className="project-row grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-3.5"
           >
             {row.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index} />

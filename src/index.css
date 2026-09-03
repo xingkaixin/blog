@@ -49,8 +49,10 @@
   --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --distance-base: 8px;
-  --resize-dur: 300ms;
-  --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --resize-dur: 1200ms;
+  --resize-close-dur: 500ms;
+  --resize-delay: 80ms;
+  --resize-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] {
@@ -199,23 +201,41 @@ body {
 
 @media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
   .project-row {
-    transition: grid-template-columns var(--resize-dur) var(--resize-ease);
+    grid-template-columns:
+      minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
+      minmax(0, 1fr);
+    transition: grid-template-columns var(--resize-close-dur) var(--ease-smooth-out);
+    will-change: grid-template-columns;
+  }
+
+  .project-row:has(.project-card:where(:hover, :focus-within)) {
+    transition-duration: var(--resize-dur);
+    transition-delay: var(--resize-delay);
+    transition-timing-function: var(--resize-ease);
   }
 
   .project-row:has(.project-card[data-column="1"]:where(:hover, :focus-within)) {
-    grid-template-columns: 1.24fr 0.92fr 0.92fr 0.92fr;
+    grid-template-columns:
+      minmax(0, 1.24fr) minmax(0, 0.92fr) minmax(0, 0.92fr)
+      minmax(0, 0.92fr);
   }
 
   .project-row:has(.project-card[data-column="2"]:where(:hover, :focus-within)) {
-    grid-template-columns: 0.92fr 1.24fr 0.92fr 0.92fr;
+    grid-template-columns:
+      minmax(0, 0.92fr) minmax(0, 1.24fr) minmax(0, 0.92fr)
+      minmax(0, 0.92fr);
   }
 
   .project-row:has(.project-card[data-column="3"]:where(:hover, :focus-within)) {
-    grid-template-columns: 0.92fr 0.92fr 1.24fr 0.92fr;
+    grid-template-columns:
+      minmax(0, 0.92fr) minmax(0, 0.92fr) minmax(0, 1.24fr)
+      minmax(0, 0.92fr);
   }
 
   .project-row:has(.project-card[data-column="4"]:where(:hover, :focus-within)) {
-    grid-template-columns: 0.92fr 0.92fr 0.92fr 1.24fr;
+    grid-template-columns:
+      minmax(0, 0.92fr) minmax(0, 0.92fr) minmax(0, 0.92fr)
+      minmax(0, 1.24fr);
   }
 
   .project-card-links {
@@ -229,6 +249,18 @@ body {
   .project-card:where(:hover, :focus-within) .project-card-links {
     opacity: 1;
     transform: translateY(0);
+    transition-duration: var(--duration-medium), var(--duration-slow);
+    transition-delay: 420ms, 380ms;
+  }
+
+  .project-card:where(:hover, :focus-within) .project-card-art {
+    transition-duration: var(--duration-very-slow), var(--resize-dur);
+    transition-delay: 160ms, 0ms;
+  }
+
+  .project-card:where(:hover, :focus-within) .project-card-scrim {
+    transition-duration: var(--duration-very-slow);
+    transition-delay: 160ms;
   }
 }
 
