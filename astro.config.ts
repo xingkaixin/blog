@@ -21,7 +21,11 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [
     react(),
-    agentMarkdown({ cloudflareHeaders: false, routeMigrationWarnings: false }),
+    agentMarkdown({
+      cloudflareHeaders: false,
+      llmsTxt: { title: siteConfig.title, summary: siteConfig.description },
+      routeMigrationWarnings: false,
+    }),
   ],
   markdown: {
     shikiConfig: { theme: "css-variables" },

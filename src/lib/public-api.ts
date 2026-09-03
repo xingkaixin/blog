@@ -4,6 +4,7 @@ export const publicApiRoutes = {
   catalog: "/.well-known/api-catalog",
   docs: "/api/",
   index: "/search-index.json",
+  llms: "/llms.txt",
   openApi: "/openapi.json",
   post: "/webmcp/posts/{slug}.json",
 } as const;

@@ -1,4 +1,5 @@
 import { markdownPathForPage, prefersMarkdown } from "../src/lib/markdown-negotiation";
+import { publicApiRoutes } from "../src/lib/public-api";
 import { siteConfig } from "../src/lib/site";
 
 type AssetFetcher = {
@@ -12,6 +13,12 @@ type PagesContext = {
 };
 
 const contentSignal = "ai-train=no, search=yes, ai-input=no";
+const homepageDiscoveryLinks = [
+  `<${publicApiRoutes.catalog}>; rel="api-catalog"; type="application/linkset+json"`,
+  `<${publicApiRoutes.openApi}>; rel="service-desc"; type="application/vnd.oai.openapi+json;version=3.1"`,
+  `<${publicApiRoutes.docs}>; rel="service-doc"; type="text/html"`,
+  `<${publicApiRoutes.llms}>; rel="describedby"; type="text/plain"`,
+];
 
 function addVaryAccept(headers: Headers) {
   const vary = headers.get("Vary");
@@ -25,6 +32,14 @@ function addVaryAccept(headers: Headers) {
   }
 }
 
+function addHomepageDiscoveryLinks(headers: Headers, pathname: string) {
+  if (pathname === "/") {
+    for (const link of homepageDiscoveryLinks) {
+      headers.append("Link", link);
+    }
+  }
+}
+
 function responseWithHeaders(request: Request, response: Response, headers: Headers) {
   return new Response(request.method === "HEAD" ? null : response.body, {
     headers,
@@ -35,11 +50,12 @@ function responseWithHeaders(request: Request, response: Response, headers: Head
 
 export async function onRequest(context: PagesContext) {
   const { env, request } = context;
+  const requestUrl = new URL(request.url);
   if (
     (request.method === "GET" || request.method === "HEAD") &&
     prefersMarkdown(request.headers.get("Accept"))
   ) {
-    const markdownUrl = new URL(request.url);
+    const markdownUrl = new URL(requestUrl);
     markdownUrl.pathname = markdownPathForPage(markdownUrl.pathname);
     const markdownResponse = await env.ASSETS.fetch(new Request(markdownUrl, request));
 
@@ -53,6 +69,7 @@ export async function onRequest(context: PagesContext) {
         headers.set("X-Markdown-Tokens", String(Math.ceil(byteLength / 4)));
       }
       addVaryAccept(headers);
+      addHomepageDiscoveryLinks(headers, requestUrl.pathname);
       return new Response(markdown, {
         headers,
         status: markdownResponse.status,
@@ -66,11 +83,11 @@ export async function onRequest(context: PagesContext) {
     return response;
   }
 
-  const requestUrl = new URL(request.url);
   const markdownUrl = new URL(markdownPathForPage(requestUrl.pathname), siteConfig.url);
   const headers = new Headers(response.headers);
   headers.append("Link", `<${markdownUrl}>; rel="alternate"; type="text/markdown"`);
   headers.set("Content-Signal", contentSignal);
   addVaryAccept(headers);
+  addHomepageDiscoveryLinks(headers, requestUrl.pathname);
   return responseWithHeaders(request, response, headers);
 }
