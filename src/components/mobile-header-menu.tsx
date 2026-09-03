@@ -1,13 +1,11 @@
-import {
-  FileTextIcon,
-  ImagesIcon,
-  MenuIcon,
-  MoonStarIcon,
-  RocketIcon,
-  RssIcon,
-  TagsIcon,
-  UserIcon,
-} from "lucide-react";
+import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
+import { ImagesIcon } from "@phosphor-icons/react/dist/csr/Images";
+import { ListIcon } from "@phosphor-icons/react/dist/csr/List";
+import { MoonStarsIcon } from "@phosphor-icons/react/dist/csr/MoonStars";
+import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
+import { RssIcon } from "@phosphor-icons/react/dist/csr/Rss";
+import { TagIcon } from "@phosphor-icons/react/dist/csr/Tag";
+import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
@@ -22,9 +20,9 @@ const menuItem =
   "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
 const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
   home: FileTextIcon,
-  projects: RocketIcon,
+  projects: RocketLaunchIcon,
   photos: ImagesIcon,
-  tags: TagsIcon,
+  tags: TagIcon,
   about: UserIcon,
   feed: RssIcon,
 };
@@ -89,7 +87,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
         onClick={() => (open ? closeMenu() : setOpen(true))}
         className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[8px] border border-line bg-surface text-ink-600 transition-[transform,background-color] hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.96]"
       >
-        <MenuIcon aria-hidden="true" className="h-4 w-4" />
+        <ListIcon aria-hidden="true" className="h-4 w-4" />
       </button>
 
       <div
@@ -123,7 +121,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
           })}
           <div className="my-1 h-px bg-line" />
           <button type="button" onClick={toggleTheme} className={menuItem}>
-            <MoonStarIcon aria-hidden="true" className="h-4 w-4" />
+            <MoonStarsIcon aria-hidden="true" className="h-4 w-4" />
             翻转世界
             <span className="ml-auto font-mono text-[10px] text-ink-400">
               {siteShortcuts.theme.hint}

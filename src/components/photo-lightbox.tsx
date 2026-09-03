@@ -1,4 +1,6 @@
-import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "lucide-react";
+import { CaretLeftIcon } from "@phosphor-icons/react/dist/csr/CaretLeft";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/csr/CaretRight";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useEffect, useMemo, useRef, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { PhotoBrowsingNavigation } from "@/hooks/use-photo-browsing-session";
@@ -185,7 +187,7 @@ export function PhotoLightbox({
               onClick={() => onSelect(previous)}
               className="absolute left-3 top-1/2 sr-only focus:not-sr-only h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:not-sr-only sm:inline-flex"
             >
-              <ChevronLeftIcon aria-hidden="true" className="h-5 w-5" />
+              <CaretLeftIcon aria-hidden="true" className="h-5 w-5" />
             </button>
           )}
           {next && (
@@ -195,7 +197,7 @@ export function PhotoLightbox({
               onClick={() => onSelect(next)}
               className="absolute right-3 top-1/2 sr-only focus:not-sr-only h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] sm:not-sr-only sm:inline-flex"
             >
-              <ChevronRightIcon aria-hidden="true" className="h-5 w-5" />
+              <CaretRightIcon aria-hidden="true" className="h-5 w-5" />
             </button>
           )}
         </div>

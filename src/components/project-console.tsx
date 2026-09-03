@@ -1,4 +1,6 @@
-import { ArrowUpRightIcon, SearchIcon, XIcon } from "lucide-react";
+import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
+import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useMemo, useState } from "react";
 import { rankProjects, type Project } from "@/lib/projects";
 import { cn } from "@/lib/utils";
@@ -86,7 +88,7 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
           <label className="flex h-9 w-full items-center gap-2 rounded-[7px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
-            <SearchIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-400" />
+            <MagnifyingGlassIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-400" />
             <span className="sr-only">搜索工具</span>
             <input
               type="search"

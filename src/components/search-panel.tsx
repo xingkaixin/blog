@@ -1,4 +1,4 @@
-import { SearchIcon } from "lucide-react";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -119,7 +119,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         </div>
 
         <div className="flex h-[52px] shrink-0 items-center gap-3 border-b border-line px-4">
-          <SearchIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
+          <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
           <input
             aria-label="搜索与命令"
             aria-controls="command-palette-results"
