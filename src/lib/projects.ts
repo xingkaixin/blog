@@ -119,6 +119,16 @@ export const projects: Project[] = [
     tags: ["工具", "数据库"],
   },
   {
+    id: "shipit",
+    name: "Shipit",
+    kind: "Web 工具",
+    description:
+      "在浏览器中把产品 Logo、截图、名称、版本与发布信息生成 5 秒产品发布短片，支持实时预览、1080p/4K 与 MP4 本地导出。",
+    logo: "/projects/shipit.png",
+    url: "https://shipit.xingkaixin.me/",
+    tags: ["工具", "Web", "视频"],
+  },
+  {
     id: "db-ferry",
     name: "DB Ferry",
     kind: "CLI",
