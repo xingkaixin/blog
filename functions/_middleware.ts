@@ -79,7 +79,7 @@ export async function onRequest(context: PagesContext) {
   }
 
   const response = await context.next();
-  if (!response.headers.get("Content-Type")?.includes("text/html")) {
+  if (!response.ok || !response.headers.get("Content-Type")?.includes("text/html")) {
     return response;
   }
 
