@@ -3,7 +3,6 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGl
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useMemo, useState } from "react";
 import { rankProjects, type Project } from "@/lib/projects";
-import { cn } from "@/lib/utils";
 
 type ProjectConsoleProps = {
   projects: Project[];
@@ -31,36 +30,68 @@ function ProjectLogo({ project }: { project: Project }) {
     <img
       src={project.logo}
       alt=""
-      width={40}
-      height={40}
+      width={48}
+      height={48}
       loading="lazy"
       decoding="async"
-      className="h-10 w-10 shrink-0 rounded-[9px] border border-line bg-white object-contain p-1"
+      className="h-12 w-12 shrink-0 rounded-[10px] border border-line bg-white object-contain p-1.5 shadow-sm"
     />
   );
 }
 
-function ProjectDetails({ project }: { project: Project }) {
+function ProjectLinks({ project }: { project: Project }) {
+  const links = project.links ?? [{ label: "访问产品", url: project.url }];
+
   return (
-    <>
-      <div className="min-w-0 lg:w-36 lg:shrink-0">
-        <h2 className="truncate text-[15px] font-medium text-ink-800">{project.name}</h2>
-        <span className="mt-0.5 block font-mono text-[10px] text-ink-400">{project.kind}</span>
+    <div className="project-card-links mt-5 flex flex-wrap gap-x-3 gap-y-2">
+      {links.map((link) => (
+        <a
+          key={link.url}
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] font-medium text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors duration-(--duration-quick) hover:text-accent hover:decoration-accent focus-visible:rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          {link.label}
+          <ArrowUpRightIcon aria-hidden="true" className="h-3 w-3" />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function ProjectCard({ project, index }: { project: Project; index: number }) {
+  return (
+    <article
+      data-column={(index % 4) + 1}
+      className="project-card min-h-60 focus-within:outline-none sm:min-h-64 lg:min-h-68"
+    >
+      <div aria-hidden="true" className="project-card-surface">
+        <img
+          src={project.background}
+          alt=""
+          width={960}
+          height={640}
+          loading="lazy"
+          decoding="async"
+          className="project-card-art"
+        />
+        <div className="project-card-scrim" />
       </div>
-      <p className="mt-2 text-[13px] leading-6 text-ink-600 lg:mt-0 lg:min-w-0 lg:flex-1">
-        {project.description}
-      </p>
-      <div className="mt-3 flex flex-wrap gap-1.5 lg:mt-0 lg:w-52 lg:shrink-0">
-        {project.tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[9px] text-ink-500"
-          >
-            {tag}
-          </span>
-        ))}
+
+      <div className="relative z-1 flex min-h-60 flex-col p-5 sm:min-h-64 lg:min-h-68">
+        <div className="flex items-start justify-between gap-4">
+          <ProjectLogo project={project} />
+          <span className="font-mono text-[10px] text-ink-400">{project.kind}</span>
+        </div>
+
+        <div className="mt-auto pt-8">
+          <h2 className="text-xl font-medium tracking-[-0.025em] text-ink-800">{project.name}</h2>
+          <p className="mt-1.5 max-w-60 text-[13px] leading-5 text-ink-600">{project.summary}</p>
+          <ProjectLinks project={project} />
+        </div>
       </div>
-    </>
+    </article>
   );
 }
 
@@ -71,9 +102,12 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
     () => rankProjects(projects, query).filter((project) => matchesFilter(project, activeFilter)),
     [activeFilter, projects, query],
   );
+  const projectRows = Array.from({ length: Math.ceil(visibleProjects.length / 4) }, (_, index) =>
+    visibleProjects.slice(index * 4, index * 4 + 4),
+  );
 
   return (
-    <section className="mx-auto max-w-320 px-3 pb-12 pt-6 sm:px-5 lg:pb-18 lg:pt-10">
+    <section className="mx-auto max-w-320 px-3 pb-14 pt-6 sm:px-5 lg:pb-20 lg:pt-10">
       <header className="flex flex-col gap-5 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
@@ -128,59 +162,19 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
         </div>
       </header>
 
-      <div className="border-b border-line">
-        {visibleProjects.map((project) => {
-          const rowClassName = cn(
-            "group -mx-1 flex gap-3 border-b border-ink-100 px-3 py-4 transition-[background-color,box-shadow] last:border-b-0 hover:bg-surface hover:shadow-[inset_3px_0_0_var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:items-center lg:gap-5 lg:px-4 lg:py-3.5",
-          );
-
-          if (project.links) {
-            return (
-              <article key={project.id} className={rowClassName}>
-                <ProjectLogo project={project} />
-                <div className="min-w-0 flex-1 lg:flex lg:items-center lg:gap-5">
-                  <ProjectDetails project={project} />
-                  <span className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 lg:mt-0 lg:w-32 lg:shrink-0 lg:justify-end">
-                    {project.links.map((link) => (
-                      <a
-                        key={link.url}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-mono text-[11px] text-ink-600 transition-colors hover:text-accent focus-visible:rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-                      >
-                        {link.label}
-                        <ArrowUpRightIcon aria-hidden="true" className="h-3 w-3" />
-                      </a>
-                    ))}
-                  </span>
-                </div>
-              </article>
-            );
-          }
-
-          return (
-            <a
-              key={project.id}
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`访问 ${project.name}`}
-              className={rowClassName}
-            >
-              <ProjectLogo project={project} />
-              <div className="min-w-0 flex-1 lg:flex lg:items-center lg:gap-5">
-                <ProjectDetails project={project} />
-                <span className="mt-3 inline-flex items-center gap-1 font-mono text-[11px] text-ink-500 group-hover:text-accent lg:mt-0 lg:w-32 lg:shrink-0 lg:justify-end">
-                  访问
-                  <ArrowUpRightIcon aria-hidden="true" className="h-3.5 w-3.5" />
-                </span>
-              </div>
-            </a>
-          );
-        })}
+      <div className="mt-5 space-y-3 lg:space-y-3.5">
+        {projectRows.map((row) => (
+          <div
+            key={row[0].id}
+            className="project-row grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))] lg:gap-3.5"
+          >
+            {row.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))}
+          </div>
+        ))}
         {visibleProjects.length === 0 && (
-          <div className="flex min-h-48 items-center justify-center px-6 text-center">
+          <div className="flex min-h-48 items-center justify-center rounded-[12px] border border-line bg-surface px-6 text-center">
             <div>
               <p className="text-sm font-medium text-ink-800">没有匹配的工具</p>
               <p className="mt-1.5 text-xs leading-6 text-ink-500">换个关键词或选择其他分类。</p>
