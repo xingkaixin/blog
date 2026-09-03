@@ -43,7 +43,7 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "tags">>)
 }
 
 export function buildRobotsTxt() {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${siteConfig.url}/sitemap.xml\n`;
+  return `User-agent: *\nContent-Signal: ai-train=no, search=yes, ai-input=no\nAllow: /\n\nSitemap: ${siteConfig.url}/sitemap.xml\n`;
 }
 
 // 旧 Hexo 站点的文章地址为 /<slug>，迁移后变为 /posts/<slug>/。
