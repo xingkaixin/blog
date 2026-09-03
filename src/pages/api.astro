@@ -1,0 +1,40 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { publicApiRoutes } from "@/lib/public-api";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "公开 API",
+  description: "行开心的颠倒世界提供的只读文章内容 API。",
+  url: `${siteConfig.url}${publicApiRoutes.docs}`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta} status="API · READ ONLY">
+  <article data-agent-content class="mx-auto max-w-3xl px-5 py-12 sm:py-16">
+    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">Public API</p>
+    <h1 class="mt-2 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
+      博客内容 API
+    </h1>
+    <p class="mt-5 text-[15px] leading-8 text-ink-600">
+      这些只读接口提供已发布文章的元数据和 Markdown 正文，无需认证。
+    </p>
+
+    <section class="mt-10 border-t border-line pt-7">
+      <h2 class="text-xl font-medium text-ink-800">文章索引</h2>
+      <p class="mt-3 font-mono text-sm text-ink-600">GET {publicApiRoutes.index}</p>
+      <p class="mt-3 text-sm leading-7 text-ink-500">返回全部已发布文章的标题、日期、摘要、标签和 slug。</p>
+    </section>
+
+    <section class="mt-8 border-t border-line pt-7">
+      <h2 class="text-xl font-medium text-ink-800">文章详情</h2>
+      <p class="mt-3 font-mono text-sm text-ink-600">GET {publicApiRoutes.post}</p>
+      <p class="mt-3 text-sm leading-7 text-ink-500">返回指定文章的元数据和 Markdown 正文。</p>
+    </section>
+
+    <p class="mt-10 text-sm text-ink-500">
+      机器可读定义：<a class="underline underline-offset-4" href={publicApiRoutes.openApi}>OpenAPI 3.1</a>
+    </p>
+  </article>
+</SiteLayout>

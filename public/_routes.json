@@ -2,10 +2,12 @@
   "version": 1,
   "include": ["/*"],
   "exclude": [
+    "/.well-known/api-catalog",
     "/_astro/*",
     "/cover/*",
     "/fonts/*",
     "/og/*",
+    "/openapi.json",
     "/posts/images/*",
     "/avatar.webp",
     "/f1-car.png",
@@ -14,6 +16,7 @@
     "/logo.svg",
     "/robots.txt",
     "/search-index.json",
-    "/sitemap.xml"
+    "/sitemap.xml",
+    "/webmcp/*"
   ]
 }
