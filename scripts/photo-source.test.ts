@@ -1,12 +1,15 @@
+import * as childProcess from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ExifTool } from "exiftool-vendored";
 import sharp from "sharp";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { photoVariantSrcSet, photoVariantUrl } from "../src/lib/photo-catalog";
 import { runPhotoCommand } from "./lib/photo-command";
 import { isSupportedPhoto, processPhotoFile, resolveCapturedAt } from "./lib/photo-source";
+
+vi.mock("node:child_process", { spy: true });
 
 describe("photo source", () => {
   it("accepts DNG and case variants of supported image extensions", () => {
@@ -65,22 +68,17 @@ describe("photo source", () => {
   });
 
   it("terminates photo decoder commands that exceed their timeout", async () => {
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "photo-command-test-"));
-    const pidFile = path.join(directory, "pid");
-    await expect(
-      runPhotoCommand(
-        process.execPath,
-        [
-          "-e",
-          'require("node:fs").writeFileSync(process.argv[1], String(process.pid)); setInterval(() => {}, 1000)',
-          pidFile,
-        ],
-        100,
-      ),
-    ).rejects.toThrow("超时");
-
-    const pid = Number(await fs.readFile(pidFile, "utf8"));
-    expect(() => process.kill(pid, 0)).toThrow();
-    await fs.rm(directory, { force: true, recursive: true });
+    const spawn = vi.mocked(childProcess.spawn);
+    spawn.mockClear();
+    try {
+      const command = runPhotoCommand(process.execPath, ["-e", "setInterval(() => {}, 1000)"], 100);
+      await expect(command).rejects.toThrow("超时");
+      const child = spawn.mock.results[0].value;
+      expect(child.pid).toBeDefined();
+      expect(() => process.kill(child.pid, 0)).toThrow();
+    } finally {
+      spawn.mock.results[0]?.value?.kill("SIGKILL");
+      spawn.mockClear();
+    }
   });
 });
