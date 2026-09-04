@@ -481,6 +481,14 @@
         "5b07629c6bea7c7c6b1a003aa677595b9ee58ed6e1389b5fa60ed5b4082913c4"
       ]
     },
+    "one-person-software-factory.png": {
+      "fingerprint": "7c03d3db7dfc6daebfb3da5a8e2229c0e2082348a110fdb5457e33772ce0ba0e",
+      "outputFingerprints": [
+        "a08bc1cef6fea444792c55f26aa27a822f4e5f9750ec2d51cea2e69ec5f8c1d0",
+        "11becb4d579a995f19167729c81305c9ee8c8b1ee5c39a7ec5136927daf35845",
+        "3ecfe2449a301d98d435dd62b4aac6b75efa67c280015da1a79a30ef2c91f7c6"
+      ]
+    },
     "only-click-merge.png": {
       "fingerprint": "2cdc5c9d1a824a3e8b43f06ef6fa77e89b1502cfadbdb044822c35348836ced6",
       "outputFingerprints": [

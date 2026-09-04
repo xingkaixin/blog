@@ -419,6 +419,13 @@
     "width": 1536,
     "height": 864
   },
+  "one-person-software-factory.png": {
+    "mobile": "/cover/one-person-software-factory-400.webp",
+    "desktop": "/cover/one-person-software-factory-800.webp",
+    "full": "/cover/one-person-software-factory.webp",
+    "width": 1880,
+    "height": 800
+  },
   "only-click-merge.png": {
     "mobile": "/cover/only-click-merge-400.webp",
     "desktop": "/cover/only-click-merge-800.webp",

@@ -1161,6 +1161,22 @@
         "518c4bb8a0917edacbae092eab2eca04c77a713a925e4dca6c2cf391037832f6"
       ]
     },
+    "/posts/images/one-person-software-factory/one-person-software-factory-01.png": {
+      "fingerprint": "db5fa523ebfd3753f3f24f55b13308b5f9749308629249481ece4e9ec00da3d8",
+      "outputFingerprints": [
+        "6f88d4cd505a65916f965af00a45b684964f3d967674812ba1e4a02c2fa62f9c",
+        "4d3d463901f3033a0eedb84712453b56b761c292da23d007b856bba93e16badc",
+        "fc65660ce546a5db37c711f1330258a736b1b05a1673342fa0751b76e6b67747"
+      ]
+    },
+    "/posts/images/one-person-software-factory/one-person-software-factory-02.png": {
+      "fingerprint": "1a126ee3486b7774bb9b26872df5f65669d244c0cdfddd23c79d7ca0b8cab4f2",
+      "outputFingerprints": [
+        "878ed3124f56f281e814f673d87fcead8c0d162e7203dd47c60db5e25a5294ec",
+        "e06673be8857eaf289b72ff4a2e68ebc72402b86b294ec0e8f0c97219f8cedbd",
+        "a8841a0d51aead8d23ca9222fa14cc0333a67906581c3e3e27b34f08d9e15e4f"
+      ]
+    },
     "/posts/images/only-click-merge/only-click-merge-01.png": {
       "fingerprint": "38c42e0a1523c0547178a4e10abd87320710bda578aea52837cc622f83df0349",
       "outputFingerprints": [
