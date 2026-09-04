@@ -559,6 +559,13 @@
     "width": 1536,
     "height": 864
   },
+  "webmcp-agent-web-interface.png": {
+    "mobile": "/cover/webmcp-agent-web-interface-400.webp",
+    "desktop": "/cover/webmcp-agent-web-interface-800.webp",
+    "full": "/cover/webmcp-agent-web-interface.webp",
+    "width": 1927,
+    "height": 820
+  },
   "when-ai-bypasses-all-pitfalls.png": {
     "mobile": "/cover/when-ai-bypasses-all-pitfalls-400.webp",
     "desktop": "/cover/when-ai-bypasses-all-pitfalls-800.webp",

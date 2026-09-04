@@ -1537,6 +1537,30 @@
         "a47b316f0c85ac0070064d86d500057e05bec0b346f76011065276b984ebd85b"
       ]
     },
+    "/posts/images/webmcp-agent-web-interface/webmcp-agent-web-interface-01.png": {
+      "fingerprint": "2a87fd781154fd991be65268bad3549ae5abf9f6d7b9d8a8555bc55da0ef6c6f",
+      "outputFingerprints": [
+        "ecd2936fe1ffc0f733a2f4ef933b5e656a6005ebecc07158be3dd85b85145411",
+        "3aacfb0c27da6fe1a564cbd5f82059a416ba77d72e8d1bf01ea45455a21c2d9a",
+        "8b4617d65f233cbdf0827fd28f7ea5d0d5fda7480d3ad2afd4f62c6e28eee181"
+      ]
+    },
+    "/posts/images/webmcp-agent-web-interface/webmcp-agent-web-interface-02.png": {
+      "fingerprint": "7a4298df7c765df9dd71433a004f8da448cdf349493d0de853a79d5620a0f878",
+      "outputFingerprints": [
+        "6ae475f9810ea22ab88f2384740a310ea5dd7b8ac1819b3ad31d6eb348a9e960",
+        "e8e579b6c1e21e8c79e913f48c45cbb0e5871f3314f1f6c82cb19a8e9942e32b",
+        "62227b57d5fbee3e96803b03001024dd63dd8e401148db9c659868c925db5a22"
+      ]
+    },
+    "/posts/images/webmcp-agent-web-interface/webmcp-agent-web-interface-03.png": {
+      "fingerprint": "730d4f7c55ee8e13150e651148d9a59aa26583b2d6457f2bbaec1f91bc2a7cbc",
+      "outputFingerprints": [
+        "226b5e277db19b4a44bd7fe12ad11ebdd1a0de255c9fcdf9240c1c91c70904cc",
+        "5a7c227d99db9d20bd0f83d2db2826cdd77087817b438a4c6a1b6bd3d8d33cdf",
+        "9ab8c4afe47ef7bed44b1454735c719edcddadf0d7f7bc715e2ca0084f8ba4bf"
+      ]
+    },
     "/posts/images/when-ai-bypasses-all-pitfalls/when-ai-bypasses-all-pitfalls-01.png": {
       "fingerprint": "89611e772b5876d1d349ebc06213d50e93999e92cd1bafd5d5ed50d2b2519b84",
       "outputFingerprints": [

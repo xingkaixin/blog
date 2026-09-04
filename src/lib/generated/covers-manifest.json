@@ -641,6 +641,14 @@
         "6f5ccfc08fe93e6e67979a581fd87d11f884f4c79e06763b9a77611e4cc1af18"
       ]
     },
+    "webmcp-agent-web-interface.png": {
+      "fingerprint": "2ea1b9155d3672f6693b25f5725a5a57706ca49a8b4ee39d9b1c62a999feb136",
+      "outputFingerprints": [
+        "8603f556a64c864bf55d8beb0a80297bf213916c018318f5ca52966755c6bae4",
+        "3fa1b9743c05bf2df15acfadb7d8313cbb5c32440f82c107a513c908316ffcd9",
+        "0f6604a1cee3e61ed28d04d8e88d09a0a36c61c31f326a82faf670c791a4d33e"
+      ]
+    },
     "when-ai-bypasses-all-pitfalls.png": {
       "fingerprint": "afbcbb99f5f10a91931be7e8c435fec029849e551c0fe0f1e67c2f9ade75648b",
       "outputFingerprints": [
