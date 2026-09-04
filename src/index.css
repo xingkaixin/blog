@@ -131,6 +131,43 @@ body {
   box-shadow: var(--shadow-card);
 }
 
+.project-logo {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  contain: layout style;
+}
+
+.project-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.project-logo canvas {
+  position: absolute;
+  inset: -4px;
+  width: 56px;
+  height: 56px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.project-logo[data-ready] img {
+  visibility: hidden;
+}
+
+.project-logo[data-ready] [data-logo-outline],
+.project-logo[data-crt] [data-logo-crt] {
+  visibility: visible;
+}
+
+.project-logo[data-crt] [data-logo-outline] {
+  visibility: hidden;
+}
+
 .project-card {
   position: relative;
   isolation: isolate;

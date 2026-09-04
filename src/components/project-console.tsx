@@ -1,7 +1,8 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { mountProjectLogoEffects } from "@/lib/project-logo-effect";
 import { rankProjects, type Project } from "@/lib/projects";
 
 type ProjectConsoleProps = {
@@ -27,15 +28,11 @@ function matchesFilter(project: Project, filter: ProjectFilter): boolean {
 
 function ProjectLogo({ project }: { project: Project }) {
   return (
-    <img
-      src={project.logo}
-      alt=""
-      width={48}
-      height={48}
-      loading="lazy"
-      decoding="async"
-      className="h-12 w-12 shrink-0 rounded-[10px] border border-line bg-white object-contain p-1.5 shadow-sm"
-    />
+    <span data-project-logo className="project-logo">
+      <img src={project.logo} alt="" width={48} height={48} loading="lazy" decoding="async" />
+      <canvas data-logo-outline aria-hidden="true" width={112} height={112} />
+      <canvas data-logo-crt aria-hidden="true" width={112} height={112} />
+    </span>
   );
 }
 
@@ -96,18 +93,22 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 }
 
 export function ProjectConsole({ projects }: ProjectConsoleProps) {
+  const rootRef = useRef<HTMLElement>(null);
   const [activeFilter, setActiveFilter] = useState<ProjectFilter>("全部");
   const [query, setQuery] = useState("");
   const visibleProjects = useMemo(
     () => rankProjects(projects, query).filter((project) => matchesFilter(project, activeFilter)),
     [activeFilter, projects, query],
   );
+  useEffect(() => {
+    return rootRef.current ? mountProjectLogoEffects(rootRef.current) : undefined;
+  }, []);
   const projectRows = Array.from({ length: Math.ceil(visibleProjects.length / 4) }, (_, index) =>
     visibleProjects.slice(index * 4, index * 4 + 4),
   );
 
   return (
-    <section className="mx-auto max-w-320 px-3 pb-14 pt-6 sm:px-5 lg:pb-20 lg:pt-10">
+    <section ref={rootRef} className="mx-auto max-w-320 px-3 pb-14 pt-6 sm:px-5 lg:pb-20 lg:pt-10">
       <header className="flex flex-col gap-5 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
