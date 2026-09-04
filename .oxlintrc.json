@@ -21,6 +21,10 @@
     "typescript/no-unsafe-type-assertion": "off",
     "unicorn/consistent-function-scoping": "off",
     "unicorn/require-post-message-target-origin": "off",
+    "react/exhaustive-effect-dependencies": "off",
+    "react/globals": "off",
+    "react/refs": "off",
+    "react/set-state-in-effect": "off",
     "react/react-in-jsx-scope": "off"
   },
   "ignorePatterns": [
