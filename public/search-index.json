@@ -1,5 +1,53 @@
 [
   {
+    "slug": "one-person-software-factory",
+    "title": "软件工厂建不动：你缺的不是 Agent，是提 Issue 的人",
+    "date": "2026-09-04",
+    "summary": "软件工厂卡住往往不是 Agent 不会写代码，而是上游没有高质量 issue。用 issue tracker 把工厂切成两半：上游用定时 loop 抓日志和录像自动提需求，下游用 auto 标签触发 Agent 开 PR。Backlog 见底先建上游，堆满先做标签触发。",
+    "tags": [
+      "AI Agent",
+      "软件工程",
+      "工程效率",
+      "独立开发"
+    ]
+  },
+  {
+    "slug": "cot-distillation-thinking-block",
+    "title": "把加密思考块喂给小模型，拿到了最值钱的思维链",
+    "date": "2026-09-03",
+    "summary": "CoT 思维链蒸馏能提供更密集的监督信号帮助小模型学习任务拆解，但商业 API 往往将推理过程打包隐藏。旧版 Claude 思考块因缺乏上下文绑定被廉价提取，Anthropic 在 Fable 5.1 正式上线保留思考机制，从协议层封堵了跨模型与篡改前缀的蒸馏通道。",
+    "tags": [
+      "AI",
+      "大模型",
+      "模型蒸馏",
+      "信息安全"
+    ]
+  },
+  {
+    "slug": "shadow-api-fake-models",
+    "title": "用 API 中转站跑代码，你买的 Fable 5 可能背地里被掉了包",
+    "date": "2026-09-02",
+    "summary": "大模型 API 中转站标着 Fable 5，背后可能加价 1.09 倍卖给你 9B 小模型。安全研究发现近半数中转接口存在掉包，准确率甚至从 83% 断崖跌到 37%。代码跑不通时，别把中间商偷换算力的损耗，当成自己学习 AI 的学费。",
+    "tags": [
+      "AI",
+      "大模型",
+      "模型评测",
+      "信息安全"
+    ]
+  },
+  {
+    "slug": "webmcp-agent-web-interface",
+    "title": "Agent 还在网页上找按钮，WebMCP 已经让网站交出工具了",
+    "date": "2026-08-31",
+    "summary": "WebMCP 让网页把前端函数直接注册给浏览器 Agent。相比用视觉模型猜像素点按钮，它能原生复用前端状态机与登录态；但商业网站的利益博弈注定让它只能在企业内网与 SaaS 闭环中生根。",
+    "tags": [
+      "WebMCP",
+      "AI Agent",
+      "前端",
+      "浏览器自动化"
+    ]
+  },
+  {
     "slug": "sdk-is-dying",
     "title": "只调 8 个端点却装几兆依赖：AI 把薄 SDK 的账算反了",
     "date": "2026-08-28",
