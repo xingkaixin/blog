@@ -475,6 +475,13 @@
     "width": 1536,
     "height": 864
   },
+  "shadow-api-fake-models.png": {
+    "mobile": "/cover/shadow-api-fake-models-400.webp",
+    "desktop": "/cover/shadow-api-fake-models-800.webp",
+    "full": "/cover/shadow-api-fake-models.webp",
+    "width": 1923,
+    "height": 818
+  },
   "skill-is-a-folder.png": {
     "mobile": "/cover/skill-is-a-folder-400.webp",
     "desktop": "/cover/skill-is-a-folder-800.webp",

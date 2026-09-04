@@ -1361,6 +1361,30 @@
         "efcc2cc9cc7ca485eec3bbe4c00c09b93e5eeccece7bf997a786cc3853184730"
       ]
     },
+    "/posts/images/shadow-api-fake-models/shadow-api-fake-models-01.png": {
+      "fingerprint": "a56ee843a6410b68ce8c1a0f0991f3e4945ddb43cda6e1ac62483414c50681be",
+      "outputFingerprints": [
+        "07e5612b0e7c0ed85daf7f4d8e6738a010ba847a4c36c6d242080e42c40533e7",
+        "f4e2467b3e64d54d701076ce840709f86dba6d3ec434b924bf8154189096d919",
+        "da4cb94764fc64898c8cf723d3a5cef340afd2bc537fc67841c6162458bb5e85"
+      ]
+    },
+    "/posts/images/shadow-api-fake-models/shadow-api-fake-models-02.png": {
+      "fingerprint": "063e23eef0e18aff90c66fd107422d5e65b14acaa4fa48e109e40b55b577aec4",
+      "outputFingerprints": [
+        "efeacc1067d5562519ec276c713e5dfc89cebfe3f407c6e4ffb2b70079aa61c3",
+        "dfff5c36021161083cdfb8535b330c816d3600fa49835934b29f1b806f4529a4",
+        "6c8c91d29e1d092b29232215940e98ffa4b12ee6704787237d1c07eaebe13288"
+      ]
+    },
+    "/posts/images/shadow-api-fake-models/shadow-api-fake-models-03.png": {
+      "fingerprint": "5ad3fb7f61c1f22d1cf77afa42420ee1bc964af05bbe4f1b93d3cdfc2621df56",
+      "outputFingerprints": [
+        "f48dfb7ea7d644c5121439c6263ce0e3a4df9897e70096c9d14d96a7174f99b5",
+        "89781b4e8a7673e18a1a7d61d0fa253e620544a5ae5f1bd48da6ca508d908fba",
+        "54d62bd9fea225072a59bd1a48ba4c07845551c9e4a695b6828bd3d9233b2f3c"
+      ]
+    },
     "/posts/images/skill-is-a-folder/skill-is-a-folder-01.png": {
       "fingerprint": "07ba1273e519711f55516f6898c9b22c6e82b3546b55ddb205a99f4f26d23d76",
       "outputFingerprints": [

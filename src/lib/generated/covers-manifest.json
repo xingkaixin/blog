@@ -545,6 +545,14 @@
         "026004d5ff311415158df4259f3bca22f624d4cc1e41e402f7cb50cbd3a5d463"
       ]
     },
+    "shadow-api-fake-models.png": {
+      "fingerprint": "ef39d242cb46298a670caa65e43f3a2fb8bc1f6b25f670c69264134f2ffb4de9",
+      "outputFingerprints": [
+        "505a0c39d66d57dfdedb3d7314ea2c2e63894f58283b43ad7acaf3320123bf1c",
+        "a67dbc457a20dd1f6ff6b0753a80c84bdc2efd39dde2bbba33da325b1a399769",
+        "0142a2190bc04f6fec66e0642393a6bff1eff0658db16c0daf62dce2f6a0df0f"
+      ]
+    },
     "skill-is-a-folder.png": {
       "fingerprint": "efb57882499c9c59ef21e31583faa67e55d2b5fec9ffd84781aa39e9787a51be",
       "outputFingerprints": [
