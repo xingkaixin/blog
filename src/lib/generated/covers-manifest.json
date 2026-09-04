@@ -369,6 +369,14 @@
         "7c1cb68f08cf7a91b00bb96a6451184a0b38ac171f190077a84928b79da0208f"
       ]
     },
+    "cot-distillation-thinking-block.png": {
+      "fingerprint": "8ddaf9097952b2eac6b62dd5aa047d840622f42707b8918e816c2b4b176b2f59",
+      "outputFingerprints": [
+        "44d01aa3b6cb8c651bd4dce3f9f54cc7d99d38b7948042df9ca369a37c2b6454",
+        "18aa8bd1614c5055c64158cf9b91ec862922d99356772ddcf9f86e3b9f1241c4",
+        "99bbf990dc884a744c8463baa646531be62bf8102e520cdd1025370846c63d77"
+      ]
+    },
     "deepseek-harness-133-plugins.png": {
       "fingerprint": "c77b5f836582191638cb5718c0cceebced010dc3f669fe22f804eca815d7ab46",
       "outputFingerprints": [

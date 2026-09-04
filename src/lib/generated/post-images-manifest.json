@@ -881,6 +881,30 @@
         "9972e62758db1a249edbf64d9c100fb04ae4c80952fa722a4604f448eeecddb7"
       ]
     },
+    "/posts/images/cot-distillation-thinking-block/cot-distillation-thinking-block-01.png": {
+      "fingerprint": "78b06a71070cff2f40aa9b5e75cb156de8f0e06d37ebb7067cd71251836d24a3",
+      "outputFingerprints": [
+        "086ab7f317322fd3d361ba6872f4e83fcad46831598b0eefc992b63e35d79360",
+        "f78f9eeec450ec837787c9495ffe9e0ab36a91fcea950f820848f6be10d5e877",
+        "7a960c4db95747941126d00ad20d8008bb4e4ce764fbe313f406834e5222ab1e"
+      ]
+    },
+    "/posts/images/cot-distillation-thinking-block/cot-distillation-thinking-block-02.png": {
+      "fingerprint": "59814c6433d4b0911cb471dfded718a45d0631bd47e9c1725a7085f471038764",
+      "outputFingerprints": [
+        "788c6bf59405bea622b37bb1246bf55a3677d6903a1b84f4404279bd43ea2876",
+        "1b5469da36bc22aef712accf82eef314c9276cbbaf9ca82f606a37cdc0e27fa7",
+        "f4eedf48553bb0b913f355cce5b50c69ae34774b6c4b93d816ba4e18bf26f9af"
+      ]
+    },
+    "/posts/images/cot-distillation-thinking-block/cot-distillation-thinking-block-03.png": {
+      "fingerprint": "00cd9866bc86c7dae27b352e7d88b5581c0c8af6dd56a5e425c695f008e75eb4",
+      "outputFingerprints": [
+        "accb545a78f799159bf1327c3c9828abc9ffffd824824f6208e179e18d7384b4",
+        "6991501c7ce27969e7885f8a1b780322996842a3a92437146367b0c69298b5d2",
+        "c7e5623f4a091f6c50e2ac6f6e6ea4c6460034ca9a053655d1f27f183c959664"
+      ]
+    },
     "/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-01.png": {
       "fingerprint": "f1b0ea64b8f16e72246270204cb859872c0860cefcfc120e05ac5bd5a17f5e6f",
       "outputFingerprints": [

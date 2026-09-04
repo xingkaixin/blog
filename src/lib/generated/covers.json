@@ -321,6 +321,13 @@
     "width": 1880,
     "height": 800
   },
+  "cot-distillation-thinking-block.png": {
+    "mobile": "/cover/cot-distillation-thinking-block-400.webp",
+    "desktop": "/cover/cot-distillation-thinking-block-800.webp",
+    "full": "/cover/cot-distillation-thinking-block.webp",
+    "width": 1922,
+    "height": 818
+  },
   "deepseek-harness-133-plugins.png": {
     "mobile": "/cover/deepseek-harness-133-plugins-400.webp",
     "desktop": "/cover/deepseek-harness-133-plugins-800.webp",
