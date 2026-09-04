@@ -42,7 +42,10 @@ beforeEach(() => {
         <span data-preview-word-count></span>
         <span data-preview-reading-minutes></span>
         <span data-preview-tags></span>
-        <div data-preview-related-section><div data-preview-related></div></div>
+        <div data-preview-related-section>
+          <template data-preview-related-template><a class="preview-related-link" aria-label="相关文章"></a></template>
+          <div data-preview-related></div>
+        </div>
       </aside>
     </section>`;
   root = document.querySelector("[data-post-console]")!;
@@ -108,6 +111,12 @@ describe("initializePostConsole", () => {
       "/posts/third/",
     );
     expect(root.querySelector("[data-preview-related]")?.textContent).toBe("first");
+    expect(root.querySelector("[data-preview-related] a")?.getAttribute("class")).toBe(
+      "preview-related-link",
+    );
+    expect(root.querySelector("[data-preview-related] a")?.getAttribute("aria-label")).toBe(
+      "相关文章",
+    );
   });
 
   it.each([

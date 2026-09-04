@@ -1,7 +1,8 @@
 ---
 import { resolveCover } from "@/lib/covers";
+import PostPreviewLink from "@/components/astro/PostPreviewLink.astro";
 import { postHref } from "@/lib/published-post";
-import type { PostConsoleItem } from "@/lib/post-console";
+import { postPreviewContent, type PostConsoleItem } from "@/lib/post-console";
 
 type Props = {
   post: PostConsoleItem;
@@ -10,6 +11,7 @@ type Props = {
 
 const { post, related } = Astro.props;
 const cover = resolveCover(post.cover);
+const content = postPreviewContent(post, cover);
 ---
 
 <aside data-post-preview class="hidden border-l border-line bg-surface p-[18px] xl:block">
@@ -20,7 +22,7 @@ const cover = resolveCover(post.cover);
     class="mt-3 block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
   >
     <picture class="block">
-      <source data-preview-source srcset={`${cover.mobile} 1x, ${cover.desktop} 2x`} />
+      <source data-preview-source srcset={content.coverSrcSet} />
       <img
         data-preview-image
         src={cover.desktop}
@@ -47,33 +49,25 @@ const cover = resolveCover(post.cover);
   <dl class="mt-4 grid gap-1.5 font-mono text-[10px] text-ink-400">
     <div class="flex justify-between gap-3">
       <dt>字数</dt>
-      <dd data-preview-word-count class="text-ink-600">{post.wordCount.toLocaleString("zh-CN")}</dd>
+      <dd data-preview-word-count class="text-ink-600">{content.wordCount}</dd>
     </div>
     <div class="flex justify-between gap-3">
       <dt>阅读</dt>
-      <dd data-preview-reading-minutes class="text-ink-600">{post.readingMinutes} min</dd>
+      <dd data-preview-reading-minutes class="text-ink-600">{content.readingMinutes}</dd>
     </div>
     <div class="flex justify-between gap-3">
       <dt>标签</dt>
       <dd data-preview-tags class="max-w-44 truncate text-right text-ink-600">
-        {post.tags.join(" · ")}
+        {content.tags}
       </dd>
     </div>
   </dl>
 
   <div data-preview-related-section hidden={related.length === 0} class="mt-4 border-t border-line pt-3.5">
+    <template data-preview-related-template><PostPreviewLink /></template>
     <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">同标签</p>
     <div data-preview-related class="mt-2 space-y-1.5">
-      {
-        related.map((item) => (
-          <a
-            href={postHref(item.slug)}
-            class="line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent"
-          >
-            {item.title}
-          </a>
-        ))
-      }
+      {related.map((item) => <PostPreviewLink post={item} />)}
     </div>
   </div>
 </aside>

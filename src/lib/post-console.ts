@@ -8,6 +8,18 @@ export type PostConsoleFilter = {
   tag: string | null;
 };
 
+export function postPreviewContent(
+  post: Pick<PostConsoleItem, "wordCount" | "readingMinutes" | "tags">,
+  cover: { mobile: string; desktop: string },
+) {
+  return {
+    coverSrcSet: `${cover.mobile} 1x, ${cover.desktop} 2x`,
+    wordCount: post.wordCount.toLocaleString("zh-CN"),
+    readingMinutes: `${post.readingMinutes} min`,
+    tags: post.tags.join(" · "),
+  };
+}
+
 export function matchesPostConsoleFilter(
   post: Pick<PostConsoleItem, "date" | "tags">,
   filter: PostConsoleFilter,

@@ -1,0 +1,16 @@
+---
+import { postHref, type PublishedPost } from "@/lib/published-post";
+
+type Props = {
+  post?: Pick<PublishedPost, "slug" | "title">;
+};
+
+const { post } = Astro.props;
+---
+
+<a
+  href={post ? postHref(post.slug) : undefined}
+  class="line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent"
+>
+  {post?.title}
+</a>

@@ -1,4 +1,8 @@
-import { matchesPostConsoleFilter, type PostConsoleFilter } from "./post-console";
+import {
+  matchesPostConsoleFilter,
+  postPreviewContent,
+  type PostConsoleFilter,
+} from "./post-console";
 import { relatedPosts } from "./post-tags";
 import { postHref } from "./published-post";
 
@@ -37,6 +41,10 @@ export function initializePostConsole(root: HTMLElement): void {
       return;
     }
     preview.hidden = false;
+    const content = postPreviewContent(post, {
+      mobile: post.coverMobile,
+      desktop: post.coverDesktop,
+    });
     for (const link of preview.querySelectorAll<HTMLAnchorElement>("[data-preview-link]")) {
       link.href = postHref(post.slug);
     }
@@ -49,23 +57,24 @@ export function initializePostConsole(root: HTMLElement): void {
     }
     const source = preview.querySelector<HTMLSourceElement>("[data-preview-source]");
     if (source) {
-      source.srcset = `${post.coverMobile} 1x, ${post.coverDesktop} 2x`;
+      source.srcset = content.coverSrcSet;
     }
     setText(preview, "[data-preview-title]", post.title);
     setText(preview, "[data-preview-summary]", post.summary);
-    setText(preview, "[data-preview-word-count]", post.wordCount.toLocaleString("zh-CN"));
-    setText(preview, "[data-preview-reading-minutes]", `${post.readingMinutes} min`);
-    setText(preview, "[data-preview-tags]", post.tags.join(" · "));
+    setText(preview, "[data-preview-word-count]", content.wordCount);
+    setText(preview, "[data-preview-reading-minutes]", content.readingMinutes);
+    setText(preview, "[data-preview-tags]", content.tags);
 
     const recommendations = relatedPosts(posts, post);
     const related = preview.querySelector<HTMLElement>("[data-preview-related]");
-    if (related) {
+    const linkTemplate = preview.querySelector<HTMLTemplateElement>(
+      "[data-preview-related-template]",
+    )?.content.firstElementChild;
+    if (related && linkTemplate) {
       related.replaceChildren(
         ...recommendations.map((item) => {
-          const link = document.createElement("a");
+          const link = linkTemplate.cloneNode(true) as HTMLAnchorElement;
           link.href = postHref(item.slug);
-          link.className =
-            "line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent";
           link.textContent = item.title;
           return link;
         }),
