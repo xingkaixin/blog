@@ -24,6 +24,7 @@ export function usePhotoSelection({
   const [state, setState] = useState<PhotoSelectionState>({ status: "idle" });
   const [retryCount, setRetryCount] = useState(0);
   const lastPhotoRef = useRef<PhotoRecord | null>(null);
+  const selectionResolverRef = useRef<typeof resolvePhoto | null>(null);
   const resolutionGenerationRef = useRef(0);
   const isSelected = useEffectEvent(
     (id: string) => state.status === "ready" && state.photo.id === id,
@@ -42,7 +43,8 @@ export function usePhotoSelection({
       return undefined;
     }
 
-    if (isSelected(photoId)) {
+    // 解析器绑定当前 Catalog，旧 Catalog 的选中结果不能跳过重新定位。
+    if (selectionResolverRef.current === resolvePhoto && isSelected(photoId)) {
       return undefined;
     }
     const generation = resolutionGenerationRef.current + 1;
@@ -64,6 +66,7 @@ export function usePhotoSelection({
         return;
       }
       lastPhotoRef.current = result.photo;
+      selectionResolverRef.current = resolvePhoto;
       setState({ status: "ready", photo: result.photo });
     });
 
@@ -74,11 +77,15 @@ export function usePhotoSelection({
     };
   }, [catalogReady, onMissing, photoId, resolvePhoto, retryCount]);
 
-  const select = useCallback((photo: PhotoRecord) => {
-    resolutionGenerationRef.current += 1;
-    lastPhotoRef.current = photo;
-    setState({ status: "ready", photo });
-  }, []);
+  const select = useCallback(
+    (photo: PhotoRecord) => {
+      resolutionGenerationRef.current += 1;
+      lastPhotoRef.current = photo;
+      selectionResolverRef.current = resolvePhoto;
+      setState({ status: "ready", photo });
+    },
+    [resolvePhoto],
+  );
 
   const dismiss = useCallback(() => {
     resolutionGenerationRef.current += 1;

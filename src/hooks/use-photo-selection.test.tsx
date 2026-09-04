@@ -63,6 +63,22 @@ afterEach(async () => {
 });
 
 describe("usePhotoSelection", () => {
+  it("clears an open photo removed from the refreshed catalog", async () => {
+    const onMissing = vi.fn();
+    const options = {
+      catalogReady: true,
+      photoId: firstPhoto.id,
+      resolvePhoto: vi.fn().mockResolvedValue(firstPhoto),
+      onMissing,
+    };
+    await renderSelection(options);
+    expect(selection.selectedPhoto).toEqual(firstPhoto);
+
+    await renderSelection({ ...options, resolvePhoto: vi.fn().mockResolvedValue(null) });
+    expect(selection.selectedPhoto).toBeNull();
+    expect(onMissing).toHaveBeenCalledOnce();
+  });
+
   it("does not resolve a photo already selected before the URL update", async () => {
     const resolvePhoto = vi.fn().mockResolvedValue(firstPhoto);
     const options = { catalogReady: true, photoId: null, resolvePhoto, onMissing: vi.fn() };

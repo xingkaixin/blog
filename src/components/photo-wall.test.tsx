@@ -26,6 +26,53 @@ afterEach(async () => {
 });
 
 describe("photo overview recovery", () => {
+  it("refreshes the open photo and navigation when an adjacent month expires", async () => {
+    const catalog = fixture(1, true, 3);
+    const revision = "b".repeat(24);
+    const latest = {
+      ...catalog.index,
+      periods: catalog.index.periods.map((period) => ({
+        ...period,
+        path: `catalog/months/${period.month}.${revision}.json`,
+      })),
+    };
+    const months = catalog.months.map((month) => ({
+      ...month,
+      photos: month.photos.map((photo) => ({ ...photo, mediaRevision: revision })),
+    }));
+    const expiredMonth = Promise.withResolvers<Response>();
+    let indexLoads = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = input instanceof Request ? input.url : input.toString();
+      if (url.endsWith("index.json")) {
+        return Response.json(indexLoads++ === 0 ? catalog.index : latest);
+      }
+      if (url.endsWith(catalog.index.periods[2].path)) {
+        return expiredMonth.promise;
+      }
+      const refreshed = latest.periods.findIndex((period) => url.endsWith(period.path));
+      if (refreshed >= 0) {
+        return Response.json(months[refreshed]);
+      }
+      const original = catalog.index.periods.findIndex((period) => url.endsWith(period.path));
+      return Response.json(catalog.months[original]);
+    });
+    window.history.replaceState({}, "", "/photos/#album=trip");
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
+    await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" />));
+    await act(async () =>
+      container.querySelectorAll<HTMLButtonElement>("[data-photo-id]")[1].click(),
+    );
+    expect(document.querySelector('[role="dialog"] img')).not.toBeNull();
+    await act(async () => expiredMonth.resolve(new Response(null, { status: 404 })));
+    expect(indexLoads).toBe(2);
+    expect(document.querySelector<HTMLImageElement>('[role="dialog"] img')?.src).toContain(
+      revision,
+    );
+    expect(document.querySelector('[aria-label="上一张照片"]')).not.toBeNull();
+    expect(document.querySelector('[aria-label="下一张照片"]')).not.toBeNull();
+  });
+
   it("restarts visible pending months after another month refreshes the index", async () => {
     const catalog = fixture(1, true, 4);
     const latest = {
