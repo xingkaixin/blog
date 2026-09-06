@@ -1,10 +1,12 @@
 import { useEffect, useMemo } from "react";
+import "@/components/photo-background.css";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoOverview, PhotoWallError, PhotoWallLoading } from "@/components/photo-overview";
 import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
+import { photoBackgroundStyle } from "@/lib/photo-background";
 import { buildPhotoWallCatalogModel, buildPhotoWallModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
@@ -70,7 +72,12 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
 
   return (
-    <section className="pb-20">
+    <section className="photo-wall pb-20">
+      <div
+        aria-hidden="true"
+        className="photo-wall-backdrop"
+        style={photoBackgroundStyle(catalogModel.selectedAlbumId)}
+      />
       {catalogState.status === "loading" && <PhotoWallLoading />}
       {catalogState.status === "error" && (
         <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />

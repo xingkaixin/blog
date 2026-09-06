@@ -1,3 +1,4 @@
+import { photoBackgroundStyle } from "@/lib/photo-background";
 import { PHOTO_THUMBNAIL_WIDTH, photoVariantUrl, type PhotoPeriod } from "@/lib/photo-catalog";
 import type { AlbumOverviewItem } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
@@ -139,6 +140,11 @@ function AlbumOverviewCard({
       aria-label={`打开${item.title}，${item.count}张照片`}
     >
       <span className="relative block aspect-4/3 overflow-hidden rounded-[12px] border border-line bg-surface">
+        <span
+          aria-hidden="true"
+          className="photo-album-backdrop"
+          style={photoBackgroundStyle(item.id)}
+        />
         {(item.photos.length > 0 ? item.photos : [null, null, null, null]).map((photo, index) => (
           <span
             key={photo?.id ?? index}
