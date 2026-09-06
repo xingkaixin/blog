@@ -24,6 +24,9 @@ it("builds tag archives whose paths and canonical URLs match encoded links", () 
         recursive: true,
       });
     }
+    fs.cpSync(path.join(project, "src/assets/footer"), path.join(root, "src/assets/footer"), {
+      recursive: true,
+    });
     fs.copyFileSync(path.join(project, "src", "index.css"), path.join(root, "src", "index.css"));
     const post = readPublishedPosts(path.join(project, "content", "posts"))[0];
     const posts = ["one", "two"].map((slug) => ({ ...post, slug, tags }));

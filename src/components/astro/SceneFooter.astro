@@ -1,0 +1,136 @@
+---
+import { Image } from "astro:assets";
+import writing from "@/assets/footer/writing.png";
+import building from "@/assets/footer/building.png";
+import photography from "@/assets/footer/photography.png";
+import hello from "@/assets/footer/hello.png";
+import lake from "@/assets/footer/scenery/lake.png";
+import coast from "@/assets/footer/scenery/coast.png";
+import town from "@/assets/footer/scenery/town.png";
+import { siteShortcuts } from "@/lib/site-shortcuts";
+
+type Props = { currentPath: string; label: string };
+const { currentPath, label } = Astro.props;
+const scene = currentPath === "/about" ? "hello" : currentPath.startsWith("/photos") ? "photography" : currentPath === "/projects" ? "building" : "writing";
+const scenes = {
+  hello: { image: hello, title: "嗨，我是开心。", text: "写代码、拍照片，也记录生活。", alt: "开心微笑着挥手打招呼" },
+  photography: { image: photography, title: "再拍一张。", text: "把路过的风景，留在这里。", alt: "开心举起相机，拍摄眼前的风景" },
+  building: { image: building, title: "有个想法，正在做。", text: "把日常的小问题，做成顺手的小工具。", alt: "开心坐在电脑前制作工具" },
+  writing: { image: writing, title: "写下来，慢慢想。", text: "关于技术，也关于一路上的发现。", alt: "开心坐在桌前，用笔记录想法" },
+};
+const content = scenes[scene];
+---
+
+<footer class="scene-footer" data-scene={scene}>
+  <div class="footer-stage">
+    <div class="character">
+      <Image src={content.image} alt={content.alt} widths={[360, 720]} sizes="(max-width: 640px) 180px, 320px" width={480} format="webp" loading="lazy" />
+      {scene === "photography" && <span class="camera-flash" aria-hidden="true" />}
+    </div>
+    <div class="footer-copy">
+      <p class="footer-title">{content.title}</p>
+      <p class="footer-description">{content.text}</p>
+      {scene === "building" && <span class="work-detail" aria-hidden="true">building<span class="work-dots">...</span></span>}
+      {scene === "writing" && <svg class="ink-stroke" aria-hidden="true" viewBox="0 0 150 20"><path d="M3 12 Q35 4 70 10 T145 8" /></svg>}
+    </div>
+    {scene === "photography" && (
+      <div class="landscapes" aria-hidden="true">
+        {[lake, coast, town].map((image, index) => (
+          <Image
+            src={image}
+            alt=""
+            class="landscape"
+            style={`animation-delay: ${index * 8}s`}
+            widths={[640, 1280, 1920]}
+            sizes="(max-width: 640px) 100vw, 1200px"
+            width={1280}
+            format="webp"
+            loading="lazy"
+          />
+        ))}
+      </div>
+    )}
+  </div>
+  <div class="footer-bottom">
+    <span>{label}</span>
+    <span class="shortcuts">{siteShortcuts.search.hint} 命令面板 · {siteShortcuts.theme.hint} 翻转世界</span>
+  </div>
+</footer>
+
+<style>
+  .scene-footer { border-top: 1px solid var(--line); background: var(--ink-50); overflow: hidden; }
+  .footer-stage { position: relative; display: flex; align-items: center; gap: 36px; max-width: 1056px; min-height: 280px; margin: auto; padding: 20px 32px; }
+  .character { position: relative; z-index: 1; flex: 0 0 320px; }
+  .character img { display: block; width: 100%; height: 230px; object-fit: contain; }
+  .footer-copy { position: relative; z-index: 1; }
+  .footer-title { margin: 0; font-family: var(--font-display); font-size: 30px; color: var(--ink-700); }
+  .footer-description { margin: 10px 0 0; color: var(--ink-500); font-size: 13px; line-height: 1.8; }
+  .footer-bottom { display: flex; align-items: center; gap: 24px; border-top: 1px solid var(--line); max-width: 1280px; margin: auto; padding: 12px 32px; font-family: var(--font-mono); font-size: 10px; color: var(--ink-500); }
+  .shortcuts { margin-left: auto; }
+  .work-detail { display: block; margin-top: 20px; font: 11px var(--font-mono); color: var(--ink-400); }
+  .work-dots { display: inline-block; overflow: hidden; width: 3ch; vertical-align: bottom; animation: typing 3s steps(4, end) infinite; }
+  .ink-stroke { width: 140px; height: 20px; margin-top: 12px; fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: .5; stroke-dasharray: 150; animation: writing 8s ease-in-out infinite; }
+  .camera-flash { position: absolute; left: calc(50% + 17px); top: 14%; width: 20px; height: 20px; border-radius: 50%; background: #fff7d7; box-shadow: 0 0 18px 8px #f3dca870; opacity: 0; animation: shutter 8s ease-out infinite; }
+  [data-scene="hello"] .character img { transform-origin: 50% 95%; animation: greeting 8s ease-in-out infinite; }
+  @keyframes greeting { 0%, 15%, 100% { transform: rotate(0); } 5% { transform: rotate(-2deg); } 10% { transform: rotate(1deg); } }
+  .landscapes {
+    position: absolute;
+    inset: -12px -80px;
+    pointer-events: none;
+    opacity: .18;
+    filter: blur(3px) saturate(.75);
+    mask-image: radial-gradient(ellipse 72% 95% at 50% 55%, #000 30%, transparent 76%);
+  }
+  .landscape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+    animation: scenery 24s linear infinite;
+    opacity: 0;
+  }
+  :global([data-theme="dark"]) .landscapes { opacity: .14; }
+  [data-offscreen] * { animation-play-state: paused !important; }
+  @keyframes shutter { 0%, 8%, 100% { opacity: 0; transform: scale(.6); } 3% { opacity: .8; transform: scale(1); } }
+  /* 每 8 秒在快门亮起的 240ms 内交叉淡入下一张风景。 */
+  @keyframes scenery {
+    0% { opacity: 0; }
+    1%, 33.333% { opacity: 1; }
+    34.333%, 100% { opacity: 0; }
+  }
+  @keyframes typing { from { width: 0; } to { width: 4ch; } }
+  @keyframes writing { 0%, 15% { stroke-dashoffset: 150; } 50%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -150; } }
+  @media (max-width: 640px) {
+    .footer-stage { min-height: 240px; gap: 8px; padding: 24px 16px; }
+    .character { flex-basis: 45%; }
+    .character img { height: 180px; }
+    .footer-title { font-size: 23px; }
+    .footer-description { font-size: 12px; max-width: 15em; }
+    .footer-bottom { padding: 10px 20px; justify-content: space-between; }
+    .shortcuts { display: none; }
+    .landscapes { inset: 0 -48px; filter: blur(2px) saturate(.75); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scene-footer * { animation: none !important; }
+    .landscape:first-child { opacity: 1; }
+  }
+</style>
+
+<script>
+  let cleanup: (() => void) | undefined;
+  document.addEventListener("astro:page-load", () => {
+    cleanup?.();
+    const footer = document.querySelector<HTMLElement>(".scene-footer");
+    if (!footer) {
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      footer.toggleAttribute("data-offscreen", !entry.isIntersecting);
+    });
+    observer.observe(footer);
+    cleanup = () => observer.disconnect();
+  });
+  document.addEventListener("astro:before-swap", () => { cleanup?.(); cleanup = undefined; });
+</script>

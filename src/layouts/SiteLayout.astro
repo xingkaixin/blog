@@ -4,7 +4,8 @@ import outfit400Url from "@fontsource/outfit/latin-400.css?url";
 import outfit500Url from "@fontsource/outfit/latin-500.css?url";
 import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
 import { ClientRouter } from "astro:transitions";
-import TrackCar from "@/components/astro/TrackCar.astro";
+import SceneFooter from "@/components/astro/SceneFooter.astro";
+import ReadingProgress from "@/components/astro/ReadingProgress.astro";
 import SearchLauncher from "@/components/astro/SearchLauncher.astro";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import {
@@ -183,7 +184,8 @@ const pageTransition = {
     <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta))}></script>
   </head>
   <body>
-    <div class="relative min-h-[100dvh] pb-[30px]">
+    <div class="relative flex min-h-[100dvh] flex-col">
+      {meta.type === "article" && <ReadingProgress />}
       <a
         href="#main-content"
         class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[6px] focus:bg-ink-800 focus:px-4 focus:py-2 focus:text-paper"
@@ -242,12 +244,12 @@ const pageTransition = {
         </div>
       </header>
 
-      <main id="main-content" tabindex="-1" transition:name="page-content" transition:animate={pageTransition}>
+      <main id="main-content" class="flex-1" tabindex="-1" transition:name="page-content" transition:animate={pageTransition}>
         <slot />
       </main>
 
-      <TrackCar
-        mode={meta.type === "article" ? "progress" : "cruise"}
+      <SceneFooter
+        currentPath={currentPath}
         label={status ?? defaultStatus}
       />
     </div>
