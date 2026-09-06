@@ -76,15 +76,15 @@ const routes: SiteRoute[] = [
   },
   {
     id: "feed",
-    href: "/feed.xml",
+    href: "/rss/",
     label: "订阅 RSS",
     searchTitle: "订阅 RSS",
     keywords: "订阅 rss feed",
-    status: "SYSTEM",
-    reload: true,
+    status: "RSS",
+    reload: false,
     desktop: true,
     mobile: true,
-    sitemap: null,
+    sitemap: { changefreq: "yearly", priority: "0.3" },
   },
 ];
 
