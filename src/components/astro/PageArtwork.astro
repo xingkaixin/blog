@@ -1,0 +1,50 @@
+---
+type Props = { scene: "writing" | "building" | "photography" };
+const { scene } = Astro.props;
+---
+
+<svg class="page-artwork" data-scene={scene} viewBox="0 0 480 360" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {scene === "writing" && (
+    <g transform="rotate(-12 240 180)">
+      <rect x="104" y="40" width="220" height="280" rx="12" />
+      <path d="M140 40v280M170 98h112M170 130h88M170 194h100M170 226h112M170 258h64" />
+      <path d="m274 248 20-52 100-100a14 14 0 0 1 20 20L314 216l-40 32ZM294 196l20 20M380 110l20 20" />
+      <path d="M94 82h20M94 126h20M94 170h20M94 214h20M94 258h20" />
+    </g>
+  )}
+  {scene === "building" && (
+    <>
+      <path d="M64 76h352M64 284h352M96 44v272M384 44v272" stroke-dasharray="3 12" stroke-width="1.5" />
+      <rect x="116" y="96" width="248" height="168" rx="10" />
+      <path d="M116 128h248M136 112h2M150 112h2M164 112h2M196 166l-28 28 28 28M284 166l28 28-28 28M254 158l-28 72" />
+      <path d="m344 252 38-22 38 22v44l-38 22-38-22v-44ZM344 252l38 22 38-22M382 274v44" />
+    </>
+  )}
+  {scene === "photography" && (
+    <g transform="rotate(10 240 180)">
+      <path d="M88 126h62l18-30h80l18 30h54a12 12 0 0 1 12 12v124a12 12 0 0 1-12 12H88a12 12 0 0 1-12-12V138a12 12 0 0 1 12-12Z" />
+      <circle cx="206" cy="198" r="52" />
+      <circle cx="206" cy="198" r="36" />
+      <path d="M100 148h28M288 148h18M110 114h24" />
+      <path d="m310 70 92 18-32 166-28-5M332 106l44 9-18 92M332 180l14-14 18 26" />
+      <circle cx="352" cy="137" r="8" />
+    </g>
+  )}
+</svg>
+
+<style>
+  .page-artwork { position: absolute; z-index: -1; width: min(440px, 90%); height: auto; color: var(--accent); opacity: .06; pointer-events: none; }
+  :global([data-theme="dark"]) .page-artwork { opacity: .1; }
+  [data-scene="writing"] { top: 160px; right: 300px; }
+  [data-scene="building"] { top: -64px; left: calc(50% - 200px); width: 360px; }
+  [data-scene="photography"] { top: -30px; right: -20px; width: 300px; }
+  @media (max-width: 1279px) {
+    [data-scene="writing"] { right: 16px; }
+  }
+  @media (max-width: 640px) {
+    .page-artwork { opacity: .045; }
+    [data-scene="writing"] { top: 120px; right: 8px; width: 280px; }
+    [data-scene="building"] { top: 0; left: auto; right: 8px; width: 240px; }
+    [data-scene="photography"] { top: 12px; right: 0; width: 220px; }
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import { ProjectConsole } from "@/components/project-console";
+import PageArtwork from "@/components/astro/PageArtwork.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
@@ -13,5 +14,8 @@ const meta = {
 ---
 
 <SiteLayout meta={meta} status={`PROJECTS · ${projects.length} items`}>
-  <ProjectConsole projects={projects} client:load />
+  <div class="relative isolate overflow-hidden">
+    <PageArtwork scene="building" />
+    <ProjectConsole projects={projects} client:load />
+  </div>
 </SiteLayout>

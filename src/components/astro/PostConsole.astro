@@ -1,5 +1,6 @@
 ---
 import PostFilter from "@/components/astro/PostFilter.astro";
+import PageArtwork from "@/components/astro/PageArtwork.astro";
 import PostPreview from "@/components/astro/PostPreview.astro";
 import { ProjectStickers } from "@/components/project-stickers";
 import { resolveCover } from "@/lib/covers";
@@ -25,7 +26,8 @@ const totalWords = posts.reduce((sum, post) => sum + post.wordCount, 0);
 const previewPost = posts[0];
 ---
 
-<section data-post-console class="mx-auto max-w-320">
+<section data-post-console class="relative isolate mx-auto max-w-320">
+  <PageArtwork scene="writing" />
   <div class="border-b border-line px-3 py-2 lg:hidden">
     <PostFilter
       layout="mobile"
