@@ -4,6 +4,7 @@ import ContactCard from "@/components/astro/ContactCard.astro";
 import KoiPond from "@/components/astro/KoiPond.astro";
 import AboutCharacter from "@/components/astro/AboutCharacter.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
+import RecordPlayer from "@/components/astro/RecordPlayer.astro";
 import { siteConfig, siteContacts } from "@/lib/site";
 
 const meta = {
@@ -37,15 +38,25 @@ const contacts = Object.values(siteContacts);
       <section id="intro" class="intro relative isolate scroll-mt-20">
         <PageArtwork scene="photography" />
         <div class="intro-copy">
-          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">About</p>
-          <h1 class="mt-1.5 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
-            XingKaiXin
-          </h1>
-          <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
+          <div class="intro-heading">
+            <RecordPlayer />
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">About</p>
+              <h1 class="mt-1.5 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
+                XingKaiXin
+              </h1>
+              <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
+            </div>
+          </div>
           <p class="mt-7 text-[15px] leading-8 text-ink-700">{siteConfig.about}</p>
           <blockquote class="mt-5 border-l-3 border-accent py-1 pl-4 text-[14px] leading-7 text-ink-500">
             {siteConfig.motto}
           </blockquote>
+          <details class="music-credit">
+            <summary>音乐信息</summary>
+            <p><a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100061" target="_blank" rel="noopener noreferrer">Stoic Morning — Kevin MacLeod (incompetech.com)</a><br />
+              Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons: By Attribution 4.0</a></p>
+          </details>
         </div>
         <AboutCharacter />
       </section>
@@ -76,6 +87,12 @@ const contacts = Object.values(siteContacts);
 <style>
   .intro { display: grid; align-items: center; gap: 20px; }
   .intro-copy { min-width: 0; }
+  .intro-heading { display: flex; align-items: flex-end; gap: 10px; }
+  .intro-heading > div { min-width: 0; }
+  .music-credit { margin-top: 16px; color: var(--ink-400); font-size: 10px; line-height: 1.7; }
+  .music-credit summary { width: fit-content; cursor: pointer; }
+  .music-credit p { margin-top: 6px; }
+  .music-credit a { text-decoration: underline; text-underline-offset: 3px; }
   @media (min-width: 640px) {
     .intro { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: 24px; }
   }

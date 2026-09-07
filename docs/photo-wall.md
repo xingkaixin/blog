@@ -14,6 +14,8 @@ media/<photo-id>/<media-revision>/960.webp
 media/<photo-id>/<media-revision>/2048.webp
 ```
 
+同一公开 bucket 的 `audio/` 路径用于关于页音乐，见 [音乐授权与托管](music.md)。照片发布和回收只处理照片路径，不管理音乐。
+
 私有 bucket（`R2_PHOTO_CONTROL_BUCKET`）只保存 `catalog/control.json`，不绑定公开域名、
 不开启 `r2.dev`，也不通过 Worker 暴露。后台控制状态包含待回收对象路径，不属于公开数据。
 

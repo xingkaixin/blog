@@ -1,0 +1,155 @@
+<record-player>
+  <button class="turntable" type="button" aria-label="播放 Stoic Morning" aria-pressed="false" disabled>
+    <svg viewBox="0 0 160 132" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="record-wood" x1="10" y1="20" x2="150" y2="120" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#c49c72" /><stop offset="1" stop-color="#97704f" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="81" cy="119" rx="68" ry="7" fill="#29251d" opacity=".09" />
+      <rect x="20" y="111" width="15" height="9" rx="3" fill="#554b3e" />
+      <rect x="124" y="111" width="15" height="9" rx="3" fill="#554b3e" />
+      <rect x="8" y="16" width="144" height="100" rx="8" fill="#77583e" stroke="#594633" stroke-width="1.5" />
+      <rect x="8" y="10" width="144" height="99" rx="8" fill="url(#record-wood)" stroke="#75583e" stroke-width="1.5" />
+      <path d="M17 100H142 M20 104H60 M113 14H141" stroke="#e0bc91" stroke-linecap="round" opacity=".4" />
+      <circle cx="64" cy="59" r="43" fill="#47463d" />
+      <g class="vinyl">
+        <circle cx="64" cy="59" r="40" fill="#252725" stroke="#151b19" />
+        {[22, 26, 30, 34, 37].map((r) => <circle cx="64" cy="59" r={r} stroke="#9a9d90" stroke-width=".6" opacity=".19" />)}
+        <path d="M44 26A39 39 0 0 1 74 21L68 42A17 17 0 0 0 55 44Z M55 76L44 93A39 39 0 0 0 72 98L67 77Z" fill="#c6ccc0" opacity=".1" />
+        <circle cx="64" cy="59" r="16" fill="#d5c4a0" stroke="#a99777" />
+        <path d="M53 55Q64 49 75 55 M54 65Q64 69 74 65" stroke="#7e7259" stroke-width="1.2" stroke-linecap="round" />
+        <circle cx="64" cy="59" r="3" fill="#282b25" />
+      </g>
+      <circle cx="64" cy="59" r="1.4" fill="#e5e0ce" />
+      <rect x="126" y="67" width="8" height="20" rx="3" fill="#725943" />
+      <circle cx="121" cy="30" r="11" fill="#6c6251" stroke="#584e41" />
+      <circle cx="121" cy="30" r="7" fill="#b3b3a3" />
+      <g class="tonearm">
+        <path d="M121 20V63L130 76" stroke="#514d42" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M121 20V63L130 76" stroke="#d4d4c5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        <rect x="116" y="14" width="10" height="9" rx="2" fill="#777b71" stroke="#555b51" />
+        <rect x="125" y="72" width="10" height="16" rx="2" transform="rotate(-33 130 80)" fill="#343c35" stroke="#222b25" />
+        <path d="M134 86L136 89" stroke="#dedbcc" stroke-width="1.5" />
+      </g>
+      <circle cx="121" cy="30" r="3" fill="#dfdfcf" stroke="#858777" />
+      <circle class="power" cx="22" cy="96" r="2.3" fill="#625442" />
+    </svg>
+  </button>
+  <span class="status sr-only" aria-live="polite">点击播放</span>
+  <audio preload="none" src="https://photos.xingkaixin.me/audio/stoic-morning/43e9639741ee30d1.mp3"></audio>
+  <noscript><span class="status sr-only">启用 JavaScript 后播放</span></noscript>
+</record-player>
+
+<style>
+  record-player { display: block; flex: 0 0 80px; }
+  .turntable { display: block; width: 80px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; transition: transform 160ms ease-out; -webkit-tap-highlight-color: transparent; }
+  .turntable:disabled { cursor: default; }
+  .turntable:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .turntable:active:not(:disabled) { transform: scale(.97); }
+  svg { display: block; width: 100%; overflow: visible; }
+  .vinyl { transform-origin: 64px 59px; animation: record-spin 3s linear infinite; animation-play-state: paused; }
+  .tonearm { transform-origin: 121px 30px; transition: transform 420ms cubic-bezier(.22, 1, .36, 1); }
+  [data-playing] .vinyl { animation-play-state: running; }
+  [data-playing] .tonearm { transform: rotate(44deg); }
+  [data-playing] .power { fill: #dbe9a0; }
+  @keyframes record-spin { to { transform: rotate(360deg); } }
+  @media (hover: hover) and (pointer: fine) { .turntable:hover:not(:disabled) { transform: translateY(-2px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .tonearm, .turntable { transition: none; }
+    .vinyl { animation: none; }
+    .turntable:hover:not(:disabled), .turntable:active:not(:disabled) { transform: none; }
+  }
+</style>
+
+<script>
+  class RecordPlayer extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup?.();
+      const button = this.querySelector<HTMLButtonElement>("button")!;
+      const audio = this.querySelector<HTMLAudioElement>("audio")!;
+      const status = this.querySelector<HTMLElement>(".status")!;
+      const events = new AbortController();
+      const options = { signal: events.signal };
+      let requested = false;
+      let attempt = 0;
+      let fadeFrame = 0;
+      button.disabled = false;
+
+      const show = (playing: boolean, message: string) => {
+        this.toggleAttribute("data-playing", playing);
+        button.setAttribute("aria-pressed", String(playing));
+        button.setAttribute("aria-label", `${requested ? "暂停" : "播放"} Stoic Morning`);
+        status.textContent = message;
+      };
+      const stop = () => {
+        requested = false;
+        attempt++;
+        cancelAnimationFrame(fadeFrame);
+        audio.pause();
+        show(false, audio.currentTime > 0 && !audio.ended ? "点击继续" : "点击播放");
+      };
+      const fail = () => {
+        stop();
+        show(false, "加载失败，点击重试");
+      };
+
+      button.addEventListener("click", async () => {
+        if (requested) {
+          stop();
+          return;
+        }
+        requested = true;
+        const currentAttempt = ++attempt;
+        if (audio.error) {
+          audio.load();
+        }
+        audio.volume = 0;
+        show(false, "正在准备…");
+        try {
+          // Start within the click gesture; fade in after the arm reaches the record.
+          await audio.play();
+          if (currentAttempt !== attempt) {
+            return;
+          }
+          show(true, "点击暂停");
+          const start = performance.now();
+          const fadeIn = (time: number) => {
+            const progress = Math.max(0, Math.min(1, (time - start - 420) / 300));
+            audio.volume = progress * 0.35;
+            if (progress < 1) {
+              fadeFrame = requestAnimationFrame(fadeIn);
+            }
+          };
+          fadeFrame = requestAnimationFrame(fadeIn);
+        } catch {
+          if (currentAttempt === attempt) {
+            fail();
+          }
+        }
+      }, options);
+      audio.addEventListener("ended", stop, options);
+      audio.addEventListener("error", fail, options);
+      audio.addEventListener("pause", () => {
+        if (requested && audio.paused) {
+          stop();
+        }
+      }, options);
+      document.addEventListener("astro:before-swap", stop, options);
+      this.cleanup = () => {
+        events.abort();
+        stop();
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get("record-player")) {
+    customElements.define("record-player", RecordPlayer);
+  }
+</script>
