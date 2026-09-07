@@ -1,0 +1,173 @@
+---
+import { getImage } from "astro:assets";
+import characterSheet from "@/assets/about/sofa-character.png";
+
+const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 });
+---
+
+<about-character>
+  <svg class="scene" viewBox="0 -20 1060 970" role="img" aria-label="卷发、圆眼镜的开心，悠闲地坐在沙发上，目光随着鼠标轻轻转动">
+    <defs>
+      <clipPath id="about-body-outline">
+        <path d="M397 224 Q424 216 454 226 L457 255 Q509 258 552 282 L816 282 Q875 279 882 335 L886 417 Q984 420 1013 455 Q1028 477 1019 526 L1003 733 Q1000 759 979 765 L963 769 L955 831 Q946 838 936 831 L924 772 L716 781 L714 797 L694 806 Q696 812 707 821 L719 842 Q747 861 753 886 L753 898 Q723 920 657 901 Q617 888 620 862 L626 836 L637 814 L615 810 L609 781 L241 783 L229 846 Q216 853 203 846 L194 780 Q172 779 157 759 L149 788 Q137 796 128 788 L122 731 Q101 719 99 702 L87 491 Q78 508 69 481 Q54 453 69 424 Q89 392 118 375 L121 322 Q125 279 177 276 L283 274 Q342 257 384 261 L395 249Z" />
+      </clipPath>
+      <clipPath id="about-head-outline" transform="translate(1260 380) scale(.987) translate(-1260 -380)">
+        <path d="M1095 365 Q1077 357 1074 341 Q1050 329 1057 296 Q1057 276 1071 264 Q1060 239 1082 223 Q1092 215 1113 217 Q1110 180 1144 173 Q1165 165 1186 177 Q1212 143 1243 154 Q1274 155 1292 179 Q1321 159 1350 175 Q1378 188 1384 222 Q1398 227 1405 249 Q1435 242 1451 265 Q1463 281 1456 298 Q1480 325 1464 350 Q1460 374 1430 389 L1408 470 Q1433 478 1428 512 Q1424 543 1391 557 Q1377 565 1360 555 Q1320 597 1261 606 Q1193 618 1142 581 Q1100 551 1098 516 Q1073 510 1065 482 Q1055 459 1071 441 Q1080 432 1094 439Z" />
+      </clipPath>
+    </defs>
+    <svg width="1040" height="950" viewBox="0 0 1040 950" aria-hidden="true">
+      <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-body-outline)" />
+    </svg>
+    <g transform="translate(335 4) scale(.5)" aria-hidden="true">
+      <g data-head>
+        <svg width="440" height="500" viewBox="1050 140 440 500">
+          <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-head-outline)" />
+        </svg>
+        <g data-face>
+          <g fill="#ed9b83" opacity=".38">
+            <ellipse cx="109" cy="353" rx="27" ry="12" />
+            <ellipse cx="286" cy="366" rx="27" ry="12" />
+          </g>
+          <g fill="#403a34">
+            <path d="M91 239 Q114 221 145 240 L144 250 Q115 240 93 250 Q88 247 91 239Z" />
+            <path d="M236 248 Q267 236 291 259 L287 268 Q265 252 239 258Z" />
+          </g>
+          <g data-pupils fill="#302b26">
+            <ellipse cx="125" cy="302" rx="12" ry="17" />
+            <ellipse cx="264" cy="312" rx="12" ry="17" />
+            <g fill="#fff9ed" opacity=".8">
+              <ellipse cx="121" cy="297" rx="3" ry="4" />
+              <ellipse cx="260" cy="307" rx="3" ry="4" />
+            </g>
+          </g>
+          <path d="M196 315 Q187 344 190 351 Q199 359 207 352" fill="#edb194" stroke="#d99379" stroke-width="2" stroke-linecap="round" />
+          <g fill="none" stroke="#393630" stroke-width="4.5" stroke-linecap="round">
+            <ellipse cx="125" cy="302" rx="52" ry="55" transform="rotate(-5 125 302)" />
+            <ellipse cx="264" cy="312" rx="53" ry="55" transform="rotate(7 264 312)" />
+            <path d="M177 306 Q194 296 211 310 M73 298 L52 286 M317 314 L337 307" />
+          </g>
+          <path d="M153 382 Q191 400 237 389 Q226 431 193 427 Q164 424 153 382Z" fill="#49352c" stroke="#40352d" stroke-width="3" stroke-linejoin="round" />
+          <path d="M158 386 Q194 400 232 392 L226 403 Q190 408 164 398Z" fill="#fff8e9" />
+          <path d="M176 421 Q193 405 213 422 Q194 429 176 421Z" fill="#e79c87" />
+        </g>
+      </g>
+    </g>
+  </svg>
+</about-character>
+
+<style>
+  about-character { display: block; width: min(100%, 280px); margin: 0 auto; }
+  .scene { display: block; width: 100%; height: auto; overflow: visible; }
+  [data-head] { transform-origin: 185px 475px; }
+  [data-face] { transform-origin: 195px 320px; }
+</style>
+
+<script>
+  class AboutCharacter extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup?.();
+      const head = this.querySelector<SVGGElement>("[data-head]")!;
+      const face = this.querySelector<SVGGElement>("[data-face]")!;
+      const pupils = this.querySelector<SVGGElement>("[data-pupils]")!;
+      const scene = this.querySelector<SVGSVGElement>(".scene")!;
+      const media = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+      const events = new AbortController();
+      const options = { signal: events.signal, passive: true };
+      let visible = false;
+      let pointer: { x: number; y: number } | undefined;
+      let x = 0;
+      let y = 0;
+      let targetX = 0;
+      let targetY = 0;
+      let frame = 0;
+      let previousTime = 0;
+
+      function paint() {
+        // The painted face already leans right; additional shear exaggerates that asymmetry.
+        const turn = x > 0 ? x * 0.4 : x;
+        head.style.transform = `translate(${turn * 9}px, ${y * 4}px) rotate(${turn * 5}deg) scaleX(${1 - Math.abs(turn) * 0.035})`;
+        face.style.transform = `translate(${turn * 20}px, ${y * 12}px) skewY(${Math.min(x, 0) * 2}deg)`;
+        pupils.style.transform = `translate(${x * 11}px, ${y * 9}px)`;
+      }
+
+      function animate(time: number) {
+        const elapsed = Math.min(time - previousTime, 64);
+        previousTime = time;
+        const blend = 1 - Math.exp(-elapsed / 110);
+        x += (targetX - x) * blend;
+        y += (targetY - y) * blend;
+        const settled = Math.abs(targetX - x) + Math.abs(targetY - y) < 0.001;
+        if (settled) {
+          x = targetX;
+          y = targetY;
+        }
+        paint();
+        frame = settled ? 0 : requestAnimationFrame(animate);
+      }
+
+      function update() {
+        if (!visible || !media.matches || document.hidden) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+          pointer = undefined;
+          x = y = targetX = targetY = 0;
+          paint();
+          return;
+        }
+        const bounds = scene.getBoundingClientRect();
+        // Use the resting head position so its own movement cannot feed back into the target.
+        const centerX = bounds.left + bounds.width * (430 / 1060);
+        const centerY = bounds.top + bounds.height * (180 / 970);
+        targetX = pointer ? Math.tanh((pointer.x - centerX) / Math.max(bounds.width * 0.65, 180)) : 0;
+        targetY = pointer ? Math.tanh((pointer.y - centerY) / Math.max(bounds.height * 0.8, 200)) : 0;
+        if (!frame) {
+          previousTime = performance.now();
+          frame = requestAnimationFrame(animate);
+        }
+      }
+
+      function reset() {
+        pointer = undefined;
+        update();
+      }
+
+      window.addEventListener("pointermove", (event) => {
+        if (event.pointerType !== "mouse" || !visible || !media.matches) {
+          return;
+        }
+        pointer = { x: event.clientX, y: event.clientY };
+        update();
+      }, options);
+      window.addEventListener("pointerout", (event) => {
+        if (!event.relatedTarget) {
+          reset();
+        }
+      }, options);
+      window.addEventListener("blur", reset, options);
+      window.addEventListener("scroll", update, options);
+      window.addEventListener("resize", update, options);
+      document.addEventListener("visibilitychange", reset, options);
+      media.addEventListener("change", reset, options);
+      const observer = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        update();
+      });
+      observer.observe(this);
+      this.cleanup = () => {
+        events.abort();
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get("about-character")) {
+    customElements.define("about-character", AboutCharacter);
+  }
+</script>

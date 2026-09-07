@@ -2,6 +2,7 @@
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import ContactCard from "@/components/astro/ContactCard.astro";
 import KoiPond from "@/components/astro/KoiPond.astro";
+import AboutCharacter from "@/components/astro/AboutCharacter.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
 import { siteConfig, siteContacts } from "@/lib/site";
 
@@ -33,28 +34,20 @@ const contacts = Object.values(siteContacts);
     </nav>
 
     <article class="min-w-0 py-8 lg:px-8 lg:py-10 xl:px-10">
-      <section id="intro" class="relative isolate scroll-mt-20">
+      <section id="intro" class="intro relative isolate scroll-mt-20">
         <PageArtwork scene="photography" />
-        <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
-          <img
-            src="/avatar.webp"
-            alt="XingKaiXin 的手绘头像"
-            width="96"
-            height="96"
-            class="avatar-sticker h-24 w-24 shrink-0 object-cover"
-          />
-          <div>
-            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">About</p>
-            <h1 class="mt-1.5 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
-              XingKaiXin
-            </h1>
-            <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
-          </div>
+        <div class="intro-copy">
+          <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">About</p>
+          <h1 class="mt-1.5 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
+            XingKaiXin
+          </h1>
+          <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
+          <p class="mt-7 text-[15px] leading-8 text-ink-700">{siteConfig.about}</p>
+          <blockquote class="mt-5 border-l-3 border-accent py-1 pl-4 text-[14px] leading-7 text-ink-500">
+            {siteConfig.motto}
+          </blockquote>
         </div>
-        <p class="mt-7 text-[15px] leading-8 text-ink-700">{siteConfig.about}</p>
-        <blockquote class="mt-5 border-l-3 border-accent py-1 pl-4 text-[14px] leading-7 text-ink-500">
-          {siteConfig.motto}
-        </blockquote>
+        <AboutCharacter />
       </section>
 
       <section id="pond" class="mt-12 scroll-mt-20">
@@ -81,6 +74,12 @@ const contacts = Object.values(siteContacts);
 </SiteLayout>
 
 <style>
+  .intro { display: grid; align-items: center; gap: 20px; }
+  .intro-copy { min-width: 0; }
+  @media (min-width: 640px) {
+    .intro { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: 24px; }
+  }
+
   .outline-link {
     display: block;
     flex-shrink: 0;
@@ -119,27 +118,4 @@ const contacts = Object.values(siteContacts);
     }
   }
 
-  .avatar-sticker {
-    border-radius: 1.25rem;
-    border: 3px solid #fff;
-    box-shadow:
-      0 0 0 1px var(--line),
-      0 6px 16px -6px rgba(20, 21, 26, 0.28);
-    transform: rotate(-3deg);
-    transition: transform var(--duration-quick) var(--ease-smooth-out);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .avatar-sticker:hover {
-      transform: rotate(0deg) scale(1.03);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .avatar-sticker,
-    .avatar-sticker:hover {
-      transform: rotate(-3deg);
-      transition: none;
-    }
-  }
 </style>
