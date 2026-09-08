@@ -16,13 +16,15 @@ const { items } = Astro.props;
         class="hidden border-l border-line px-5 py-4 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
       >
         <p class="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">导览</p>
-        <nav class="space-y-0.5">
+        <nav data-toc-track class="relative space-y-0.5 pl-4">
+          <span data-toc-dot aria-hidden="true" class="pointer-events-none absolute left-0 top-0 size-1.5 rounded-full bg-accent opacity-0" />
           {items.map((item) => (
             <a
+              data-astro-reload
               data-toc-link={item.id}
               href={`#${item.id}`}
               class:list={[
-                "toc-link block rounded-r-[5px] border-l-2 border-transparent px-2.5 py-1.5 text-[12px] leading-5 text-ink-500 transition-[color,border-color,background-color] duration-(--duration-quick) hover:bg-ink-50 hover:text-ink-800",
+                "toc-link block rounded-[5px] px-2.5 py-1.5 text-[12px] leading-5 text-ink-500 transition-[color,background-color] duration-(--duration-quick) hover:bg-ink-50 hover:text-ink-800",
                 item.depth === 3 && "ml-3",
               ]}
             >
@@ -38,6 +40,7 @@ const { items } = Astro.props;
         <nav class="mt-3 space-y-0.5 border-t border-line pt-3">
           {items.map((item) => (
             <a
+              data-astro-reload
               data-toc-link={item.id}
               href={`#${item.id}`}
               class:list={[
@@ -72,7 +75,52 @@ const { items } = Astro.props;
           });
         }
 
-        function setActive(links: Element[], id: string) {
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let dotAnimation: Animation | undefined;
+        let resizeObserver: ResizeObserver | undefined;
+        let navigationTimer = 0;
+
+        function moveDot(link: HTMLElement, animate = true) {
+          const track = link.closest("[data-toc-track]");
+          const dot = track?.querySelector<HTMLElement>("[data-toc-dot]");
+          if (!(track instanceof HTMLElement) || !dot || !track.offsetWidth) {
+            return;
+          }
+
+          const toY = link.offsetTop + link.offsetHeight / 2 - dot.offsetHeight / 2;
+          const transform = new DOMMatrixReadOnly(getComputedStyle(dot).transform);
+          const fromX = transform.m41;
+          const fromY = transform.m42;
+          const ready = dot.style.opacity === "1";
+          dotAnimation?.cancel();
+          dot.style.transform = `translate(0px, ${toY}px)`;
+          dot.style.opacity = "1";
+          if (!animate || !ready || reducedMotion.matches || (fromY === toY && fromX === 0)) {
+            return;
+          }
+
+          const arcWidth = Math.min(10, Math.abs(toY - fromY) * 0.3);
+          const frames = Array.from({ length: 17 }, (_, index) => {
+            const progress = index / 16;
+            const x = fromX * (1 - progress) - 4 * arcWidth * progress * (1 - progress);
+            const y = fromY + (toY - fromY) * progress;
+            return { transform: `translate(${x}px, ${y}px)` };
+          });
+          const styles = getComputedStyle(track);
+          dotAnimation = dot.animate(frames, {
+            duration: parseFloat(styles.getPropertyValue("--duration-fast")),
+            easing: styles.getPropertyValue("--ease-smooth-out").trim(),
+          });
+        }
+
+        function alignDot() {
+          const link = document.querySelector<HTMLElement>('[data-toc-track] [aria-current="location"]');
+          if (link) {
+            moveDot(link, false);
+          }
+        }
+
+        function setActive(links: Element[], id: string, animate = true) {
           for (const link of links) {
             const isActive = link.getAttribute("data-toc-link") === id;
             if (isActive) {
@@ -89,6 +137,7 @@ const { items } = Astro.props;
             activeLink instanceof HTMLElement &&
             desktopNav.contains(activeLink)
           ) {
+            moveDot(activeLink, animate);
             keepActiveLinkVisible(desktopNav, activeLink);
           }
         }
@@ -97,6 +146,9 @@ const { items } = Astro.props;
         let animationFrame = 0;
 
         function updateActiveHeading() {
+          if (navigationTimer) {
+            return;
+          }
           const links = Array.from(document.querySelectorAll("[data-toc-link]"));
           if (!links.length) {
             return;
@@ -149,11 +201,37 @@ const { items } = Astro.props;
             cancelAnimationFrame(animationFrame);
             animationFrame = 0;
           }
+          clearTimeout(navigationTimer);
+          navigationTimer = 0;
+          dotAnimation?.cancel();
+          resizeObserver?.disconnect();
+          const track = document.querySelector("[data-toc-track]");
+          if (track) {
+            resizeObserver = new ResizeObserver(alignDot);
+            resizeObserver.observe(track);
+          }
           previousActiveId = null;
           scheduleUpdate();
         }
 
-        window.addEventListener("scroll", scheduleUpdate, { passive: true });
+        function finishNavigation() {
+          clearTimeout(navigationTimer);
+          navigationTimer = 0;
+          scheduleUpdate();
+        }
+
+        window.addEventListener("scroll", () => {
+          if (navigationTimer) {
+            clearTimeout(navigationTimer);
+            navigationTimer = window.setTimeout(finishNavigation, 150);
+          }
+          scheduleUpdate();
+        }, { passive: true });
+        document.addEventListener("scrollend", finishNavigation);
+        window.addEventListener("wheel", finishNavigation, { passive: true });
+        window.addEventListener("touchstart", finishNavigation, { passive: true });
+        window.addEventListener("keydown", finishNavigation);
+        reducedMotion.addEventListener("change", alignDot);
         document.addEventListener("astro:page-load", initialize);
         document.addEventListener("astro:before-swap", () => {
           if (animationFrame) {
@@ -161,10 +239,28 @@ const { items } = Astro.props;
             animationFrame = 0;
           }
           previousActiveId = null;
+          clearTimeout(navigationTimer);
+          navigationTimer = 0;
+          dotAnimation?.cancel();
+          resizeObserver?.disconnect();
         });
         document.addEventListener("click", (event) => {
           const target = event.target instanceof Element ? event.target.closest("[data-toc-link]") : null;
-          target?.closest("details")?.removeAttribute("open");
+          if (!(target instanceof HTMLAnchorElement) || event.defaultPrevented || event.button !== 0 ||
+            event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+          }
+          const id = target.getAttribute("data-toc-link");
+          if (!id || !document.getElementById(id)) {
+            return;
+          }
+
+          // Keep the clicked destination selected while native smooth scrolling passes other headings.
+          clearTimeout(navigationTimer);
+          navigationTimer = window.setTimeout(finishNavigation, 150);
+          previousActiveId = id;
+          setActive(Array.from(document.querySelectorAll("[data-toc-link]")), id, event.detail > 0);
+          target.closest("details")?.removeAttribute("open");
         });
         initialize();
       </script>

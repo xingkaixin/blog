@@ -389,9 +389,12 @@ body {
 }
 
 .toc-link[aria-current="location"] {
-  border-left-color: var(--accent);
   color: var(--ink-800);
   font-weight: 500;
+}
+
+details .toc-link[aria-current="location"] {
+  border-left-color: var(--accent);
 }
 
 /* ============================================================
