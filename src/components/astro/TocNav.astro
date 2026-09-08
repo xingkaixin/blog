@@ -107,8 +107,10 @@ const { items } = Astro.props;
             return { transform: `translate(${x}px, ${y}px)` };
           });
           const styles = getComputedStyle(track);
+          // CSS minification can convert milliseconds to seconds; Web Animations requires milliseconds.
+          const duration = styles.getPropertyValue("--duration-fast").trim();
           dotAnimation = dot.animate(frames, {
-            duration: parseFloat(styles.getPropertyValue("--duration-fast")),
+            duration: parseFloat(duration) * (duration.endsWith("ms") ? 1 : 1000),
             easing: styles.getPropertyValue("--ease-smooth-out").trim(),
           });
         }
