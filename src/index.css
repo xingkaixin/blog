@@ -680,7 +680,7 @@ details .toc-link[aria-current="location"] {
   }
 }
 
-/* 主题切换时收起 Astro 路由的独立快照，让整页共用 root 快照做斜切。 */
+/* 主题切换时收起 Astro 路由的独立快照，让整页共用 root 快照。 */
 .theme-wipe :is([data-astro-transition-scope], [data-astro-transition-persist]) {
   view-transition-name: none !important;
 }
@@ -688,20 +688,27 @@ details .toc-link[aria-current="location"] {
 .theme-wipe::view-transition-old(root),
 .theme-wipe::view-transition-new(root) {
   animation: none;
+  opacity: 1;
   mix-blend-mode: normal;
 }
 
 .theme-wipe::view-transition-new(root) {
-  animation: theme-wipe var(--duration-very-slow) var(--ease-in-out) both;
+  animation: theme-wipe 1000ms linear both;
 }
 
-/* 顶点 300% 越界保证斜边扫过整个视口后仍完全覆盖。 */
+/* 四分之一椭圆的两轴各占 65%，覆盖约 1/3 视口；25%–55% 停留 300ms。 */
 @keyframes theme-wipe {
-  from {
-    clip-path: polygon(100% 0, 100% 0, 100% 0);
+  0% {
+    clip-path: ellipse(0% 0% at 100% 0%);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
-  to {
-    clip-path: polygon(-200% 0, 100% 0, 100% 300%);
+  25%,
+  55% {
+    clip-path: ellipse(65% 65% at 100% 0%);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    clip-path: ellipse(150% 150% at 100% 0%);
   }
 }
 
