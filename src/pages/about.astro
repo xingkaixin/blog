@@ -4,6 +4,7 @@ import ContactCard from "@/components/astro/ContactCard.astro";
 import KoiPond from "@/components/astro/KoiPond.astro";
 import AboutCharacter from "@/components/astro/AboutCharacter.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
+import SiteCredits from "@/components/astro/SiteCredits.astro";
 import RecordPlayer from "@/components/astro/RecordPlayer.astro";
 import { siteConfig, siteContacts } from "@/lib/site";
 
@@ -30,6 +31,7 @@ const contacts = Object.values(siteContacts);
       <div class="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mt-3 lg:block lg:space-y-1">
         <a href="#intro" class="outline-link">简介</a>
         <a href="#pond" class="outline-link">池塘</a>
+        <a href="#credits" class="outline-link">演职人员表</a>
         <a href="#contact" class="outline-link">联系</a>
       </div>
     </nav>
@@ -63,6 +65,7 @@ const contacts = Object.values(siteContacts);
 
       <section id="pond" class="mt-12 scroll-mt-20">
         <KoiPond />
+        <SiteCredits />
         <p class="mt-6 font-mono text-[10px] leading-5 text-ink-400">
           源码公开在 <a
             href="https://github.com/xingkaixin/blog"

@@ -1,0 +1,158 @@
+---
+const sections = [
+  { title: "Cast", entries: [
+    ["Design & content", "XingKaiXin"],
+    ["Lead development", "Codex"],
+    ["Development assistance", "Claude Code"],
+  ] },
+  { title: "Foundation", entries: [
+    ["Application framework", "Astro"],
+    ["Interface library", "React"],
+    ["Content management", "Markdown & Astro Content Collections"],
+    ["Styling", "Tailwind CSS"],
+    ["Language", "TypeScript"],
+    ["Runtime & package management", "Bun"],
+  ] },
+  { title: "Infrastructure", entries: [
+    ["Hosting & deployment", "Cloudflare Pages"],
+    ["Media storage", "Cloudflare R2"],
+    ["Analytics", "Umami & Cloudflare Web Analytics"],
+    ["Source hosting", "GitHub"],
+  ] },
+  { title: "Typography", entries: [
+    ["Chinese display type", "得意黑 · Smiley Sans"],
+    ["Latin type", "Outfit"],
+    ["Monospace type", "JetBrains Mono"],
+  ] },
+  { title: "Interface & motion", entries: [
+    ["Interface primitives", "Base UI"],
+    ["Icon library", "Phosphor Icons"],
+    ["Signature animation", "Tegaki"],
+    ["Page & theme transitions", "CSS & View Transitions API"],
+  ] },
+  { title: "Content & media", entries: [
+    ["Markdown rendering", "remark & rehype"],
+    ["Image processing", "Bun.Image & Sharp"],
+    ["Photo metadata", "ExifTool"],
+    ["Social preview images", "Satori"],
+    ["Music", "Stoic Morning"],
+    ["Composed by", "Kevin MacLeod · incompetech.com"],
+    ["Music license", "CC BY 4.0"],
+  ] },
+  { title: "Production tools", entries: [
+    ["Testing", "Vitest"],
+    ["Linting & formatting", "Oxlint & Oxfmt"],
+    ["Continuous integration", "GitHub Actions"],
+    ["Version control", "Git"],
+  ] },
+];
+---
+
+<site-credits id="credits" aria-labelledby="credits-heading">
+  <header>
+    <h2 id="credits-heading">Credits</h2>
+    <button class="play-toggle" type="button" aria-label="播放 Stoic Morning" aria-pressed="false" disabled>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path class="play-icon" d="M5 3L13 8L5 13Z" /><path class="stop-icon" d="M4 4H12V12H4Z" /></svg>
+    </button>
+  </header>
+  <div class="screen" role="region" aria-label="Credits 名单" tabindex="0">
+    <div class="roll">
+      {[0, 1].map((copy) => (
+        <div class="reel" aria-hidden={copy === 1 ? "true" : undefined}>
+          {sections.map(({ title, entries }) => (
+            <section class="credit-section">
+              <h3>{title}</h3>
+              <dl>{entries.map(([role, name]) => <div class="credit"><dt>{role}</dt><dd>{name}</dd></div>)}</dl>
+            </section>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+</site-credits>
+
+<style>
+  site-credits { --credits-height: 320px; display: block; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 80px; }
+  header { display: flex; justify-content: center; align-items: center; gap: 8px; }
+  .play-toggle { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink-500); cursor: pointer; }
+  .play-toggle svg { width: 14px; height: 14px; fill: currentColor; }
+  .stop-icon, .play-toggle[aria-pressed="true"] .play-icon { display: none; }
+  .play-toggle[aria-pressed="true"] .stop-icon { display: block; }
+  .play-toggle:disabled { opacity: .4; cursor: default; }
+  .play-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .play-toggle:active:not(:disabled) { transform: scale(.97); }
+  h2, h3 { font-family: var(--font-mono); font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-400); }
+  .screen { display: block; position: relative; height: var(--credits-height); overflow: auto; margin-top: 20px; mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+  [data-ready] .screen { overflow: hidden; }
+  .screen:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .roll { width: 100%; padding: 0 12px; animation: credits-roll 110s linear infinite paused; text-align: center; }
+  [data-playing] .roll { animation-play-state: running; }
+  .reel { padding: 24px 0 48px; }
+  .credit-section + .credit-section { margin-top: 40px; }
+  h3 { margin-bottom: 20px; }
+  .credit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: baseline; gap: 16px; }
+  .credit + .credit { margin-top: 16px; }
+  dt { font-size: 11px; color: var(--ink-400); line-height: 1.6; text-align: right; overflow-wrap: anywhere; }
+  dd { font-size: 15px; line-height: 1.6; color: var(--ink-700); text-align: left; overflow-wrap: anywhere; }
+  @keyframes credits-roll { to { transform: translateY(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-ready] .screen { overflow-y: auto; }
+    .roll { animation: none; }
+    .reel[aria-hidden="true"] { display: none; }
+  }
+</style>
+
+<script>
+  class SiteCredits extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup?.();
+      const button = this.querySelector<HTMLButtonElement>(".play-toggle")!;
+      const screen = this.querySelector<HTMLElement>(".screen")!;
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const events = new AbortController();
+      const options = { signal: events.signal };
+      const recordButton = document.querySelector<HTMLButtonElement>("record-player button");
+      let hovering = false;
+      const sync = () => {
+        const musicPlaying = recordButton?.getAttribute("aria-pressed") === "true";
+        const running = (musicPlaying || hovering) && !document.hidden && !reducedMotion.matches;
+        this.toggleAttribute("data-playing", running);
+        button.disabled = !recordButton || recordButton.disabled;
+        button.setAttribute("aria-pressed", String(musicPlaying));
+        button.setAttribute("aria-label", recordButton?.getAttribute("aria-label") || "播放 Stoic Morning");
+      };
+      button.addEventListener("click", () => recordButton?.click(), options);
+      screen.addEventListener("pointerenter", (event) => {
+        if (event.pointerType !== "mouse") { return; }
+        hovering = true;
+        sync();
+      }, options);
+      screen.addEventListener("pointerleave", (event) => {
+        if (event.pointerType !== "mouse") { return; }
+        hovering = false;
+        sync();
+      }, options);
+      const playerObserver = new MutationObserver(sync);
+      if (recordButton) {
+        playerObserver.observe(recordButton, { attributes: true, attributeFilter: ["aria-pressed", "aria-label", "disabled"] });
+      }
+      document.addEventListener("visibilitychange", sync, options);
+      reducedMotion.addEventListener("change", sync, options);
+      sync();
+      this.setAttribute("data-ready", "");
+      this.cleanup = () => {
+        events.abort();
+        playerObserver.disconnect();
+        this.removeAttribute("data-playing");
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get("site-credits")) {customElements.define("site-credits", SiteCredits);}
+</script>
