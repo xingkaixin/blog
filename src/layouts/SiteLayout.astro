@@ -309,13 +309,6 @@ const pageTransition = {
           umami.defer = true;
           umami.dataset.websiteId = "da85e002-bf3e-4fcd-bbd9-9000cfb31fa4";
           document.head.append(umami);
-
-          const cloudflare = document.createElement("script");
-          cloudflare.src = "https://static.cloudflareinsights.com/beacon.min.js";
-          cloudflare.defer = true;
-          cloudflare.dataset.cfBeacon =
-            '{"token":"1c3ce5d60e4e4d4a87e9063032aa37af"}';
-          document.head.append(cloudflare);
         };
 
         if ("requestIdleCallback" in window) {
