@@ -20,6 +20,13 @@ Cloudflare Web Analytics 由 Pages 项目的 Metrics 设置统一开启并注入
 加载 Cloudflare beacon。保留 Umami 的独立访问统计。不要再为同一主站叠加域名级自动注入。
 本地预览没有 Pages 自动注入的 beacon，属于预期行为。
 
+域名级自动注入原先覆盖所有子域名。通过 Configuration Rule
+`Keep Pages analytics as the single blog beacon`，仅为 `xingkaixin.me`、`www.xingkaixin.me`
+和 `blog.xingkaixin.me` 设置 `disable_rum: true`，排除边缘自动注入；Pages 已注入的脚本继续上报。
+规则定义在 [blog-analytics-rule.json](../config/blog-analytics-rule.json)，由 Cloudflare 控制台
+单独管理，Pages 部署不会应用此文件。其他子站及历史统计站点保持原状。
+需要回滚时停用该 Configuration Rule；若 Pages Metrics 仍开启，重复注入也会恢复。
+
 部署后，在首次加载和站内跳转后分别确认只有一个 Cloudflare beacon 脚本，并确认
 Web Analytics 能收到页面数据。保留原有历史统计站点，不删除旧数据。
 
@@ -41,6 +48,7 @@ INP、CLS 及样本量。优化前后使用相同的时间窗口，至少覆盖�
 
 Cloudflare 产品依据：[Pages 缓存](https://developers.cloudflare.com/pages/configuration/serving-pages/)、
 [Pages Web Analytics](https://developers.cloudflare.com/pages/how-to/web-analytics/)、
+[Configuration Rules 的 RUM 设置](https://developers.cloudflare.com/rules/configuration-rules/settings/#disable-real-user-monitoring-rum)、
 [RUM 指标筛选](https://developers.cloudflare.com/web-analytics/data-metrics/core-web-vitals/)。
 
 ## 2026-09-11 验证记录
@@ -51,4 +59,12 @@ Cloudflare 产品依据：[Pages 缓存](https://developers.cloudflare.com/pages
 - 浏览器确认中文字体 CSS 为 `non-blocking`，文章跳转后保持启用且没有重复下载该 CSS。
   禁用本地字体和禁用 JavaScript 的回退路径也已检查。
 - `bun run isok` 通过，包括 61 个测试文件、381 项测试、生产构建和生成数据一致性检查。
-- 主站代码尚需部署，部署后再验收单一 beacon 和大陆 RUM 数据。
+- 生产部署 `85696937-2e52-457e-b5d2-6b56020ec89f` 对应 `main` 提交 `3336e5e`，部署成功。
+- 线上抽查 CSS、JS、WOFF2 均返回 `public, max-age=31536000, immutable`；HTML、搜索索引
+  和 Markdown 保持 `max-age=0, must-revalidate`，封面仍为一天缓存。
+- 照片索引观察到 `UPDATING` 后的 `HIT`，月份分片命中 `HIT`，CORS 正确；浏览器照片墙正常加载。
+- 线上浏览器确认中文字体 CSS 为 `non-blocking`，站内跳转后仍启用且只有一次下载。
+- 部署验收发现 Pages 和域名级注入仍然重叠，已补充上述 Configuration Rule 并通过 API 回读确认。
+  修正后首页和站内跳转后的文章页都只有一个 Cloudflare beacon，Pages token 的 RUM 上报返回
+  `204`，Umami 上报返回 `200`。
+- 当前网络经过代理，观测到的边缘节点为 SIN；大陆三网速度及优化后的大陆 RUM 数据仍需实际样本验证。
