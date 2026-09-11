@@ -1,0 +1,16 @@
+{
+  "ref": "29a6c2c7c0694af8ac7414859ba76803",
+  "description": "Cache public photo catalogs using origin TTLs",
+  "expression": "http.host eq \"photos.xingkaixin.me\" and (http.request.uri.path eq \"/catalog/index.json\" or starts_with(http.request.uri.path, \"/catalog/months/\"))",
+  "action": "set_cache_settings",
+  "action_parameters": {
+    "cache": true,
+    "edge_ttl": {
+      "mode": "bypass_by_default"
+    },
+    "browser_ttl": {
+      "mode": "respect_origin"
+    }
+  },
+  "enabled": true
+}

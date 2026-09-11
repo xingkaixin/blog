@@ -40,11 +40,29 @@ media/<photo-id>/<media-revision>/2048.webp
 4. 根据 `.env.example` 配置本地环境变量和 Cloudflare Pages 的
    `PUBLIC_PHOTO_BASE_URL`。如果更换照片域名，还需要同步修改 `public/_headers` 中
    CSP 的 `connect-src` 与 `img-src`。
+5. 在域名的 Cache Rules 中应用 [公开照片目录规则](../config/photo-cache-rule.json)。
+   R2 的 JSON 默认不进入 CDN 缓存，仅设置对象的 `Cache-Control` 不够。规则只匹配
+   `photos.xingkaixin.me/catalog/index.json` 和 `catalog/months/`，边缘缓存遵守对象缓存头，
+   没有缓存头时绕过缓存，浏览器 TTL 也遵守对象缓存头。
+   不要将规则扩展到整个 `catalog/`，也不要将索引 TTL 覆盖为一天或一年。
+6. 为该域名开启 Smart Tiered Cache，减少不同边缘节点重复读取 R2。
+   Pages 静态资源本身已有分层缓存，无需额外配置主站页面缓存。
+
+`photo-cache-rule.json` 是单条规则的 API 请求体，属于 `http_request_cache_settings`
+阶段。首次配置时创建该阶段的 zone ruleset 并将它放入 `rules`；已有 ruleset 时按
+`ref` 更新或追加该规则，保留其他规则。它不会随 Pages 部署自动应用。
+
+应用后，对同一个索引和月份分片 URL 连续发起普通 GET 请求。预热后应能观察到
+`CF-Cache-Status: HIT`；索引仍返回 `max-age=60, stale-while-revalidate=86400`，
+月份分片仍返回 `max-age=31536000, immutable`。浏览器的 `no-cache` 请求、过期
+重验证和不同边缘节点可能返回其他状态，不能只检查一次请求。
+回退时禁用这条 Cache Rule，并恢复 Smart Tiered Cache 原设置即可。
 
 Cloudflare 的相关说明：
 
 - [公开 bucket 与自定义域名](https://developers.cloudflare.com/r2/buckets/public-buckets/)
 - [R2 CORS](https://developers.cloudflare.com/r2/buckets/cors/)
+- [R2 缓存与 Smart Tiered Cache](https://developers.cloudflare.com/cache/interaction-cloudflare-products/r2/)
 - [S3 API 与 JavaScript SDK](https://developers.cloudflare.com/r2/examples/aws/aws-sdk-js-v3/)
 
 ## 发布照片
