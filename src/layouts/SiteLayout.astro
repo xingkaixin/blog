@@ -41,7 +41,7 @@ const image = pageImage(meta);
 const title = pageTitle(meta);
 const analyticsHost = new URL(siteConfig.url).hostname;
 const themeToggleEvent = THEME_TOGGLE_EVENT;
-const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url, smileyFontUrl];
+const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
 const navItems = desktopNavigation();
 const defaultStatus = siteStatus(currentPath);
 const pageTransition = {
@@ -180,6 +180,15 @@ const pageTransition = {
     <meta name="twitter:image" content={image} />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     {fontUrls.map((href) => <link rel="stylesheet" href={href} />)}
+    <!-- 先用回退字体显示文字，中文字体 CSS 下载完成后再参与屏幕渲染。 -->
+    <link
+      rel="stylesheet"
+      href={smileyFontUrl}
+      media="print"
+      onload="this.media='all'"
+      transition:persist="smiley-font"
+    />
+    <noscript><link rel="stylesheet" href={smileyFontUrl} /></noscript>
     <ClientRouter />
     <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta))}></script>
   </head>
