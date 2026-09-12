@@ -272,6 +272,20 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.png": {
+    "webp": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.webp",
+    "mobile": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01-800w.webp",
+    "desktop": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-02.png": {
+    "webp": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-02.webp",
+    "mobile": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-02-800w.webp",
+    "desktop": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-restates-goal/agent-restates-goal-01.png": {
     "webp": "/posts/images/agent-restates-goal/agent-restates-goal-01.webp",
     "mobile": "/posts/images/agent-restates-goal/agent-restates-goal-01-800w.webp",
@@ -1252,6 +1266,13 @@
     "width": 1536,
     "height": 864
   },
+  "/posts/images/skills-over-mcp/skills-over-mcp-01.png": {
+    "webp": "/posts/images/skills-over-mcp/skills-over-mcp-01.webp",
+    "mobile": "/posts/images/skills-over-mcp/skills-over-mcp-01-800w.webp",
+    "desktop": "/posts/images/skills-over-mcp/skills-over-mcp-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png": {
     "webp": "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.webp",
     "mobile": "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01-800w.webp",
@@ -1286,6 +1307,13 @@
     "desktop": "/posts/images/spec-unwritten-assumptions/spec-unwritten-assumptions-02-1200w.webp",
     "width": 1672,
     "height": 941
+  },
+  "/posts/images/stack-choice-constraints/stack-choice-constraints-01.png": {
+    "webp": "/posts/images/stack-choice-constraints/stack-choice-constraints-01.webp",
+    "mobile": "/posts/images/stack-choice-constraints/stack-choice-constraints-01-800w.webp",
+    "desktop": "/posts/images/stack-choice-constraints/stack-choice-constraints-01-1200w.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png": {
     "webp": "/posts/images/stay-in-the-loop/stay-in-the-loop-01.webp",

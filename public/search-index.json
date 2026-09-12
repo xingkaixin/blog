@@ -1,5 +1,41 @@
 [
   {
+    "slug": "agent-proposer-reviewer",
+    "title": "让 Agent 自己审查代码，为什么经常越审越烂？",
+    "date": "2026-09-11",
+    "summary": "在封闭上下文中让 Agent 自审代码，把正确答案改错的概率远高于纠错率。多 Agent 协作生效的判据在于引入外部新信息。拆解 Proposer-Reviewer 架构、“模型无权批准完成”铁律，以及如何用上下文隔离防止 Token 爆炸。",
+    "tags": [
+      "AI Agent",
+      "代码审查",
+      "多智能体",
+      "工程实践"
+    ]
+  },
+  {
+    "slug": "stack-choice-constraints",
+    "title": "选技术栈别再先问“我会什么”：系统的物理硬约束才是第一判据",
+    "date": "2026-09-09",
+    "summary": "技术选型的第一问正在从“自己会什么”变成系统的硬约束。Agent 抹平了语法和排错门槛，但不会替你做架构权衡。如果不把体积、内存、I/O 取舍变成显式约束，Agent 就会默认选最偷懒的实现。",
+    "tags": [
+      "技术选型",
+      "软件架构",
+      "AI编程",
+      "工程实践"
+    ]
+  },
+  {
+    "slug": "skills-over-mcp",
+    "title": "Skills Over MCP 有用，但别急着搬走你的 SKILL.md",
+    "date": "2026-09-07",
+    "summary": "Skills Over MCP 能让使用方法跟着服务更新，但按需加载早已存在，自动更新也省不掉信任判断。哪些技能值得随连接分发，哪些继续放在仓库？",
+    "tags": [
+      "MCP",
+      "Skills",
+      "AI Agent",
+      "工程实践"
+    ]
+  },
+  {
     "slug": "one-person-software-factory",
     "title": "软件工厂建不动：你缺的不是 Agent，是提 Issue 的人",
     "date": "2026-09-04",

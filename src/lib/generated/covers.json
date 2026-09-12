@@ -139,6 +139,13 @@
     "width": 1921,
     "height": 819
   },
+  "agent-proposer-reviewer.png": {
+    "mobile": "/cover/agent-proposer-reviewer-400.webp",
+    "desktop": "/cover/agent-proposer-reviewer-800.webp",
+    "full": "/cover/agent-proposer-reviewer.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-restates-goal.png": {
     "mobile": "/cover/agent-restates-goal-400.webp",
     "desktop": "/cover/agent-restates-goal-800.webp",
@@ -496,6 +503,13 @@
     "width": 1536,
     "height": 864
   },
+  "skills-over-mcp.png": {
+    "mobile": "/cover/skills-over-mcp-400.webp",
+    "desktop": "/cover/skills-over-mcp-800.webp",
+    "full": "/cover/skills-over-mcp.webp",
+    "width": 1880,
+    "height": 800
+  },
   "spec-as-new-fig-leaf.png": {
     "mobile": "/cover/spec-as-new-fig-leaf-400.webp",
     "desktop": "/cover/spec-as-new-fig-leaf-800.webp",
@@ -516,6 +530,13 @@
     "full": "/cover/spec-unwritten-assumptions.webp",
     "width": 1536,
     "height": 864
+  },
+  "stack-choice-constraints.png": {
+    "mobile": "/cover/stack-choice-constraints-400.webp",
+    "desktop": "/cover/stack-choice-constraints-800.webp",
+    "full": "/cover/stack-choice-constraints.webp",
+    "width": 1880,
+    "height": 800
   },
   "state-of-ai.webp": {
     "mobile": "/cover/state-of-ai-400.webp",

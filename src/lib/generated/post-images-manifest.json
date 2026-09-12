@@ -313,6 +313,22 @@
         "c91586b717ce5cafe9fd667e12a5cc76a5f5759e13f491db4c316864c468f43e"
       ]
     },
+    "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.png": {
+      "fingerprint": "7f0e7d7487f81181fe5d10672c0c843ca329607b981e125cb4a51ff36221c50e",
+      "outputFingerprints": [
+        "689ae2fb7708f9ad5c3cc4c2593853a56e30979b7eff7f231348f64a02107bea",
+        "cbd9b2555de289c45e5f60fa7f246219da751454abb4882806ecd4d0f97c7344",
+        "faf545ed9b48598ecd45ee94809ec438719be5ba9b9b236efa49a73a25f16a77"
+      ]
+    },
+    "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-02.png": {
+      "fingerprint": "2390398222c0b689664c748ca3ebc3545ef657f7560af3ad333ee8854838d562",
+      "outputFingerprints": [
+        "e5a9dcafc86474a95ddf65264353f7ec19ede3f9ad816901fcf0636c5fc747f2",
+        "8b850e73a0481bcddfcaa119bb2b214e53ca5144adda7cd3ccec4f66ab7c6f2e",
+        "7f75544bf51323361a9b8a537e9edd541313df17454df9cf9b333949da41c518"
+      ]
+    },
     "/posts/images/agent-restates-goal/agent-restates-goal-01.png": {
       "fingerprint": "cb207dc0df458df17aa2ff319276569dd5cc746d0880881586fe2fbbbf815584",
       "outputFingerprints": [
@@ -1433,6 +1449,14 @@
         "9cce1226e005c13cf75b6c7d4a7cd001bf25902d6b49a9ba9b51399dcb983e76"
       ]
     },
+    "/posts/images/skills-over-mcp/skills-over-mcp-01.png": {
+      "fingerprint": "588a2d55156e3a7cb81fcb4e092a63c49ee81ea0d60cebfe9cb168cb0ac6ae48",
+      "outputFingerprints": [
+        "31c9e091d7325445c5fd8d5deb78bf5e4f041584a52495cdc7fc0b28051426c1",
+        "a67718caa15ef349067dd8faaddbaf8185eb2a0f53feca48c5a1c41ce0c97347",
+        "c97e7ca2ebf841733992117ff3993250544437f339b7eb54046a999f44a45b8f"
+      ]
+    },
     "/posts/images/spec-tell-ai-what-not-to-do/spec-tell-ai-what-not-to-do-01.png": {
       "fingerprint": "66fcc8bf1cbefc810d5c696b3e5bab59b9b4b540061d035c84a031a6604280bc",
       "outputFingerprints": [
@@ -1471,6 +1495,14 @@
         "844a065168ff7a3a9034f966b87c6f52730eda04216b57d8d21821abbf69f9fa",
         "cac211b38711473c120be8829a2d6ebf097d21751c64656613fe055fbf000ffe",
         "bb1c3efc5589bb2ebc3845615c6b38823b0d6ec5f878b540d6b5002f9b1b1e2c"
+      ]
+    },
+    "/posts/images/stack-choice-constraints/stack-choice-constraints-01.png": {
+      "fingerprint": "c320b3db99700a14a7ce0d8c20840ee62be27a704306b7898bedc00ec33e49a8",
+      "outputFingerprints": [
+        "33959900fb9256997c1d132e1b5d08dbe42822759b8ebfaed5097fa4e0b494d3",
+        "643702c8fe8745204c83c520301794159cfc5d77e6a4d55722465839b0cce27a",
+        "de49a3740532ed1aef6e401d1ca72b59ec917a921a1abd886c255e875209e5f9"
       ]
     },
     "/posts/images/stay-in-the-loop/stay-in-the-loop-01.png": {
