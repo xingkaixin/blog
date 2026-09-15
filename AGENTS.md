@@ -86,6 +86,20 @@ bun run deploy        # 构建并部署到 Cloudflare Pages
 
 ## 代码风格
 
+### UI lint
+
+`bun run lint` 通过 `.oxlintrc.json` 启用以下 `@shadcn/lint` 规则：
+
+- `no-raw-colors`：Tailwind 颜色使用 `src/index.css` 中声明的主题 token；允许黑、白、透明等内置特殊颜色。此规则不禁止 `bg-[#…]` 形式的任意颜色。
+- `no-unknown-classes`：检查 Tailwind 类名是否有效。照片背景的三个类来自 `src/components/photo-background.css`，仅在对应组件文件中放行。
+- `require-static-classes`：传给 UI 组件的类名使用完整字符串或可分析的条件表达式；在 `src/components/ui/` 内关闭，允许组件调用自身的变体函数。
+
+这些检查针对 Oxlint 解析的 JS/TS/JSX/TSX，不覆盖 `.astro` 模板或普通 CSS。暂不启用 `no-restyle`、`no-arbitrary-values` 和 `no-inline-styles`：当前弹窗需要定制外观，布局与动效使用任意值，照片占位色等样式由运行时数据决定。
+
+规则选项参见 [@shadcn/lint 文档](https://github.com/shadcn-ui/lint/blob/main/docs/rules.md)。修改代码后运行 `bun run lint` 并修复错误。
+
+### 组件约定
+
 - React islands 使用函数组件与 Hooks
 - 优先复用 `src/components/ui/` 中已有组件
 - 只有存在真实变体时才使用 class-variance-authority

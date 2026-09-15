@@ -112,7 +112,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       <DialogContent
         title="命令面板"
         description="搜索文章与项目、跳转页面或执行站点命令"
-        className="command-palette fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
+        className="fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
       >
         <div className="flex shrink-0 justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
           <span className="h-1 w-9 rounded-full bg-ink-200" />

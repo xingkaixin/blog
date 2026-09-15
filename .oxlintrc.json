@@ -1,12 +1,16 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["unicorn", "typescript", "oxc", "react"],
+  "jsPlugins": ["@shadcn/lint"],
   "categories": {
     "correctness": "error",
     "perf": "error",
     "suspicious": "error"
   },
   "rules": {
+    "shadcn/no-raw-colors": "error",
+    "shadcn/no-unknown-classes": "error",
+    "shadcn/require-static-classes": "error",
     "curly": "error",
     "eslint-plugin-unicorn/prefer-array-find": "off",
     "eslint/no-await-in-loop": "off",
@@ -27,6 +31,23 @@
     "react/set-state-in-effect": "off",
     "react/react-in-jsx-scope": "off"
   },
+  "overrides": [
+    {
+      "files": ["src/components/photo-wall.tsx", "src/components/photo-overview.tsx"],
+      "rules": {
+        "shadcn/no-unknown-classes": [
+          "error",
+          { "allow": ["photo-wall", "photo-wall-backdrop", "photo-album-backdrop"] }
+        ]
+      }
+    },
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "shadcn/require-static-classes": "off"
+      }
+    }
+  ],
   "ignorePatterns": [
     "dist/",
     "node_modules/",
