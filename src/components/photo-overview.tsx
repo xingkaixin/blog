@@ -104,7 +104,7 @@ function PhotoArchiveHeader({ detail }: { detail?: string }) {
   return (
     <header className="flex flex-col gap-3 border-b border-line pb-[18px] sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-500">
           {detail ?? "正在读取照片档案"}
         </p>
         <h1 className="mt-2 font-display text-4xl font-normal leading-none text-ink-800">照片墙</h1>
@@ -173,9 +173,9 @@ function AlbumOverviewCard({
         <span className="text-[15px] font-medium text-ink-800 transition-colors group-hover:text-accent">
           {item.title}
         </span>
-        <span className="font-mono text-[10px] text-ink-400">{item.count} 张</span>
+        <span className="font-mono text-[11px] text-ink-500">{item.count} 张</span>
       </span>
-      <span className="mt-0.5 block px-1 font-mono text-[9px] tracking-[0.08em] text-ink-300">
+      <span className="mt-0.5 block px-1 font-mono text-[11px] tracking-[0.08em] text-ink-500">
         {item.meta}
       </span>
     </button>
