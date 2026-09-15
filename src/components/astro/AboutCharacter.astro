@@ -87,8 +87,8 @@ const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 
       function paint() {
         // The painted face already leans right; additional shear exaggerates that asymmetry.
         const turn = x > 0 ? x * 0.4 : x;
-        head.style.transform = `translate(${turn * 9}px, ${y * 4}px) rotate(${turn * 5}deg) scaleX(${1 - Math.abs(turn) * 0.035})`;
-        face.style.transform = `translate(${turn * 20}px, ${y * 12}px) skewY(${Math.min(x, 0) * 2}deg)`;
+        head.style.transform = `translate(${turn * 9}px, ${y * 8}px) rotate(${turn * 5}deg) scale(${1 - Math.abs(turn) * 0.035}, ${1 - Math.abs(y) * 0.08})`;
+        face.style.transform = `translate(${turn * 20}px, ${y * 24}px) skewY(${Math.min(x, 0) * 2}deg) scaleY(${1 - Math.abs(y) * 0.05})`;
         pupils.style.transform = `translate(${x * 11}px, ${y * 9}px)`;
       }
 
@@ -120,8 +120,12 @@ const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 
         // Use the resting head position so its own movement cannot feed back into the target.
         const centerX = bounds.left + bounds.width * (430 / 1060);
         const centerY = bounds.top + bounds.height * (180 / 970);
-        targetX = pointer ? Math.tanh((pointer.x - centerX) / Math.max(bounds.width * 0.65, 180)) : 0;
-        targetY = pointer ? Math.tanh((pointer.y - centerY) / Math.max(bounds.height * 0.8, 200)) : 0;
+        const dx = pointer ? pointer.x - centerX : 0;
+        const dy = pointer ? pointer.y - centerY : 0;
+        const reach = Math.max(bounds.width * 0.4, 100);
+        const distance = Math.max(reach, Math.hypot(dx, dy));
+        targetX = dx / distance;
+        targetY = dy / distance;
         if (!frame) {
           previousTime = performance.now();
           frame = requestAnimationFrame(animate);
