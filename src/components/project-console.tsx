@@ -40,7 +40,7 @@ function ProjectLinks({ project }: { project: Project }) {
   const links = project.links ?? [{ label: "访问产品", url: project.url }];
 
   return (
-    <div className="project-card-links mt-5 flex flex-wrap gap-x-3 gap-y-2">
+    <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2">
       {links.map((link) => (
         <a
           key={link.url}
@@ -61,7 +61,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <article
       data-column={(index % 4) + 1}
-      className="project-card min-h-60 focus-within:outline-none sm:min-h-64 lg:min-h-68"
+      className="project-card focus-within:outline-none sm:min-h-64 lg:min-h-68"
     >
       <div aria-hidden="true" className="project-card-surface">
         <img
@@ -76,13 +76,13 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <div className="project-card-scrim" />
       </div>
 
-      <div className="relative z-1 flex min-h-60 flex-col p-5 sm:min-h-64 lg:min-h-68">
+      <div className="relative z-1 flex flex-col p-5 sm:min-h-64 lg:min-h-68">
         <div className="flex items-start justify-between gap-4">
           <ProjectLogo project={project} />
-          <span className="font-mono text-[10px] text-ink-400">{project.kind}</span>
+          <span className="font-mono text-[11px] text-ink-500">{project.kind}</span>
         </div>
 
-        <div className="mt-auto pt-8">
+        <div className="mt-6 sm:mt-auto sm:pt-8">
           <h2 className="text-xl font-medium tracking-[-0.025em] text-ink-800">{project.name}</h2>
           <p className="mt-1.5 max-w-60 text-[13px] leading-5 text-ink-600">{project.summary}</p>
           <ProjectLinks project={project} />
