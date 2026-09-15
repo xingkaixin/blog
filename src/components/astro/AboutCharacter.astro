@@ -1,12 +1,14 @@
 ---
 import { getImage } from "astro:assets";
 import characterSheet from "@/assets/about/sofa-character.png";
+import feifeiPortrait from "@/assets/about/feifei-angel.png";
 
 const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 });
+const feifei = await getImage({ src: feifeiPortrait, format: "webp", width: 480 });
 ---
 
 <about-character>
-  <svg class="scene" viewBox="0 -20 1060 970" role="img" aria-label="卷发、圆眼镜的开心，悠闲地坐在沙发上，目光随着鼠标轻轻转动">
+  <svg class="scene" viewBox="0 -20 1160 970" role="img" aria-label="卷发、圆眼镜的开心，悠闲地坐在沙发上，目光随着鼠标轻轻转动；菲菲坐在沙发旁的地面上，头顶一圈天使光环">
     <defs>
       <clipPath id="about-body-outline">
         <path d="M397 224 Q424 216 454 226 L457 255 Q509 258 552 282 L816 282 Q875 279 882 335 L886 417 Q984 420 1013 455 Q1028 477 1019 526 L1003 733 Q1000 759 979 765 L963 769 L955 831 Q946 838 936 831 L924 772 L716 781 L714 797 L694 806 Q696 812 707 821 L719 842 Q747 861 753 886 L753 898 Q723 920 657 901 Q617 888 620 862 L626 836 L637 814 L615 810 L609 781 L241 783 L229 846 Q216 853 203 846 L194 780 Q172 779 157 759 L149 788 Q137 796 128 788 L122 731 Q101 719 99 702 L87 491 Q78 508 69 481 Q54 453 69 424 Q89 392 118 375 L121 322 Q125 279 177 276 L283 274 Q342 257 384 261 L395 249Z" />
@@ -52,6 +54,7 @@ const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 
         </g>
       </g>
     </g>
+    <image href={feifei.src} x="850" y="520" width="310" height="410" aria-hidden="true" />
   </svg>
 </about-character>
 
@@ -118,7 +121,7 @@ const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 
         }
         const bounds = scene.getBoundingClientRect();
         // Use the resting head position so its own movement cannot feed back into the target.
-        const centerX = bounds.left + bounds.width * (430 / 1060);
+        const centerX = bounds.left + bounds.width * (430 / 1160);
         const centerY = bounds.top + bounds.height * (180 / 970);
         const dx = pointer ? pointer.x - centerX : 0;
         const dy = pointer ? pointer.y - centerY : 0;

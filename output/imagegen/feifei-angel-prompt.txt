@@ -1,0 +1,7 @@
+Use case: stylized-concept
+Asset type: transparent isolated dog illustration for a personal blog about page, composited beside an existing illustrated sofa.
+Input images: Image 1 is the identity reference photo of Feifei, the owner's beloved late female schnauzer. Image 2 is ONLY a style reference (watercolor and ink sofa character sheet); do not reproduce any sofa, human, or checkerboard.
+Primary request: Draw Feifei sitting peacefully on the ground, full body visible, facing slightly toward the viewer's left, with one delicate pale golden angel halo floating above her ears. Preserve her recognizable salt-and-pepper gray short coat, silver white long moustache and beard, expressive dark eyes, bushy pale eyebrows, and distinctive tall ears from the photo. Natural schnauzer proportions, affectionate calm expression.
+Style/medium: Match image 2's delicate imperfect dark ink contours, muted watercolor washes, subtle hand-painted texture and warm restrained storybook illustration. Readable at small website size.
+Composition: single dog centered, full sitting body, paws and halo entirely visible, compact portrait composition with minimal transparent margins. Eye-level slightly elevated perspective to fit next to the sofa. Halo is a thin softly luminous golden ellipse, understated.
+Constraints: genuinely transparent alpha background, no opaque backdrop, no checkerboard pattern, no text, no wings, no additional objects, no sofa or people, no dramatic heavenly rays, no photorealistic rendering.
