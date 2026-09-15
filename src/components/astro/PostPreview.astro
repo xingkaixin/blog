@@ -46,7 +46,7 @@ const content = postPreviewContent(post, cover);
   <p data-preview-summary class="mt-2 line-clamp-5 text-[13px] leading-6 text-ink-600">
     {post.summary}
   </p>
-  <dl class="mt-4 grid gap-1.5 font-mono text-[10px] text-ink-400">
+  <dl class="mt-4 grid gap-1.5 font-mono text-[11px] text-ink-500">
     <div class="flex justify-between gap-3">
       <dt>字数</dt>
       <dd data-preview-word-count class="text-ink-600">{content.wordCount}</dd>
@@ -57,7 +57,7 @@ const content = postPreviewContent(post, cover);
     </div>
     <div class="flex justify-between gap-3">
       <dt>标签</dt>
-      <dd data-preview-tags class="max-w-44 truncate text-right text-ink-600">
+      <dd data-preview-tags class="max-w-44 text-right text-ink-600 [word-break:keep-all]">
         {content.tags}
       </dd>
     </div>

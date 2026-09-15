@@ -27,7 +27,6 @@ const previewPost = posts[0];
 ---
 
 <section data-post-console class="relative isolate mx-auto max-w-320">
-  <PageArtwork scene="writing" />
   <div class="border-b border-line px-3 py-2 lg:hidden">
     <PostFilter
       layout="mobile"
@@ -66,8 +65,10 @@ const previewPost = posts[0];
         allLabel="全部"
       />
 
+      <PageArtwork scene="writing" />
+
       <div class="mt-auto border-t border-line pt-4">
-        <p class="font-mono text-[10px] leading-5 text-ink-400">
+        <p class="font-mono text-[11px] leading-5 text-ink-500">
           {posts.length} 篇 · {totalWords.toLocaleString("zh-CN")} 字<br />
           最近更新 {posts[0]?.date ?? "-"}
         </p>
@@ -82,7 +83,7 @@ const previewPost = posts[0];
         <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
           <span data-post-console-heading>全部文章</span> · 按时间倒序
         </p>
-        <span class="font-mono text-[10px] text-ink-400">↑↓ 移动 · ⏎ 打开</span>
+        <span class="font-mono text-[11px] text-ink-500">↑↓ 移动 · ⏎ 打开</span>
       </div>
 
       <div
@@ -112,7 +113,7 @@ const previewPost = posts[0];
                 class="group block border-b border-ink-100 transition-[background-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 data-active:bg-surface data-active:shadow-[inset_3px_0_0_var(--accent)]"
               >
                 <span class="block px-3 py-3.5 lg:hidden">
-                  <span class="flex items-center gap-2 font-mono text-[10px] text-ink-400">
+                  <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500">
                     <span>{post.date}</span>
                     <span class="text-ink-200">·</span>
                     <span>{post.readingMinutes} 分钟</span>
@@ -127,18 +128,18 @@ const previewPost = posts[0];
                 </span>
 
                 <span class="hidden items-center gap-3 px-5 py-2.5 lg:flex">
-                  <span class="w-[76px] shrink-0 font-mono text-[10px] text-ink-400">{post.date}</span>
-                  <span data-post-title class="min-w-0 flex-1 truncate text-[14px] leading-6 text-ink-800 group-hover:text-accent">
+                  <span class="w-[80px] shrink-0 font-mono text-[11px] text-ink-500">{post.date}</span>
+                  <span data-post-title class="min-w-0 flex-1 text-[14px] leading-6 text-ink-800 group-hover:text-accent">
                     {post.title}
                   </span>
                   <span class="hidden shrink-0 gap-1.5 2xl:flex">
-                    {post.tags.slice(0, 2).map((tag) => (
-                      <span class="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[9px] tracking-[0.04em] text-ink-500">
+                    {post.tags.slice(0, 1).map((tag) => (
+                      <span class="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500">
                         {tag}
                       </span>
                     ))}
                   </span>
-                  <span class="w-9 shrink-0 text-right font-mono text-[10px] text-ink-300">
+                  <span class="w-9 shrink-0 text-right font-mono text-[11px] text-ink-500">
                     {post.readingMinutes}′
                   </span>
                 </span>

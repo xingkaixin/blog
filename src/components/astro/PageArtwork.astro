@@ -16,7 +16,7 @@ const images = { writing, building, photography };
   class="page-artwork"
   data-scene={scene}
   widths={[320, 640, 960]}
-  sizes={scene === "writing" ? "(max-width: 640px) 280px, 440px" : "(max-width: 640px) 240px, 300px"}
+  sizes={scene === "writing" ? "184px" : "(max-width: 640px) 240px, 300px"}
   width={440}
   format="webp"
 />
@@ -24,15 +24,11 @@ const images = { writing, building, photography };
 <style>
   .page-artwork { position: absolute; z-index: -1; width: min(440px, 90%); height: auto; opacity: .16; pointer-events: none; }
   :global([data-theme="dark"]) .page-artwork { opacity: .22; }
-  [data-scene="writing"] { top: 160px; right: 300px; }
+  [data-scene="writing"] { position: static; width: 100%; }
   [data-scene="building"] { top: -12px; left: calc(50% - 140px); width: 280px; }
   [data-scene="photography"] { top: -30px; right: -20px; width: 300px; }
-  @media (max-width: 1279px) {
-    [data-scene="writing"] { right: 16px; }
-  }
   @media (max-width: 640px) {
     .page-artwork { opacity: .11; }
-    [data-scene="writing"] { top: 120px; right: 8px; width: 280px; }
     [data-scene="building"] { top: 0; left: auto; right: 8px; width: 240px; }
     [data-scene="photography"] { top: 12px; right: 0; width: 220px; }
   }

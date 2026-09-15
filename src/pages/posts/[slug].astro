@@ -72,7 +72,7 @@ const meta = {
         </h1>
         <p class="mt-4 max-w-[70ch] text-[15px] leading-7 text-ink-500">{postMeta.summary}</p>
         <div class="mt-5 flex flex-col gap-3 border-t border-line pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex flex-wrap items-center gap-x-2 font-mono text-[10px] text-ink-400">
+          <div class="flex flex-wrap items-center gap-x-2 font-mono text-[11px] text-ink-500">
             <span>{formatCalendarDate(postMeta.date)}</span>
             <span class="text-ink-200">·</span>
             <span>{readingMetrics.wordCount.toLocaleString("zh-CN")} 字</span>
@@ -131,19 +131,19 @@ const meta = {
               </h2>
               <dl class="mt-5 grid gap-2.5 text-[13px] text-ink-600">
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[10px] text-ink-400">作者</dt>
+                  <dt class="font-mono text-[11px] text-ink-500">作者</dt>
                   <dd>{siteConfig.author}</dd>
                 </div>
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[10px] text-ink-400">标题</dt>
+                  <dt class="font-mono text-[11px] text-ink-500">标题</dt>
                   <dd>{postMeta.title}</dd>
                 </div>
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[10px] text-ink-400">发布时间</dt>
+                  <dt class="font-mono text-[11px] text-ink-500">发布时间</dt>
                   <dd>{formatCalendarDate(postMeta.date)}</dd>
                 </div>
                 <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[10px] text-ink-400">文章链接</dt>
+                  <dt class="font-mono text-[11px] text-ink-500">文章链接</dt>
                   <dd class="min-w-0">
                     <a
                       href={canonicalPostUrl}
