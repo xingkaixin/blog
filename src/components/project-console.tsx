@@ -9,7 +9,7 @@ type ProjectConsoleProps = {
   projects: Project[];
 };
 
-const filters = ["全部", "AI", "CLI", "扩展", "数据库"] as const;
+const filters = ["全部", "AI", "iOS", "CLI", "扩展", "数据库"] as const;
 
 type ProjectFilter = (typeof filters)[number];
 

@@ -21,6 +21,42 @@ export type Project = ProjectDetails &
 
 export const projects: Project[] = [
   {
+    id: "simmerdial",
+    name: "Simmerdial",
+    kind: "iOS 应用",
+    summary: "转动旋钮设好时间，松手继续做饭。",
+    description:
+      "一款 iPhone 厨房计时器。转动机械旋钮设定倒计时，松手即开始，用橙色时间环查看剩余时间。支持系统到时提醒、锁屏实时活动与灵动岛，无需账号，离线可用。",
+    logo: "/projects/simmerdial.png",
+    background: "/projects/backgrounds/simmerdial.webp",
+    url: "https://simmerdial.xingkaixin.me/",
+    tags: ["iOS", "工具", "厨房计时器", "倒计时"],
+  },
+  {
+    id: "tipnook",
+    name: "Tipnook",
+    kind: "iOS 应用",
+    summary: "轻松算小费，清楚分摊每个人的账单。",
+    description:
+      "一款 iPhone 小费计算与分账工具。输入账单、调整小费比例，即可计算 1–20 人的分摊金额。支持 15 种币种，以及账单文字和图片分享，无需账号，离线可用。",
+    logo: "/projects/tipnook.png",
+    background: "/projects/backgrounds/tipnook.webp",
+    url: "https://tipnook.xingkaixin.me/",
+    tags: ["iOS", "工具", "小费计算", "分账"],
+  },
+  {
+    id: "spanlet",
+    name: "Spanlet",
+    kind: "iOS 应用",
+    summary: "用百分比、年与周，看见走过的时间。",
+    description:
+      "一款 iPhone 人生进度应用。填写生日并选择人生尺度，以百分比、年与周查看已经走过的时间。支持主屏幕与锁屏小组件，以及独立的年进度日历；无需账号，资料保存在本机。",
+    logo: "/projects/spanlet.png",
+    background: "/projects/backgrounds/spanlet.webp",
+    url: "https://spanlet.xingkaixin.me/",
+    tags: ["iOS", "工具", "人生进度", "小组件"],
+  },
+  {
     id: "quotecue",
     name: "QuoteCue",
     kind: "浏览器扩展",
