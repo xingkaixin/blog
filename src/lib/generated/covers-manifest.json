@@ -161,6 +161,14 @@
         "a6aee1f8a3d115309c5f2485594797046911a9291c49bc75a8061b1e45a056a7"
       ]
     },
+    "agent-needs-git.png": {
+      "fingerprint": "bd03724b8de81b07232641757541d96c181925bc0454747c8d9543bff6eaf95d",
+      "outputFingerprints": [
+        "f13ecb7eaed42c34cff8642820ebca1dda303ba314679df4174ca2e878395769",
+        "a567f80b41282e536d7fe1f69b6663398d3c5543b33125e3655d75433432385d",
+        "0e4c80c90faa00e578ecadb8ee7cd3c75c71d7e42d1e26fbed7ce3f990f9e630"
+      ]
+    },
     "agent-proposer-reviewer.png": {
       "fingerprint": "bd7e481073bb3a6590e7acae3e6817d07fb45a26d2051f546a48b21aecfc33f5",
       "outputFingerprints": [
@@ -175,6 +183,14 @@
         "4e2d9c36fea36df2a38983b63dc7796929035a25f4909c577c018250c01f21f4",
         "b8b30d66015eab0bd86e4044292dce00216d2a3b99663597004549a9a5bd2e5e",
         "838001c45641fa05f2cd735acfceea853bd27837f0f7505f939e27d866e36eb0"
+      ]
+    },
+    "agent-status-bar.png": {
+      "fingerprint": "65404e33d0fb4058e00d0443cd5ea29cd500116b60b604c79a323e3fe62c5c11",
+      "outputFingerprints": [
+        "816799962538d317726e32f01b29a9e00057ff496915e93a7945b75eeef56987",
+        "138de289948c4ca1ce736cf927ae418c2da178f9622c7c83963ad539d70abe4b",
+        "5bf00b1021a942995e1b1a43bc8650139b741bd5bbe4a55ddca874fc47b624d8"
       ]
     },
     "agent-stop-conditions.png": {
@@ -399,6 +415,22 @@
         "edd6f27071c7b9a9143a689c6576a5b059583971b4827ef1285acbea2b9ece5d",
         "79a587ed8ca80d24799ff7c85a4bb71c575adcdc09d907f3bc7855c8307c376b",
         "dce6bfa1cb4434cbc9b938673c936acf0bbd719b990a4ed2d69ef9e0a9ec0440"
+      ]
+    },
+    "evaluating-agent-skills.png": {
+      "fingerprint": "7b8b3cd7fbaae371cfaa4578564b2064914aef8316673f822e4ea13380ca92f9",
+      "outputFingerprints": [
+        "fcde9c74d061fa5641713d48fa908a0ce744bf1f5459c67804fc69bff05a6d65",
+        "56dd1bd229a677b54519fee3e9ebc11b8150f09adbe4f435a948c68548e9bec2",
+        "248cc6c8ca6b9a1063e68d877376b1f3aac7a9e094046d7ccef49755ccc2e637"
+      ]
+    },
+    "friction-as-a-feature.png": {
+      "fingerprint": "fc41519ebc42545cca77951fcc8e7a44c992d50a93850cb4ec8bdec2fb1fe2f2",
+      "outputFingerprints": [
+        "2abb630eff289e8b5b0a6c8f6111e39688507e566b274220ae946bc689dff0c9",
+        "6c1315f0b495fe946d50ae8eec8211d747073d95648dce22d881926bc7e8c751",
+        "db2be22c521f48a9e76de6d530f0554f07a14cf872490f4606cd73e3998518b3"
       ]
     },
     "from-writing-code-to-reviewing-code.png": {
@@ -671,6 +703,14 @@
         "e6728e309da3d135dcd9c007628522972f80202a8f01d9a2715ea57276331568",
         "a05d65bb8ec3ae75eb307ad636b51e7f9a170c08f0d3f7eb881e747e3d5e557a",
         "5ac4b41edb2ea1023f622c78a8e6cf12aed6beb83b6a1483873ec59b27c666a7"
+      ]
+    },
+    "typesafe-jev.png": {
+      "fingerprint": "db8c4164b3bf0a3ca92e364f052b36193c040209d6038232948d43e31f7c295f",
+      "outputFingerprints": [
+        "efe1eaaa35d97465fedb82ad305f2af1b5be75cba0451d5aab4197f8e4a1761b",
+        "87763770ff022fd64551e11c096dfa0952dd439e2c518e2f30df8f2462db7d14",
+        "641bac01fb84820e03213cd93ad34c1fb4fe312584a51880cdc7d644c4ea3e86"
       ]
     },
     "vibe-coding-ai-code-backlash-openclaw.png": {

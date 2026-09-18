@@ -313,6 +313,14 @@
         "c91586b717ce5cafe9fd667e12a5cc76a5f5759e13f491db4c316864c468f43e"
       ]
     },
+    "/posts/images/agent-needs-git/agent-needs-git-01.png": {
+      "fingerprint": "d2a22c084144b6e8a3a6975ee0ca35207a5810bfae932c653862bff48fd47192",
+      "outputFingerprints": [
+        "b4891d2589db5121b18273440564bfb22d79221a504e6e4299d99c5eba1731de",
+        "39b5f5d3656902388ab92a84bed91ab5af52bc374eedceec1978479e6d0e08f4",
+        "228c2ef7d91d3c92bdd24f92f2d51dbf6dad11c57afec23dc157acc82adddf49"
+      ]
+    },
     "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.png": {
       "fingerprint": "7f0e7d7487f81181fe5d10672c0c843ca329607b981e125cb4a51ff36221c50e",
       "outputFingerprints": [
@@ -359,6 +367,22 @@
         "f2050bd4b3aacc2342199e5b4231818b9b55adafa16daa141db64fc9ae77e516",
         "3afca3e3000b37f60d75775f757353df46b3eeac1dd9140c9eea5e0c38350346",
         "e513cd901ffe6b43a7fd19198947a72253c6c01179112affca83888a43849472"
+      ]
+    },
+    "/posts/images/agent-status-bar/agent-status-bar-01.png": {
+      "fingerprint": "e73d35acd3594777fed26b1c4d4772232f78b9abf89df70e2d36987b82ebf28f",
+      "outputFingerprints": [
+        "e7b8c0aeecb830f33256652abd71f52f08c1ca8f801083133ca6382722957112",
+        "884b935f540da7b952f90f6b838c328128f359485692ebad1f0276a12555e3d9",
+        "79c6077172dc1b7bea14170deafc2e00ad4aca9dadd64f26d91cd7b8b0442125"
+      ]
+    },
+    "/posts/images/agent-status-bar/agent-status-bar-02.png": {
+      "fingerprint": "fe118aa1eab702abd2aa2c509da9ce5e595bbc74b2a6624f11f902a623657a50",
+      "outputFingerprints": [
+        "671944990f8fcf9a73ed5248e31d15bd72edae15463b1d8e573d4a4a0bb6c1fc",
+        "3e338902f2bf85c6d60352079f0d0403bcb8db1eea2f3a4fdb75fc3f41fb5630",
+        "9a51fbe88b9a5df174396ae341d99b05d9d18d57a3c1945e245d27a6a54a5fe7"
       ]
     },
     "/posts/images/agent-stop-conditions/agent-stop-conditions-01.png": {
@@ -993,6 +1017,30 @@
         "da2c1e841f24acb7f6f101780bfc2c30c8f9f27b505597eb9626f907bd00331a"
       ]
     },
+    "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01.png": {
+      "fingerprint": "7f3b2220d673969ab52f70f2eedc3909c90858df1b1209d63f29c236b8b190ef",
+      "outputFingerprints": [
+        "0e7044f9c03aa5d51579fc8e212debc77c02a0baf0c10d06bdcc1d83be49ab7b",
+        "cd9a0829cd18d32043ef8d2abaed1a480aa1ce9d187dfb4c58f90313dda0ef1e",
+        "a4ac77a4a194c14c5a53d61ac7a3f641109de1fd40bc4c403d857a8f6f62df2c"
+      ]
+    },
+    "/posts/images/friction-as-a-feature/friction-as-a-feature-01.png": {
+      "fingerprint": "2ac00f4df5e9efa77a4a0cd814698916cc84bda2343b97e4619db98dbbf3e640",
+      "outputFingerprints": [
+        "870e719682d0e4380c1db6da52e402838431e61350e3bacc582faaf84e4b7b73",
+        "a7f592c3ce564c986d25275adb038b880117010fdd78b73ecc18b89c1f6799a3",
+        "1019fab3a5ebf574a4a4c7239c79455f2a19bcc36c7b2b9ed25dae8a2c426397"
+      ]
+    },
+    "/posts/images/friction-as-a-feature/friction-as-a-feature-02.png": {
+      "fingerprint": "56fb24cccf6e96c48e8ba0d5fec689222118d0f3eeae94ed492de9cb1fd203f2",
+      "outputFingerprints": [
+        "18887e0d74f1f49b50a696fc086afb948793b89a7ed31d4b6bbb6a5690c75e0f",
+        "bedc5faa08a0b4b077af31116373e90aa3a2934e31466caf1953749560a6192b",
+        "0dbf890c2a22e8135c4ecb7835d21d60c117fc3ad02d01a344d48f4089672bef"
+      ]
+    },
     "/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-01.png": {
       "fingerprint": "4847c68063ca8cbc75771d3e06054d8c4e373c33cca96e93b12172fd5494676a",
       "outputFingerprints": [
@@ -1559,6 +1607,30 @@
         "08bc5518c1bee9ed62df6bd1a05097c9e9e109c3ca4f199a136c0c71ab62575e",
         "fc1dedd4374c7607b0812519258500dece995f31da8d7fecf10c2f255e58d504",
         "6b7daa064cf10d709e34f1fbc93101247c5ab5971d7b0fbb062c148e2e2121d0"
+      ]
+    },
+    "/posts/images/typesafe-jev/typesafe-jev-01.png": {
+      "fingerprint": "9dd45898e15f9e41572c696be2b2787a850e7d6d6fd18c414566f9bda4f6ca2e",
+      "outputFingerprints": [
+        "c00819f953301341112abf6adc2c780278c5a769823687bd1ea04c146d85cd4e",
+        "4814b5eacd3ce9b2e065811b3a883f273800fa59bfa9b617e3b8feac1cb48254",
+        "99358b140e1108300d382b1f5f4bd90de7c19981b60a7a0ad8e97b1f1ca8f07d"
+      ]
+    },
+    "/posts/images/typesafe-jev/typesafe-jev-02.png": {
+      "fingerprint": "d9ab12c81e150dcff43ada25f853ffaa77eeb7ca7583a43c5ed9efe6c5c9be98",
+      "outputFingerprints": [
+        "9d7792340b692197877069507751644ea74d085b4afa501f79ab05d46922ae57",
+        "44af504f79abdc990443a29bf1e8b230bb927a0658e8af232320e46ec7da0f67",
+        "aaeec46d66d90221cb36c4a9d88587f2182ea29666690ebc5b41c65ee947e21e"
+      ]
+    },
+    "/posts/images/typesafe-jev/typesafe-jev-03.png": {
+      "fingerprint": "439a9b4ca3017214188de546a67e1698eb485cd2e80a283dc3932e4422550c88",
+      "outputFingerprints": [
+        "9aad5511a075d697f861018c8b6be4bb8daaea29db2571624843543c13b32f0c",
+        "70fe97012e1b265f41962a2ff9d25d36ed61e0aa121edce1bd5682b9fe08bc97",
+        "6a4fa77ce8033438b165d2c7181a62b3e9c70e69690678f33771e92923c02e86"
       ]
     },
     "/posts/images/vibe-coding-ai-code-backlash-openclaw/vibe-coding-ai-code-backlash-openclaw-01.png": {

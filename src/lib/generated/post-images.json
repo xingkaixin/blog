@@ -272,6 +272,13 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/agent-needs-git/agent-needs-git-01.png": {
+    "webp": "/posts/images/agent-needs-git/agent-needs-git-01.webp",
+    "mobile": "/posts/images/agent-needs-git/agent-needs-git-01-800w.webp",
+    "desktop": "/posts/images/agent-needs-git/agent-needs-git-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.png": {
     "webp": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01.webp",
     "mobile": "/posts/images/agent-proposer-reviewer/agent-proposer-reviewer-01-800w.webp",
@@ -313,6 +320,20 @@
     "desktop": "/posts/images/agent-restates-goal/source-systematicls-agentic-engineering-1200w.webp",
     "width": 1208,
     "height": 938
+  },
+  "/posts/images/agent-status-bar/agent-status-bar-01.png": {
+    "webp": "/posts/images/agent-status-bar/agent-status-bar-01.webp",
+    "mobile": "/posts/images/agent-status-bar/agent-status-bar-01-800w.webp",
+    "desktop": "/posts/images/agent-status-bar/agent-status-bar-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/agent-status-bar/agent-status-bar-02.png": {
+    "webp": "/posts/images/agent-status-bar/agent-status-bar-02.webp",
+    "mobile": "/posts/images/agent-status-bar/agent-status-bar-02-800w.webp",
+    "desktop": "/posts/images/agent-status-bar/agent-status-bar-02-1200w.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/agent-stop-conditions/agent-stop-conditions-01.png": {
     "webp": "/posts/images/agent-stop-conditions/agent-stop-conditions-01.webp",
@@ -867,6 +888,27 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01.png": {
+    "webp": "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01.webp",
+    "mobile": "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01-800w.webp",
+    "desktop": "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/friction-as-a-feature/friction-as-a-feature-01.png": {
+    "webp": "/posts/images/friction-as-a-feature/friction-as-a-feature-01.webp",
+    "mobile": "/posts/images/friction-as-a-feature/friction-as-a-feature-01-800w.webp",
+    "desktop": "/posts/images/friction-as-a-feature/friction-as-a-feature-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/friction-as-a-feature/friction-as-a-feature-02.png": {
+    "webp": "/posts/images/friction-as-a-feature/friction-as-a-feature-02.webp",
+    "mobile": "/posts/images/friction-as-a-feature/friction-as-a-feature-02-800w.webp",
+    "desktop": "/posts/images/friction-as-a-feature/friction-as-a-feature-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-01.png": {
     "webp": "/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-01.webp",
     "mobile": "/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-01-800w.webp",
@@ -1361,6 +1403,27 @@
     "webp": "/posts/images/three-small-prototypes/three-small-prototypes-02.webp",
     "mobile": "/posts/images/three-small-prototypes/three-small-prototypes-02-800w.webp",
     "desktop": "/posts/images/three-small-prototypes/three-small-prototypes-02-1200w.webp",
+    "width": 1672,
+    "height": 941
+  },
+  "/posts/images/typesafe-jev/typesafe-jev-01.png": {
+    "webp": "/posts/images/typesafe-jev/typesafe-jev-01.webp",
+    "mobile": "/posts/images/typesafe-jev/typesafe-jev-01-800w.webp",
+    "desktop": "/posts/images/typesafe-jev/typesafe-jev-01-1200w.webp",
+    "width": 1672,
+    "height": 941
+  },
+  "/posts/images/typesafe-jev/typesafe-jev-02.png": {
+    "webp": "/posts/images/typesafe-jev/typesafe-jev-02.webp",
+    "mobile": "/posts/images/typesafe-jev/typesafe-jev-02-800w.webp",
+    "desktop": "/posts/images/typesafe-jev/typesafe-jev-02-1200w.webp",
+    "width": 1672,
+    "height": 941
+  },
+  "/posts/images/typesafe-jev/typesafe-jev-03.png": {
+    "webp": "/posts/images/typesafe-jev/typesafe-jev-03.webp",
+    "mobile": "/posts/images/typesafe-jev/typesafe-jev-03-800w.webp",
+    "desktop": "/posts/images/typesafe-jev/typesafe-jev-03-1200w.webp",
     "width": 1672,
     "height": 941
   },

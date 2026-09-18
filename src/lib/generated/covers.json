@@ -139,6 +139,13 @@
     "width": 1921,
     "height": 819
   },
+  "agent-needs-git.png": {
+    "mobile": "/cover/agent-needs-git-400.webp",
+    "desktop": "/cover/agent-needs-git-800.webp",
+    "full": "/cover/agent-needs-git.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-proposer-reviewer.png": {
     "mobile": "/cover/agent-proposer-reviewer-400.webp",
     "desktop": "/cover/agent-proposer-reviewer-800.webp",
@@ -152,6 +159,13 @@
     "full": "/cover/agent-restates-goal.webp",
     "width": 1923,
     "height": 818
+  },
+  "agent-status-bar.png": {
+    "mobile": "/cover/agent-status-bar-400.webp",
+    "desktop": "/cover/agent-status-bar-800.webp",
+    "full": "/cover/agent-status-bar.webp",
+    "width": 1880,
+    "height": 800
   },
   "agent-stop-conditions.png": {
     "mobile": "/cover/agent-stop-conditions-400.webp",
@@ -348,6 +362,20 @@
     "full": "/cover/enjoying-ai-too-much-scares-me.webp",
     "width": 1536,
     "height": 864
+  },
+  "evaluating-agent-skills.png": {
+    "mobile": "/cover/evaluating-agent-skills-400.webp",
+    "desktop": "/cover/evaluating-agent-skills-800.webp",
+    "full": "/cover/evaluating-agent-skills.webp",
+    "width": 1880,
+    "height": 800
+  },
+  "friction-as-a-feature.png": {
+    "mobile": "/cover/friction-as-a-feature-400.webp",
+    "desktop": "/cover/friction-as-a-feature-800.webp",
+    "full": "/cover/friction-as-a-feature.webp",
+    "width": 1880,
+    "height": 800
   },
   "from-writing-code-to-reviewing-code.png": {
     "mobile": "/cover/from-writing-code-to-reviewing-code-400.webp",
@@ -585,6 +613,13 @@
     "desktop": "/cover/three-small-prototypes-800.webp",
     "full": "/cover/three-small-prototypes.webp",
     "width": 1923,
+    "height": 818
+  },
+  "typesafe-jev.png": {
+    "mobile": "/cover/typesafe-jev-400.webp",
+    "desktop": "/cover/typesafe-jev-800.webp",
+    "full": "/cover/typesafe-jev.webp",
+    "width": 1922,
     "height": 818
   },
   "vibe-coding-ai-code-backlash-openclaw.png": {
