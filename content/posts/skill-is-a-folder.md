@@ -62,3 +62,5 @@ Claude Code 团队把内部几百个 skill 归成了九大类，从库参考、�
 现在那个 SKILL.md 停在四十多行，再没涨回去过。倒不是我克制，是每次想往里加东西，都先过三个问题：这件事只属于一类吗？这句话 Claude 不看也会做吗？description 里有没有我真实会说的那句话？
 
 下次 agent 给你生成一个 skill，别扫一眼就收下。它写得多，你删得狠，agent 才会真的用对它。
+
+写完后，可以用[负向用例检查 Skill 是否误触发](/posts/evaluating-agent-skills/)，确认 description 的边界是否有效。

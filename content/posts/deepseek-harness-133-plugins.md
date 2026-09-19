@@ -23,7 +23,7 @@ coverAlt: DeepSeek Harness：我最想抄走的，不是它的插件系统
 
 模型 API 根据消息返回文本或工具调用。Harness 决定每轮放进什么上下文、怎样执行工具、结果如何写回、失败后是否重试，进程退出后又怎么恢复。
 
-同一个模型放进不同 Harness，表现可能差很多。我会先找三个答案：模型见过的内容能否追溯，工具和权限在哪里落地，任务结束后谁负责收尾。
+[同一个模型放进不同 Harness，表现可能差很多](/posts/agent-harness-not-model/)。我会先找三个答案：模型见过的内容能否追溯，工具和权限在哪里落地，任务结束后谁负责收尾。
 
 填写 API Key、选择工作区都很正常。差距要到长时间运行后才出现：会话能否恢复，取消能否停干净，插件卸载后还剩什么。
 
@@ -37,7 +37,7 @@ DeepSeek Harness 建立在 Cordis 上。模型适配器、工具注册表、会�
 
 ![同一种 bash 能力可以替换本机、沙箱或远端执行器](/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-02.png)
 
-我更想抄的是另一条规则：模型看见的内容，必须能从 Session log 重建。请求头、工具调用、结果和中断的 step 都写进只追加的日志，下一轮消息再由日志推导。回放、排障和恢复共用同一份事实。
+我更想抄的是另一条规则：模型看见的内容，必须能从 Session log 重建。请求头、工具调用、结果和中断的 step 都写进只追加的日志，下一轮消息再由日志推导。回放、排障和恢复共用同一份事实。至于日志还要保存哪些状态，才能在进程退出后继续执行，我在[日志与 Agent 执行恢复](/posts/log-lock-in/)中展开过。
 
 ![模型可见事件进入同一份 Session log](/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-03.png)
 
