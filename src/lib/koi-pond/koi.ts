@@ -1,8 +1,3 @@
-/**
- * 锦鲤的运动学：李萨如轨迹叠加两组不可通约的频率，轨迹因此不会循环。
- * 纯 CPU 计算，结果按 shader 期望的布局写进两个 uniform 数组。
- */
-
 interface KoiTrack {
   /** 轨迹中心（世界坐标） */
   center: readonly [number, number];
@@ -78,6 +73,73 @@ const TRACKS: readonly KoiTrack[] = [
 ];
 
 export const KOI_COUNT = TRACKS.length;
+export const KOI_ROWS = 36;
+export const KOI_VERTEX_STRIDE = 6;
+export const KOI_MOUTH_OFFSET = 0.85;
+const MESH_END = 1.48;
+
+export interface KoiMesh {
+  readonly vertices: Float32Array;
+  readonly spine: Float32Array;
+}
+
+function wrapAngle(angle: number): number {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
+}
+
+function updateMesh(
+  mesh: KoiMesh,
+  x: number,
+  y: number,
+  angle: number,
+  length: number,
+  phase: number,
+  amplitude: number,
+  initialize: boolean,
+): void {
+  const { spine, vertices } = mesh;
+  const step = (length * MESH_END) / (KOI_ROWS - 1);
+  spine[0] = x;
+  spine[1] = y;
+  let heading = angle;
+  for (let row = 1; row < KOI_ROWS; row++) {
+    const previous = (row - 1) * 2;
+    const current = row * 2;
+    // 逐节限制转角，避免急转或咬钩时网格折叠。
+    if (!initialize) {
+      const follow = Math.atan2(
+        spine[previous + 1] - spine[current + 1],
+        spine[previous] - spine[current],
+      );
+      heading += Math.max(-0.085, Math.min(0.085, wrapAngle(follow - heading)));
+    }
+    spine[current] = spine[previous] - Math.cos(heading) * step;
+    spine[current + 1] = spine[previous + 1] - Math.sin(heading) * step;
+  }
+
+  for (let row = 0; row < KOI_ROWS; row++) {
+    const u = (row / (KOI_ROWS - 1)) * MESH_END;
+    const previous = Math.max(0, row - 1) * 2;
+    const next = Math.min(KOI_ROWS - 1, row + 1) * 2;
+    const tangent = Math.atan2(
+      spine[previous + 1] - spine[next + 1],
+      spine[previous] - spine[next],
+    );
+    const tx = Math.cos(tangent);
+    const ty = Math.sin(tangent);
+    const sway = Math.sin(phase - u * 5.4) * amplitude * Math.pow(u / MESH_END, 1.7);
+    for (let side = 0; side < 2; side++) {
+      const v = side === 0 ? -0.42 : 0.42;
+      const offset = (row * 2 + side) * KOI_VERTEX_STRIDE;
+      vertices[offset] = spine[row * 2] - ty * (v + sway) * length;
+      vertices[offset + 1] = spine[row * 2 + 1] + tx * (v + sway) * length;
+      vertices[offset + 2] = u;
+      vertices[offset + 3] = v;
+      vertices[offset + 4] = tx;
+      vertices[offset + 5] = ty;
+    }
+  }
+}
 
 export interface KoiLure {
   index: number;
@@ -91,6 +153,7 @@ export interface KoiSchool {
   readonly a: Float32Array;
   /** 每尾 vec4：x = 半长，y = 尾摆相位，z = 摆幅，w = 配色编号 */
   readonly b: Float32Array;
+  readonly meshes: readonly KoiMesh[];
   update(t: number, dt: number, lure?: KoiLure, hidden?: number): void;
 }
 
@@ -100,10 +163,16 @@ export function createKoiSchool(): KoiSchool {
   const dir = TRACKS.map(() => [1, 0]);
   const tailPhase = TRACKS.map(() => Math.random() * 6.28);
   const offsets = TRACKS.map(() => [0, 0]);
+  const meshes = TRACKS.map(() => ({
+    vertices: new Float32Array(KOI_ROWS * 2 * KOI_VERTEX_STRIDE),
+    spine: new Float32Array(KOI_ROWS * 2),
+  }));
+  let initialized = false;
 
   function update(t: number, dt: number, lure?: KoiLure, hidden = -1): void {
     for (let i = 0; i < TRACKS.length; i++) {
       const k = TRACKS[i];
+      const half = k.half * 1.3;
       const a0 = k.omega[0] * t + k.phase[0];
       const a1 = k.omega[1] * t + k.phase[1];
       const b0 = 2.37 * k.omega[0] * t + k.phase[1] * 1.9;
@@ -117,8 +186,8 @@ export function createKoiSchool(): KoiSchool {
       const offset = offsets[i];
       const heading = dir[i];
       const attracted = lure?.index === i;
-      const targetX = attracted ? lure.x - heading[0] * k.half * 0.85 - x : 0;
-      const targetY = attracted ? lure.y - heading[1] * k.half * 0.85 - y : 0;
+      const targetX = attracted ? lure.x - heading[0] * half * KOI_MOUTH_OFFSET - x : 0;
+      const targetY = attracted ? lure.y - heading[1] * half * KOI_MOUTH_OFFSET - y : 0;
       const blend = 1 - Math.exp(-dt * (attracted ? 2.5 : 0.8));
       const dx = (targetX - offset[0]) * blend;
       const dy = (targetY - offset[1]) * blend;
@@ -131,27 +200,37 @@ export function createKoiSchool(): KoiSchool {
 
       const speed = Math.hypot(vx, vy);
       if (speed > 1e-5) {
-        // 朝向按指数收敛跟随速度方向，转身才有惯性而不是瞬时折角
-        const blend = 1 - Math.exp(-dt * 3.0);
-        heading[0] += (vx / speed - heading[0]) * blend;
-        heading[1] += (vy / speed - heading[1]) * blend;
-        const len = Math.hypot(heading[0], heading[1]) || 1;
-        heading[0] /= len;
-        heading[1] /= len;
+        const angle = Math.atan2(heading[1], heading[0]);
+        const turn = wrapAngle(Math.atan2(vy, vx) - angle);
+        const next = initialized ? angle + turn * (1 - Math.exp(-dt * 3)) : angle + turn;
+        heading[0] = Math.cos(next);
+        heading[1] = Math.sin(next);
       }
-      tailPhase[i] += dt * (attracted && lure.biting ? 36 : 5.0 + 60.0 * speed);
+      tailPhase[i] += dt * (attracted && lure.biting ? 15 : 3.8 + 20 * speed);
+      const amplitude = 0.018 + 0.045 * Math.min(speed / (half * 2), 1);
+      updateMesh(
+        meshes[i],
+        x + offset[0] + heading[0] * half * KOI_MOUTH_OFFSET,
+        y + offset[1] + heading[1] * half * KOI_MOUTH_OFFSET,
+        Math.atan2(heading[1], heading[0]),
+        half * 2,
+        tailPhase[i],
+        amplitude,
+        !initialized,
+      );
 
       a[i * 4] = i === hidden ? -10 : x + offset[0];
       a[i * 4 + 1] = i === hidden ? -10 : y + offset[1];
       a[i * 4 + 2] = heading[0];
       a[i * 4 + 3] = heading[1];
-      b[i * 4] = k.half;
+      b[i * 4] = half;
       b[i * 4 + 1] = tailPhase[i];
-      b[i * 4 + 2] = 0.055 + 0.3 * Math.min(speed * 12.0, 1.0);
+      b[i * 4 + 2] = amplitude;
       b[i * 4 + 3] = k.palette;
     }
+    initialized = true;
   }
 
   update(0, 0);
-  return { a, b, update };
+  return { a, b, meshes, update };
 }

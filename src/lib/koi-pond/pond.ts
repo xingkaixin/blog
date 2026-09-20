@@ -7,7 +7,9 @@
 
 import { Fishing, FishingPhase, type FishingStatus } from "./fishing";
 import { drawFishingOverlay } from "./fishing-overlay";
-import { createKoiSchool, KOI_COUNT } from "./koi";
+import { createKoiSchool } from "./koi";
+import { createKoiRenderer } from "./koi-renderer";
+import { KOI_VS, KOI_FS } from "./koi-shaders";
 import { COMP_FS, SIM_FS, UNDER_FS, VS } from "./shaders";
 
 export interface PondHandle {
@@ -181,10 +183,12 @@ function buildPond(
   let progSim: Program;
   let progUnder: Program;
   let progComp: Program;
+  let progKoi: Program;
   try {
     progSim = createProgram(VS, SIM_FS);
     progUnder = createProgram(VS, UNDER_FS);
     progComp = createProgram(VS, COMP_FS);
+    progKoi = createProgram(KOI_VS, KOI_FS);
   } catch {
     return { ok: false, reason: "着色器编译失败，无法运行这片水面。" };
   }
@@ -194,6 +198,7 @@ function buildPond(
   let under: Target | null = null;
 
   const koi = createKoiSchool();
+  const koiRenderer = createKoiRenderer(gl, progKoi);
 
   /* --- 涟漪注入 -------------------------------------------------------- */
 
@@ -319,11 +324,9 @@ function buildPond(
     }
 
     progUnder.use();
-    gl.uniform1f(progUnder.u("uTime"), t);
-    gl.uniform1i(progUnder.u("uKoiN"), KOI_COUNT);
-    gl.uniform4fv(progUnder.u("uKoiA[0]"), koi.a);
-    gl.uniform4fv(progUnder.u("uKoiB[0]"), koi.b);
     drawTo(under);
+    koiRenderer.drawSchool(koi);
+    gl.bindVertexArray(quadVao);
 
     progComp.use();
     gl.uniform2f(progComp.u("uRipTexel"), 1 / SIM_W, 1 / SIM_H);
@@ -569,6 +572,8 @@ function buildPond(
         progSim.dispose();
         progUnder.dispose();
         progComp.dispose();
+        progKoi.dispose();
+        koiRenderer.destroy();
         disposeTarget(simA);
         disposeTarget(simB);
         if (under) {

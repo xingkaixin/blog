@@ -9,7 +9,7 @@ void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }
 `;
 
 // 池子的世界坐标: x in [0,3], y in [0,1]  (3:1)
-const COMMON = `
+export const COMMON = `
 #define PI 3.14159265359
 #define W 3.0
 
@@ -148,11 +148,6 @@ void main(){
 export const UNDER_FS =
   HEAD +
   `
-uniform float uTime;
-uniform vec4  uKoiA[8];   // xy = 位置(世界), zw = 朝向
-uniform vec4  uKoiB[8];   // x = 半长, y = 尾摆相位, z = 摆幅, w = 配色编号
-uniform int   uKoiN;
-
 float voro(vec2 x, out float edge, out vec2 id){
   vec2 n = floor(x), f = fract(x);
   float d1 = 8.0, d2 = 8.0; vec2 mid = n;
@@ -200,90 +195,8 @@ vec3 pondFloor(vec2 p){
   return col;
 }
 
-vec2 koiLocal(int i, vec2 p){
-  vec2 c = uKoiA[i].xy, dr = uKoiA[i].zw;
-  vec2 d = (p - c) / uKoiB[i].x;
-  vec2 q = vec2(dot(d, dr), d.x*(-dr.y) + d.y*dr.x);
-  float w = smoothstep(0.9, -1.3, q.x);                 // 越靠尾部摆动越大
-  q.y -= sin(q.x*3.2 - uKoiB[i].y) * uKoiB[i].z * w;
-  return q;
-}
-
-// 体宽剖面 + 尾鳍, aa 控制边缘柔度(投影用大值)
-float koiShape(vec2 q, float aa, out float finA){
-  float t  = clamp((q.x + 1.0) * 0.5, 0.0, 1.0);
-  float wb = 0.235 * pow(max(sin(PI * pow(t, 1.18)), 0.0), 0.52);
-  float s  = clamp((-0.80 - q.x) / 0.52, 0.0, 1.0);
-  float wt = 0.030 + 0.205 * pow(s, 1.15);
-  float gate = smoothstep(-0.70, -0.90, q.x);
-  float w = max(wb, wt * gate);
-
-  // 凹口只吃掉中间一小段, 否则整个尾鳍会被切成两根尖刺
-  float xEnd = -1.32 + 0.11 * smoothstep(0.10, 0.0, abs(q.y));
-  float m = smoothstep(-aa, aa, w - abs(q.y))
-          * smoothstep(-aa, aa, q.x - xEnd)
-          * smoothstep(-aa, aa, 1.0 - q.x);
-
-  vec2 fp = vec2(q.x - 0.22, abs(q.y) - 0.14);
-  float ca = cos(0.80), sa = sin(0.80);
-  fp = vec2(ca*fp.x + sa*fp.y, -sa*fp.x + ca*fp.y);
-  finA = smoothstep(-0.18, 0.18, 1.0 - length(fp / vec2(0.22, 0.070))) * (1.0 - m);
-
-  return m;
-}
-
-void koiPalette(int k, out vec3 base, out vec3 mark, out float th){
-  if      (k == 0){ base = vec3(0.97,0.95,0.92); mark = vec3(0.93,0.26,0.08); th =  0.00; }
-  else if (k == 1){ base = vec3(0.98,0.47,0.09); mark = vec3(0.99,0.96,0.92); th =  0.26; }
-  else if (k == 2){ base = vec3(0.99,0.74,0.19); mark = vec3(0.99,0.90,0.56); th =  0.08; }
-  else if (k == 3){ base = vec3(0.96,0.95,0.93); mark = vec3(0.12,0.14,0.17); th =  0.04; }
-  else if (k == 4){ base = vec3(0.97,0.95,0.92); mark = vec3(0.95,0.34,0.09); th = -0.07; }
-  else            { base = vec3(0.21,0.23,0.27); mark = vec3(0.88,0.90,0.92); th =  0.34; }
-}
-
-vec3 koiColor(int pal, vec2 q, float seed){
-  vec3 base, mark; float th;
-  koiPalette(pal, base, mark, th);
-  float pat = fbm(q * vec2(1.7, 2.9) + seed * 13.0);
-  vec3 c = mix(base, mark, smoothstep(th - 0.03, th + 0.06, pat));
-  if (pal == 4){
-    float p2 = fbm(q * vec2(3.1, 4.3) + seed * 7.0 + 21.0);
-    c = mix(c, vec3(0.11,0.12,0.15), smoothstep(0.30, 0.42, p2) * 0.85);
-  }
-  float t  = clamp((q.x + 1.0)*0.5, 0.0, 1.0);
-  float wb = max(0.235 * pow(max(sin(PI*pow(t, 1.18)), 0.0), 0.52), 1e-3);
-  float rim = abs(q.y) / wb;
-  c *= 0.80 + 0.30 * smoothstep(1.05, 0.10, rim);        // 圆身受光
-  c += vec3(0.06,0.07,0.07) * smoothstep(0.35, 0.0, rim); // 脊背高光
-  c = mix(c, c*0.72 + 0.40, smoothstep(-0.86, -1.25, q.x) * 0.55);  // 尾鳍偏透明
-  return c;
-}
-
 void main(){
-  vec2 p = vUv * vec2(W, 1.0);
-  vec3 col = pondFloor(p);
-  float cover = 0.0, f;
-
-  // 影子: 同一形状函数, 位置偏移 + 更软的边缘
-  float sh = 0.0;
-  for (int i = 0; i < 8; i++){
-    if (i >= uKoiN) break;
-    sh = max(sh, koiShape(koiLocal(i, p - vec2(0.040, 0.052)), 0.13, f));
-  }
-  col *= 1.0 - 0.36 * sh;
-
-  for (int i = 0; i < 8; i++){
-    if (i >= uKoiN) break;
-    vec2 q = koiLocal(i, p);
-    float m = koiShape(q, 0.030, f);
-    vec3 kc = koiColor(int(uKoiB[i].w), q, float(i) + 0.31);
-    kc = mix(kc, vec3(0.40, 0.70, 0.68), 0.09);          // 水体带来的雾感
-    col = mix(col, kc, m);
-    col = mix(col, vec3(0.86, 0.94, 0.95), f * 0.30);    // 半透明胸鳍
-    cover = max(cover, max(m, f * 0.5));
-  }
-
-  fragColor = vec4(col, cover);
+  fragColor = vec4(pondFloor(vUv * vec2(W, 1.0)), 0.0);
 }
 `;
 
@@ -508,7 +421,7 @@ void main(){
   under += caustic * SUN_COL * causMask * 0.72;
 
   /* --- 水体吸收 + 散射 --- */
-  float depth = mix(1.0, 0.52, ef);
+  float depth = mix(1.0, 0.52, ef) * mix(1.0, 0.38, koiCover);
   vec3 absorb = exp(-vec3(0.66, 0.15, 0.21) * depth * 1.15);
   vec3 col = under * absorb + vec3(0.10, 0.52, 0.52) * (1.0 - absorb.g) * 1.15;
   col += vec3(0.08, 0.26, 0.25) * clamp(wf.x*aA*14.0, -0.5, 0.5);   // 波峰的次表面辉光
