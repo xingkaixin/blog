@@ -3,6 +3,7 @@ import SiteLayout from "@/layouts/SiteLayout.astro";
 import ContactCard from "@/components/astro/ContactCard.astro";
 import KoiPond from "@/components/astro/KoiPond.astro";
 import AboutCharacter from "@/components/astro/AboutCharacter.astro";
+import AboutIntro from "@/components/astro/AboutIntro.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
 import SiteCredits from "@/components/astro/SiteCredits.astro";
 import RecordPlayer from "@/components/astro/RecordPlayer.astro";
@@ -50,7 +51,7 @@ const contacts = Object.values(siteContacts);
               <p class="mt-1.5 font-mono text-[11px] text-ink-400">上海 · 工程师 · 摄影爱好者</p>
             </div>
           </div>
-          <p class="mt-7 text-[15px] leading-8 text-ink-700">{siteConfig.about}</p>
+          <AboutIntro />
           <blockquote class="mt-5 border-l-3 border-accent py-1 pl-4 text-[14px] leading-7 text-ink-500">
             {siteConfig.motto}
           </blockquote>

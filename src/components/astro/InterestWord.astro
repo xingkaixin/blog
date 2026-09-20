@@ -1,0 +1,103 @@
+---
+interface Props {
+  kind: "photography" | "devices";
+}
+
+const { kind } = Astro.props;
+---
+
+<span class="interest-word">
+  <span class="interest-label"><slot /></span><svg
+    class="interest-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    {kind === "photography" ? <>
+      <path class="camera-button" d="M5 5.5H8" stroke-width="2" />
+      <path d="M3.5 7H8L9.5 4.5H15L16.5 7H20.5A1.5 1.5 0 0 1 22 8.5V18A2 2 0 0 1 20 20H4A2 2 0 0 1 2 18V8.5A1.5 1.5 0 0 1 3.5 7Z" fill="currentColor" fill-opacity=".08" />
+      <path d="M2.5 10H7M18 10H21.5" opacity=".4" />
+      <circle cx="12.5" cy="13" r="4.5" />
+      <g class="camera-iris">
+        <circle cx="12.5" cy="13" r="2.5" fill="currentColor" stroke="none" />
+        <path d="M11.5 12L13 11.5" stroke="var(--bg)" stroke-width="1" />
+      </g>
+      <path d="M18.5 8.8H19.5" />
+      <path class="camera-glint" d="M20 1V4M18.5 2.5H21.5" />
+    </> : <>
+      <rect x="5.5" y="2" width="13" height="20" rx="2.8" fill="currentColor" fill-opacity=".08" />
+      <rect class="device-screen" x="8" y="6" width="8" height="9" rx="1" fill="currentColor" fill-opacity=".1" stroke-opacity=".4" />
+      <path d="M10.5 4H13.5" opacity=".5" />
+      <path class="device-pixel pixel-one" d="M10 12V10" />
+      <path class="device-pixel pixel-two" d="M12 12V8.5" />
+      <path class="device-pixel pixel-three" d="M14 12V10.5" />
+      <circle class="device-button" cx="12" cy="18.5" r="1.2" />
+    </>}
+  </svg>
+</span>
+
+<style>
+  .interest-word { white-space: nowrap; }
+  .interest-label {
+    text-decoration: underline;
+    text-decoration-color: var(--line);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: color 150ms ease-out, text-decoration-color 150ms ease-out;
+  }
+  .interest-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    vertical-align: -4px;
+    overflow: visible;
+    color: var(--ink-500);
+    transition: color 150ms ease-out;
+  }
+  .camera-iris { transform-origin: 12.5px 13px; }
+  .camera-glint { opacity: 0; }
+  .device-pixel { opacity: .45; }
+  .device-button { transition: fill 150ms ease-out; fill: transparent; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .interest-word:hover .interest-label { color: var(--accent); text-decoration-color: var(--accent); }
+    .interest-word:hover .interest-icon { color: var(--accent); }
+    .interest-word:hover .device-button { fill: currentColor; }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .interest-word:hover .camera-iris { animation: camera-shutter 2s ease-in-out infinite; }
+    .interest-word:hover .camera-button { animation: camera-press 2s ease-in-out infinite; }
+    .interest-word:hover .camera-glint { animation: camera-flash 2s ease-out infinite; }
+    .interest-word:hover .device-screen { animation: device-wake 2.4s ease-in-out infinite; }
+    .interest-word:hover .device-pixel { animation: device-signal 2.4s ease-in-out infinite; }
+    .interest-word:hover .pixel-two { animation-delay: 160ms; }
+    .interest-word:hover .pixel-three { animation-delay: 320ms; }
+  }
+
+  @keyframes camera-shutter {
+    0%, 8%, 38%, 100% { transform: scale(1); }
+    19%, 23% { transform: scale(.2); }
+  }
+  @keyframes camera-press {
+    0%, 6%, 30%, 100% { transform: translateY(0); }
+    14%, 22% { transform: translateY(1px); }
+  }
+  @keyframes camera-flash {
+    0%, 17%, 34%, 100% { opacity: 0; }
+    22% { opacity: .85; }
+  }
+  @keyframes device-wake {
+    0%, 70%, 100% { fill-opacity: .1; }
+    18%, 50% { fill-opacity: .24; }
+  }
+  @keyframes device-signal {
+    0%, 55%, 100% { opacity: .45; }
+    18%, 35% { opacity: 1; }
+  }
+</style>

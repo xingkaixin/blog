@@ -28,6 +28,14 @@ export const siteContacts = {
 export type SiteContactId = keyof typeof siteContacts;
 export type SiteContact = (typeof siteContacts)[SiteContactId];
 
+export const aboutIntro = [
+  "Hey，我是 XingKaiXin，我在上海工作。工作、学习之余，我还是一个",
+  { kind: "photography", text: "摄影爱好者" },
+  "，同时也非常喜欢折腾各类",
+  { kind: "devices", text: "数码产品" },
+  "。",
+] as const;
+
 export const siteConfig = {
   title: "行开心的颠倒世界",
   description:
@@ -36,8 +44,7 @@ export const siteConfig = {
   photoUrl: "https://photos.xingkaixin.me",
   author: "XingKaiXin",
   language: "zh-CN",
-  about:
-    "Hey，我是 XingKaiXin，我在上海工作。工作、学习之余，我还是一个摄影爱好者，同时也非常喜欢折腾各类数码产品。",
+  about: aboutIntro.map((part) => (typeof part === "string" ? part : part.text)).join(""),
   motto:
     "人生不该只有一种体验，不应该每个人的生活都像钉子一样专注。做个兴趣广泛、体验丰富的人，同样幸福",
 };

@@ -1,0 +1,10 @@
+---
+import InterestWord from "./InterestWord.astro";
+import { aboutIntro } from "@/lib/site";
+---
+
+<p class="mt-7 text-[15px] leading-8 text-ink-700">
+  {aboutIntro.map((part) => typeof part === "string"
+    ? part
+    : <InterestWord kind={part.kind}>{part.text}</InterestWord>)}
+</p>
