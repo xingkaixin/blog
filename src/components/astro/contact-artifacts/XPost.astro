@@ -6,7 +6,9 @@ const { value } = Astro.props;
 ---
 
 <div class="x-card">
-  <span class="x-logo">𝕏</span>
+  <svg class="x-logo" aria-hidden="true" viewBox="0 0 24 24">
+    <path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23Zm-1.16 17.52h1.83L7.08 4.13H5.12Z" />
+  </svg>
   <div class="x-head">
     <img src="/avatar.webp" alt="" class="x-avatar" />
     <div>
@@ -20,20 +22,48 @@ const { value } = Astro.props;
 <style>
   .x-card {
     position: relative;
-    box-shadow: var(--artifact-shadow);
-    width: 14.5rem;
-    padding: 0.875rem 1rem;
-    background: #fff;
-    border: 1px solid #e6e4dd;
-    border-radius: 1rem;
+    isolation: isolate;
+    overflow: hidden;
+    box-shadow: var(--artifact-shadow), inset 0 1px 0 #ffffffe6, inset 0 -1px 0 #a3a7ad80;
+    width: 17rem;
+    min-height: 9.875rem;
+    padding: 1.125rem;
+    background: linear-gradient(125deg, #f0f1f2, #d6d8dc 42%, #ebecee 65%, #caced3);
+    border: 1px solid #c0c3c8;
+    border-radius: 0.875rem;
+  }
+
+  .x-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, #ffffff26 0 1px, #53596608 1px 2px);
+  }
+
+  .x-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at var(--pointer-x, 50%) var(--pointer-y, 50%), #ffffff80, transparent 70%),
+      linear-gradient(110deg, transparent 30%, #ffffff90 45%, #ffffffb3 50%, transparent 65%);
+    background-size: 100% 100%, 200% 200%;
+    background-position: center, var(--pointer-x, 50%) var(--pointer-y, 50%);
+    mix-blend-mode: soft-light;
+    opacity: var(--sheen, 0);
   }
 
   .x-logo {
     position: absolute;
-    top: 0.75rem;
-    right: 0.875rem;
-    font-size: 14px;
-    color: #1b1c1f;
+    top: 1.75rem;
+    right: 1rem;
+    width: 6rem;
+    height: 6rem;
+    fill: #c3c6cc;
+    filter: drop-shadow(0 -1px 0 #91969e) drop-shadow(0 1px 0 #fff);
   }
 
   .x-head {
@@ -57,11 +87,12 @@ const { value } = Astro.props;
 
   .x-handle {
     font-size: 11px;
-    color: #85868c;
+    color: #656971;
   }
 
   .x-post {
-    margin-top: 0.5rem;
+    position: relative;
+    margin-top: 2.125rem;
     font-size: 12px;
     line-height: 1.6;
     color: #46474d;

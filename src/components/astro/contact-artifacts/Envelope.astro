@@ -24,6 +24,7 @@ const { value } = Astro.props;
     --postal-blue: #3f5c9e;
     --postal-red: #c2402f;
     position: relative;
+    isolation: isolate;
     box-shadow: var(--artifact-shadow);
     width: 16.5rem;
     padding: 1rem 1.125rem 1.125rem;
@@ -37,6 +38,15 @@ const { value } = Astro.props;
         var(--paper-cream) 28px 36px
       )
       6;
+  }
+
+  .envelope::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at var(--pointer-x, 50%) var(--pointer-y, 50%), #fff9, transparent 75%);
+    opacity: calc(var(--sheen, 0) * 0.3);
   }
 
   .stamp {
@@ -68,6 +78,20 @@ const { value } = Astro.props;
     width: calc(100% - 10px);
     height: calc(100% - 10px);
     object-fit: cover;
+  }
+
+  .stamp::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at var(--pointer-x, 50%) var(--pointer-y, 50%), #fff9, transparent 65%),
+      repeating-linear-gradient(125deg, #82ddd9 0%, #a5b8ed 15%, #edb9d5 30%, #f4dda1 45%, #a8dfc9 60%);
+    background-size: 200% 200%;
+    background-position: var(--pointer-x, 50%) var(--pointer-y, 50%);
+    mix-blend-mode: hard-light;
+    opacity: calc(var(--sheen, 0) * 0.7);
   }
 
   .postmark {
