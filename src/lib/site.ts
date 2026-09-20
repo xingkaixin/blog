@@ -29,7 +29,9 @@ export type SiteContactId = keyof typeof siteContacts;
 export type SiteContact = (typeof siteContacts)[SiteContactId];
 
 export const aboutIntro = [
-  "Hey，我是 XingKaiXin，我在上海工作。工作、学习之余，我还是一个",
+  "Hey，我是 XingKaiXin，我在",
+  { kind: "location", text: "上海" },
+  "工作。工作、学习之余，我还是一个",
   { kind: "photography", text: "摄影爱好者" },
   "，同时也非常喜欢折腾各类",
   { kind: "devices", text: "数码产品" },

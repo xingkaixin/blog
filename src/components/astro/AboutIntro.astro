@@ -1,10 +1,13 @@
 ---
 import InterestWord from "./InterestWord.astro";
+import ShanghaiPreview from "@/components/ShanghaiPreview";
 import { aboutIntro } from "@/lib/site";
 ---
 
 <p class="mt-7 text-[15px] leading-8 text-ink-700">
   {aboutIntro.map((part) => typeof part === "string"
     ? part
+    : part.kind === "location"
+    ? <ShanghaiPreview label={part.text} client:load />
     : <InterestWord kind={part.kind}>{part.text}</InterestWord>)}
 </p>

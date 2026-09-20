@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./components/shanghai-preview.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

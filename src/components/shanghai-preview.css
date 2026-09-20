@@ -1,0 +1,199 @@
+.shanghai-trigger {
+  border: 0;
+  border-radius: 2px;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--ink-300);
+  text-decoration-style: dotted;
+  text-underline-offset: 4px;
+  transition:
+    color 150ms ease-out,
+    text-decoration-color 150ms ease-out;
+}
+
+.shanghai-trigger[data-popup-open],
+.shanghai-trigger:focus-visible {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.shanghai-trigger:focus-visible,
+.shanghai-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.shanghai-trigger:active {
+  color: var(--accent);
+}
+.shanghai-positioner {
+  z-index: 50;
+}
+.shanghai-positioner[data-anchor-hidden] {
+  visibility: hidden;
+}
+
+.shanghai-preview {
+  width: 192px;
+  max-width: var(--available-width);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+  background: var(--surface);
+  color: var(--ink-700);
+  box-shadow: var(--shadow-card);
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity 180ms ease-out,
+    transform 180ms var(--ease-smooth-out);
+}
+
+.shanghai-preview[data-starting-style],
+.shanghai-preview[data-ending-style] {
+  opacity: 0;
+  transform: translateY(4px) scale(0.97);
+}
+.shanghai-preview[data-side="bottom"][data-starting-style],
+.shanghai-preview[data-side="bottom"][data-ending-style] {
+  transform: translateY(-4px) scale(0.97);
+}
+.shanghai-preview[data-ending-style] {
+  transition-duration: 120ms;
+}
+.shanghai-preview[data-instant] {
+  transition: none;
+}
+.shanghai-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 3px;
+}
+.shanghai-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.shanghai-english {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--ink-400);
+}
+.shanghai-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 4px;
+  padding: 5px;
+  color: var(--ink-400);
+  background: none;
+  cursor: pointer;
+  transition:
+    color 150ms ease-out,
+    transform 150ms ease-out;
+}
+.shanghai-close svg {
+  width: 14px;
+  height: 14px;
+}
+.shanghai-close:active {
+  transform: scale(0.95);
+}
+.shanghai-map {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  border-radius: 7px;
+  background: var(--ink-50);
+}
+.map-grid {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 0.5;
+  opacity: 0.6;
+}
+.map-land {
+  fill: var(--surface);
+  stroke: var(--ink-400);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+.map-river {
+  fill: none;
+  stroke: var(--ink-300);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.map-marker-halo {
+  fill: var(--accent-soft);
+}
+.map-marker {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+.map-leader {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.6;
+}
+.map-city {
+  fill: var(--accent);
+  font-size: 9px;
+  font-weight: 500;
+}
+.map-water-label {
+  fill: var(--ink-400);
+  font-size: 8px;
+  letter-spacing: 2px;
+}
+.map-north {
+  fill: none;
+  stroke: var(--ink-400);
+  stroke-width: 0.8;
+}
+.map-north-label {
+  fill: var(--ink-400);
+  font-family: var(--font-mono);
+  font-size: 7px;
+}
+.shanghai-caption {
+  margin: 7px 2px 2px;
+  color: var(--ink-500);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shanghai-trigger:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+  .shanghai-close:hover {
+    color: var(--ink-800);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shanghai-preview {
+    transition-property: opacity;
+  }
+  .shanghai-preview[data-side][data-starting-style],
+  .shanghai-preview[data-side][data-ending-style] {
+    transform: none;
+  }
+  .shanghai-close:active {
+    transform: none;
+  }
+}
