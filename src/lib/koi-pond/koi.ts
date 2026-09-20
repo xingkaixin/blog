@@ -9,7 +9,7 @@ interface KoiTrack {
   phase: readonly [number, number];
   /** 体长的一半 */
   half: number;
-  /** 配色编号，对应 shader 里的 koiPalette */
+  /** 配色编号，对应 koi-shaders.ts 中的 skin */
   palette: number;
 }
 
@@ -75,12 +75,20 @@ const TRACKS: readonly KoiTrack[] = [
 export const KOI_COUNT = TRACKS.length;
 export const KOI_ROWS = 36;
 export const KOI_VERTEX_STRIDE = 6;
-export const KOI_MOUTH_OFFSET = 0.85;
+const KOI_MOUTH_OFFSET = 0.85;
 const MESH_END = 1.48;
 
 export interface KoiMesh {
   readonly vertices: Float32Array;
   readonly spine: Float32Array;
+}
+
+export interface KoiPose {
+  vertices: Float32Array;
+  mouth: { x: number; y: number };
+  angle: number;
+  phase: number;
+  length: number;
 }
 
 function wrapAngle(angle: number): number {

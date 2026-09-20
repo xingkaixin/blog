@@ -1,4 +1,4 @@
-import { KOI_COUNT, type KoiSchool } from "./koi";
+import { KOI_COUNT, type KoiPose, type KoiSchool } from "./koi";
 
 export enum FishingPhase {
   Idle = "idle",
@@ -14,12 +14,12 @@ export interface Point {
 }
 
 export const KOI_SPECIES = [
-  { name: "红白锦鲤", min: 42, max: 58, body: "#fdfcf7", mark: "#e63212" },
-  { name: "秋翠锦鲤", min: 38, max: 52, body: "#8ebac4", mark: "#e86a17" },
-  { name: "黄金锦鲤", min: 45, max: 62, body: "#fcc02a", mark: "#df9b12" },
-  { name: "白别甲", min: 40, max: 55, body: "#f5f5f0", mark: "#1a1e21" },
-  { name: "丹顶锦鲤", min: 43, max: 60, body: "#fdfcf7", mark: "#d92518" },
-  { name: "乌鲤", min: 39, max: 56, body: "#222629", mark: "#667078" },
+  { name: "红白锦鲤", min: 42, max: 58 },
+  { name: "秋翠锦鲤", min: 38, max: 52 },
+  { name: "黄金锦鲤", min: 45, max: 62 },
+  { name: "白别甲", min: 40, max: 55 },
+  { name: "丹顶锦鲤", min: 43, max: 60 },
+  { name: "乌鲤", min: 39, max: 56 },
 ] as const;
 
 export interface Catch {
@@ -31,7 +31,7 @@ type FishingState =
   | { phase: FishingPhase.Idle }
   | { phase: FishingPhase.Waiting; delay: number }
   | { phase: FishingPhase.Nibble | FishingPhase.Bite; fish: number }
-  | { phase: FishingPhase.Reeling; fish: number; catch: Catch };
+  | { phase: FishingPhase.Reeling; fish: number; catch: Catch; pose: KoiPose };
 
 export interface FishingStatus {
   phase: FishingPhase;
@@ -108,12 +108,20 @@ export class Fishing {
     const fish = this.current.fish;
     const palette = this.koi.b[fish * 4 + 3];
     const species = KOI_SPECIES[palette];
+    const mesh = this.koi.meshes[fish];
     this.transition({
       phase: FishingPhase.Reeling,
       fish,
       catch: {
         palette,
         length: Math.round(species.min + Math.random() * (species.max - species.min)),
+      },
+      pose: {
+        vertices: mesh.vertices.slice(),
+        mouth: { x: mesh.spine[0], y: mesh.spine[1] },
+        angle: Math.atan2(mesh.vertices[5], mesh.vertices[4]),
+        phase: this.koi.b[fish * 4 + 1],
+        length: this.koi.b[fish * 4] * 2,
       },
     });
     this.ripple(0.04);
@@ -124,12 +132,8 @@ export class Fishing {
   }
 
   private distanceToMouth(index: number): number {
-    const offset = index * 4;
-    const half = this.koi.b[offset] * 0.85;
-    return Math.hypot(
-      this.bobber.x - this.koi.a[offset] - this.koi.a[offset + 2] * half,
-      this.bobber.y - this.koi.a[offset + 1] - this.koi.a[offset + 3] * half,
-    );
+    const { spine } = this.koi.meshes[index];
+    return Math.hypot(this.bobber.x - spine[0], this.bobber.y - spine[1]);
   }
 
   private nearestFish(): number {

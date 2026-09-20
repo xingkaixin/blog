@@ -1,41 +1,38 @@
-import { Fishing, FishingPhase, KOI_SPECIES, REEL_DURATION, type Point } from "./fishing";
+import { Fishing, FishingPhase, REEL_DURATION, type Point } from "./fishing";
+import type { KoiPose } from "./koi";
 
-function drawKoi(ctx: CanvasRenderingContext2D, palette: number, bend: number): void {
-  const colors = KOI_SPECIES[palette];
-  ctx.fillStyle = "rgba(240, 246, 231, 0.7)";
-  ctx.beginPath();
-  ctx.ellipse(6, 8, 10, 4, 0.6, 0, Math.PI * 2);
-  ctx.ellipse(6, -8, 10, 4, -0.6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(-20, bend * 6);
-  ctx.quadraticCurveTo(-29, bend * 12 - 5, -36, bend * 12 - 12);
-  ctx.quadraticCurveTo(-31, bend * 12, -36, bend * 12 + 12);
-  ctx.quadraticCurveTo(-29, bend * 12 + 5, -20, bend * 6);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(22, 0);
-  ctx.bezierCurveTo(15, 12, -4, 13, -22, bend * 6);
-  ctx.bezierCurveTo(-4, -13, 15, -12, 22, 0);
-  ctx.fillStyle = colors.body;
-  ctx.fill();
-  ctx.save();
-  ctx.clip();
-  ctx.fillStyle = colors.mark;
-  ctx.beginPath();
-  ctx.ellipse(12, 0, 5, 5, 0, 0, Math.PI * 2);
-  if (palette !== 4) {
-    ctx.ellipse(-2, 2, 8, 6, -0.3, 0, Math.PI * 2);
-    ctx.ellipse(-16, 0, 5, 4, 0.2, 0, Math.PI * 2);
-  }
-  ctx.fill();
-  ctx.restore();
-  ctx.fillStyle = "#121b1b";
-  ctx.beginPath();
-  ctx.arc(16, 4, 1.3, 0, Math.PI * 2);
-  ctx.arc(16, -4, 1.3, 0, Math.PI * 2);
-  ctx.fill();
+export function getReelPose(pose: KoiPose, time: number, width: number, height: number) {
+  const p = Math.min(1, time / REEL_DURATION);
+  const q = 1 - p;
+  const origin = { x: (pose.mouth.x - 1.5) * height + width / 2, y: (1 - pose.mouth.y) * height };
+  const basket = { x: width - 40, y: height - 24 };
+  const control = {
+    x: (origin.x + basket.x) / 2,
+    y: Math.max(26, Math.min(origin.y, basket.y) - height * 0.65),
+  };
+  const end = {
+    x: q * q * origin.x + 2 * q * p * control.x + p * p * basket.x,
+    y: q * q * origin.y + 2 * q * p * control.y + p * p * basket.y,
+  };
+  const launchAngle = Math.atan2(origin.y - control.y, control.x - origin.x);
+  const landingAngle = Math.atan2(control.y - basket.y, basket.x - control.x);
+  const launchTurn = Math.atan2(
+    Math.sin(launchAngle - pose.angle),
+    Math.cos(launchAngle - pose.angle),
+  );
+  const arcTurn = Math.atan2(
+    Math.sin(landingAngle - launchAngle),
+    Math.cos(landingAngle - launchAngle),
+  );
+  const blend = Math.min(1, p / 0.3);
+  return {
+    end,
+    // 先确定整段转向，避免逐帧取最短角时跨过 ±π 而突然翻身。
+    angle: launchTurn * blend * blend * (3 - 2 * blend) + arcTurn * p * p * (3 - 2 * p),
+    scale: 1 + Math.sin(p * Math.PI) * 0.15,
+    opacity: 1 - Math.max(0, (p - 0.88) / 0.12),
+    wriggle: Math.sin(p * Math.PI) * pose.length * 0.025,
+  };
 }
 
 function drawRod(
@@ -140,23 +137,10 @@ export function drawFishingOverlay(
     y: (1 - fishing.bobber.y) * height,
   };
   const end = { ...origin };
-  let angle = 0;
-  let scale = 1;
   if (state.phase === FishingPhase.Reeling) {
-    const p = Math.min(1, fishing.stateTime / REEL_DURATION);
-    const q = 1 - p;
-    const basket = { x: width - 40, y: height - 24 };
-    const control = {
-      x: (origin.x + basket.x) / 2,
-      y: Math.max(26, Math.min(origin.y, basket.y) - height * 0.65),
-    };
-    end.x = q * q * origin.x + 2 * q * p * control.x + p * p * basket.x;
-    end.y = q * q * origin.y + 2 * q * p * control.y + p * p * basket.y;
-    angle = Math.atan2(
-      q * (control.y - origin.y) + p * (basket.y - control.y),
-      q * (control.x - origin.x) + p * (basket.x - control.x),
-    );
-    scale = 0.7 + Math.sin(p * Math.PI) * 0.3;
+    const reel = getReelPose(state.pose, fishing.stateTime, width, height);
+    end.x = reel.end.x;
+    end.y = reel.end.y;
     ctx.fillStyle = `rgba(230, 248, 255, ${Math.max(0, 1 - fishing.stateTime / 0.65) * 0.8})`;
     for (let i = 0; i < 18; i++) {
       const age = fishing.stateTime;
@@ -180,14 +164,7 @@ export function drawFishingOverlay(
     height,
     state.phase === FishingPhase.Bite || state.phase === FishingPhase.Reeling ? 1 : 0,
   );
-  if (state.phase === FishingPhase.Reeling) {
-    ctx.save();
-    ctx.translate(end.x, end.y);
-    ctx.rotate(angle);
-    ctx.scale(scale, scale);
-    drawKoi(ctx, state.catch.palette, Math.sin(fishing.stateTime * 32) * 0.5);
-    ctx.restore();
-  } else {
+  if (state.phase !== FishingPhase.Reeling) {
     drawBobber(ctx, origin, t, state.phase);
   }
 }

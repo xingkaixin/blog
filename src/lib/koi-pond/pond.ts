@@ -337,6 +337,7 @@ function buildPond(
     bindTex(0, under!.tex, progComp.u("uUnder"));
     bindTex(1, simA.tex, progComp.u("uRip"));
     drawTo(null);
+    koiRenderer.drawCatch(fishing, overlayWidth, overlayHeight);
     drawFishingOverlay(overlayCtx!, fishing, t, overlayWidth, overlayHeight);
   }
 

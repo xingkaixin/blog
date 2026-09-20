@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Fishing, FishingPhase, type FishingStatus } from "./fishing";
+import { getReelPose } from "./fishing-overlay";
 import { createKoiSchool, KOI_COUNT } from "./koi";
 
 function setup() {
@@ -34,7 +35,19 @@ describe("pond fishing", () => {
     waitForBite();
     fishing.strike();
     fishing.strike();
+    const state = fishing.state;
+    if (state.phase !== FishingPhase.Reeling) {
+      throw new Error("Expected a hooked fish");
+    }
+    const caughtVertices = state.pose.vertices.slice();
+    expect(state.pose.vertices).not.toBe(koi.meshes[state.fish].vertices);
+    expect(state.pose.vertices).toEqual(koi.meshes[state.fish].vertices);
+    expect(state.pose.mouth).toEqual({
+      x: koi.meshes[state.fish].spine[0],
+      y: koi.meshes[state.fish].spine[1],
+    });
     advance(0.5);
+    expect(state.pose.vertices).toEqual(caughtVertices);
     expect(fishing.state.phase).toBe(FishingPhase.Reeling);
     expect(Array.from(koi.a).filter((value) => value === -10)).toHaveLength(2);
     advance(1);
@@ -91,5 +104,42 @@ describe("pond fishing", () => {
     expect(fishing.bobber.x).toBe(0.58);
     advance(0.5);
     expect(fishing.bobber.x).toBeGreaterThanOrEqual(0.58);
+  });
+
+  it("starts a catch at its actual mouth without rotating or resizing on a cropped pond", () => {
+    const { fishing, waitForBite } = setup();
+    waitForBite();
+    fishing.strike();
+    const state = fishing.state;
+    if (state.phase !== FishingPhase.Reeling) {
+      throw new Error("Expected a hooked fish");
+    }
+    const height = 180;
+    const reel = getReelPose(state.pose, 0, height * 2, height);
+    const mouth = {
+      x: (reel.end.x - height) / height + 1.5,
+      y: 1 - reel.end.y / height,
+    };
+    expect(mouth.x).toBeCloseTo(state.pose.mouth.x);
+    expect(mouth.y).toBeCloseTo(state.pose.mouth.y);
+    expect(reel).toMatchObject({ angle: 0, scale: 1, opacity: 1, wriggle: 0 });
+  });
+
+  it("keeps reeling rotation continuous when the fish faces away from the basket", () => {
+    const koi = createKoiSchool();
+    const pose = {
+      vertices: koi.meshes[0].vertices,
+      mouth: { x: 1.5, y: 0.85 },
+      angle: 2.9,
+      phase: 0,
+      length: koi.b[0] * 2,
+    };
+    let previous = 0;
+    for (let frame = 1; frame <= 72; frame++) {
+      const { angle } = getReelPose(pose, frame / 60, 366, 183);
+      const turn = Math.atan2(Math.sin(angle - previous), Math.cos(angle - previous));
+      expect(Math.abs(turn)).toBeLessThan(Math.PI / 6);
+      previous = angle;
+    }
   });
 });

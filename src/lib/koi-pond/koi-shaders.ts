@@ -4,13 +4,18 @@ export const KOI_VS = `#version 300 es
 layout(location=0) in vec2 aPos;
 layout(location=1) in vec2 aLocal;
 layout(location=2) in vec2 aTangent;
-uniform vec2 uOffset;
+uniform vec4 uTransform;
+uniform vec2 uAnchor;
+uniform vec2 uWriggle;
 out vec2 vLocal;
 out vec2 vTangent;
 void main(){
   vLocal = aLocal;
-  vTangent = aTangent;
-  vec2 p = aPos + uOffset;
+  mat2 rotation = mat2(uTransform.z, uTransform.w, -uTransform.w, uTransform.z);
+  vTangent = rotation * aTangent;
+  vec2 normal = vec2(-aTangent.y, aTangent.x);
+  vec2 p = aPos - uAnchor + normal * uWriggle.x * sin(uWriggle.y - aLocal.x * 5.4) * pow(aLocal.x, 1.7);
+  p = rotation * p + uTransform.xy;
   gl_Position = vec4(p / vec2(3.0, 1.0) * 2.0 - 1.0, 0.0, 1.0);
 }
 `;
@@ -23,6 +28,7 @@ uniform int uPalette;
 uniform float uSeed;
 uniform float uPhase;
 uniform bool uShadow;
+uniform float uOpacity;
 out vec4 fragColor;
 ${COMMON}
 
@@ -134,6 +140,6 @@ void main(){
   eyeColor += vec3(0.7) * (1.0 - smoothstep(0.001, 0.004, length(eye - vec2(-0.003, 0.003))));
   color = over(vec4(eyeColor * eyeMask, eyeMask), color);
   if (uShadow) color = vec4(vec3(0.035, 0.10, 0.085) * color.a * 0.24, color.a * 0.24);
-  fragColor = color;
+  fragColor = color * uOpacity;
 }
 `;
