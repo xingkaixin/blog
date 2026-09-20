@@ -45,8 +45,10 @@ const contactPresentations = {
 const { icon, Artifact } = contactPresentations[contact.id];
 ---
 
-<div class="contact-anchor relative border-b border-ink-100">
+<contact-preview class="contact-anchor relative block border-b border-ink-100">
   <a
+    data-contact-trigger
+    aria-controls={`contact-${contact.id}`}
     href={contact.href}
     class="group flex items-center gap-2 py-3 text-ink-500 focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
     target="_blank"
@@ -71,73 +73,71 @@ const { icon, Artifact } = contactPresentations[contact.id];
     <span aria-hidden="true"
       class="font-mono text-[11px] text-ink-300 group-hover:text-accent">↗</span>
   </a>
-  <div class="artifact" aria-hidden="true">
-    <Artifact value={contact.value} />
+  <div id={`contact-${contact.id}`} class="artifact" popover="auto" role="group" aria-label={`${contact.label}联系卡片`}>
+    <a class="contact-surface" href={contact.href} target="_blank" rel="noopener noreferrer" aria-label={`${contact.label}：${contact.value}`}>
+      <Artifact value={contact.value} />
+    </a>
   </div>
-</div>
+</contact-preview>
 
 <style>
   /* 实物卡保留自身颜色，不随站点主题翻转。 */
   .artifact {
-    position: absolute;
-    bottom: calc(100% + 0.75rem);
-    left: -0.5rem;
-    z-index: 30;
+    display: none;
+    position: fixed;
+    inset: auto;
+    margin: 0;
+    padding: 8px;
+    border: 0;
+    overflow: visible;
+    background: transparent;
     opacity: 0;
     pointer-events: none;
-    transform: translateY(10px) rotate(-4deg) scale(0.95);
-    transform-origin: bottom left;
     --artifact-shadow: 0 2px 6px rgba(20, 21, 26, 0.08), 0 18px 36px -14px rgba(20, 21, 26, 0.35);
     width: max-content;
+    max-width: calc(100vw - 24px);
     transition:
-      transform var(--duration-fast) var(--ease-smooth-out),
-      opacity var(--duration-fast) var(--ease-smooth-out);
-    will-change: transform, opacity;
+      opacity 150ms ease-out,
+      display 150ms allow-discrete,
+      overlay 150ms allow-discrete;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .contact-anchor:hover .artifact {
-      opacity: 1;
-      transform: translateY(0) rotate(-1deg) scale(1);
-    }
-  }
-
-  .contact-anchor:focus-within .artifact {
+  .artifact:popover-open {
+    display: block;
     opacity: 1;
-    transform: translateY(0) rotate(-1deg) scale(1);
+    pointer-events: auto;
   }
 
-  @media (min-width: 80rem) {
-    .artifact {
-      top: 50%;
-      right: calc(100% + 0.75rem);
-      bottom: auto;
-      left: auto;
-      transform: translate(10px, -50%) rotate(4deg) scale(0.95);
-      transform-origin: right center;
-    }
-
-    .contact-anchor:focus-within .artifact {
-      transform: translate(0, -50%) rotate(1deg) scale(1);
-    }
+  @starting-style {
+    .artifact:popover-open { opacity: 0; }
   }
 
-  @media (min-width: 80rem) and (hover: hover) and (pointer: fine) {
-    .contact-anchor:hover .artifact {
-      transform: translate(0, -50%) rotate(1deg) scale(1);
-    }
+  .artifact::before { content: ""; position: absolute; }
+  .artifact[data-side="left"]::before { left: 100%; top: 0; width: 6px; height: 100%; }
+  .artifact[data-side="top"]::before { top: 100%; left: 0; height: 6px; width: 100%; }
+  .artifact[data-side="bottom"]::before { bottom: 100%; left: 0; height: 6px; width: 100%; }
+
+  .contact-surface {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   }
+
+  .contact-surface:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 6px; }
+  .artifact[data-keyboard] { transition: none; }
+  .artifact[data-keyboard] .contact-surface { transform: none; }
 
   @media (prefers-reduced-motion: reduce) {
-    .artifact {
-      transform: none;
-      transition: opacity var(--duration-quick) var(--ease-smooth-out);
-      will-change: opacity;
-    }
-
-    .contact-anchor:hover .artifact,
-    .contact-anchor:focus-within .artifact {
-      transform: none;
-    }
+    .artifact { transition: none; }
+    .contact-surface { transform: none; }
   }
 </style>
+
+<script>
+  import { ContactPreview } from "@/components/contact-preview";
+
+  if (!customElements.get("contact-preview")) {
+    customElements.define("contact-preview", ContactPreview);
+  }
+</script>
