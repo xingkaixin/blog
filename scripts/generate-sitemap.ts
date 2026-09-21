@@ -2,7 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { buildPostTaxonomy } from "../src/lib/post-tags";
+import { buildPostTaxonomy, tagHref } from "../src/lib/post-tags";
 import { parsePostSlug, postHref, type PublishedPost } from "../src/lib/published-post";
 import { siteConfig } from "../src/lib/site";
 import { sitemapNavigation } from "../src/lib/site-navigation";
@@ -48,14 +48,15 @@ export function buildRobotsTxt() {
 
 // 旧 Hexo 站点的文章地址为 /<slug>，迁移后变为 /posts/<slug>/。
 // 为每篇现存文章生成 301，把旧链接的权重转移到新地址；
-// 未迁移内容（旧 tag/分页/已删文章）不软重定向到首页，交由 catch-all 返回 404。
+// 未迁移内容（旧 tag/分页/已删文章）不软重定向到首页，由 Pages 的 404.html 返回 404。
 export function buildRedirects(posts: Array<{ slug: string }>) {
   const lines = [
+    `${encodeURI("/tags/AI 编程")} ${tagHref("AI编程")} 301`,
+    `${encodeURI("/tags/AI 编程/")} ${tagHref("AI编程")} 301`,
     ...posts.map(({ slug }) => {
       const encodedSlug = encodeURIComponent(parsePostSlug(slug));
       return `/${encodedSlug} ${postHref(slug)} 301`;
     }),
-    "/* /404.html 404",
   ];
   return `${lines.join("\n")}\n`;
 }
