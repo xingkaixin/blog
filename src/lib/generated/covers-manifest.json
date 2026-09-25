@@ -361,6 +361,14 @@
         "f0754d5d2b9fe273f73e4db8c87c7ac81bba275d22ec12351ba3ab8442953358"
       ]
     },
+    "code-was-never-the-easy-part.png": {
+      "fingerprint": "7e729990952ad4061d233535dbc9ab9560a0d4b90a6d16d39e0844530c57ca61",
+      "outputFingerprints": [
+        "e11fcc12f6ff77fe8e96d5d278000d68909c161fcdb2faf96aa51209063efeba",
+        "a1fbcc9815f4e2de32a5fd1cb0a75db2d068a4c47906b7246b1800d3101ed9e6",
+        "e24f0f3419725346671587a0a07f24956baa37121125ba64b7baf83e1cff2583"
+      ]
+    },
     "codesesh-ai-coding-sessions-disappearing.webp": {
       "fingerprint": "6067b99da02e01f265ffa34295d4fd7586ca8afe942d972d73a90c880c7c93e3",
       "outputFingerprints": [
@@ -519,6 +527,14 @@
         "17ef3ed8c7da7b54072120ae7655e2649b8e05647962e65a04b787f94b0d338e",
         "86deaf09bd6bac1865a25bcf6797f287dab28a7f3fbc14eedb2f878c5942ac61",
         "d717c3df5444cf98464aaab2b04b0465e3131024027ad25f1a68e58bfbbc0487"
+      ]
+    },
+    "model-downshift-point.png": {
+      "fingerprint": "8e632ddd6bdf72a96f7c2d94cb5a9204e149c8686e6ea64e6004428f944e842b",
+      "outputFingerprints": [
+        "166d5e055066f2140f030db8d5a4a317ac8f4206c1ddae91a2736b4efbd6960a",
+        "fb90c2235318716258bc0d1a5ed5db78b5ab04a902947e7d34c22e324432ec01",
+        "1627bca5aed9b0946fb24b1172273fb37463105707677132c093ea06f619a895"
       ]
     },
     "musk-vs-altman.png": {

@@ -314,6 +314,13 @@
     "width": 1922,
     "height": 818
   },
+  "code-was-never-the-easy-part.png": {
+    "mobile": "/cover/code-was-never-the-easy-part-400.webp",
+    "desktop": "/cover/code-was-never-the-easy-part-800.webp",
+    "full": "/cover/code-was-never-the-easy-part.webp",
+    "width": 1880,
+    "height": 800
+  },
   "codesesh-ai-coding-sessions-disappearing.webp": {
     "mobile": "/cover/codesesh-ai-coding-sessions-disappearing-400.webp",
     "desktop": "/cover/codesesh-ai-coding-sessions-disappearing-800.webp",
@@ -453,6 +460,13 @@
     "full": "/cover/model-core-tools-shell.webp",
     "width": 1536,
     "height": 864
+  },
+  "model-downshift-point.png": {
+    "mobile": "/cover/model-downshift-point-400.webp",
+    "desktop": "/cover/model-downshift-point-800.webp",
+    "full": "/cover/model-downshift-point.webp",
+    "width": 1880,
+    "height": 800
   },
   "musk-vs-altman.png": {
     "mobile": "/cover/musk-vs-altman-400.webp",

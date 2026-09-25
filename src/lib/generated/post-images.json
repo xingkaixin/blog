@@ -748,6 +748,20 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-01.png": {
+    "webp": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-01.webp",
+    "mobile": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-01-800w.webp",
+    "desktop": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-02.png": {
+    "webp": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-02.webp",
+    "mobile": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-02-800w.webp",
+    "desktop": "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/coding-agent-almost-1-year/illustration-01.png": {
     "webp": "/posts/images/coding-agent-almost-1-year/illustration-01.webp",
     "mobile": "/posts/images/coding-agent-almost-1-year/illustration-01-800w.webp",
@@ -1055,6 +1069,13 @@
     "desktop": "/posts/images/model-core-tools-shell/model-core-tools-shell-04-1200w.webp",
     "width": 2752,
     "height": 1536
+  },
+  "/posts/images/model-downshift-point/model-downshift-point-01.png": {
+    "webp": "/posts/images/model-downshift-point/model-downshift-point-01.webp",
+    "mobile": "/posts/images/model-downshift-point/model-downshift-point-01-800w.webp",
+    "desktop": "/posts/images/model-downshift-point/model-downshift-point-01-1200w.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png": {
     "webp": "/posts/images/musk-vs-altman/Musk-vs-Altman-01.webp",

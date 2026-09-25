@@ -857,6 +857,22 @@
         "8a868186b984a2443ec0229cc1303015f27fc05cdbd04b5bd3cef97ee7028ca2"
       ]
     },
+    "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-01.png": {
+      "fingerprint": "dcd3de47cb82c96bdbd4e2a28cf32e424c67e430debe94c819fd4972d3c6d0a4",
+      "outputFingerprints": [
+        "5e4cca621f2989894655e5c72f3859cbb56a38afa412397b8c6b86dc8b79c650",
+        "6f989184aea1f4250c4b425a81e468f6081e6c79ee75a642169b689a5a74fbd1",
+        "4c403d48da7738f68a0f381e0c74f472ca75cf5cb7eecdb1ee66c81fd2c6a1c2"
+      ]
+    },
+    "/posts/images/code-was-never-the-easy-part/code-was-never-the-easy-part-02.png": {
+      "fingerprint": "264f35b17a2b0bdd5ea6e6bdac504c14246d17128ad4780dbb02573d3cbb6aea",
+      "outputFingerprints": [
+        "d32ab13419e9ac7ba1e4cc557b2b5f8b905f6ded286db934c24d88e3cc0f3aa4",
+        "64ffc192d9b75b34cc2a0c84378b1576cd805b1eded1bbabf5bc6053e2c54b76",
+        "3db95b8c41bdb2d820e04bdf024a8607d98984631f5c3bfc705ec0932a9180cc"
+      ]
+    },
     "/posts/images/coding-agent-almost-1-year/illustration-01.png": {
       "fingerprint": "f0cb649b28ee1bca332f08f93cdd890f038a7eccbd1106e56718c56cd3203cb9",
       "outputFingerprints": [
@@ -1207,6 +1223,14 @@
         "d1b6d250c93afce01e88c589d8583dc93471522ca2b4f7623b0de027092456dc",
         "6c47bea1ce553cbf1d6a2d7b1c91a0673a061d8c29cffe5d820e29f5a82c91d8",
         "2662736814727c996d4c37346281323e17405aebe6aeb54ef90dc7bb015b7790"
+      ]
+    },
+    "/posts/images/model-downshift-point/model-downshift-point-01.png": {
+      "fingerprint": "07529ee230858818aedf6c52a57866d63c8b57cb86340ac210932802fd4c356e",
+      "outputFingerprints": [
+        "070e1f969942cddee829a6dbf47d4c4eb6ba43813d72af8a5d13bdde0c6d8c92",
+        "b0c26b95b72fb41c3ea01cdc1866204cd6b900910d0bd2aec1ca9e0f6528d07b",
+        "938209fb5a569a8c65dcdf30a16bf9b4ec5736b16258d718873a7a14f3d4d254"
       ]
     },
     "/posts/images/musk-vs-altman/Musk-vs-Altman-01.png": {
