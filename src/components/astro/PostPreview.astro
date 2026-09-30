@@ -15,11 +15,10 @@ const content = postPreviewContent(post, cover);
 ---
 
 <aside data-post-preview class="hidden border-l border-line bg-surface p-[18px] xl:block">
-  <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">预览 · 悬停即换</p>
   <a
     data-preview-link
     href={postHref(post.slug)}
-    class="mt-3 block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+    class="block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
   >
     <picture class="block">
       <source data-preview-source srcset={content.coverSrcSet} />

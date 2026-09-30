@@ -55,16 +55,6 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("initializePostConsole", () => {
-  it.each([
-    ["ArrowDown", "first"],
-    ["ArrowUp", "third"],
-  ])("enters the list at %s when no row has focus", (key, slug) => {
-    const list = root.querySelector<HTMLElement>("[data-post-console-list]")!;
-    list.tabIndex = -1;
-    list.focus();
-    list.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
-    expect(document.activeElement).toBe(root.querySelector(`[data-post-row="${slug}"]`));
-  });
   it("keeps duplicate filter controls on the same state", () => {
     button("按年份筛选文章", "2025").click();
     expect(visiblePostSlugs()).toEqual(["third"]);
@@ -98,12 +88,11 @@ describe("initializePostConsole", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("keeps preview links aligned with keyboard and filter selection", () => {
+  it("keeps preview links aligned with focus and filter selection", () => {
     const third = root.querySelector<HTMLElement>('[data-post-row="third"]')!;
     third.focus();
-    third.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
     expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
-      "/posts/second/",
+      "/posts/third/",
     );
 
     button("按年份筛选文章", "2025").click();
@@ -117,21 +106,6 @@ describe("initializePostConsole", () => {
     expect(root.querySelector("[data-preview-related] a")?.getAttribute("aria-label")).toBe(
       "相关文章",
     );
-  });
-
-  it.each([
-    ["first", "third", "ArrowDown"],
-    ["third", "first", "ArrowUp"],
-  ])("moves from the focused %s row when hovering %s and pressing %s", (focused, hovered, key) => {
-    const focusedRow = root.querySelector<HTMLElement>(`[data-post-row="${focused}"]`)!;
-    focusedRow.focus();
-    root
-      .querySelector<HTMLElement>(`[data-post-row="${hovered}"]`)!
-      .dispatchEvent(new Event("mouseenter"));
-
-    focusedRow.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
-    expect(document.activeElement).toBe(root.querySelector('[data-post-row="second"]'));
-    expect(root.querySelector("[data-preview-title]")?.textContent).toBe("second");
   });
 });
 

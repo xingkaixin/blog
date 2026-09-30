@@ -149,28 +149,6 @@ export function initializePostConsole(root: HTMLElement): void {
     row.addEventListener("focus", selectRow);
   }
 
-  root
-    .querySelector<HTMLElement>("[data-post-console-list]")
-    ?.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") {
-        return;
-      }
-      const visibleRows = rows.filter((row) => !row.hidden);
-      if (visibleRows.length === 0) {
-        return;
-      }
-      event.preventDefault();
-      const currentIndex = visibleRows.indexOf(root.ownerDocument.activeElement as HTMLElement);
-      const direction = event.key === "ArrowDown" ? 1 : -1;
-      const nextIndex =
-        currentIndex < 0
-          ? direction > 0
-            ? 0
-            : visibleRows.length - 1
-          : (currentIndex + direction + visibleRows.length) % visibleRows.length;
-      visibleRows[nextIndex].focus();
-    });
-
   applyFilter();
 }
 
