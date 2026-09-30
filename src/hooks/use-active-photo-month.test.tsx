@@ -57,11 +57,11 @@ beforeEach(() => {
   document.body.append(container);
   root = createRoot(container);
   scrolledMonths = [];
-  vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(
-    function (this: HTMLElement) {
-      scrolledMonths.push(this.id);
-    },
-  );
+  vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    scrolledMonths.push(this.id);
+  });
 });
 
 afterEach(async () => {

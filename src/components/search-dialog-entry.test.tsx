@@ -72,11 +72,11 @@ describe("search dialog entry", () => {
       input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true })),
     );
     const highlights: (string | null)[] = [];
-    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(
-      function (this: HTMLElement) {
-        highlights.push(this.getAttribute("aria-selected"));
-      },
-    );
+    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      highlights.push(this.getAttribute("aria-selected"));
+    });
     await act(async () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(
         input,
@@ -201,11 +201,11 @@ describe("search dialog entry", () => {
 
   it("reveals keyboard selections without moving focus out of the search input", async () => {
     const revealed: HTMLElement[] = [];
-    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(
-      function (this: HTMLElement) {
-        revealed.push(this);
-      },
-    );
+    vi.spyOn(HTMLElement.prototype, "scrollIntoView").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      revealed.push(this);
+    });
     const container = document.createElement("div");
     document.body.append(container);
     await act(async () => openSearchDialog(container));
