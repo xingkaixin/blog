@@ -21,6 +21,30 @@ export type Project = ProjectDetails &
 
 export const projects: Project[] = [
   {
+    id: "snipjoy",
+    name: "Snipjoy · 贴集",
+    kind: "iOS 应用",
+    summary: "把照片里的喜欢，做成透明贴纸。",
+    description:
+      "一款 iPhone 与 iPad 贴纸制作应用。在设备上提取照片主体，支持批量制作、圈选、多种质感与文字组合，导出透明 PNG 或通过系统贴纸扩展使用。用合集、地图和日历整理收藏，照片全程在本机处理。",
+    logo: "/projects/snipjoy.png",
+    background: "/projects/backgrounds/snipjoy.webp",
+    url: "https://snipjoy.xingkaixin.me/",
+    tags: ["iOS", "工具", "贴纸", "照片", "图片编辑"],
+  },
+  {
+    id: "caffeine-level",
+    name: "Caffeine Level · 慢咖",
+    kind: "iOS 应用",
+    summary: "记录每一杯咖啡，查看咖啡因余量估算。",
+    description:
+      "一款 iPhone 与 iPad 咖啡记录应用。记录饮用时间和剂量，查看咖啡因余量估算与全天变化，支持饮用日历、自定义饮料、主屏幕小组件和本地备份。无需账号，数据保存在设备上。",
+    logo: "/projects/caffeine-level.png",
+    background: "/projects/backgrounds/caffeine-level.webp",
+    url: "https://caffeine-level.xingkaixin.me/",
+    tags: ["iOS", "工具", "咖啡", "咖啡因", "小组件"],
+  },
+  {
     id: "simmerdial",
     name: "Simmerdial",
     kind: "iOS 应用",
