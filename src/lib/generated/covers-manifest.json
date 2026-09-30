@@ -121,6 +121,14 @@
         "8ab084b80cf0e977b777e2add11498e516e254826d8384b61de6febc5eaf3254"
       ]
     },
+    "agent-context-compaction.png": {
+      "fingerprint": "f276ef6d37b787c0775301f3c375c583c5faf0426f5f0b6e6af68fec3e6c6822",
+      "outputFingerprints": [
+        "9e6e6f319475d80479888ba7bcbe1e3d8082057f42a218939fa85c0221c0ab5f",
+        "65f22e033dd3a3b65396f34844e76994e07ace40b94ee9d4e0d3bfe89b49d62a",
+        "69b0a5c5ac120f2db67eb6e46e562141ca59eecdb70cf66f48891ad5aae44d68"
+      ]
+    },
     "agent-daily-log-patrol.png": {
       "fingerprint": "feb0422f91af8fd265731a387f31f179832ca727b0d3172ada1ab044bc7ae387",
       "outputFingerprints": [
@@ -417,6 +425,14 @@
         "e02b23c06f07db5d47fd0fad21b587c0435447dbb4185353f18470d54b41d015"
       ]
     },
+    "developer-optimism-agent-code.png": {
+      "fingerprint": "abd15cc50cbb46d549fece200fd82ae4e0540bc0d3325771d878d1bf70f22769",
+      "outputFingerprints": [
+        "32b5f430ecb8f48605382c77c44c1f37977abbceaa6a166b94efd5e474d4ca8b",
+        "82021c670f77d42d7717920df26cc4867f72383244f207dc2edf3c00e5277064",
+        "c666512c4e5b373a38fdf47e5657e185a7b5c8a15b59a1d73a05f3e1e0161d92"
+      ]
+    },
     "enjoying-ai-too-much-scares-me.png": {
       "fingerprint": "02b88dda2c74154c6fa5a31782c4647ef08a2e7eb2141c51e977e0dec84543e7",
       "outputFingerprints": [
@@ -447,6 +463,14 @@
         "2d4544463debe619608f7782af2fad3012a4524e95ff4b36392e3e50171e6c47",
         "949f45caf9de1a90550ce07d7e2bc2816a20b3f9c6666b8d07dd1d3c7459c151",
         "ddb13119be477786737e826616d0934ee487db786734cc523d5ddfcf2f4f4f6a"
+      ]
+    },
+    "harness-kv-cache-prefix.png": {
+      "fingerprint": "77a9d7c7445d926655399a71c396ef4cf46fe5f3db9bcc789eeefadeeb67772c",
+      "outputFingerprints": [
+        "6bb24ee2505ff77d151c1269f75e943f98182cc869cf73b4e89a99d050e5a29c",
+        "8980e7033278c793cf37cc455ac064215e6e6476f1bf2eb3242a8e3d7937d99d",
+        "05539c60a4b15354d2a16dfc3332bc6aaac7d2543f5ae131d8bc8403f2d6e58d"
       ]
     },
     "judgment-needs-a-deadline.png": {

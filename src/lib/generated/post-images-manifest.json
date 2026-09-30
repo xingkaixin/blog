@@ -193,6 +193,22 @@
         "169945e7c2832b11c715de45cd3e1d68bd5cbe9133aaa1553a131d5e232d3b89"
       ]
     },
+    "/posts/images/agent-context-compaction/agent-context-compaction-01.png": {
+      "fingerprint": "a01ce869b3418414d563cd7070a0a6799bd5feb4df818513a9779d3c4f5c966a",
+      "outputFingerprints": [
+        "5045e8fd47ba3a236fb05fa3b5f52eeda01817f50fdcd9c4887f2ce07877e85d",
+        "ad3980a51f4c22a8935976419f9db48aa5c020d0b345a7acb6b5428b45b5a2b3",
+        "f5d682c156b60b0be3ab6b4cf68a77450f52e64db00c9a42497e76df07507a8a"
+      ]
+    },
+    "/posts/images/agent-context-compaction/agent-context-compaction-02.png": {
+      "fingerprint": "3099fee83d22cf91e33ea1019785de625d979372ece9291f22df711a7d3aa6d0",
+      "outputFingerprints": [
+        "77521e57f1774a792278cce973061a47ca5ff816ff52dda98d26cf91d25398b0",
+        "ed7a1346b0fe6c8b677701b684cbe2888116c0d34ae59ecfa2df89b972da09cc",
+        "640e58267e3992da1f65587c4604e0de19ce5816c69dc2932a9fd21d2d9a47d9"
+      ]
+    },
     "/posts/images/agent-daily-log-patrol/agent-daily-log-patrol-01.png": {
       "fingerprint": "17bb01d05122885e7375973e5945b147f69a331c5a5d97812fb6789aae8356af",
       "outputFingerprints": [
@@ -1001,6 +1017,38 @@
         "435c583d375389785686f5acc8259ba5dfc11261bb6237032c8f42fe13493642"
       ]
     },
+    "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-01.png": {
+      "fingerprint": "23db5cbfd9b516a39d5fad75b543ff6724fa80ce510d192f85c3759a0c68b305",
+      "outputFingerprints": [
+        "dab80d5787f403a6f0fd924f256e798b24cf621f93bc6a7e7d3c6a7f5f000e9c",
+        "037e71e59dc6c351f400f6ff9555f1ee52eab01e6ad23c9530d6396f6243150c",
+        "349e9dd58083addb1c9bbd7a948bda528a3f960271e778e3c0f3dbcc84e21329"
+      ]
+    },
+    "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-02.png": {
+      "fingerprint": "6733e7dbff29393b013015dd6009c6badf0de04ae695aee75c41c8b006f3b941",
+      "outputFingerprints": [
+        "e78d66274c30db27468cb82a6fd9d290de627c44dded431705270847da751111",
+        "7c3e9bb021d3b4e37cb545fee0652523a51898b1bbcbcd842095e2c8e189103f",
+        "8f440b8ff68b9b7795b6c25ae6feab072eefcc872bde90a49867fc9c8c9363f6"
+      ]
+    },
+    "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-03.png": {
+      "fingerprint": "2503ae39f6d6b44d6027c14616774248228ed593d03f3319ddce8bcd8449b8de",
+      "outputFingerprints": [
+        "ae4462f655215c89072cb1157582bae7cc6cc4733c8a2f90cd4ef6f5c5158404",
+        "6ac59da5d38fc5cb4dc2ad05796925542d43ef01ebada6722783eeff9cabfa23",
+        "bf0640cb95cff76e1928117d199c2a7219740fb01f5b6ebf93adb5b6a6f36136"
+      ]
+    },
+    "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-04.png": {
+      "fingerprint": "78d348c9376bfec0996344163f1406217cee616e6bc2bf16b694abd4f1672815",
+      "outputFingerprints": [
+        "5d1e7616e1eb57913ecbb56332eff7874637e481dde8f35c0365c69df38ed505",
+        "d14273c13bbeb9ff9051c4fdacf86d8997ff71f0fcf0cd42a7d29859a5ac4957",
+        "1e123228550c3a275650de6a1affd625e6ab3d4dfab83430b7492242f815d3ed"
+      ]
+    },
     "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png": {
       "fingerprint": "49fc3e49b8bbc5b5c3d9c1a8f06329beed64ce1f0d4e3c0112588487188ee538",
       "outputFingerprints": [
@@ -1055,6 +1103,22 @@
         "18887e0d74f1f49b50a696fc086afb948793b89a7ed31d4b6bbb6a5690c75e0f",
         "bedc5faa08a0b4b077af31116373e90aa3a2934e31466caf1953749560a6192b",
         "0dbf890c2a22e8135c4ecb7835d21d60c117fc3ad02d01a344d48f4089672bef"
+      ]
+    },
+    "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.png": {
+      "fingerprint": "58573d8b99731454b4c4d63cc8a6b0a5cc902ed179a42be33ebdd023d7416acc",
+      "outputFingerprints": [
+        "b60be728fb0dff7a8d65f56dfcbb9167e3aefe283504f140027dd9057f415987",
+        "98b58e28a0de05384ef6e6736f99cfbcd1b991aedea5d0cd162a5fb13f3f9b15",
+        "26b3ae78e654d6ad7a2a6e443d76e12a0acbabf05dc67c3f7b7642ab26071ebd"
+      ]
+    },
+    "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-02.png": {
+      "fingerprint": "3fd5e2307a74e67d368259cdcce27d3daf77eb32f5e6d2b5f7a30a06c249e81d",
+      "outputFingerprints": [
+        "17a637feb52b1847d78b2c90f64993f876a996cfde3f77d459fb799e99557c49",
+        "38c4f162d295d99607e32a756eb52ae6ba3b0b71b58e3b1811d0c2d4c3eb7b3b",
+        "53bb3f80ea3a528efd0e03502d5c55516c89da746c847dfe964b737faf8cbc94"
       ]
     },
     "/posts/images/judgment-needs-a-deadline/judgment-needs-a-deadline-01.png": {

@@ -104,6 +104,13 @@
     "width": 1923,
     "height": 818
   },
+  "agent-context-compaction.png": {
+    "mobile": "/cover/agent-context-compaction-400.webp",
+    "desktop": "/cover/agent-context-compaction-800.webp",
+    "full": "/cover/agent-context-compaction.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-daily-log-patrol.png": {
     "mobile": "/cover/agent-daily-log-patrol-400.webp",
     "desktop": "/cover/agent-daily-log-patrol-800.webp",
@@ -363,6 +370,13 @@
     "width": 1922,
     "height": 818
   },
+  "developer-optimism-agent-code.png": {
+    "mobile": "/cover/developer-optimism-agent-code-400.webp",
+    "desktop": "/cover/developer-optimism-agent-code-800.webp",
+    "full": "/cover/developer-optimism-agent-code.webp",
+    "width": 1880,
+    "height": 800
+  },
   "enjoying-ai-too-much-scares-me.png": {
     "mobile": "/cover/enjoying-ai-too-much-scares-me-400.webp",
     "desktop": "/cover/enjoying-ai-too-much-scares-me-800.webp",
@@ -390,6 +404,13 @@
     "full": "/cover/from-writing-code-to-reviewing-code.webp",
     "width": 1536,
     "height": 864
+  },
+  "harness-kv-cache-prefix.png": {
+    "mobile": "/cover/harness-kv-cache-prefix-400.webp",
+    "desktop": "/cover/harness-kv-cache-prefix-800.webp",
+    "full": "/cover/harness-kv-cache-prefix.webp",
+    "width": 1880,
+    "height": 800
   },
   "judgment-needs-a-deadline.png": {
     "mobile": "/cover/judgment-needs-a-deadline-400.webp",

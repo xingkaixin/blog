@@ -1,5 +1,37 @@
 [
   {
+    "slug": "agent-context-compaction",
+    "title": "为什么 Agent 聊到第 30 轮，会把刚刚否决的方案重新写一遍？",
+    "date": "2026-09-30",
+    "summary": "长对话触发上下文压缩后，Agent 为什么容易出现智商断崖和失忆？粗暴的全文摘要为什么会抹平关键约束？拆解现代 Coding Agent 的 Compaction 机制与“换班交接”设计。",
+    "tags": [
+      "Agent",
+      "上下文工程"
+    ]
+  },
+  {
+    "slug": "harness-kv-cache-prefix",
+    "title": "一个动态时间戳，是怎样打崩你所有 Agent 缓存的？",
+    "date": "2026-09-29",
+    "summary": "前缀缓存是写 Agent Harness 时的前置物理约束。在 System Prompt 顶部加一行时间戳，整段会话的 KV Cache 就会瞬间报废。拆解 4 个隐蔽缓存杀手、上下文分层冻结规范，以及多项优化不可简单叠加的实测数据。",
+    "tags": [
+      "Agent",
+      "上下文工程",
+      "Prompt Cache"
+    ]
+  },
+  {
+    "slug": "developer-optimism-agent-code",
+    "title": "不再手写代码以后，程序员要做的软件反而更多了",
+    "date": "2026-09-28",
+    "summary": "把 4.5 万行核心代码的 Python 主力工具用 Rust 重写，测试全通、性能跑赢，却让我心里犯了别扭。从 Bun 的开源风暴到柯达相机与 ATM，技术史证明效率提升只会带来需求爆发。失去对语法的肉身控制后，程序员的真正阵地在于构建工程防线。",
+    "tags": [
+      "AI编程",
+      "软件工程",
+      "Rust"
+    ]
+  },
+  {
     "slug": "model-downshift-point",
     "title": "一次大重构，我只在前两步用了 Fable",
     "date": "2026-09-23",

@@ -167,6 +167,20 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/agent-context-compaction/agent-context-compaction-01.png": {
+    "webp": "/posts/images/agent-context-compaction/agent-context-compaction-01.webp",
+    "mobile": "/posts/images/agent-context-compaction/agent-context-compaction-01-800w.webp",
+    "desktop": "/posts/images/agent-context-compaction/agent-context-compaction-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/agent-context-compaction/agent-context-compaction-02.png": {
+    "webp": "/posts/images/agent-context-compaction/agent-context-compaction-02.webp",
+    "mobile": "/posts/images/agent-context-compaction/agent-context-compaction-02-800w.webp",
+    "desktop": "/posts/images/agent-context-compaction/agent-context-compaction-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-daily-log-patrol/agent-daily-log-patrol-01.png": {
     "webp": "/posts/images/agent-daily-log-patrol/agent-daily-log-patrol-01.webp",
     "mobile": "/posts/images/agent-daily-log-patrol/agent-daily-log-patrol-01-800w.webp",
@@ -874,6 +888,34 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-01.png": {
+    "webp": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-01.webp",
+    "mobile": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-01-800w.webp",
+    "desktop": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-02.png": {
+    "webp": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-02.webp",
+    "mobile": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-02-800w.webp",
+    "desktop": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-02-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-03.png": {
+    "webp": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-03.webp",
+    "mobile": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-03-800w.webp",
+    "desktop": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-03-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-04.png": {
+    "webp": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-04.webp",
+    "mobile": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-04-800w.webp",
+    "desktop": "/posts/images/developer-optimism-agent-code/developer-optimism-agent-code-04-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
   "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.png": {
     "webp": "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01.webp",
     "mobile": "/posts/images/enjoying-ai-too-much-scares-me/enjoying-ai-too-much-scares-me-01-800w.webp",
@@ -920,6 +962,20 @@
     "webp": "/posts/images/friction-as-a-feature/friction-as-a-feature-02.webp",
     "mobile": "/posts/images/friction-as-a-feature/friction-as-a-feature-02-800w.webp",
     "desktop": "/posts/images/friction-as-a-feature/friction-as-a-feature-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.png": {
+    "webp": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.webp",
+    "mobile": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01-800w.webp",
+    "desktop": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-02.png": {
+    "webp": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-02.webp",
+    "mobile": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-02-800w.webp",
+    "desktop": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-02-1200w.webp",
     "width": 1600,
     "height": 900
   },
