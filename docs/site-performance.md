@@ -36,6 +36,30 @@ INP、CLS 及样本量。优化前后使用相同的时间窗口，至少覆盖�
 区分首次访问与回访。脚本未能加载的访问不会出现在 RUM 中，不能用 RUM 代替可用性检查。
 代理或境外节点的测试只能验证资源行为，不能代表大陆三网速度。
 
+## Umami 阅读统计
+
+生产域名 `xingkaixin.me` 加载一次 Umami，站内导航继续使用 tracker 自带的路径跟踪。
+启用 `data-performance` 收集真实访问的性能样本；`data-exclude-hash` 防止目录锚点
+和“跳到正文”产生额外页面记录。URL 查询参数继续保留，以便识别 UTM 来源。
+
+- `article-read`：文章页累计处于可见状态至少 30 秒，且视口到达正文一半时上报一次。
+  后台标签页时间不累计；切换文章后重新计时。这是有效阅读代理指标，不代表全文读完。
+- 通过 [访问统计设置](https://xingkaixin.me/analytics/) 排除自己的浏览器。
+  使用 Umami 官方的 `umami.disabled` 本地存储标记，仅影响当前浏览器、当前域名的
+  Umami 统计；不会排除 Cloudflare Web Analytics，也不修改历史数据。
+- 在 Umami Events 查看 `article-read`，结合页面路径与 Organic search 渠道观察阅读。
+  新事件会改变后续跳出率口径，不能直接与上线前的跳出率比较。
+- 外部分享使用 UTM，例如
+  `https://xingkaixin.me/posts/skills-over-mcp/?utm_source=x&utm_medium=social&utm_campaign=skills-over-mcp`。
+  内部链接不添加 UTM，避免覆盖真实获客来源。公众号分享可使用
+  `utm_source=wechat&utm_medium=social`，项目文档使用 `utm_source=github&utm_medium=referral`。
+
+统计设置页使用 `noindex`，不加入 Sitemap。Sitemap 与文章最后更新时间只使用可靠数据，
+不要为了促进抓取而填入部署时间或虚构 `lastmod`。
+
+依据：[Umami tracker 配置](https://docs.umami.is/docs/tracker-configuration)、
+[排除自访](https://docs.umami.is/docs/exclude-my-own-visits)。
+
 ## 字体
 
 中文字体 CSS 使用 `media="print"` 下载，加载完成后切换为 `all`，保留

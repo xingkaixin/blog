@@ -1,0 +1,67 @@
+---
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "访问统计设置",
+  description: "设置当前浏览器是否计入本站 Umami 访问统计。",
+  url: `${siteConfig.url}/analytics/`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta} noindex>
+  <section class="mx-auto max-w-2xl px-5 py-12 sm:py-20">
+    <h1 class="font-display text-4xl text-ink-800">访问统计设置</h1>
+    <p class="mt-4 text-[15px] leading-7 text-ink-500">
+      排除当前浏览器的访问，避免自己的浏览影响 Umami 数据。设置仅在这个浏览器生效，清除网站数据后需要重新设置。
+    </p>
+    <label class="mt-8 flex cursor-pointer items-center gap-3 rounded-[6px] border border-line p-4 text-ink-800">
+      <input id="exclude-visits" type="checkbox" disabled class="size-5 accent-accent" />
+      不将我的访问计入 Umami
+    </label>
+    <p id="analytics-status" role="status" class="mt-3 text-[13px] leading-6 text-ink-500">
+      请启用 JavaScript 以修改设置。
+    </p>
+  </section>
+</SiteLayout>
+
+<script>
+  function setup() {
+    const checkbox = document.querySelector<HTMLInputElement>("#exclude-visits");
+    const status = document.querySelector<HTMLElement>("#analytics-status");
+    if (!checkbox || !status) {
+      return;
+    }
+
+    const update = () => {
+      checkbox.checked = Boolean(localStorage.getItem("umami.disabled"));
+      status.textContent = checkbox.checked
+        ? "已排除当前浏览器。之后的访问和阅读事件不会计入 Umami。"
+        : "当前浏览器的访问会计入 Umami。";
+    };
+
+    try {
+      update();
+      checkbox.disabled = false;
+    } catch {
+      status.textContent = "浏览器禁止保存网站设置，暂时无法排除访问。";
+    }
+
+    checkbox.addEventListener("change", () => {
+      try {
+        if (checkbox.checked) {
+          localStorage.setItem("umami.disabled", "1");
+        } else {
+          localStorage.removeItem("umami.disabled");
+        }
+        location.reload();
+      } catch {
+        checkbox.checked = !checkbox.checked;
+        status.textContent = "设置未保存，请检查浏览器是否允许存储网站数据。";
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", setup);
+</script>

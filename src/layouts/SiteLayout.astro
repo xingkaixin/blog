@@ -39,7 +39,6 @@ const { meta, noindex = false, status, smartHeader = meta.type === "article" } =
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const image = pageImage(meta);
 const title = pageTitle(meta);
-const analyticsHost = new URL(siteConfig.url).hostname;
 const themeToggleEvent = THEME_TOGGLE_EVENT;
 const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
 const navItems = desktopNavigation();
@@ -310,22 +309,10 @@ const pageTransition = {
         headerController = null;
       });
     </script>
-    <script is:inline define:vars={{ analyticsHost }}>
-      if (location.hostname === analyticsHost) {
-        const loadAnalytics = () => {
-          const umami = document.createElement("script");
-          umami.src = "https://umami.xingkaixin.me/script.js";
-          umami.defer = true;
-          umami.dataset.websiteId = "da85e002-bf3e-4fcd-bbd9-9000cfb31fa4";
-          document.head.append(umami);
-        };
+    <script>
+      import { installAnalytics } from "@/lib/analytics";
 
-        if ("requestIdleCallback" in window) {
-          requestIdleCallback(loadAnalytics);
-        } else {
-          setTimeout(loadAnalytics, 0);
-        }
-      }
+      installAnalytics();
     </script>
   </body>
 </html>
