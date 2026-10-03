@@ -14,25 +14,27 @@ import {
 } from "@/lib/astro-posts";
 import { formatCalendarDate } from "@/lib/calendar-date";
 import { estimateReadingMetrics } from "@/lib/reading-metrics";
-import { buildPostTaxonomy } from "@/lib/post-tags";
-import { postHref } from "@/lib/published-post";
+import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
+import { postHref, type PublishedPost } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
 
 type Props = {
   post: BlogPostEntry;
   archivedTags: string[];
+  related: PublishedPost[];
 };
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
-  const archivedTags = buildPostTaxonomy(posts.map(toPostListItem)).archives.map(({ tag }) => tag);
+  const items = posts.map(toPostListItem);
+  const archivedTags = buildPostTaxonomy(items).archives.map(({ tag }) => tag);
   return posts.map((post) => ({
     params: { slug: post.id },
-    props: { post, archivedTags },
+    props: { post, archivedTags, related: relatedPosts(items, toPostListItem(post), 3) },
   }));
 }
 
-const { post, archivedTags } = Astro.props as Props;
+const { post, archivedTags, related } = Astro.props as Props;
 const archivedTagSet = new Set(archivedTags);
 const readingMetrics = estimateReadingMetrics(post.body);
 const { Content, headings } = await render(post);
@@ -102,6 +104,33 @@ const meta = {
             <Content />
           </div>
         </div>
+
+        {
+          related.length > 0 && (
+            <nav aria-labelledby="related-posts-heading">
+              <h2 id="related-posts-heading" class="font-display text-2xl text-ink-800">
+                继续阅读
+              </h2>
+              <ul class="mt-4 divide-y divide-line border-y border-line">
+                {related.map((item) => (
+                  <li>
+                    <a
+                      href={postHref(item.slug)}
+                      class="group block rounded-[6px] px-2 py-4 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                    >
+                      <span class="block text-[15px] leading-6 text-ink-800 group-hover:text-accent">
+                        {item.title}
+                      </span>
+                      <span class="mt-1 text-[13px] leading-6 text-ink-500 line-clamp-2">
+                        {item.summary}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
 
         <div class="relative rounded-[10px] border border-line bg-surface/60 px-5 py-7 sm:px-8">
               <svg
