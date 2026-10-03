@@ -25,6 +25,14 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Audit dependencies
-        run: bun audit
+        # Reviewed 2026-10-03: Astro 7.3.5 uses http-cache-semantics only for
+        # build-time image TTLs, without calling the affected cache reuse methods.
+        # This static site and its Pages middleware do not expose a shared cache.
+        # Remove the exception when a patched release is available; reassess it
+        # when changing Astro, the image pipeline, or the static deployment model.
+        # https://github.com/advisories/GHSA-ch52-4w7c-c8xp
+        run: |
+          echo "::warning title=Temporary audit exception::GHSA-ch52-4w7c-c8xp has no patched release. Its shared-cache reuse path is not used by this static build."
+          bun audit --ignore=GHSA-ch52-4w7c-c8xp
       - name: Validate source and production output
         run: bun run isok
