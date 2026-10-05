@@ -1,15 +1,9 @@
-import { markdownPathForPage, prefersMarkdown } from "../src/lib/markdown-negotiation";
-import { publicApiRoutes } from "../src/lib/public-api";
-import { siteConfig } from "../src/lib/site";
+import { markdownPathForPage, prefersMarkdown } from "./lib/markdown-negotiation";
+import { publicApiRoutes } from "./lib/public-api";
+import { siteConfig } from "./lib/site";
 
 type AssetFetcher = {
   fetch(request: Request): Promise<Response>;
-};
-
-type PagesContext = {
-  env: { ASSETS: AssetFetcher };
-  next(): Promise<Response>;
-  request: Request;
 };
 
 const contentSignal = "ai-train=no, search=yes, ai-input=no";
@@ -48,8 +42,7 @@ function responseWithHeaders(request: Request, response: Response, headers: Head
   });
 }
 
-export async function onRequest(context: PagesContext) {
-  const { env, request } = context;
+async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
   const requestUrl = new URL(request.url);
   if (
     (request.method === "GET" || request.method === "HEAD") &&
@@ -78,7 +71,7 @@ export async function onRequest(context: PagesContext) {
     }
   }
 
-  const response = await context.next();
+  const response = await env.ASSETS.fetch(request);
   if (!response.ok || !response.headers.get("Content-Type")?.includes("text/html")) {
     return response;
   }
@@ -91,3 +84,5 @@ export async function onRequest(context: PagesContext) {
   addHomepageDiscoveryLinks(headers, requestUrl.pathname);
   return responseWithHeaders(request, response, headers);
 }
+
+export default { fetch };

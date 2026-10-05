@@ -1,40 +1,33 @@
 # 访问性能
 
-主站继续使用 Pages，照片使用 R2 自定义域名。Cloudflare 域名规则与 Pages 部署分开管理。
+主站使用 Workers Static Assets，照片使用 R2 自定义域名。域名规则与 Workers 部署分开管理。
 
 ## 缓存
 
 - `/_astro/` 的构建资源使用内容哈希文件名，由 `public/_headers` 设置一年 `immutable`
   缓存。修改内容必须生成新文件名，不能覆盖同一个 URL。
 - `/cover/`、`/posts/images/`、`/fonts/`、搜索索引和 HTML 不套用这条长期缓存。
-- HTML 与 Markdown 通过 `Accept` 协商，保留 Pages Functions 和 `Vary: Accept`。
-  不对全站设置 Cache Everything，以免混用响应或使新部署失效。
+- HTML 与 Markdown 通过 `Accept` 协商，Worker 为页面响应添加 `Vary: Accept`。
+  `cloudflare.config.ts` 让页面先执行 Worker，图片、字体、JS 等资源直接由 Assets 返回。
+  不启用 Worker 整体响应缓存或全站 Cache Everything，避免 HTML 与 Markdown 混用。
+- Workers 原生处理构建产物中的 `_headers`、`_redirects` 和 `404.html`。
 - R2 公开目录的 Cache Rule、Smart Tiered Cache 和验证方式见 [照片墙](photo-wall.md#配置-r2)。
 
-本地执行 `bun run build` 后，可用 `wrangler pages dev dist --port 8788` 验证真实的
-Pages 响应头。Astro 开发服务器不会模拟 `_headers`。
+执行 `bun run build` 后，用 `cf deploy --prebuilt --dry-run` 检查 Workers 部署产物。
+Astro 开发服务器和 `bun run preview` 不模拟 Worker、`_headers` 或 `_redirects`；这些行为需在
+Workers 部署后检查，包括 HTML／Markdown、HEAD、旧文章重定向、404 与静态资源缓存头。
 
 ## 监测
 
-Cloudflare Web Analytics 由 Pages 项目的 Metrics 设置统一开启并注入，源码不再手动
-加载 Cloudflare beacon。保留 Umami 的独立访问统计。不要再为同一主站叠加域名级自动注入。
-本地预览没有 Pages 自动注入的 beacon，属于预期行为。
+主站仅使用 Umami。Cloudflare Web Analytics 不再注入，原有历史统计数据保留。
+[blog-analytics-rule.json](../config/blog-analytics-rule.json) 为 `xingkaixin.me`、
+`www.xingkaixin.me` 和 `blog.xingkaixin.me` 设置 `disable_rum: true`，防止域名级注入恢复。
+规则由 Cloudflare 控制台独立管理，Worker 部署不会应用此文件；其他子站保持原状。
 
-域名级自动注入原先覆盖所有子域名。通过 Configuration Rule
-`Keep Pages analytics as the single blog beacon`，仅为 `xingkaixin.me`、`www.xingkaixin.me`
-和 `blog.xingkaixin.me` 设置 `disable_rum: true`，排除边缘自动注入；Pages 已注入的脚本继续上报。
-规则定义在 [blog-analytics-rule.json](../config/blog-analytics-rule.json)，由 Cloudflare 控制台
-单独管理，Pages 部署不会应用此文件。其他子站及历史统计站点保持原状。
-需要回滚时停用该 Configuration Rule；若 Pages Metrics 仍开启，重复注入也会恢复。
-
-部署后，在首次加载和站内跳转后分别确认只有一个 Cloudflare beacon 脚本，并确认
-Web Analytics 能收到页面数据。保留原有历史统计站点，不删除旧数据。
-
-以首页、文章页和照片墙为样本，在 Web Analytics 中按 China、设备和 URL 查看 P75 LCP、
-INP、CLS 及样本量。优化前后使用相同的时间窗口，至少覆盖工作日和晚高峰。
+部署后，在首次加载和站内跳转后确认 Umami 正常上报，且没有 Cloudflare beacon。
+以首页、文章页和照片墙为样本，结合 Umami 与浏览器性能工具观察加载和交互。
 另用大陆电信、联通、移动的实际网络记录 DNS、连接时间、TTFB、首屏时间和访问失败率，
-区分首次访问与回访。脚本未能加载的访问不会出现在 RUM 中，不能用 RUM 代替可用性检查。
-代理或境外节点的测试只能验证资源行为，不能代表大陆三网速度。
+区分首次访问与回访。代理或境外节点的测试不能代表大陆三网速度。
 
 ## Umami 阅读统计
 
@@ -46,7 +39,7 @@ INP、CLS 及样本量。优化前后使用相同的时间窗口，至少覆盖�
   后台标签页时间不累计；切换文章后重新计时。这是有效阅读代理指标，不代表全文读完。
 - 通过 [访问统计设置](https://xingkaixin.me/analytics/) 排除自己的浏览器。
   使用 Umami 官方的 `umami.disabled` 本地存储标记，仅影响当前浏览器、当前域名的
-  Umami 统计；不会排除 Cloudflare Web Analytics，也不修改历史数据。
+  Umami 统计；不修改历史数据。
 - 在 Umami Events 查看 `article-read`，结合页面路径与 Organic search 渠道观察阅读。
   新事件会改变后续跳出率口径，不能直接与上线前的跳出率比较。
 - 外部分享使用 UTM，例如

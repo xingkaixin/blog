@@ -27,7 +27,7 @@ jobs:
       - name: Audit dependencies
         # Reviewed 2026-10-03: Astro 7.3.5 uses http-cache-semantics only for
         # build-time image TTLs, without calling the affected cache reuse methods.
-        # This static site and its Pages middleware do not expose a shared cache.
+        # This static site and its Worker do not expose a shared cache.
         # Remove the exception when a patched release is available; reassess it
         # when changing Astro, the image pipeline, or the static deployment model.
         # https://github.com/advisories/GHSA-ch52-4w7c-c8xp

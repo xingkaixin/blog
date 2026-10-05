@@ -54,6 +54,7 @@
     "public/",
     "data/",
     ".astro/",
+    ".cloudflare/",
     "bun.lock",
     "content/",
     ".claude/"

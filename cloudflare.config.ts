@@ -1,0 +1,33 @@
+export default {
+  worker: {
+    name: "blog",
+    entrypoint: "src/worker.ts",
+    compatibilityDate: "2026-03-13",
+    workersDev: true,
+    env: { ASSETS: { type: "assets" } },
+    assets: {
+      htmlHandling: "force-trailing-slash",
+      notFoundHandling: "404-page",
+      runWorkerFirst: [
+        "/*",
+        "!/.well-known/api-catalog",
+        "!/_astro/*",
+        "!/cover/*",
+        "!/fonts/*",
+        "!/og/*",
+        "!/openapi.json",
+        "!/posts/images/*",
+        "!/avatar.webp",
+        "!/f1-car.png",
+        "!/feed.xml",
+        "!/finish-flag.png",
+        "!/logo.svg",
+        "!/llms.txt",
+        "!/robots.txt",
+        "!/search-index.json",
+        "!/sitemap.xml",
+        "!/webmcp/*",
+      ],
+    },
+  },
+};

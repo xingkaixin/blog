@@ -9,8 +9,9 @@ node_modules
 .astro
 .cache
 
-# cloudfloare
+# cloudflare
 .wrangler
+.cloudflare
 
 
 # agent

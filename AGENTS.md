@@ -75,10 +75,15 @@ bun run lint          # 代码检查
 bun run typecheck     # Astro 与 TypeScript 类型检查
 bun run format        # 自动格式化
 bun run format:check  # 仅检查格式
-bun run deploy        # 构建并部署到 Cloudflare Pages
+bun run deploy        # 构建并部署到 Cloudflare Workers
 ```
 
 `bun run deploy` 会修改线上环境，只在用户明确要求部署时运行。
+
+部署使用 mise 全局安装并登录的 `cf`，不添加 CLI 项目依赖。完整构建通过
+`scripts/build-worker.ts` 生成 `.cloudflare/output/v0/`，部署执行 `cf deploy --prebuilt`。
+`cloudflare.config.ts` 是 Worker 配置，`src/worker.ts` 处理 HTML／Markdown 内容协商。
+构建后可运行 `cf deploy --prebuilt --dry-run` 验证产物；不要用 `cf build` 替代完整构建。
 
 ### 封面图片
 

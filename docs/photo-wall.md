@@ -33,11 +33,11 @@ media/<photo-id>/<media-revision>/2048.webp
 3. 应用只读 CORS：
 
    ```bash
-   bunx wrangler r2 bucket cors set "$R2_PHOTO_BUCKET" --file config/photo-r2-cors.json
-   bunx wrangler r2 bucket cors list "$R2_PHOTO_BUCKET"
+   cf r2 buckets cors update "$R2_PHOTO_BUCKET" --body @config/photo-r2-cors.json
+   cf r2 buckets cors get "$R2_PHOTO_BUCKET"
    ```
 
-4. 根据 `.env.example` 配置本地环境变量和 Cloudflare Pages 的
+4. 根据 `.env.example` 配置本地构建环境变量
    `PUBLIC_PHOTO_BASE_URL`。如果更换照片域名，还需要同步修改 `public/_headers` 中
    CSP 的 `connect-src` 与 `img-src`。
 5. 在域名的 Cache Rules 中应用 [公开照片目录规则](../config/photo-cache-rule.json)。
@@ -46,11 +46,11 @@ media/<photo-id>/<media-revision>/2048.webp
    没有缓存头时绕过缓存，浏览器 TTL 也遵守对象缓存头。
    不要将规则扩展到整个 `catalog/`，也不要将索引 TTL 覆盖为一天或一年。
 6. 为该域名开启 Smart Tiered Cache，减少不同边缘节点重复读取 R2。
-   Pages 静态资源本身已有分层缓存，无需额外配置主站页面缓存。
+   主站静态资源使用 Workers Assets 缓存，无需额外配置主站页面缓存。
 
 `photo-cache-rule.json` 是单条规则的 API 请求体，属于 `http_request_cache_settings`
 阶段。首次配置时创建该阶段的 zone ruleset 并将它放入 `rules`；已有 ruleset 时按
-`ref` 更新或追加该规则，保留其他规则。它不会随 Pages 部署自动应用。
+`ref` 更新或追加该规则，保留其他规则。它不会随 Workers 部署自动应用。
 
 应用后，对同一个索引和月份分片 URL 连续发起普通 GET 请求。预热后应能观察到
 `CF-Cache-Status: HIT`；索引仍返回 `max-age=60, stale-while-revalidate=86400`，

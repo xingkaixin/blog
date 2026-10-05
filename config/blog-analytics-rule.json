@@ -1,6 +1,6 @@
 {
   "ref": "d5e87c4299a04288b616c4a0e0341edb",
-  "description": "Keep Pages analytics as the single blog beacon",
+  "description": "Disable Cloudflare Web Analytics for the blog",
   "expression": "http.host in {\"xingkaixin.me\" \"www.xingkaixin.me\" \"blog.xingkaixin.me\"}",
   "action": "set_config",
   "action_parameters": {

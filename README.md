@@ -84,14 +84,21 @@ bun run photos:gc -- --confirm  # 回收超过缓存宽限期的照片对象
 
 ## 部署
 
-默认部署目标是 Cloudflare Pages。完成 Wrangler 登录后运行：
+默认部署目标是 Cloudflare Workers。使用 mise 全局安装的 `cf`（已验证
+`1.0.0-beta.12`），不将 CLI 安装为项目依赖。完成 `cf auth login` 后运行：
 
 ```bash
 bun run deploy
 ```
 
-该命令先执行完整构建，再将 `dist/` 发布到 Cloudflare Pages 的 `blog` 项目。
-`dist/` 是纯静态产物，也可以交给其他静态托管服务。
+该命令先验证照片目录、执行完整构建，再通过 `cf deploy --prebuilt` 发布到 `blog` Worker。
+`cloudflare.config.ts` 管理 Worker 配置；`scripts/build-worker.ts` 使用 Bun 打包
+`src/worker.ts`，将 `dist/` 和 Worker 写入 `.cloudflare/output/v0/`。
+`dist/` 仍是纯静态产物，Worker 负责 HTML／Markdown 内容协商与发现响应头。
+
+构建后可执行 `cf deploy --prebuilt --dry-run` 验证部署产物，不上传或修改线上环境。
+不要直接运行 `cf build` 或不带 `--prebuilt` 的 `cf deploy`：它们不会执行本项目完整的
+图片、搜索和 Sitemap 构建链。升级全局 `cf` 后应重新执行 dry run，确认 Build Output 兼容。
 
 ## License
 

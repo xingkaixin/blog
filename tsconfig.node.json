@@ -17,5 +17,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["astro.config.ts", "vite.config.ts", "scripts/**/*.ts"]
+  "include": ["astro.config.ts", "cloudflare.config.ts", "vite.config.ts", "scripts/**/*.ts"]
 }
