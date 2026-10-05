@@ -3,7 +3,8 @@ export default {
     name: "blog",
     entrypoint: "src/worker.ts",
     compatibilityDate: "2026-03-13",
-    workersDev: true,
+    workersDev: false,
+    previewUrls: false,
     domains: ["xingkaixin.me", "www.xingkaixin.me", "blog.xingkaixin.me"],
     env: { ASSETS: { type: "assets" } },
     assets: {
