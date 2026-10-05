@@ -4,6 +4,7 @@ export default {
     entrypoint: "src/worker.ts",
     compatibilityDate: "2026-03-13",
     workersDev: true,
+    domains: ["xingkaixin.me", "www.xingkaixin.me", "blog.xingkaixin.me"],
     env: { ASSETS: { type: "assets" } },
     assets: {
       htmlHandling: "force-trailing-slash",
