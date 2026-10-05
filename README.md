@@ -100,7 +100,7 @@ bun run deploy
 `www` 到主域名的重定向继续由 Cloudflare 域名规则处理。
 `https://blog.xingkaixin.workers.dev` 用于检查部署。R2 的 CORS 仅允许正式主域名，
 因此照片墙交互需在 `https://xingkaixin.me/photos/` 验证。
-原 Pages `blog` 项目保留旧部署供回退，后续发布只使用 Workers。
+原 Pages `blog` 项目及历史部署已删除，后续发布只使用 Workers。
 
 构建后可执行 `cf deploy --prebuilt --dry-run` 验证部署产物，不上传或修改线上环境。
 不要直接运行 `cf build` 或不带 `--prebuilt` 的 `cf deploy`：它们不会执行本项目完整的
