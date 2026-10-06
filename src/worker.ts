@@ -1,4 +1,8 @@
-import { markdownPathForPage, prefersMarkdown } from "./lib/markdown-negotiation";
+import {
+  markdownPathForPage,
+  pageForMarkdownPath,
+  prefersMarkdown,
+} from "./lib/markdown-negotiation";
 import { publicApiRoutes } from "./lib/public-api";
 import { siteConfig } from "./lib/site";
 
@@ -34,6 +38,10 @@ function addHomepageDiscoveryLinks(headers: Headers, pathname: string) {
   }
 }
 
+function canonicalLink(pathname: string) {
+  return `<${new URL(pathname, siteConfig.url)}>; rel="canonical"`;
+}
+
 function responseWithHeaders(request: Request, response: Response, headers: Headers) {
   return new Response(request.method === "HEAD" ? null : response.body, {
     headers,
@@ -64,6 +72,7 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
         const byteLength = new TextEncoder().encode(markdown).byteLength;
         headers.set("X-Markdown-Tokens", String(Math.ceil(byteLength / 4)));
       }
+      headers.append("Link", canonicalLink(requestUrl.pathname));
       addVaryAccept(headers);
       addHomepageDiscoveryLinks(headers, requestUrl.pathname);
       return new Response(markdown, {
@@ -75,6 +84,14 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
   }
 
   const response = await env.ASSETS.fetch(request);
+  if (requestUrl.pathname.endsWith(".md")) {
+    if (!response.ok && response.status !== 304) {
+      return response;
+    }
+    const headers = new Headers(response.headers);
+    headers.append("Link", canonicalLink(pageForMarkdownPath(requestUrl.pathname)));
+    return responseWithHeaders(request, response, headers);
+  }
   if (response.status === 304) {
     const headers = new Headers(response.headers);
     addVaryAccept(headers);
@@ -86,7 +103,9 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
 
   const markdownUrl = new URL(markdownPathForPage(requestUrl.pathname), siteConfig.url);
   const headers = new Headers(response.headers);
-  headers.append("Link", `<${markdownUrl}>; rel="alternate"; type="text/markdown"`);
+  if (!headers.get("X-Robots-Tag")?.includes("noindex")) {
+    headers.append("Link", `<${markdownUrl}>; rel="alternate"; type="text/markdown"`);
+  }
   headers.set("Content-Signal", contentSignal);
   addVaryAccept(headers);
   addHomepageDiscoveryLinks(headers, requestUrl.pathname);

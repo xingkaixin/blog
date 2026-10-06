@@ -18,6 +18,11 @@ const env = {
           headers: { "Content-Type": "text/html", Vary: "Accept-Encoding" },
         });
       }
+      if (pathname === "/analytics/") {
+        return new Response("<h1>统计</h1>", {
+          headers: { "Content-Type": "text/html", "X-Robots-Tag": "noindex" },
+        });
+      }
       if (pathname === "/old-post") {
         return new Response(null, { status: 301, headers: { Location: "/posts/example/" } });
       }
@@ -49,7 +54,22 @@ describe("Worker content negotiation", () => {
     expect(response.headers.get("Vary")).toBe("Accept");
     expect(response.headers.get("Cache-Control")).toBe("max-age=0");
     expect(response.headers.get("Link")).toContain('rel="api-catalog"');
+    expect(response.headers.get("Link")).toContain('<https://xingkaixin.me/>; rel="canonical"');
     expect(await response.text()).toBe(method === "HEAD" ? "" : "# 博客");
+  });
+
+  it("adds the page canonical to direct Markdown requests", async () => {
+    const response = await worker.fetch(new Request("https://xingkaixin.me/index.md"), env);
+
+    expect(await response.text()).toBe("# 博客");
+    expect(response.headers.get("Link")).toBe('<https://xingkaixin.me/>; rel="canonical"');
+  });
+
+  it("does not advertise Markdown for noindex pages", async () => {
+    const response = await worker.fetch(new Request("https://xingkaixin.me/analytics/"), env);
+
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(response.headers.has("Link")).toBe(false);
   });
 
   it.each(["text/markdown", "text/html"])(

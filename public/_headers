@@ -8,6 +8,9 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+/analytics/*
+  X-Robots-Tag: noindex
+
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
   Link: <https://xingkaixin.me/.well-known/api-catalog>; rel="api-catalog"

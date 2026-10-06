@@ -80,3 +80,9 @@ export function markdownPathForPage(pathname: string) {
   }
   return pathname.endsWith("/") ? `${pathname}index.md` : `${pathname}.md`;
 }
+
+export function pageForMarkdownPath(pathname: string) {
+  return pathname.endsWith("/index.md")
+    ? pathname.slice(0, -"index.md".length)
+    : pathname.slice(0, -".md".length);
+}
