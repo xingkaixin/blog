@@ -6,19 +6,12 @@ export function useActivePhotoMonth(
   periods: PhotoPeriod[],
   requestMonth: (period: PhotoPeriod) => void,
 ) {
-  const [activeMonth, setActiveMonth] = useState("");
+  const [selectedMonth, setActiveMonth] = useState("");
   const wallRef = useRef<HTMLDivElement>(null);
   const activeMonthLockRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (periods.length === 0) {
-      setActiveMonth("");
-      return;
-    }
-    setActiveMonth((current) =>
-      periods.some((period) => period.month === current) ? current : periods[0].month,
-    );
-  }, [periods]);
+  const activeMonth = periods.some((period) => period.month === selectedMonth)
+    ? selectedMonth
+    : (periods[0]?.month ?? "");
 
   useEffect(() => {
     if (!enabled) {
