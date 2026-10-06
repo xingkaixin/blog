@@ -23,7 +23,6 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     months: monthCatalogs,
     monthErrors,
     reload: loadCatalog,
-    loadMonth,
     requestMonth,
     retryMonth,
     resolvePhoto,
@@ -68,7 +67,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const { activeMonth, wallRef, jumpToMonth } = useActivePhotoMonth(
     photoView.mode === "timeline",
     catalogModel.visiblePeriods,
-    loadMonth,
+    requestMonth,
   );
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
 

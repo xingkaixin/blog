@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PhotoMonthCatalog, PhotoPeriod } from "@/lib/photo-catalog";
+import type { PhotoPeriod } from "@/lib/photo-catalog";
 
 export function useActivePhotoMonth(
   enabled: boolean,
   periods: PhotoPeriod[],
-  loadMonth: (period: PhotoPeriod) => Promise<PhotoMonthCatalog>,
+  requestMonth: (period: PhotoPeriod) => void,
 ) {
   const [activeMonth, setActiveMonth] = useState("");
   const wallRef = useRef<HTMLDivElement>(null);
@@ -104,9 +104,9 @@ export function useActivePhotoMonth(
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
         block: "start",
       });
-      void loadMonth(period).catch(() => undefined);
+      requestMonth(period);
     },
-    [activeMonth, loadMonth, periods],
+    [activeMonth, periods, requestMonth],
   );
 
   return { activeMonth, wallRef, jumpToMonth };
