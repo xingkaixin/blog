@@ -37,9 +37,10 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     resolvePhoto,
   });
   const photoView = browsing.view;
+  const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
   const catalogModel = useMemo(
-    () => buildPhotoWallCatalogModel(index, photoView),
-    [index, photoView],
+    () => buildPhotoWallCatalogModel(index, selectedAlbumId),
+    [index, selectedAlbumId],
   );
   const overviewItems = useMemo(
     () =>

@@ -5,7 +5,6 @@ import type {
   PhotoPeriod,
   PhotoRecord,
 } from "./photo-catalog";
-import type { PhotoView } from "./photo-location";
 
 const PREVIEW_PHOTO_COUNT = 4;
 
@@ -45,9 +44,8 @@ type PhotoWallCatalogModel = PhotoTimelineModel & {
 
 export function buildPhotoWallCatalogModel(
   index: PhotoCatalogIndex | null,
-  view: PhotoView,
+  selectedAlbumId: string | null,
 ): PhotoWallCatalogModel {
-  const selectedAlbumId = view.mode === "timeline" ? view.albumId : null;
   if (!index) {
     return {
       selectedAlbumId,

@@ -52,13 +52,13 @@ const months: Record<string, PhotoMonthCatalog> = {
 
 describe("photo wall model", () => {
   it("keeps previews empty until their required latest months arrive", () => {
-    const catalog = buildPhotoWallCatalogModel(index, { mode: "overview" });
+    const catalog = buildPhotoWallCatalogModel(index, null);
     const model = buildPhotoWallModel(catalog, { "2026-07": months["2026-07"] });
     expect(model.overviewItems[0].photos).toEqual([]);
     expect(model.overviewItems.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
   });
   it("derives timeline periods and totals from the selected album", () => {
-    const catalog = buildPhotoWallCatalogModel(index, { mode: "timeline", albumId: "travel" });
+    const catalog = buildPhotoWallCatalogModel(index, "travel");
     const model = buildPhotoWallModel(catalog, months);
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
@@ -73,7 +73,7 @@ describe("photo wall model", () => {
   });
 
   it("derives overview previews in catalog order", () => {
-    const catalog = buildPhotoWallCatalogModel(index, { mode: "timeline", albumId: "daily" });
+    const catalog = buildPhotoWallCatalogModel(index, "daily");
     const model = buildPhotoWallModel(catalog, months);
 
     expect(model.overviewItems[0].photos).toEqual([firstPhoto, secondPhoto]);
@@ -88,7 +88,7 @@ describe("photo wall model", () => {
   });
 
   it("preserves catalog-derived references when loaded months change", () => {
-    const catalog = buildPhotoWallCatalogModel(index, { mode: "overview" });
+    const catalog = buildPhotoWallCatalogModel(index, null);
     const initial = buildPhotoWallModel(catalog, {});
     const loaded = buildPhotoWallModel(catalog, months);
 
