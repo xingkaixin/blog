@@ -17,6 +17,9 @@
   Cache-Control: public, max-age=300
   X-Robots-Tag: noindex, follow
 
+/feed.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
 /openapi.json
   Content-Type: application/vnd.oai.openapi+json;version=3.1
   Cache-Control: public, max-age=300
