@@ -125,6 +125,18 @@ describe("rehype blog content", () => {
     },
   );
 
+  it("keeps the footnote label id and leaves it out of the TOC", async () => {
+    const renderer = await createMarkdownProcessor({
+      syntaxHighlight: false,
+      rehypePlugins: [rehypeBlogContent],
+    });
+    const { code, metadata } = await renderer.render("## 正文\n\n说明[^1]\n\n[^1]: 注释\n");
+
+    expect(code).toContain('aria-describedby="footnote-label"');
+    expect(code).toContain('<h2 class="sr-only" id="footnote-label">');
+    expect(tocFromHeadings(metadata.headings)).toEqual([{ depth: 2, id: "正文", text: "正文" }]);
+  });
+
   it("adds lazy responsive markup to known post images", () => {
     const image = {
       type: "element",

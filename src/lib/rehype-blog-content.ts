@@ -54,6 +54,9 @@ export function rehypeBlogContent() {
         if (node.tagName === "h1") {
           throw new Error("文章正文不能包含一级标题，请使用 frontmatter title");
         }
+        if (typeof node.properties?.id === "string") {
+          return;
+        }
         node.properties = {
           ...node.properties,
           id: allocateHeadingId(textContent(node)),

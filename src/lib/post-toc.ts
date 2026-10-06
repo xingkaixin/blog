@@ -10,6 +10,8 @@ type RenderedHeading = {
   slug: string;
 };
 
+const footnoteLabelId = "footnote-label";
+
 const slugify = (value: string) =>
   value
     .trim()
@@ -47,7 +49,7 @@ export function createHeadingIdAllocator() {
 
 export function tocFromHeadings(headings: RenderedHeading[]): TocItem[] {
   return headings.flatMap(({ depth, text, slug }) => {
-    if (depth !== 2 && depth !== 3) {
+    if ((depth !== 2 && depth !== 3) || slug === footnoteLabelId) {
       return [];
     }
     return [{ depth, id: slug, text }];
