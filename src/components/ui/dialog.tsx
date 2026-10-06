@@ -3,10 +3,6 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
-export const DialogClose = DialogPrimitive.Close;
-export const DialogTitle = DialogPrimitive.Title;
-export const DialogDescription = DialogPrimitive.Description;
 
 type DialogContentProps = ComponentProps<typeof DialogPrimitive.Popup> & {
   title?: string;
