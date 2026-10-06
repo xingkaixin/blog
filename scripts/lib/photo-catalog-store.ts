@@ -39,6 +39,8 @@ export type PhotoCatalogCommitResult = {
   updatedPeriods: number;
 };
 
+export type PhotoProjectionOutOfSync = "projection-out-of-sync";
+
 export class PhotoCatalogEditor {
   private constructor(
     private readonly store: PhotoObjectStore,
@@ -136,27 +138,34 @@ export class PhotoCatalogEditor {
     return true;
   }
 
-  async retireArtifacts(objectKeys: string[], now: Date): Promise<void> {
+  async retireArtifacts(
+    objectKeys: string[],
+    now: Date,
+  ): Promise<"retired" | "unchanged" | PhotoProjectionOutOfSync> {
     if (!this.state.publicIndexCurrent) {
-      return;
+      return "projection-out-of-sync";
     }
     await loadPhotoCatalogMonths(this.store, this.state, this.state.monthsForArtifacts(objectKeys));
     if (!this.state.hasUnreferencedArtifacts(this.state.periods(), objectKeys)) {
-      return;
+      return "unchanged";
     }
     this.state.retireUnreferencedArtifacts(this.state.periods(), objectKeys);
     const control = this.state.generatedAt
       ? this.state.currentControl()
       : this.state.prepareControl(this.state.periods(), now, []);
     await writeControlDocument(this.store, this.state, control);
+    return "retired";
   }
 
   async claimGarbage(
     claimId: string,
     now: () => Date,
     claimDurationMs: number,
-  ): Promise<RetiredArtifactBatch[]> {
-    if (!this.state.publicIndexCurrent || this.state.pendingRetiredArtifacts === 0) {
+  ): Promise<RetiredArtifactBatch[] | PhotoProjectionOutOfSync> {
+    if (!this.state.publicIndexCurrent) {
+      return "projection-out-of-sync";
+    }
+    if (this.state.pendingRetiredArtifacts === 0) {
       return [];
     }
     const claimedAt = now();

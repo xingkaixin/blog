@@ -568,6 +568,7 @@ describe("photo publisher", () => {
     const writes = store.writes.length;
     await expect(collectPhotoGarbage({ store, now: () => now })).resolves.toMatchObject({
       removedObjects: 0,
+      projectionOutOfSync: true,
     });
     expect(store.writes).toHaveLength(writes);
     expect(keys.filter((key) => !store.objects.has(key))).toEqual([]);
@@ -987,6 +988,7 @@ describe("photo publisher", () => {
       failedObjects: 0,
       pendingArtifacts: 2,
       failures: [],
+      projectionOutOfSync: false,
     });
 
     store.deleteFailures.set(displayKey, 1);
@@ -1005,6 +1007,7 @@ describe("photo publisher", () => {
           message: `temporary delete failure: ${displayKey}`,
         },
       ],
+      projectionOutOfSync: false,
     });
     expect(store.objects.has(displayKey)).toBe(true);
 

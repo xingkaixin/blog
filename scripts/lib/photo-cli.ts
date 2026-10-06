@@ -383,6 +383,14 @@ async function runGarbageCollectCommand(
   const store = createStore(options.output, "回收", io);
   try {
     const result = await collectPhotoGarbage({ store, scan: options.scan });
+    if (result.projectionOutOfSync) {
+      const message =
+        "照片 Catalog 公开投影与控制状态不一致，回收未执行；请先运行 bun run photos:migrate -- --confirm";
+      if (options.scan) {
+        throw new Error(message);
+      }
+      io.error(message);
+    }
     io.log(
       `完成：清理 ${result.removedObjects} 个对象，失败 ${result.failedObjects} 个，仍有 ${result.pendingArtifacts} 批产物待回收`,
     );

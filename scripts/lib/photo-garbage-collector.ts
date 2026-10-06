@@ -20,6 +20,7 @@ export type CollectPhotoGarbageResult = {
   failedObjects: number;
   pendingArtifacts: number;
   failures: PhotoGarbageFailure[];
+  projectionOutOfSync: boolean;
 };
 
 export type PhotoGarbageFailure = {
@@ -33,11 +34,13 @@ type GarbageClaim = {
   id: string;
   artifacts: RetiredArtifactBatch[];
   pendingArtifacts: number;
+  projectionOutOfSync: boolean;
 };
 
 export async function collectPhotoGarbage(
   options: CollectPhotoGarbageOptions,
 ): Promise<CollectPhotoGarbageResult> {
+  let scanOutOfSync = false;
   if (options.scan) {
     const now = options.now?.() ?? new Date();
     const candidates: string[] = [];
@@ -51,7 +54,10 @@ export async function collectPhotoGarbage(
         }
       }
     }
-    await editPhotoCatalog(options.store, (catalog) => catalog.retireArtifacts(candidates, now));
+    const status = await editPhotoCatalog(options.store, (catalog) =>
+      catalog.retireArtifacts(candidates, now),
+    );
+    scanOutOfSync = status === "projection-out-of-sync";
   }
   const claimId = randomBytes(12).toString("hex");
   const claim = await editPhotoCatalog(options.store, (catalog) =>
@@ -63,6 +69,7 @@ export async function collectPhotoGarbage(
       failedObjects: 0,
       pendingArtifacts: claim.pendingArtifacts,
       failures: [],
+      projectionOutOfSync: scanOutOfSync || claim.projectionOutOfSync,
     };
   }
 
@@ -113,10 +120,12 @@ async function claimPhotoGarbage(
     options.now ?? (() => new Date()),
     GARBAGE_CLAIM_DURATION_MS,
   );
+  const projectionOutOfSync = artifacts === "projection-out-of-sync";
   return {
     id: claimId,
-    artifacts,
+    artifacts: projectionOutOfSync ? [] : artifacts,
     pendingArtifacts: catalog.pendingRetiredArtifacts,
+    projectionOutOfSync,
   };
 }
 
@@ -144,6 +153,7 @@ async function finishPhotoGarbageCollection(
     failedObjects: failures.length,
     pendingArtifacts: catalog.pendingRetiredArtifacts,
     failures,
+    projectionOutOfSync: false,
   };
 }
 
