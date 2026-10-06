@@ -1,5 +1,6 @@
-const TOC_ANCHOR_OFFSET = 112;
-export const TOC_ACTIVE_OFFSET = TOC_ANCHOR_OFFSET + 1;
+export function getTocActiveOffset(heading: Element) {
+  return (parseFloat(getComputedStyle(heading).scrollMarginTop) || 0) + 1;
+}
 
 export function resolveActiveTocId(
   tocIds: string[],

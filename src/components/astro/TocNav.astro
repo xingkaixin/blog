@@ -54,7 +54,7 @@ const { items } = Astro.props;
         </nav>
       </details>
       <script>
-        import { resolveActiveTocId, TOC_ACTIVE_OFFSET } from "@/lib/toc-active";
+        import { getTocActiveOffset, resolveActiveTocId } from "@/lib/toc-active";
 
         function keepActiveLinkVisible(container: HTMLElement, link: HTMLElement) {
           const containerRect = container.getBoundingClientRect();
@@ -172,7 +172,7 @@ const { items } = Astro.props;
           }
 
           const visibleIds = headings
-            .filter((heading) => heading.getBoundingClientRect().top <= TOC_ACTIVE_OFFSET)
+            .filter((heading) => heading.getBoundingClientRect().top <= getTocActiveOffset(heading))
             .map((heading) => heading.id);
           const isAtPageEnd =
             window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;

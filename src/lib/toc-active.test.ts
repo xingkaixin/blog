@@ -1,5 +1,16 @@
+// @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { resolveActiveTocId } from "@/lib/toc-active";
+import { getTocActiveOffset, resolveActiveTocId } from "@/lib/toc-active";
+
+describe("getTocActiveOffset", () => {
+  it("activates a heading one pixel past its scroll margin", () => {
+    const heading = document.createElement("h2");
+    heading.style.scrollMarginTop = "112px";
+    document.body.append(heading);
+
+    expect(getTocActiveOffset(heading)).toBe(113);
+  });
+});
 
 describe("resolveActiveTocId", () => {
   it("returns the visible heading when only one heading is active", () => {
