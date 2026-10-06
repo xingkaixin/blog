@@ -8,7 +8,7 @@ import {
   type PhotoRecord,
 } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
-import { editPhotoCatalog, PhotoCatalogEditor } from "./photo-catalog-store";
+import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { ProcessedPhoto } from "./photo-source";
 import { hashPhotoFile, snapshotPhotoFile } from "./photo-source";
@@ -59,8 +59,7 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
   const { completed, ...result } = await editPhotoCatalog(
     options.store,
     (catalog) => publishPhotosOnce(options, catalog, identifiedFiles, preparedPhotos),
-    async (store) => {
-      const catalog = await PhotoCatalogEditor.load(store);
+    async (catalog) => {
       applyAlbum(catalog, options.album);
       const published = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
       const pending = uniqueFiles.filter((file) => !published.get(file.id));
@@ -81,7 +80,7 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
             throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
           }
           const record = createPhotoRecord(photo, options.album?.id);
-          await uploadPhotoAssets(store, record, photo.variants);
+          await uploadPhotoAssets(catalog, record, photo.variants);
           preparedPhotos.set(record.id, record);
         } finally {
           await snapshot.dispose();
@@ -189,7 +188,7 @@ function uniqueFilesByContent(files: IdentifiedFile[]): IdentifiedFile[] {
 }
 
 async function uploadPhotoAssets(
-  store: PhotoObjectStore,
+  catalog: PhotoCatalogEditor,
   photo: PhotoRecord,
   variants: ProcessedPhoto["variants"],
 ): Promise<void> {
@@ -198,10 +197,9 @@ async function uploadPhotoAssets(
     if (!body) {
       throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
     }
-    await store.put(photoMediaObjectKey(photo.id, width, photo.mediaRevision), body, {
+    await catalog.putArtifact(photoMediaObjectKey(photo.id, width, photo.mediaRevision), body, {
       contentType: "image/webp",
       cacheControl: ASSET_CACHE_CONTROL,
-      expectedVersion: null,
     });
   });
 }

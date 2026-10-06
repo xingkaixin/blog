@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { isPhotoArtifactKey, photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
+import { photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
@@ -25,7 +25,11 @@ import {
   type RetiredArtifactBatch,
 } from "./photo-catalog-control";
 import { PhotoCatalogState } from "./photo-catalog-state";
-import { PhotoStoreConflictError, type PhotoObjectStore } from "./photo-store";
+import {
+  PhotoStoreConflictError,
+  type PhotoObjectBody,
+  type PhotoObjectStore,
+} from "./photo-store";
 
 const SHARD_CACHE_CONTROL = "public, max-age=31536000, immutable";
 const INDEX_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=86400";
@@ -78,6 +82,15 @@ export class PhotoCatalogEditor {
   async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, boolean>> {
     const ids = [...new Set(photoIds)];
     return new Map(ids.map((photoId) => [photoId, this.state.photoMonth(photoId) !== undefined]));
+  }
+
+  async putArtifact(
+    key: string,
+    body: PhotoObjectBody,
+    options: { contentType: string; cacheControl: string },
+  ): Promise<void> {
+    this.attemptedArtifacts.add(key);
+    await this.store.put(key, body, { ...options, expectedVersion: null });
   }
 
   async addPhotoToAlbum(photoId: string, albumId: string): Promise<boolean> {
@@ -194,23 +207,14 @@ export class PhotoCatalogEditor {
 export async function editPhotoCatalog<T>(
   store: PhotoObjectStore,
   operation: (catalog: PhotoCatalogEditor) => Promise<T>,
-  prepare?: (store: PhotoObjectStore) => Promise<void>,
+  prepare?: (catalog: PhotoCatalogEditor) => Promise<void>,
 ): Promise<T> {
   const attemptedArtifacts = new Set<string>();
-  const trackedStore: PhotoObjectStore = {
-    list: (prefix) => store.list(prefix),
-    getText: (key) => store.getText(key),
-    delete: (key) => store.delete(key),
-    put: async (key, body, options) => {
-      if (options.expectedVersion === null && isPhotoArtifactKey(key)) {
-        attemptedArtifacts.add(key);
-      }
-      return store.put(key, body, options);
-    },
-  };
-  const load = () => PhotoCatalogEditor.load(trackedStore, { attemptedArtifacts });
+  const load = () => PhotoCatalogEditor.load(store, { attemptedArtifacts });
   try {
-    await prepare?.(trackedStore);
+    if (prepare) {
+      await prepare(await load());
+    }
     return await retryPhotoCatalogMutation(async () => operation(await load()));
   } catch (error) {
     if (attemptedArtifacts.size > 0) {
@@ -301,7 +305,7 @@ async function writePhotoCatalog(
   store: PhotoObjectStore,
   catalog: PhotoCatalogState,
   generatedAt: Date,
-  attemptedArtifacts: Set<string> = new Set(),
+  attemptedArtifacts: Set<string>,
 ): Promise<void> {
   const nextPeriods = catalog.periods();
 
