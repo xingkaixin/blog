@@ -194,10 +194,8 @@ export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]
     valueOptions: [...COMMON_VALUE_OPTIONS, ...specification.valueOptions],
     flagOptions: [...HELP_OPTIONS, ...specification.flagOptions],
   });
-  if (specification.positionalLabel && parsed.inputs.length > 0) {
-    throw new Error(
-      `${specification.positionalLabel}命令不接受位置参数: ${parsed.inputs.join(", ")}`,
-    );
+  if (specification.rejectsPositional && parsed.inputs.length > 0) {
+    throw new Error(`${command} 命令不接受位置参数: ${parsed.inputs.join(", ")}`);
   }
   const common = {
     output: parsed.values.get("--output"),
@@ -244,17 +242,17 @@ const COMMAND_ARGUMENTS = {
   publish: {
     valueOptions: ["--album", "--album-title", "--timezone"],
     flagOptions: [],
-    positionalLabel: null,
+    rejectsPositional: false,
   },
-  delete: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: null },
-  gc: { valueOptions: [], flagOptions: ["--confirm", "--scan"], positionalLabel: "回收" },
-  migrate: { valueOptions: [], flagOptions: ["--confirm"], positionalLabel: "迁移" },
+  delete: { valueOptions: [], flagOptions: ["--confirm"], rejectsPositional: false },
+  gc: { valueOptions: [], flagOptions: ["--confirm", "--scan"], rejectsPositional: true },
+  migrate: { valueOptions: [], flagOptions: ["--confirm"], rejectsPositional: true },
 } as const satisfies Record<
   PhotoCommandName,
   {
     valueOptions: readonly string[];
     flagOptions: readonly string[];
-    positionalLabel: string | null;
+    rejectsPositional: boolean;
   }
 >;
 
