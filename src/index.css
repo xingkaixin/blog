@@ -524,6 +524,12 @@ details .toc-link[aria-current="location"] {
   opacity: 1;
 }
 
+[data-smart-header]:focus-within {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 @starting-style {
   .header-sticker-entry {
     opacity: 0;
@@ -667,7 +673,8 @@ details .toc-link[aria-current="location"] {
   }
 
   [data-smart-header][data-header-state="revealed"],
-  [data-smart-header][data-header-state="pinned"] {
+  [data-smart-header][data-header-state="pinned"],
+  [data-smart-header]:focus-within {
     transform: none !important;
     opacity: 1;
   }
