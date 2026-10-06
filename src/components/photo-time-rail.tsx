@@ -167,6 +167,8 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
     onSelect(periods[boundedIndex].month);
   };
 
+  // 月份按新到旧排列；取反让 ArrowUp（更新的月份）对应更大的 aria-valuenow
+  const ariaValue = periods.length - 1 - activeIndex;
   const yearMarkers = periods.filter(
     (period, index) =>
       index === 0 || periods[index - 1].month.slice(0, 4) !== period.month.slice(0, 4),
@@ -185,7 +187,7 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
         aria-orientation="vertical"
         aria-valuemin={0}
         aria-valuemax={periods.length - 1}
-        aria-valuenow={activeIndex}
+        aria-valuenow={ariaValue}
         aria-valuetext={formatMonth(periods[activeIndex].month)}
         data-revealed={scrolling ? "true" : undefined}
         className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 data-[dragging=true]:opacity-100 data-[revealed=true]:opacity-100 md:w-9"
