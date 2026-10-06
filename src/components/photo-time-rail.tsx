@@ -74,8 +74,6 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
       marker.style.transform = `translate3d(0, ${markerY}px, 0)`;
       labelPosition.style.transform = `translate3d(0, ${labelY}px, 0)`;
       label.textContent = formatMonth(periods[boundedIndex].month);
-      rail.setAttribute("aria-valuenow", String(boundedIndex));
-      rail.setAttribute("aria-valuetext", formatMonth(periods[boundedIndex].month));
       previewIndexRef.current = boundedIndex;
     },
     [periods],
