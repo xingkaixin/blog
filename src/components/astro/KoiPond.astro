@@ -256,6 +256,11 @@
     updateFishing({ phase: FishingPhase.Idle, caught: 0 });
     canvas.tabIndex = motion.matches ? -1 : 0;
     canvas.setAttribute("role", motion.matches ? "img" : "button");
+    if (motion.matches) {
+      canvas.removeAttribute("aria-describedby");
+    } else {
+      canvas.setAttribute("aria-describedby", "pond-instructions");
+    }
     const result = createPond(canvas, {
       animated: !motion.matches,
       overlay,
@@ -268,6 +273,7 @@
       dock.hidden = true;
       canvas.tabIndex = -1;
       canvas.setAttribute("role", "img");
+      canvas.removeAttribute("aria-describedby");
       const message = document.createElement("p");
       message.className = "pond-fail";
       message.textContent = result.reason;

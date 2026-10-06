@@ -233,7 +233,7 @@ function buildPond(
   let overlayWidth = 0;
   let overlayHeight = 0;
 
-  function resize(): void {
+  function resize(): boolean {
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const overlayRect = options.overlay.getBoundingClientRect();
@@ -255,7 +255,7 @@ function buildPond(
       h = Math.round(h * s);
     }
     if (w === viewW && h === viewH) {
-      return;
+      return false;
     }
     viewW = w;
     viewH = h;
@@ -272,9 +272,15 @@ function buildPond(
       gl.UNSIGNED_BYTE,
       gl.LINEAR,
     );
+    return true;
   }
 
-  const resizeObserver = new ResizeObserver(resize);
+  // 设置 canvas 尺寸会清空绘制缓冲，静态模式没有主循环，需要补画一帧
+  const resizeObserver = new ResizeObserver(() => {
+    if (resize() && !options.animated) {
+      render(0, SIM_DT);
+    }
+  });
   resizeObserver.observe(canvas);
   resizeObserver.observe(options.overlay);
   resize();
