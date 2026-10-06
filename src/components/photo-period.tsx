@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
+import { memo, useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
@@ -18,8 +18,8 @@ type PhotoPeriodSectionProps = {
   error?: string;
   eager: boolean;
   containerWidth: number;
-  onVisible: () => void;
-  onRetry: () => void;
+  onVisible: (period: PhotoPeriod) => void;
+  onRetry: (period: PhotoPeriod) => void;
   onOpenPhoto: (photo: PhotoRecord) => void;
 };
 
@@ -46,7 +46,7 @@ function formatMonth(month: string): string {
   return `${year} 年 ${Number(monthNumber)} 月`;
 }
 
-export function PhotoPeriodSection({
+export const PhotoPeriodSection = memo(function PhotoPeriodSection({
   baseUrl,
   period,
   monthCatalog,
@@ -59,7 +59,7 @@ export function PhotoPeriodSection({
   onOpenPhoto,
 }: PhotoPeriodSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const requestVisible = useEffectEvent(onVisible);
+  const requestVisible = useEffectEvent(() => onVisible(period));
   const expectedCount = albumId ? (period.albumCounts[albumId] ?? 0) : period.count;
   const photos = useMemo(
     () =>
@@ -114,7 +114,7 @@ export function PhotoPeriodSection({
           <p className="text-sm text-ink-600">这个月份的照片暂时无法加载。</p>
           <button
             type="button"
-            onClick={onRetry}
+            onClick={() => onRetry(period)}
             className="rounded-[6px] border border-line bg-paper px-4 py-2 text-sm font-medium text-ink-700 transition-[transform,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]"
           >
             重试
@@ -125,7 +125,7 @@ export function PhotoPeriodSection({
       )}
     </section>
   );
-}
+});
 
 function PhotoPeriodPlaceholder({ count }: { count: number }) {
   const style: PlaceholderStyle = {

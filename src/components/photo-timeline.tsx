@@ -192,8 +192,8 @@ export function PhotoTimeline({
                     error={monthErrors[period.month]}
                     eager={indexInList === 0}
                     containerWidth={containerWidth}
-                    onVisible={() => onLoadMonth(period)}
-                    onRetry={() => onRetryMonth(period)}
+                    onVisible={onLoadMonth}
+                    onRetry={onRetryMonth}
                     onOpenPhoto={onOpenPhoto}
                   />
                 ))}
