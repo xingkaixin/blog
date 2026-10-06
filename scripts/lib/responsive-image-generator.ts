@@ -21,6 +21,27 @@ export type ResponsiveImageSource = {
   stem: string;
 };
 
+export type ResponsiveImageSetOptions = {
+  sourceDirectory: string;
+  outputDirectory: string;
+  dataFile: string;
+  manifestFile: string;
+};
+
+type ResponsiveImageSetSpecification<Key extends string> = {
+  assetName: string;
+  variants: Array<ResponsiveImageVariant<Key>>;
+  metadataVariant: Key;
+  recursive: boolean;
+  source: (file: string) => ResponsiveImageSource;
+  url: (output: string) => string;
+};
+
+type ResponsiveImageMapping<Key extends string> = Record<Key, string> & {
+  width: number;
+  height: number;
+};
+
 type GeneratedResponsiveImage<Key extends string> = {
   key: string;
   outputs: Record<Key, string>;
@@ -32,14 +53,66 @@ type GenerateResponsiveImagesOptions<Key extends string> = {
   manifestFile: string;
   variants: Array<ResponsiveImageVariant<Key>>;
   sources: ResponsiveImageSource[];
-  recursive?: boolean;
+  recursive: boolean;
 };
 
-export type GenerateResponsiveImagesResult<Key extends string> = ReconcileArtifactsResult & {
+type GenerateResponsiveImagesResult<Key extends string> = ReconcileArtifactsResult & {
   images: Array<GeneratedResponsiveImage<Key>>;
 };
 
-export function collectResponsiveImageFiles(directory: string, recursive: boolean): string[] {
+export async function generateResponsiveImageSet<Key extends string>(
+  options: ResponsiveImageSetOptions,
+  specification: ResponsiveImageSetSpecification<Key>,
+): Promise<ReconcileArtifactsResult> {
+  if (!fs.existsSync(options.sourceDirectory)) {
+    throw new Error(`${specification.assetName}源目录不存在: ${options.sourceDirectory}`);
+  }
+  const sources = collectResponsiveImageFiles(options.sourceDirectory, specification.recursive);
+  if (sources.length === 0) {
+    throw new Error(`${specification.assetName}源目录中没有图片: ${options.sourceDirectory}`);
+  }
+
+  const result = await generateResponsiveImages({
+    assetName: specification.assetName,
+    outputDirectory: options.outputDirectory,
+    manifestFile: options.manifestFile,
+    variants: specification.variants,
+    recursive: specification.recursive,
+    sources: sources.map(specification.source),
+  });
+  const mappings: Record<string, ResponsiveImageMapping<Key>> = {};
+  for (const image of result.images) {
+    const { width, height } = await new Bun.Image(
+      image.outputs[specification.metadataVariant],
+    ).metadata();
+    const urls = Object.fromEntries(
+      specification.variants.map((variant) => [
+        variant.key,
+        specification.url(image.outputs[variant.key]),
+      ]),
+    ) as Record<Key, string>;
+    mappings[image.key] = { ...urls, width, height };
+  }
+  fs.mkdirSync(path.dirname(options.dataFile), { recursive: true });
+  fs.writeFileSync(options.dataFile, `${JSON.stringify(mappings, null, 2)}\n`, "utf8");
+  return { generated: result.generated, reused: result.reused, removed: result.removed };
+}
+
+export function defaultResponsiveImageSetOptions(paths: {
+  source: string;
+  output: string;
+  data: string;
+}): ResponsiveImageSetOptions {
+  const root = process.cwd();
+  return {
+    sourceDirectory: path.join(root, "src", "assets", paths.source),
+    outputDirectory: path.join(root, "public", paths.output),
+    dataFile: path.join(root, "src", "lib", "generated", `${paths.data}.json`),
+    manifestFile: path.join(root, "src", "lib", "generated", `${paths.data}-manifest.json`),
+  };
+}
+
+function collectResponsiveImageFiles(directory: string, recursive: boolean): string[] {
   const files: string[] = [];
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const entryPath = path.join(directory, entry.name);
@@ -52,7 +125,7 @@ export function collectResponsiveImageFiles(directory: string, recursive: boolea
   return files.toSorted();
 }
 
-export async function generateResponsiveImages<Key extends string>(
+async function generateResponsiveImages<Key extends string>(
   options: GenerateResponsiveImagesOptions<Key>,
 ): Promise<GenerateResponsiveImagesResult<Key>> {
   const rendererFingerprint = fingerprint([

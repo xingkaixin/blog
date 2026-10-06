@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 
-import fs from "node:fs";
 import path from "node:path";
 import {
-  collectResponsiveImageFiles,
-  generateResponsiveImages,
+  defaultResponsiveImageSetOptions,
+  generateResponsiveImageSet,
+  type ResponsiveImageSetOptions,
   type ResponsiveImageVariant,
 } from "./lib/responsive-image-generator";
 
@@ -16,81 +16,26 @@ const VARIANTS: Array<ResponsiveImageVariant<CoverVariantKey>> = [
   { key: "full", suffix: "", width: null, quality: 85 },
 ];
 
-export type GenerateCoversOptions = {
-  sourceDirectory: string;
-  outputDirectory: string;
-  dataFile: string;
-  manifestFile: string;
-};
+export type GenerateCoversOptions = ResponsiveImageSetOptions;
 
-export type GenerateCoversResult = {
-  generated: number;
-  reused: number;
-  removed: number;
-};
-
-type CoverMapping = {
-  full: string;
-  desktop: string;
-  mobile: string;
-  width: number;
-  height: number;
-};
-
-export async function generateCovers(
-  options: GenerateCoversOptions = defaultOptions(),
-): Promise<GenerateCoversResult> {
-  if (!fs.existsSync(options.sourceDirectory)) {
-    throw new Error(`封面源目录不存在: ${options.sourceDirectory}`);
-  }
-  const sources = collectResponsiveImageFiles(options.sourceDirectory, false);
-  if (sources.length === 0) {
-    throw new Error(`封面源目录中没有图片: ${options.sourceDirectory}`);
-  }
-
-  const mappings: Record<string, CoverMapping> = {};
-  const result = await generateResponsiveImages({
+export function generateCovers(
+  options: GenerateCoversOptions = defaultResponsiveImageSetOptions({
+    source: "cover",
+    output: "cover",
+    data: "covers",
+  }),
+) {
+  return generateResponsiveImageSet(options, {
     assetName: "封面",
-    outputDirectory: options.outputDirectory,
-    manifestFile: options.manifestFile,
     variants: VARIANTS,
-    sources: sources.map((source) => {
-      const filename = path.basename(source);
-      return {
-        key: filename,
-        file: source,
-        stem: filename.slice(0, -path.extname(filename).length),
-      };
-    }),
+    metadataVariant: "full",
+    recursive: false,
+    source: (file) => {
+      const filename = path.basename(file);
+      return { key: filename, file, stem: filename.slice(0, -path.extname(filename).length) };
+    },
+    url: (output) => `/cover/${path.basename(output)}`,
   });
-  for (const image of result.images) {
-    const filename = image.key;
-    const { width, height } = await new Bun.Image(image.outputs.full).metadata();
-    mappings[filename] = {
-      mobile: `/cover/${path.basename(image.outputs.mobile)}`,
-      desktop: `/cover/${path.basename(image.outputs.desktop)}`,
-      full: `/cover/${path.basename(image.outputs.full)}`,
-      width,
-      height,
-    };
-  }
-  writeDataFile(options.dataFile, mappings);
-  return { generated: result.generated, reused: result.reused, removed: result.removed };
-}
-
-function writeDataFile(file: string, mappings: Record<string, CoverMapping>): void {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(mappings, null, 2)}\n`, "utf8");
-}
-
-function defaultOptions(): GenerateCoversOptions {
-  const root = process.cwd();
-  return {
-    sourceDirectory: path.join(root, "src", "assets", "cover"),
-    outputDirectory: path.join(root, "public", "cover"),
-    dataFile: path.join(root, "src", "lib", "generated", "covers.json"),
-    manifestFile: path.join(root, "src", "lib", "generated", "covers-manifest.json"),
-  };
 }
 
 if (import.meta.main) {
