@@ -1,18 +1,8 @@
-import {
-  PHOTO_DISPLAY_WIDTH,
-  PHOTO_FULL_WIDTH,
-  type PhotoRecord,
-  type PhotoVariantWidth,
-} from "./photo-catalog";
+import type { PhotoRecord } from "./photo-catalog";
 
 type NetworkState = {
   saveData?: boolean;
   effectiveType?: string;
-};
-
-export type PhotoPreloadPlan = {
-  photo: PhotoRecord;
-  width: PhotoVariantWidth;
 };
 
 export function photoFromArrow(
@@ -44,9 +34,8 @@ export function photoFromSwipe(
 export function planPhotoPreload(
   previous: PhotoRecord | undefined,
   next: PhotoRecord | undefined,
-  viewportWidth: number,
   network: NetworkState | undefined,
-): PhotoPreloadPlan | null {
+): PhotoRecord | null {
   if (
     network?.saveData ||
     network?.effectiveType === "slow-2g" ||
@@ -54,12 +43,5 @@ export function planPhotoPreload(
   ) {
     return null;
   }
-  const photo = next ?? previous;
-  if (!photo) {
-    return null;
-  }
-  return {
-    photo,
-    width: viewportWidth < 1_280 ? PHOTO_DISPLAY_WIDTH : PHOTO_FULL_WIDTH,
-  };
+  return next ?? previous ?? null;
 }

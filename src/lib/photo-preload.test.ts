@@ -6,17 +6,15 @@ const previous = photo("11111111111111111111111111111111");
 const next = photo("22222222222222222222222222222222");
 
 describe("photo lightbox preload", () => {
-  it("prefetches one forward neighbor at a viewport-sized resolution", () => {
-    expect(planPhotoPreload(previous, next, 390, undefined)).toEqual({ photo: next, width: 960 });
-    expect(planPhotoPreload(previous, next, 1_440, undefined)).toEqual({
-      photo: next,
-      width: 2048,
-    });
+  it("prefetches one neighbor, preferring the forward one", () => {
+    expect(planPhotoPreload(previous, next, undefined)).toBe(next);
+    expect(planPhotoPreload(previous, undefined, undefined)).toBe(previous);
+    expect(planPhotoPreload(undefined, undefined, undefined)).toBeNull();
   });
 
   it("does not prefetch on data-saving or slow connections", () => {
-    expect(planPhotoPreload(previous, next, 390, { saveData: true })).toBeNull();
-    expect(planPhotoPreload(previous, next, 390, { effectiveType: "2g" })).toBeNull();
+    expect(planPhotoPreload(previous, next, { saveData: true })).toBeNull();
+    expect(planPhotoPreload(previous, next, { effectiveType: "2g" })).toBeNull();
   });
 
   it("selects neighbors for keyboard and horizontal swipe navigation", () => {

@@ -15,6 +15,9 @@ import {
 } from "@/lib/photo-catalog";
 import { photoFromArrow, photoFromSwipe, planPhotoPreload } from "@/lib/photo-preload";
 
+const LIGHTBOX_VARIANT_WIDTHS = [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH] as const;
+const LIGHTBOX_IMAGE_SIZES = "100vw";
+
 type PhotoLightboxProps = {
   baseUrl: string;
   open: boolean;
@@ -73,13 +76,14 @@ export function PhotoLightbox({
         connection?: { saveData?: boolean; effectiveType?: string };
       }
     ).connection;
-    const plan = planPhotoPreload(previous, next, window.innerWidth, connection);
-    if (!plan || document.visibilityState !== "visible") {
+    const target = planPhotoPreload(previous, next, connection);
+    if (!target || document.visibilityState !== "visible") {
       return undefined;
     }
     const preload = () => {
       const image = new Image();
-      image.src = photoVariantUrl(baseUrl, plan.photo, plan.width);
+      image.sizes = LIGHTBOX_IMAGE_SIZES;
+      image.srcset = photoVariantSrcSet(baseUrl, target, LIGHTBOX_VARIANT_WIDTHS);
     };
     if ("requestIdleCallback" in window) {
       const idleId = window.requestIdleCallback(preload, { timeout: 1_500 });
@@ -170,8 +174,8 @@ export function PhotoLightbox({
             // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
             style={{ backgroundColor: photo.placeholderColor }}
             src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
-            srcSet={photoVariantSrcSet(baseUrl, photo, [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH])}
-            sizes="100vw"
+            srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
+            sizes={LIGHTBOX_IMAGE_SIZES}
             alt=""
             width={photo.width}
             height={photo.height}
