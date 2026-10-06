@@ -61,8 +61,7 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
     (catalog) => publishPhotosOnce(options, catalog, identifiedFiles, preparedPhotos),
     async (catalog) => {
       applyAlbum(catalog, options.album);
-      const published = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
-      const pending = uniqueFiles.filter((file) => !published.get(file.id));
+      const pending = uniqueFiles.filter((file) => !catalog.hasPhoto(file.id));
       await mapWithConcurrency(pending, PROCESS_CONCURRENCY, async (identified, index) => {
         options.onProgress?.({
           type: "processing",
@@ -102,12 +101,11 @@ async function publishPhotosOnce(
   preparedPhotos: Map<string, PhotoRecord>,
 ): Promise<PublishPhotosResult & { completed: PublishProgress[] }> {
   const uniqueFiles = uniqueFilesByContent(identifiedFiles);
-  const photoStatuses = await catalog.inspectPhotos(uniqueFiles.map((file) => file.id));
   applyAlbum(catalog, options.album);
   const pending: PhotoRecord[] = [];
   const completed: PublishProgress[] = [];
   for (const identified of uniqueFiles) {
-    if (photoStatuses.get(identified.id)) {
+    if (catalog.hasPhoto(identified.id)) {
       completed.push({ type: "reused", file: identified.file });
       if (options.album) {
         await catalog.addPhotoToAlbum(identified.id, options.album.id);

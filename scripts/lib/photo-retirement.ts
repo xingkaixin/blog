@@ -35,8 +35,7 @@ async function retirePhotosOnce(
     throw new Error("照片 ID 必须是 32 位小写十六进制内容 ID");
   }
 
-  const statuses = await catalog.inspectPhotos(photoIds);
-  const absentPhotoId = photoIds.find((photoId) => !statuses.get(photoId));
+  const absentPhotoId = photoIds.find((photoId) => !catalog.hasPhoto(photoId));
   if (absentPhotoId) {
     throw new Error(`Catalog 中不存在照片 ${absentPhotoId}`);
   }

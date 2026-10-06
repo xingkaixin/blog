@@ -43,18 +43,6 @@ describe("photo catalog editor", () => {
     await catalog.commit(new Date(generatedAt));
   });
 
-  it("inspects publication without reading month shards", async () => {
-    const store = await catalogStore();
-    const catalog = await PhotoCatalogEditor.load(store);
-    const get = store.getText.bind(store);
-    const reads: string[] = [];
-    store.getText = async (key) => {
-      reads.push(key);
-      return get(key);
-    };
-    await catalog.inspectPhotos([photoId]);
-    expect(reads).toEqual([]);
-  });
   it.each(["{", "{}"])("repairs a damaged public index (%s) from control", async (damagedIndex) => {
     const store = await catalogStore();
     const originalIndex = await store.getText(PHOTO_CATALOG_INDEX_KEY);
@@ -143,12 +131,8 @@ describe("photo catalog editor", () => {
     const catalog = await PhotoCatalogEditor.load(await catalogStore());
     const absentPhotoId = "b".repeat(32);
 
-    await expect(catalog.inspectPhotos([photoId, absentPhotoId])).resolves.toEqual(
-      new Map([
-        [photoId, true],
-        [absentPhotoId, false],
-      ]),
-    );
+    expect(catalog.hasPhoto(photoId)).toBe(true);
+    expect(catalog.hasPhoto(absentPhotoId)).toBe(false);
   });
 
   it("loads the owning month before updating an album", async () => {

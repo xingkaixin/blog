@@ -79,9 +79,8 @@ export class PhotoCatalogEditor {
     return this.state.upsertAlbum(album);
   }
 
-  async inspectPhotos(photoIds: Iterable<string>): Promise<Map<string, boolean>> {
-    const ids = [...new Set(photoIds)];
-    return new Map(ids.map((photoId) => [photoId, this.state.photoMonth(photoId) !== undefined]));
+  hasPhoto(photoId: string): boolean {
+    return this.state.photoMonth(photoId) !== undefined;
   }
 
   async putArtifact(
