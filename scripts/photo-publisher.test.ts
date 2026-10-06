@@ -56,7 +56,7 @@ class MemoryPhotoStore implements PhotoObjectStore {
 
   async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
     const currentVersion = this.versions.get(key) ?? null;
-    if (options.expectedVersion !== undefined && options.expectedVersion !== currentVersion) {
+    if (options.expectedVersion !== currentVersion) {
       throw new PhotoStoreConflictError(key);
     }
     const version = `v${(this.nextVersion += 1)}`;
@@ -1231,6 +1231,7 @@ describe("photo publisher", () => {
     await store.put(PHOTO_CATALOG_CONTROL_KEY, JSON.stringify(control), {
       contentType: "application/json",
       cacheControl: "no-store",
+      expectedVersion: store.versions.get(PHOTO_CATALOG_CONTROL_KEY)!,
     });
 
     await expect(collectPhotoGarbage({ store })).rejects.toThrow("仍被主 Catalog 引用");

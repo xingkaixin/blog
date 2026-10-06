@@ -35,7 +35,11 @@ describe("file photo store", () => {
     const store = new FilePhotoObjectStore(root);
     const keys = ["media/a/480.webp", "media/b/960.webp", "catalog/index.json"];
     for (const key of keys) {
-      await store.put(key, "data", { contentType: "text/plain", cacheControl: "no-store" });
+      await store.put(key, "data", {
+        contentType: "text/plain",
+        cacheControl: "no-store",
+        expectedVersion: null,
+      });
     }
     const objects = await Array.fromAsync(store.list("media/"));
     expect(objects.map((object) => object.key).toSorted()).toEqual(keys.slice(0, 2));
@@ -51,7 +55,11 @@ describe("file photo store", () => {
     const keys = [480, 960, 2048].map((width) => `media/photo/${width}.webp`);
     const results = await Promise.allSettled(
       keys.map((key) =>
-        store.put(key, key, { contentType: "image/webp", cacheControl: "immutable" }),
+        store.put(key, key, {
+          contentType: "image/webp",
+          cacheControl: "immutable",
+          expectedVersion: null,
+        }),
       ),
     );
 
@@ -64,7 +72,7 @@ describe("file photo store", () => {
   it("reads, conditionally writes, and deletes objects inside its root", async () => {
     const root = temporaryDirectory();
     const store = new FilePhotoObjectStore(root);
-    const options = { contentType: "text/plain", cacheControl: "no-cache" };
+    const options = { contentType: "text/plain", cacheControl: "no-cache", expectedVersion: null };
 
     const version = await store.put("catalog/index.json", "first", options);
     expect(await store.getText("catalog/index.json")).toEqual({ text: "first", version });
@@ -82,7 +90,11 @@ describe("file photo store", () => {
     const root = temporaryDirectory();
     const store = new FilePhotoObjectStore(root);
     const key = "catalog/index.json";
-    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const options = {
+      contentType: "application/json",
+      cacheControl: "no-cache",
+      expectedVersion: null,
+    };
     const version = await store.put(key, "initial", options);
     const entered = Promise.withResolvers<void>();
     const release = Promise.withResolvers<void>();
@@ -139,7 +151,11 @@ describe("file photo store", () => {
     const store = new FilePhotoObjectStore(root);
     const key = "catalog/index.json";
     const lock = path.join(root, `${key}.lock`);
-    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const options = {
+      contentType: "application/json",
+      cacheControl: "no-cache",
+      expectedVersion: null,
+    };
     const version = await store.put(key, "initial", options);
     await fs.writeFile(lock, "existing owner");
     await fs.utimes(lock, new Date(0), new Date(0));
@@ -158,7 +174,11 @@ describe("file photo store", () => {
     const root = temporaryDirectory();
     const store = new FilePhotoObjectStore(root);
     const key = "catalog/index.json";
-    const options = { contentType: "application/json", cacheControl: "no-cache" };
+    const options = {
+      contentType: "application/json",
+      cacheControl: "no-cache",
+      expectedVersion: null,
+    };
     const version = await store.put(key, "initial", options);
     vi.spyOn(fs, "rename").mockRejectedValueOnce(new Error("disk write failed"));
 
@@ -178,7 +198,7 @@ describe("file photo store", () => {
     await fs.mkdir(outside);
     await fs.symlink(outside, path.join(root, "media"));
     const store = new FilePhotoObjectStore(root);
-    const options = { contentType: "image/webp", cacheControl: "immutable" };
+    const options = { contentType: "image/webp", cacheControl: "immutable", expectedVersion: null };
 
     await expect(store.put("media/photo/480.webp", "data", options)).rejects.toThrow("符号链接");
     await expect(fs.access(path.join(outside, "photo", "480.webp"))).rejects.toThrow();

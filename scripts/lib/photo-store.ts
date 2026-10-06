@@ -16,7 +16,7 @@ export type PhotoObjectBody = string | Uint8Array;
 export type PutPhotoObjectOptions = {
   contentType: string;
   cacheControl: string;
-  expectedVersion?: string | null;
+  expectedVersion: string | null;
 };
 
 export type PhotoTextObject = {
@@ -141,21 +141,15 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
 
   async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
     const target = await resolveSafeObjectPath(this.rootDirectory, key, true);
-
-    if (options.expectedVersion !== undefined) {
-      return withObjectLock(target, async () => {
-        const currentTarget = await resolveSafeObjectPath(this.rootDirectory, key, true);
-        const currentVersion = await readFileVersion(currentTarget);
-        if (currentVersion !== options.expectedVersion) {
-          throw new PhotoStoreConflictError(key);
-        }
-        await writeAtomic(this.rootDirectory, currentTarget, body);
-        return objectVersion(body);
-      });
-    }
-
-    await writeAtomic(this.rootDirectory, target, body);
-    return objectVersion(body);
+    return withObjectLock(target, async () => {
+      const currentTarget = await resolveSafeObjectPath(this.rootDirectory, key, true);
+      const currentVersion = await readFileVersion(currentTarget);
+      if (currentVersion !== options.expectedVersion) {
+        throw new PhotoStoreConflictError(key);
+      }
+      await writeAtomic(this.rootDirectory, currentTarget, body);
+      return objectVersion(body);
+    });
   }
 
   async delete(key: string): Promise<void> {
@@ -391,7 +385,7 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
       Body: body,
       ContentType: options.contentType,
       CacheControl: options.cacheControl,
-      IfMatch: typeof options.expectedVersion === "string" ? options.expectedVersion : undefined,
+      IfMatch: options.expectedVersion ?? undefined,
       IfNoneMatch: options.expectedVersion === null ? "*" : undefined,
     };
     try {

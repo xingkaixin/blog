@@ -62,6 +62,7 @@ describe("photo catalog editor", () => {
     await store.put(PHOTO_CATALOG_INDEX_KEY, damagedIndex, {
       contentType: "application/json",
       cacheControl: "no-cache",
+      expectedVersion: originalIndex!.version,
     });
 
     const catalog = await PhotoCatalogEditor.load(store);
@@ -78,6 +79,7 @@ describe("photo catalog editor", () => {
     await store.put(PHOTO_CATALOG_INDEX_KEY, damagedIndex, {
       contentType: "application/json",
       cacheControl: "no-cache",
+      expectedVersion: (await store.getText(PHOTO_CATALOG_INDEX_KEY))!.version,
     });
 
     await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
@@ -90,6 +92,7 @@ describe("photo catalog editor", () => {
       await store.put(PHOTO_CATALOG_CONTROL_KEY, damagedControl, {
         contentType: "application/json",
         cacheControl: "no-store",
+        expectedVersion: (await store.getText(PHOTO_CATALOG_CONTROL_KEY))!.version,
       });
 
       await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
@@ -197,11 +200,12 @@ async function catalogStore(): Promise<FilePhotoObjectStore> {
       retiredObjects: [],
       retiredArtifacts: [],
     }),
-    { contentType: "application/json", cacheControl: "no-store" },
+    { contentType: "application/json", cacheControl: "no-store", expectedVersion: null },
   );
   await store.put(PHOTO_CATALOG_INDEX_KEY, JSON.stringify({ schemaVersion: 3, ...contents }), {
     contentType: "application/json",
     cacheControl: "no-cache",
+    expectedVersion: null,
   });
   await store.put(
     periodPath,
@@ -219,7 +223,7 @@ async function catalogStore(): Promise<FilePhotoObjectStore> {
         },
       ],
     }),
-    { contentType: "application/json", cacheControl: "immutable" },
+    { contentType: "application/json", cacheControl: "immutable", expectedVersion: null },
   );
   return store;
 }
