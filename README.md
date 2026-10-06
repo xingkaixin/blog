@@ -97,7 +97,8 @@ bun run deploy
 `dist/` 仍是纯静态产物，Worker 负责 HTML／Markdown 内容协商与发现响应头。
 
 正式域名为 `xingkaixin.me`、`www.xingkaixin.me` 和 `blog.xingkaixin.me`；
-`www` 到主域名的重定向继续由 Cloudflare 域名规则处理。
+`www` 到主域名的重定向继续由 Cloudflare 域名规则处理；Worker 也会将其他非主域名请求
+301 到主域名（`runWorkerFirst` 排除的静态资源除外）。
 `workers.dev` 主地址和版本预览地址均已关闭，部署后使用正式域名验证。R2 的 CORS 仅允许正式主域名，
 因此照片墙交互需在 `https://xingkaixin.me/photos/` 验证。
 原 Pages `blog` 项目及历史部署已删除，后续发布只使用 Workers。

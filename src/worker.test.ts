@@ -98,6 +98,16 @@ describe("Worker content negotiation", () => {
     expect(response.headers.get("Link")).not.toContain('rel="api-catalog"');
   });
 
+  it.each(["www.xingkaixin.me", "blog.xingkaixin.me"])(
+    "redirects %s to the primary host",
+    async (host) => {
+      const response = await worker.fetch(new Request(`https://${host}/about/?ref=x`), env);
+
+      expect(response.status).toBe(301);
+      expect(response.headers.get("Location")).toBe("https://xingkaixin.me/about/?ref=x");
+    },
+  );
+
   it.each([
     ["/old-post", 301],
     ["/missing/", 404],

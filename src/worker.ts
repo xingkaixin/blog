@@ -10,6 +10,7 @@ type AssetFetcher = {
   fetch(request: Request): Promise<Response>;
 };
 
+const siteHost = new URL(siteConfig.url).host;
 const contentSignal = "ai-train=no, search=yes, ai-input=no";
 const homepageDiscoveryLinks = [
   `<${publicApiRoutes.catalog}>; rel="api-catalog"; type="application/linkset+json"`,
@@ -52,6 +53,12 @@ function responseWithHeaders(request: Request, response: Response, headers: Head
 
 async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
   const requestUrl = new URL(request.url);
+  if (requestUrl.host !== siteHost) {
+    return Response.redirect(
+      new URL(`${requestUrl.pathname}${requestUrl.search}`, siteConfig.url).href,
+      301,
+    );
+  }
   if (
     (request.method === "GET" || request.method === "HEAD") &&
     prefersMarkdown(request.headers.get("Accept"))
