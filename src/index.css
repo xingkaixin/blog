@@ -122,16 +122,6 @@ body {
   color: var(--ink-800);
 }
 
-#root {
-  isolation: isolate;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-card);
-}
-
 .project-logo {
   position: relative;
   display: block;
@@ -300,36 +290,6 @@ body {
 
 [data-theme="dark"] .site-logo {
   transform: rotate(180deg);
-}
-
-.theme-icon {
-  position: relative;
-  display: inline-grid;
-}
-
-.theme-icon-fallback,
-.theme-icon-morph {
-  grid-area: 1 / 1;
-}
-
-.theme-icon-fallback {
-  display: inline-grid;
-}
-
-.theme-icon-fallback > * {
-  grid-area: 1 / 1;
-}
-
-.theme-icon-morph {
-  opacity: 0;
-}
-
-.theme-icon[data-morph-ready] .theme-icon-fallback {
-  opacity: 0;
-}
-
-.theme-icon[data-morph-ready] .theme-icon-morph {
-  opacity: 1;
 }
 
 /* 主题即时切换：全局颜色过渡在 Chrome 上逐帧重绘整页（叠加 header 毛玻璃重算）会掉帧，
@@ -571,45 +531,12 @@ details .toc-link[aria-current="location"] {
   }
 }
 
-.fade-in {
-  opacity: 0;
-  transform: translateY(14px);
-  animation: fade-in var(--duration-fast) var(--ease-smooth-out) forwards;
-}
-
-.hover-lift {
-  transition: transform var(--duration-quick) var(--ease-smooth-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .hover-lift:hover {
-    transform: translateY(-3px);
-  }
-}
-
-.hover-lift:active {
-  transform: translateY(-1px) scale(0.98);
-}
-
-.hover-cover-zoom,
-.hover-arrow-shift {
-  transition: transform var(--duration-quick) var(--ease-smooth-out);
-}
-
 .hover-preview-reveal {
   opacity: 0;
   transition: opacity var(--duration-quick) var(--ease-smooth-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .group:hover .hover-cover-zoom {
-    transform: scale(1.02);
-  }
-
-  .group:hover .hover-arrow-shift {
-    transform: translateX(4px);
-  }
-
   .group:hover .hover-preview-reveal {
     opacity: 1;
   }
@@ -617,19 +544,6 @@ details .toc-link[aria-current="location"] {
 
 .signature-static {
   display: none;
-}
-
-@keyframes fade-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in-reduced {
-  to {
-    opacity: 1;
-  }
 }
 
 @keyframes page-slide-out-left {
@@ -724,32 +638,8 @@ details .toc-link[aria-current="location"] {
     }
   }
 
-  .fade-in {
-    transform: none;
-    animation-name: fade-in-reduced;
-    animation-duration: var(--duration-quick);
-    animation-delay: 0ms !important;
-  }
-
-  .hover-lift,
-  .hover-lift:hover,
-  .hover-lift:active {
-    transform: none;
-    transition: none;
-  }
-
   .site-logo {
     transition: none;
-  }
-
-  .hover-cover-zoom,
-  .hover-arrow-shift {
-    transition: none;
-  }
-
-  .group:hover .hover-cover-zoom,
-  .group:hover .hover-arrow-shift {
-    transform: none;
   }
 
   .signature-animated {
