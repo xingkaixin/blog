@@ -136,10 +136,13 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             className="min-w-0 flex-1 bg-transparent font-mono text-sm text-ink-800 outline-none placeholder:text-ink-400"
           />
           {query.trim() && (
-            <span className="shrink-0 font-mono text-[10px] text-ink-400">
+            <span aria-hidden="true" className="shrink-0 font-mono text-[10px] text-ink-400">
               {items.length} 个结果
             </span>
           )}
+          <span aria-live="polite" className="sr-only">
+            {query.trim() ? `${items.length} 个结果` : ""}
+          </span>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
@@ -156,7 +159,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
           className="min-h-0 overflow-y-auto sm:max-h-[430px]"
         >
           {groups.length > 0 ? (
-            <div aria-live="polite" className="min-h-64 py-1.5">
+            <div className="min-h-64 py-1.5">
               {groups.map((group) => (
                 <section key={group.label} aria-label={group.label}>
                   <p className="px-4 pb-1 pt-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
