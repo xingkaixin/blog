@@ -5,6 +5,9 @@ const env = {
   ASSETS: {
     async fetch(request: Request) {
       const { pathname } = new URL(request.url);
+      if (request.headers.has("If-None-Match") && (pathname === "/" || pathname === "/index.md")) {
+        return new Response(null, { status: 304, headers: { ETag: '"cached"' } });
+      }
       if (pathname === "/index.md") {
         return new Response(request.method === "HEAD" ? null : "# 博客", {
           headers: { "Content-Type": "text/plain", "Cache-Control": "max-age=0" },
@@ -48,6 +51,20 @@ describe("Worker content negotiation", () => {
     expect(response.headers.get("Link")).toContain('rel="api-catalog"');
     expect(await response.text()).toBe(method === "HEAD" ? "" : "# 博客");
   });
+
+  it.each(["text/markdown", "text/html"])(
+    "keeps 304 for %s and varies on Accept",
+    async (accept) => {
+      const request = new Request("https://xingkaixin.me/", {
+        headers: { Accept: accept, "If-None-Match": '"cached"' },
+      });
+      const response = await worker.fetch(request, env);
+
+      expect(response.status).toBe(304);
+      expect(response.headers.get("Vary")).toBe("Accept");
+      expect(response.body).toBeNull();
+    },
+  );
 
   it("falls back to HTML when a page has no Markdown asset", async () => {
     const request = new Request("https://xingkaixin.me/about/", {

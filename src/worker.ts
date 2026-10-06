@@ -52,8 +52,11 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
     markdownUrl.pathname = markdownPathForPage(markdownUrl.pathname);
     const markdownResponse = await env.ASSETS.fetch(new Request(markdownUrl, request));
 
-    if (markdownResponse.ok) {
-      const markdown = request.method === "HEAD" ? null : await markdownResponse.text();
+    if (markdownResponse.ok || markdownResponse.status === 304) {
+      const markdown =
+        request.method === "HEAD" || markdownResponse.status === 304
+          ? null
+          : await markdownResponse.text();
       const headers = new Headers(markdownResponse.headers);
       headers.set("Content-Type", "text/markdown; charset=utf-8");
       headers.set("Content-Signal", contentSignal);
@@ -72,6 +75,11 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
   }
 
   const response = await env.ASSETS.fetch(request);
+  if (response.status === 304) {
+    const headers = new Headers(response.headers);
+    addVaryAccept(headers);
+    return responseWithHeaders(request, response, headers);
+  }
   if (!response.ok || !response.headers.get("Content-Type")?.includes("text/html")) {
     return response;
   }
