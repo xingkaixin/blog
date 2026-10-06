@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { PhotoCatalogIndex, PhotoMonthCatalog } from "./photo-catalog";
 import {
+  buildOverviewItems,
   buildPhotoWallCatalogModel,
-  buildPhotoWallModel,
   formatPeriodRange,
 } from "./photo-wall-model";
 
@@ -53,13 +53,12 @@ const months: Record<string, PhotoMonthCatalog> = {
 describe("photo wall model", () => {
   it("keeps previews empty until their required latest months arrive", () => {
     const catalog = buildPhotoWallCatalogModel(index, null);
-    const model = buildPhotoWallModel(catalog, { "2026-07": months["2026-07"] });
-    expect(model.overviewItems[0].photos).toEqual([]);
-    expect(model.overviewItems.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
+    const items = buildOverviewItems(catalog.overviewSummaries, { "2026-07": months["2026-07"] });
+    expect(items[0].photos).toEqual([]);
+    expect(items.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
   });
   it("derives timeline periods and totals from the selected album", () => {
-    const catalog = buildPhotoWallCatalogModel(index, "travel");
-    const model = buildPhotoWallModel(catalog, months);
+    const model = buildPhotoWallCatalogModel(index, "travel");
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");
@@ -74,26 +73,17 @@ describe("photo wall model", () => {
 
   it("derives overview previews in catalog order", () => {
     const catalog = buildPhotoWallCatalogModel(index, "daily");
-    const model = buildPhotoWallModel(catalog, months);
+    const items = buildOverviewItems(catalog.overviewSummaries, months);
 
-    expect(model.overviewItems[0].photos).toEqual([firstPhoto, secondPhoto]);
-    expect(model.overviewItems.map((item) => [item.title, item.count])).toEqual([
+    expect(items[0].photos).toEqual([firstPhoto, secondPhoto]);
+    expect(items.map((item) => [item.title, item.count])).toEqual([
       ["全部", 2],
       ["日常", 1],
       ["旅行", 1],
     ]);
-    expect(model.overviewItems.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
-    expect(model.overviewItems.find((item) => item.id === "travel")?.photos).toEqual([firstPhoto]);
-    expect(model.overviewPeriods).toEqual(index.periods);
-  });
-
-  it("preserves catalog-derived references when loaded months change", () => {
-    const catalog = buildPhotoWallCatalogModel(index, null);
-    const initial = buildPhotoWallModel(catalog, {});
-    const loaded = buildPhotoWallModel(catalog, months);
-
-    expect(loaded.visiblePeriods).toBe(initial.visiblePeriods);
-    expect(loaded.overviewPeriods).toBe(initial.overviewPeriods);
+    expect(items.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
+    expect(items.find((item) => item.id === "travel")?.photos).toEqual([firstPhoto]);
+    expect(catalog.overviewPeriods).toEqual(index.periods);
   });
 
   it("formats single-month and cross-year ranges", () => {

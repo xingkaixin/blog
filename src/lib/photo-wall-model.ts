@@ -32,11 +32,6 @@ export type PhotoTimelineModel = {
   timelineRange: string;
 };
 
-export type PhotoWallModel = PhotoTimelineModel & {
-  overviewPeriods: PhotoPeriod[];
-  overviewItems: AlbumOverviewItem[];
-};
-
 type PhotoWallCatalogModel = PhotoTimelineModel & {
   overviewPeriods: PhotoPeriod[];
   overviewSummaries: AlbumOverviewSummary[];
@@ -120,26 +115,22 @@ export function buildPhotoWallCatalogModel(
   };
 }
 
-export function buildPhotoWallModel(
-  catalog: PhotoWallCatalogModel,
+export function buildOverviewItems(
+  summaries: AlbumOverviewSummary[],
   monthCatalogs: Record<string, PhotoMonthCatalog>,
-): PhotoWallModel {
-  const { overviewSummaries, ...timeline } = catalog;
-  return {
-    ...timeline,
-    overviewItems: overviewSummaries.map(({ previewPeriods, ...summary }) => ({
-      ...summary,
-      photos: previewPeriods.every((period) => monthCatalogs[period.month])
-        ? previewPeriods
-            .flatMap((period) =>
-              monthCatalogs[period.month].photos.filter(
-                (photo) => summary.id === null || photo.albumIds.includes(summary.id),
-              ),
-            )
-            .slice(0, PREVIEW_PHOTO_COUNT)
-        : [],
-    })),
-  };
+): AlbumOverviewItem[] {
+  return summaries.map(({ previewPeriods, ...summary }) => ({
+    ...summary,
+    photos: previewPeriods.every((period) => monthCatalogs[period.month])
+      ? previewPeriods
+          .flatMap((period) =>
+            monthCatalogs[period.month].photos.filter(
+              (photo) => summary.id === null || photo.albumIds.includes(summary.id),
+            ),
+          )
+          .slice(0, PREVIEW_PHOTO_COUNT)
+      : [],
+  }));
 }
 
 function previewPeriods(periods: PhotoPeriod[], albumId: string | null): PhotoPeriod[] {

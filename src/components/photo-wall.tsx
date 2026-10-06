@@ -7,7 +7,7 @@ import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
 import { photoBackgroundStyle } from "@/lib/photo-background";
-import { buildPhotoWallCatalogModel, buildPhotoWallModel } from "@/lib/photo-wall-model";
+import { buildOverviewItems, buildPhotoWallCatalogModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
   baseUrl: string;
@@ -44,7 +44,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const overviewItems = useMemo(
     () =>
       photoView.mode === "overview"
-        ? buildPhotoWallModel(catalogModel, monthCatalogs).overviewItems
+        ? buildOverviewItems(catalogModel.overviewSummaries, monthCatalogs)
         : [],
     [catalogModel, monthCatalogs, photoView.mode],
   );
