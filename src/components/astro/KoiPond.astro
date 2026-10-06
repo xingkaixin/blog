@@ -211,11 +211,11 @@
   let controls: AbortController | null = null;
   const motion = matchMedia("(prefers-reduced-motion: reduce)");
 
-  function teardown() {
+  function teardown(loseContext = false) {
     generation++;
     pending?.disconnect();
     pending = null;
-    pond?.destroy();
+    pond?.destroy(loseContext);
     pond = null;
     controls?.abort();
     controls = null;
@@ -266,6 +266,7 @@
       overlay,
       onFishingChange: updateFishing,
       onFirstDrop: () => hint?.classList.add("is-hidden"),
+      onContextRestored: setup,
     });
 
     if (!result.ok) {
@@ -309,6 +310,6 @@
   }
 
   document.addEventListener("astro:page-load", setup);
-  document.addEventListener("astro:before-swap", teardown);
+  document.addEventListener("astro:before-swap", () => teardown(true));
   motion.addEventListener("change", setup);
 </script>

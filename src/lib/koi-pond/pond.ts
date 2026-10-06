@@ -14,7 +14,8 @@ import { COMP_FS, SIM_FS, UNDER_FS, VS } from "./shaders";
 
 export interface PondHandle {
   setFishing(active: boolean): void;
-  destroy(): void;
+  /** loseContext 为 true 时同时释放 WebGL 上下文；同一 canvas 还要重建时不能释放。 */
+  destroy(loseContext?: boolean): void;
 }
 
 export type PondResult = { ok: true; pond: PondHandle } | { ok: false; reason: string };
@@ -26,6 +27,7 @@ export interface PondOptions {
   onFishingChange: (status: FishingStatus) => void;
   /** 首次由指针触发涟漪时回调一次，用于收起操作提示。 */
   onFirstDrop?: () => void;
+  onContextRestored: () => void;
 }
 
 /** 仿真网格，3:1 让格子接近正方形 */
@@ -84,7 +86,9 @@ function buildPond(
     gl.shaderSource(shader, src);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw new Error(`shader: ${gl.getShaderInfoLog(shader)}`);
+      const log = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error(`shader: ${log}`);
     }
     return shader;
   }
@@ -97,12 +101,21 @@ function buildPond(
 
   function createProgram(vsSrc: string, fsSrc: string): Program {
     const id = gl.createProgram();
-    gl.attachShader(id, compile(gl.VERTEX_SHADER, vsSrc));
-    gl.attachShader(id, compile(gl.FRAGMENT_SHADER, fsSrc));
-    gl.bindAttribLocation(id, 0, "aPos");
-    gl.linkProgram(id);
-    if (!gl.getProgramParameter(id, gl.LINK_STATUS)) {
-      throw new Error(`link: ${gl.getProgramInfoLog(id)}`);
+    const shaders: WebGLShader[] = [];
+    try {
+      shaders.push(compile(gl.VERTEX_SHADER, vsSrc));
+      shaders.push(compile(gl.FRAGMENT_SHADER, fsSrc));
+      shaders.forEach((shader) => gl.attachShader(id, shader));
+      gl.bindAttribLocation(id, 0, "aPos");
+      gl.linkProgram(id);
+      if (!gl.getProgramParameter(id, gl.LINK_STATUS)) {
+        throw new Error(`link: ${gl.getProgramInfoLog(id)}`);
+      }
+    } catch (error) {
+      gl.deleteProgram(id);
+      throw error;
+    } finally {
+      shaders.forEach((shader) => gl.deleteShader(shader));
     }
     const cache = new Map<string, WebGLUniformLocation | null>();
     return {
@@ -180,18 +193,19 @@ function buildPond(
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-  let progSim: Program;
-  let progUnder: Program;
-  let progComp: Program;
-  let progKoi: Program;
+  const programs: Program[] = [];
   try {
-    progSim = createProgram(VS, SIM_FS);
-    progUnder = createProgram(VS, UNDER_FS);
-    progComp = createProgram(VS, COMP_FS);
-    progKoi = createProgram(KOI_VS, KOI_FS);
+    programs.push(createProgram(VS, SIM_FS));
+    programs.push(createProgram(VS, UNDER_FS));
+    programs.push(createProgram(VS, COMP_FS));
+    programs.push(createProgram(KOI_VS, KOI_FS));
   } catch {
+    programs.forEach((program) => program.dispose());
+    gl.deleteVertexArray(quadVao);
+    gl.deleteBuffer(quadBuf);
     return { ok: false, reason: "着色器编译失败，无法运行这片水面。" };
   }
+  const [progSim, progUnder, progComp, progKoi] = programs;
 
   let simA = createTarget(SIM_W, SIM_H, gl.RGBA16F, gl.RGBA, gl.HALF_FLOAT, gl.LINEAR);
   let simB = createTarget(SIM_W, SIM_H, gl.RGBA16F, gl.RGBA, gl.HALF_FLOAT, gl.LINEAR);
@@ -400,18 +414,28 @@ function buildPond(
   /* --- 生命周期：只在可见时消耗 GPU ------------------------------------ */
 
   let onScreen = false;
+  let contextLost = false;
   const visibilityObserver = new IntersectionObserver((entries) => {
     onScreen = entries.some((entry) => entry.isIntersecting);
     syncRunning();
   });
 
   function syncRunning(): void {
-    if (onScreen && document.visibilityState === "visible") {
+    if (!contextLost && onScreen && document.visibilityState === "visible") {
       start();
     } else {
       stop();
     }
   }
+
+  function onContextLost(e: Event): void {
+    e.preventDefault();
+    contextLost = true;
+    stop();
+  }
+
+  canvas.addEventListener("webglcontextlost", onContextLost);
+  canvas.addEventListener("webglcontextrestored", options.onContextRestored);
 
   if (options.animated) {
     for (let i = 0; i < 4; i++) {
@@ -563,7 +587,7 @@ function buildPond(
     ok: true,
     pond: {
       setFishing,
-      destroy() {
+      destroy(loseContext = false) {
         stop();
         onPointerEnd();
         visibilityObserver.disconnect();
@@ -575,6 +599,8 @@ function buildPond(
         canvas.removeEventListener("pointercancel", onPointerEnd);
         canvas.removeEventListener("pointerleave", onPointerEnd);
         canvas.removeEventListener("keydown", onKeyDown);
+        canvas.removeEventListener("webglcontextlost", onContextLost);
+        canvas.removeEventListener("webglcontextrestored", options.onContextRestored);
         overlayCtx.clearRect(0, 0, overlayWidth, overlayHeight);
         progSim.dispose();
         progUnder.dispose();
@@ -588,6 +614,9 @@ function buildPond(
         }
         gl.deleteVertexArray(quadVao);
         gl.deleteBuffer(quadBuf);
+        if (loseContext) {
+          gl.getExtension("WEBGL_lose_context")?.loseContext();
+        }
       },
     },
   };
