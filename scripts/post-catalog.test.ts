@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { siteConfig } from "../src/lib/site";
-import { buildRedirects, buildSitemap } from "./generate-sitemap";
+import { buildSitemap } from "../src/lib/sitemap";
+import { buildRedirects } from "./generate-redirects";
 import { parsePublishedPost } from "./lib/post-catalog";
 
 const publishedSource = `---
