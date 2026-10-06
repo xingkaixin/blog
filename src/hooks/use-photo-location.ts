@@ -21,7 +21,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
     if (nextLocation.href !== window.location.href) {
       history.replaceState(history.state, "", nextLocation.href);
     }
-    setLocation(nextLocation);
+    setLocation(keepUnchanged(nextLocation));
   });
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
         },
         history,
       );
-      setLocation(readPhotoLocation(plan.href, index));
+      setLocation(keepUnchanged(readPhotoLocation(plan.href, index)));
       if (scroll === "top") {
         window.scrollTo({ left: 0, top: 0, behavior: "instant" });
       }
@@ -109,4 +109,8 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   );
 
   return { location, navigate };
+}
+
+function keepUnchanged(next: PhotoLocation) {
+  return (current: PhotoLocation | null) => (current?.href === next.href ? current : next);
 }
