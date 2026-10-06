@@ -239,7 +239,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                   className="mx-4 my-2 flex items-center justify-between gap-3 rounded-[6px] border border-line bg-ink-50 px-3 py-2"
                 >
                   <span className="text-xs text-ink-500">文章索引加载失败</span>
-                  <Button variant="ghost" size="sm" onClick={() => setStatus("idle")}>
+                  <Button variant="ghost" onClick={() => setStatus("idle")}>
                     重试
                   </Button>
                 </div>
@@ -254,12 +254,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
             >
               <p className="text-base text-ink-800">搜索索引加载失败</p>
               <p className="mt-2 text-sm text-ink-500">检查网络连接后可以重新加载。</p>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="mt-4"
-                onClick={() => setStatus("idle")}
-              >
+              <Button variant="secondary" className="mt-4" onClick={() => setStatus("idle")}>
                 重新加载
               </Button>
             </div>
