@@ -4,7 +4,6 @@ import react from "@astrojs/react";
 import { agentMarkdown } from "@iannuttall/seo-graph-astro";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
-import remarkGfm from "remark-gfm";
 import { photoPreviewPlugin } from "./scripts/lib/photo-preview";
 import { rehypeBlogContent } from "./src/lib/rehype-blog-content";
 import { siteConfig } from "./src/lib/site";
@@ -29,7 +28,7 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: { theme: "css-variables" },
-    processor: unified({ remarkPlugins: [remarkGfm], rehypePlugins: [rehypeBlogContent] }),
+    processor: unified({ rehypePlugins: [rehypeBlogContent] }),
   },
   vite: {
     plugins: [tailwindcss(), photoPreviewPlugin(previewDirectory)],

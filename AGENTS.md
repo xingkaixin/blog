@@ -10,7 +10,7 @@
 - **React 19** - 交互组件 islands
 - **Tailwind CSS 4** - 样式方案
 - **Astro Content Collections** - Markdown 内容管理
-- **remark-gfm** + 自定义 rehype 插件 - Markdown 渲染增强
+- **Astro 内置 GFM** + 自定义 rehype 插件 - Markdown 渲染增强
 - **Base UI** - UI 组件库
 - **Vitest** - 测试框架
 

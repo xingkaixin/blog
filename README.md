@@ -8,7 +8,7 @@
 - **交互组件**: React 19 islands
 - **样式方案**: Tailwind CSS 4
 - **内容管理**: Astro Content Collections + Markdown
-- **Markdown**: remark-gfm + 自定义 rehype 插件
+- **Markdown**: Astro 内置 GFM + 自定义 rehype 插件
 - **UI 组件**: Base UI
 - **测试**: Vitest
 - **包管理**: Bun

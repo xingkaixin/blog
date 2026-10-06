@@ -14,7 +14,6 @@
         "cn-fontsource-smiley-sans-oblique-regular": "^1.0.1",
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
-        "remark-gfm": "^4.0.1",
         "tailwind-merge": "^3.7.0",
         "tegaki": "^0.22.2",
       },
