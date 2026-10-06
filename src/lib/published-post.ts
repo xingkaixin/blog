@@ -16,6 +16,10 @@ export function parsePostSlug(value: string, field = "slug"): string {
   if (!POST_SLUG_PATTERN.test(value)) {
     throw new Error(`${field} must contain only ASCII letters, numbers, hyphens, and underscores`);
   }
+  // og/site.png 是站点级 OG 图，文章 OG 图以 slug 命名。
+  if (value.toLowerCase() === "site") {
+    throw new Error(`${field} "${value}" is reserved`);
+  }
   return value;
 }
 

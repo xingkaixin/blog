@@ -29,4 +29,8 @@ describe("post slug", () => {
       expect(() => parsePostSlug(slug)).toThrow("ASCII letters");
     },
   );
+
+  it.each(["site", "Site"])("rejects reserved slug %j", (slug) => {
+    expect(() => parsePostSlug(slug)).toThrow("reserved");
+  });
 });
