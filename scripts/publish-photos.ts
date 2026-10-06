@@ -10,8 +10,5 @@ const processor: PhotoCliProcessor = {
 };
 
 if (import.meta.main) {
-  runPhotoCli("publish", process.argv.slice(2), processor).catch((error: unknown) => {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  });
+  void runPhotoCli("publish", process.argv.slice(2), processor);
 }

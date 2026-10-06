@@ -128,6 +128,36 @@ export async function runPhotoCli(
   processor?: PhotoCliProcessor,
   io: PhotoCliIo = defaultIo,
 ): Promise<void> {
+  try {
+    await runCommand(command, args, processor, io);
+  } catch (error) {
+    io.error(formatCliError(error));
+    process.exitCode = 1;
+  }
+}
+
+export function formatCliError(error: unknown, prefix = ""): string {
+  if (!(error instanceof Error)) {
+    return `${prefix}${String(error)}`;
+  }
+  const indent = " ".repeat(prefix.length + 2);
+  const lines = [`${prefix}${error.message}`];
+  if (error instanceof AggregateError) {
+    for (const nested of error.errors) {
+      lines.push(formatCliError(nested, `${indent}- `));
+    }
+  } else if (error.cause !== undefined) {
+    lines.push(formatCliError(error.cause, `${indent}原因: `));
+  }
+  return lines.join("\n");
+}
+
+async function runCommand(
+  command: PhotoCommandName,
+  args: string[],
+  processor: PhotoCliProcessor | undefined,
+  io: PhotoCliIo,
+): Promise<void> {
   if (command === "publish") {
     if (!processor) {
       throw new Error("发布命令缺少照片处理器");

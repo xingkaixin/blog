@@ -208,12 +208,11 @@ export async function editPhotoCatalog<T>(
       try {
         await retryPhotoCatalogMutation(async () => (await load()).commit(new Date()));
       } catch (retirementError) {
-        const failure = new AggregateError(
+        throw new AggregateError(
           [error, retirementError],
           "照片编辑失败，且无法记录已写入的待回收产物",
           { cause: retirementError },
         );
-        throw failure;
       }
     }
     throw error;

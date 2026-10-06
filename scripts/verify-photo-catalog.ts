@@ -12,6 +12,7 @@ import {
 import { siteConfig } from "../src/lib/site";
 import { mapWithConcurrency } from "./lib/concurrency";
 import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
+import { formatCliError } from "./lib/photo-cli";
 
 export type PhotoCatalogLoader = (url: string) => Promise<unknown>;
 
@@ -87,7 +88,7 @@ if (import.meta.main) {
       );
     })
     .catch((error: unknown) => {
-      console.error(error instanceof Error ? error.message : String(error));
+      console.error(formatCliError(error));
       process.exitCode = 1;
     });
 }
