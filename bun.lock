@@ -32,7 +32,7 @@
         "@types/react": "^19.3.0",
         "@types/react-dom": "^19.3.0",
         "astro": "^7.3.6",
-        "exiftool-vendored": "^38.3.0",
+        "exiftool-vendored": "^39.0.1",
         "happy-dom": "^20.14.5",
         "oxfmt": "^0.72.0",
         "oxlint": "^1.87.0",
@@ -657,7 +657,7 @@
 
     "base64-js": ["base64-js@0.0.8", "", {}, "sha512-3XSA2cR/h/73EzlXXdU6YNycmYI7+kicTxks4eJg2g39biHR84slg2+des+p7iHYhbRg/udIS4TD53WabcOUkw=="],
 
-    "batch-cluster": ["batch-cluster@19.4.1", "", {}, "sha512-puGLgdz6t7ywou6soScWOJMY2nwOfZYNoUYWou77x9yx+d36o3I2gEHjhGfk4CQmSl/jHD3REMz1hjK2IFI9TQ=="],
+    "batch-cluster": ["batch-cluster@19.5.0", "", {}, "sha512-iI7wS1ljoQGV2+y9LUx8VBFsfMX9VLT/aeN4P07NZYWcD3dC6SZMMJLJlmoibJ4zsnpLODXVCfndTJJNTes5PA=="],
 
     "boolbase": ["boolbase@1.0.0", "", {}, "sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww=="],
 
@@ -803,7 +803,7 @@
 
     "eventemitter3": ["eventemitter3@5.0.4", "", {}, "sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw=="],
 
-    "exiftool-vendored": ["exiftool-vendored@38.3.0", "", { "dependencies": { "@photostructure/tz-lookup": "^11.7.0", "@types/luxon": "^3.7.5", "batch-cluster": "^19.4.1", "he": "^1.2.0", "luxon": "^3.7.2" }, "optionalDependencies": { "exiftool-vendored.exe": "13.59.3", "exiftool-vendored.pl": "13.59.3" } }, "sha512-GrOWwNeyf9c8o91FdBXgNfGLFvhUXYK5w9Vg7jaxVL1yHHxP7aKUsP5mlBERd8ICFuiLVkEXs9df3loauDVpEw=="],
+    "exiftool-vendored": ["exiftool-vendored@39.0.1", "", { "dependencies": { "@photostructure/tz-lookup": "^11.7.0", "@types/luxon": "^3.7.5", "batch-cluster": "^19.5.0", "he": "^1.2.0", "luxon": "^3.7.2" }, "optionalDependencies": { "exiftool-vendored.exe": "13.59.3", "exiftool-vendored.pl": "13.59.3" } }, "sha512-4eliBi259idYXoVZcIsN8qZVXA3qljlAeLzVS85nvp1uQhe1lpNcXyUUT0jGvAOWwXDZm3UUrvvw21VQ0L2OeQ=="],
 
     "exiftool-vendored.exe": ["exiftool-vendored.exe@13.59.3", "", { "os": "win32" }, "sha512-F5hpk1yVGZSDHjSKsyumyniY56IM3zawKOejOqtyT2r476fvWrUxpBmWT7Ena104TGPt/2+448Q/vrVt+yOzwQ=="],
 
