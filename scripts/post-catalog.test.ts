@@ -71,7 +71,7 @@ Body`;
         "duplicate-title",
         publishedSource.replace("title: New post", "title: New post\ntitle: Duplicate"),
       ),
-    ).toThrow("duplicated mapping key");
+    ).toThrow("Map keys must be unique");
     expect(() => parsePublishedPost("missing-frontmatter", "Body only")).toThrow(
       "Invalid frontmatter",
     );
