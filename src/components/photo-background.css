@@ -1,46 +1,15 @@
-.photo-wall {
-  position: relative;
-  isolation: isolate;
-  min-height: calc(100svh - 160px);
-}
-
-.photo-wall-backdrop {
+.photo-sketch {
   position: absolute;
-  z-index: -1;
   inset: 0;
   pointer-events: none;
-  background-position: center top;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  opacity: 0.35;
-  mix-blend-mode: multiply;
-}
-
-.photo-album-backdrop {
-  position: absolute;
-  inset: 0;
   background-position: center;
   background-size: cover;
-  opacity: 0.85;
-  mix-blend-mode: multiply;
+  background-repeat: no-repeat;
 }
 
-[data-theme="dark"] .photo-wall-backdrop,
-[data-theme="dark"] .photo-album-backdrop {
-  filter: invert(1) grayscale(0.4);
+/* 反相让纸白变黑，色相转回 180° 保住朱红；screen 让黑色透出卡片底色。 */
+[data-theme="dark"] .photo-sketch {
+  filter: invert(1) hue-rotate(180deg) contrast(0.9);
   mix-blend-mode: screen;
-  opacity: 0.22;
-}
-
-[data-theme="dark"] .photo-album-backdrop {
-  opacity: 0.4;
-}
-
-@media (max-width: 639px) {
-  .photo-wall-backdrop {
-    background-attachment: scroll;
-    background-size: auto 720px;
-    background-repeat: repeat-y;
-  }
+  opacity: 0.8;
 }

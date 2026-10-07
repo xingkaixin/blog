@@ -53,36 +53,45 @@ const months: Record<string, PhotoMonthCatalog> = {
 describe("photo wall model", () => {
   it("keeps previews empty until their required latest months arrive", () => {
     const catalog = buildPhotoWallCatalogModel(index, null);
-    const items = buildOverviewItems(catalog.overviewSummaries, { "2026-07": months["2026-07"] });
-    expect(items[0].photos).toEqual([]);
+    const partial = { "2026-07": months["2026-07"] };
+    const items = buildOverviewItems(catalog.overviewSummaries, partial, {});
+    expect(items.find((item) => item.id === "travel")).toMatchObject({
+      status: "loading",
+      photos: [],
+    });
     expect(items.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
+    const failed = buildOverviewItems(catalog.overviewSummaries, partial, { "2026-08": "x" });
+    expect(failed.find((item) => item.id === "travel")?.status).toBe("error");
   });
   it("derives timeline periods and totals from the selected album", () => {
     const model = buildPhotoWallCatalogModel(index, "travel");
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");
-    expect(model.albumSummaries.map((album) => [album.title, album.count])).toEqual([
-      ["日常", 1],
-      ["旅行", 1],
-    ]);
+    expect(model.companionAlbums.map((album) => album.id)).toEqual(["travel"]);
     expect(model.allPhotoCount).toBe(2);
     expect(model.totalPhotoCount).toBe(1);
     expect(model.timelineRange).toBe("2026年8月");
   });
 
-  it("derives overview previews in catalog order", () => {
-    const catalog = buildPhotoWallCatalogModel(index, "daily");
-    const items = buildOverviewItems(catalog.overviewSummaries, months);
+  it("orders albums by latest visit and groups them by year", () => {
+    const catalog = buildPhotoWallCatalogModel(index, null);
+    const items = buildOverviewItems(catalog.overviewSummaries, months, {});
 
-    expect(items[0].photos).toEqual([firstPhoto, secondPhoto]);
-    expect(items.map((item) => [item.title, item.count])).toEqual([
-      ["全部", 2],
-      ["日常", 1],
-      ["旅行", 1],
+    expect(items.map((item) => [item.title, item.count, item.latestMonth])).toEqual([
+      ["旅行", 1, "2026.08"],
+      ["日常", 1, "2026.07"],
     ]);
-    expect(items.find((item) => item.id === "daily")?.photos).toEqual([secondPhoto]);
-    expect(items.find((item) => item.id === "travel")?.photos).toEqual([firstPhoto]);
+    expect(items[0].photos).toEqual([firstPhoto]);
+    expect(catalog.journeyYears).toEqual([
+      {
+        year: "2026",
+        albums: [
+          { id: "travel", title: "旅行", count: 1 },
+          { id: "daily", title: "日常", count: 1 },
+        ],
+      },
+    ]);
     expect(catalog.overviewPeriods).toEqual(index.periods);
   });
 

@@ -33,12 +33,9 @@
   },
   "overrides": [
     {
-      "files": ["src/components/photo-wall.tsx", "src/components/photo-overview.tsx"],
+      "files": ["src/components/photo-overview.tsx", "src/components/photo-timeline.tsx"],
       "rules": {
-        "shadcn/no-unknown-classes": [
-          "error",
-          { "allow": ["photo-wall", "photo-wall-backdrop", "photo-album-backdrop"] }
-        ]
+        "shadcn/no-unknown-classes": ["error", { "allow": ["photo-sketch"] }]
       }
     },
     {

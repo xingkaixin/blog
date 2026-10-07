@@ -169,7 +169,7 @@ describe("photo overview recovery", () => {
       await act(async () => retry.click());
       expect(container.querySelector('[role="alert"]')).toBeNull();
       const sources = [...container.querySelectorAll("img")].map((image) => image.src);
-      expect(sources).toHaveLength(4);
+      expect(sources).toHaveLength(2);
       expect(sources).toEqual(expect.arrayContaining(loadedSources));
       expect(window.location.search).toBe("");
       expect(requests.filter((url) => url.endsWith("index.json"))).toHaveLength(1);
@@ -187,7 +187,7 @@ describe("photo overview recovery", () => {
     await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" />));
     expect(console.error).toHaveBeenCalled();
     expect(container.querySelector('[role="alert"]')).toBeNull();
-    expect(container.querySelectorAll("img")).toHaveLength(8);
+    expect(container.querySelectorAll("img")).toHaveLength(3);
   });
 });
 

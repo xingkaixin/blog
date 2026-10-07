@@ -96,7 +96,7 @@ export const PhotoPeriodSection = memo(function PhotoPeriodSection({
       data-photo-month={period.month}
       className="scroll-mt-28"
     >
-      <div className="mb-2 flex items-baseline justify-between gap-4 border-b border-line px-3 pb-2 sm:px-0">
+      <div className="mb-2 flex items-baseline justify-between gap-4 border-b border-line pb-2">
         <h2 className="font-mono text-xs font-medium text-ink-700">{formatMonth(period.month)}</h2>
         <span className="font-mono text-[0.65rem] text-ink-400">{expectedCount} 张</span>
       </div>

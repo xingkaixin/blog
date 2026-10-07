@@ -6,7 +6,6 @@ import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
-import { photoBackgroundStyle } from "@/lib/photo-background";
 import { buildOverviewItems, buildPhotoWallCatalogModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
@@ -44,9 +43,9 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const overviewItems = useMemo(
     () =>
       photoView.mode === "overview"
-        ? buildOverviewItems(catalogModel.overviewSummaries, monthCatalogs)
+        ? buildOverviewItems(catalogModel.overviewSummaries, monthCatalogs, monthErrors)
         : [],
-    [catalogModel, monthCatalogs, photoView.mode],
+    [catalogModel, monthCatalogs, monthErrors, photoView.mode],
   );
 
   useEffect(() => {
@@ -72,12 +71,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
 
   return (
-    <section className="photo-wall pb-20">
-      <div
-        aria-hidden="true"
-        className="photo-wall-backdrop"
-        style={photoBackgroundStyle(catalogModel.selectedAlbumId)}
-      />
+    <section className="min-h-[calc(100svh-160px)] pb-20">
       {catalogState.status === "loading" && <PhotoWallLoading />}
       {catalogState.status === "error" && (
         <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />
@@ -85,8 +79,11 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
       {catalogState.status === "ready" && photoView.mode === "overview" && (
         <PhotoOverview
           baseUrl={normalizedBaseUrl}
-          albumCount={catalogState.index.albums.length}
+          albumCount={catalogModel.albumCount}
+          photoCount={catalogModel.allPhotoCount}
+          photoRange={catalogModel.allPhotoRange}
           items={overviewItems}
+          journeyYears={catalogModel.journeyYears}
           failedPeriods={catalogModel.overviewPeriods.filter(
             (period) => period.month in monthErrors,
           )}

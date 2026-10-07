@@ -1,15 +1,14 @@
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/csr/ArrowLeft";
 import { useLayoutEffect, useState, type RefObject } from "react";
+import { PhotoArchiveHeader } from "@/components/photo-overview";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
+import { photoBackgroundStyle } from "@/lib/photo-background";
 import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
 import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
-const ALBUM_CHIP_CLASS_NAME =
-  "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper";
-const ALBUM_SIDEBAR_CLASS_NAME =
-  "flex w-full items-center justify-between gap-3 rounded-[6px] px-2 py-1.5 text-left text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800 [&>span:last-child]:font-mono [&>span:last-child]:text-[9px] [&>span:last-child]:text-ink-400";
+const COMPANION_CHIP_CLASS_NAME =
+  "flex min-h-10 shrink-0 items-center gap-1.5 rounded-[6px] border border-line bg-surface px-3.5 text-sm text-ink-800 transition-colors hover:border-ink-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper [&>span]:font-mono [&>span]:text-[11px] [&>span]:text-ink-500 aria-pressed:[&>span]:text-ink-200";
 
 type PhotoTimelineProps = {
   baseUrl: string;
@@ -44,9 +43,8 @@ export function PhotoTimeline({
   const {
     selectedAlbumId,
     selectedAlbum,
-    albumSummaries,
+    companionAlbums,
     visiblePeriods,
-    allPhotoCount,
     totalPhotoCount,
     timelineRange,
   } = model;
@@ -82,127 +80,119 @@ export function PhotoTimeline({
 
   return (
     <>
-      <div className="mx-auto max-w-320">
-        <header className="flex flex-wrap items-center gap-2.5 border-b border-line px-3 py-3 sm:px-6">
-          <button
-            type="button"
-            onClick={onReturn}
-            className="inline-flex items-center gap-1.5 rounded-[5px] text-[13px] text-ink-500 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-          >
-            <ArrowLeftIcon aria-hidden="true" className="h-3.5 w-3.5" />
-            相册
-          </button>
-          <span aria-hidden="true" className="text-line">
-            /
-          </span>
-          <h1 className="text-[15px] font-medium text-ink-800">{selectedAlbum?.title ?? "全部"}</h1>
-          <span className="font-mono text-[10px] text-ink-400">
-            {totalPhotoCount} 张{timelineRange && ` · ${timelineRange}`}
-          </span>
-        </header>
-
-        <div
-          role="group"
-          aria-label="切换相册"
-          className="flex gap-1.5 overflow-x-auto border-b border-line px-3 py-2.5 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            type="button"
-            aria-pressed={selectedAlbumId === null}
-            onClick={() => onSelectAlbum(null)}
-            className={ALBUM_CHIP_CLASS_NAME}
-          >
-            全部
-          </button>
-          {albumSummaries.map((album) => (
-            <button
-              key={album.id}
-              type="button"
-              aria-pressed={selectedAlbumId === album.id}
-              onClick={() => onSelectAlbum(album.id)}
-              className={ALBUM_CHIP_CLASS_NAME}
-            >
-              {album.title}
-            </button>
-          ))}
-        </div>
-
-        <div className="lg:grid lg:min-h-[680px] lg:grid-cols-[220px_minmax(0,1fr)_56px]">
-          <aside className="hidden border-r border-line px-[18px] py-5 lg:flex lg:flex-col">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">相册</p>
-            <div role="group" aria-label="切换相册" className="mt-2 space-y-0.5">
+      <div className="mx-auto max-w-320 px-4 pt-2 sm:px-5 sm:pt-8 lg:px-8">
+        {selectedAlbum ? (
+          <>
+            <nav aria-label="位置" className="flex items-center gap-2.5 text-sm text-ink-500">
               <button
                 type="button"
-                aria-pressed={selectedAlbumId === null}
-                onClick={() => onSelectAlbum(null)}
-                className={ALBUM_SIDEBAR_CLASS_NAME}
+                onClick={onReturn}
+                className="inline-flex min-h-11 items-center rounded-[5px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
               >
-                <span>全部照片</span>
-                <span>{allPhotoCount}</span>
+                ← 照片墙
               </button>
-              {albumSummaries.map((album) => (
-                <button
-                  key={album.id}
-                  type="button"
-                  aria-pressed={selectedAlbumId === album.id}
-                  onClick={() => onSelectAlbum(album.id)}
-                  className={ALBUM_SIDEBAR_CLASS_NAME}
+              <span aria-hidden="true" className="text-ink-200">
+                /
+              </span>
+              <span className="text-ink-800">{selectedAlbum.title}</span>
+            </nav>
+            <header className="relative mt-2 h-[210px] overflow-hidden rounded-[12px] border border-line bg-surface sm:mt-4 sm:h-[420px] sm:rounded-[14px]">
+              <span
+                aria-hidden="true"
+                className="photo-sketch"
+                style={{
+                  ...photoBackgroundStyle(selectedAlbum.id),
+                  backgroundPosition: "center 70%",
+                }}
+              />
+              <div className="absolute inset-x-0 top-[30px] flex flex-col items-center gap-2.5 px-4 text-center sm:top-[72px] sm:gap-3.5">
+                <h1 className="font-display text-[52px] font-normal leading-none text-ink-800 sm:text-[88px]">
+                  {selectedAlbum.title}
+                </h1>
+                <p className="font-mono text-[11px] tracking-[0.16em] text-ink-600 sm:text-xs">
+                  {timelineRange && `${timelineRange} · `}
+                  {totalPhotoCount} 张
+                </p>
+              </div>
+            </header>
+            {companionAlbums.length > 1 && (
+              <section
+                aria-label="同期城市"
+                className="mt-5 flex flex-col gap-2.5 border-y border-line py-4 sm:mt-8 sm:flex-row sm:items-center sm:gap-5"
+              >
+                <span className="shrink-0 font-mono text-[11px] tracking-[0.16em] text-ink-500">
+                  同期城市
+                </span>
+                <div
+                  role="group"
+                  aria-label="切换相册"
+                  className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden"
                 >
-                  <span>{album.title}</span>
-                  <span>{album.count}</span>
+                  {companionAlbums.map((album) => (
+                    <button
+                      key={album.id}
+                      type="button"
+                      aria-pressed={selectedAlbumId === album.id}
+                      onClick={() => onSelectAlbum(album.id)}
+                      className={COMPANION_CHIP_CLASS_NAME}
+                    >
+                      {album.title}
+                      <span>{album.count}</span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
+        ) : (
+          <div className="pt-6 sm:pt-0 lg:pt-4">
+            <PhotoArchiveHeader
+              detail={`${totalPhotoCount} 张${timelineRange ? ` · ${timelineRange}` : ""} · 按拍摄时间倒序`}
+              view="timeline"
+              onSwitchView={onReturn}
+            />
+          </div>
+        )}
+
+        <div
+          ref={wallRef}
+          className={cn("min-w-0 py-6 sm:py-8", visiblePeriods.length > 1 && "pr-6 md:pr-10")}
+        >
+          {visiblePeriods.length === 0 ? (
+            <div className="flex min-h-56 flex-col items-center justify-center gap-2.5 rounded-[10px] border border-dashed border-ink-200 px-6 text-center">
+              <h2 className="text-[17px] font-medium text-ink-800">
+                {selectedAlbumId ? "这个相册还没有照片" : "还没有照片"}
+              </h2>
+              <p className="text-[13px] text-ink-500">新照片发布后会按拍摄时间出现在这里。</p>
+              {selectedAlbumId && (
+                <button
+                  type="button"
+                  onClick={onReturn}
+                  className="mt-1 min-h-10 rounded-[5px] text-[13px] font-medium text-ink-800 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                >
+                  ← 回到照片墙
                 </button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-9 md:space-y-12">
+              {visiblePeriods.map((period, indexInList) => (
+                <PhotoPeriodSection
+                  key={`${selectedAlbumId ?? "all"}-${period.month}`}
+                  baseUrl={baseUrl}
+                  period={period}
+                  monthCatalog={monthCatalogs[period.month]}
+                  albumId={selectedAlbumId}
+                  error={monthErrors[period.month]}
+                  eager={indexInList === 0}
+                  containerWidth={containerWidth}
+                  onVisible={onLoadMonth}
+                  onRetry={onRetryMonth}
+                  onOpenPhoto={onOpenPhoto}
+                />
               ))}
             </div>
-            <p className="mt-auto border-t border-line pt-4 font-mono text-[10px] leading-5 text-ink-400">
-              {totalPhotoCount} 张 · {timelineRange}
-              <br />
-              按拍摄时间倒序
-            </p>
-          </aside>
-
-          <div
-            ref={wallRef}
-            className={cn(
-              "min-w-0 py-[18px]",
-              visiblePeriods.length > 1
-                ? "pr-8 sm:px-5 sm:pr-12 lg:px-5 lg:pr-5"
-                : "sm:px-5 lg:px-5",
-            )}
-          >
-            {visiblePeriods.length === 0 ? (
-              <div className="flex min-h-72 items-center justify-center border-y border-line bg-surface px-6 text-center sm:rounded-[10px] sm:border">
-                <div>
-                  <h2 className="text-lg font-medium text-ink-800">
-                    {selectedAlbumId ? "这个相册还没有照片" : "还没有照片"}
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-ink-500">
-                    新照片发布后会按拍摄时间显示在这里。
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-9 md:space-y-12">
-                {visiblePeriods.map((period, indexInList) => (
-                  <PhotoPeriodSection
-                    key={`${selectedAlbumId ?? "all"}-${period.month}`}
-                    baseUrl={baseUrl}
-                    period={period}
-                    monthCatalog={monthCatalogs[period.month]}
-                    albumId={selectedAlbumId}
-                    error={monthErrors[period.month]}
-                    eager={indexInList === 0}
-                    containerWidth={containerWidth}
-                    onVisible={onLoadMonth}
-                    onRetry={onRetryMonth}
-                    onOpenPhoto={onOpenPhoto}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <div aria-hidden="true" className="hidden justify-center py-6 lg:flex">
-            <span className="w-px bg-line opacity-50" />
-          </div>
+          )}
         </div>
       </div>
 
