@@ -144,12 +144,14 @@ export function PhotoLightbox({
       >
         <div className="flex h-16 shrink-0 items-center justify-between gap-4 px-3 sm:px-5">
           <div className="min-w-0">
-            <p className="truncate font-mono text-xs text-[#deddd8]">
+            {albumTitles.length > 0 && (
+              <p className="mb-1.5 truncate font-display text-xl leading-none text-[#f0efea]">
+                {albumTitles.join("、")}
+              </p>
+            )}
+            <p className="truncate font-mono text-xs text-[#9fa0a3]">
               {formatPhotoCapturedAt(photo.capturedAt)}
             </p>
-            {albumTitles.length > 0 && (
-              <p className="mt-1 truncate text-xs text-[#8b8c92]">{albumTitles.join("、")}</p>
-            )}
           </div>
           <button
             type="button"
