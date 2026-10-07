@@ -15,7 +15,7 @@
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
         "tailwind-merge": "^3.7.0",
-        "tegaki": "^0.22.2",
+        "tegaki": "^1.0.3",
       },
       "devDependencies": {
         "@astrojs/check": "^0.9.10",
@@ -1249,7 +1249,7 @@
 
     "tapable": ["tapable@2.3.3", "", {}, "sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A=="],
 
-    "tegaki": ["tegaki@0.22.2", "", { "peerDependencies": { "@nuxt/kit": "^3.0.0 || ^4.0.0", "harfbuzzjs": "^1.1.0", "react": ">=18", "solid-js": ">=1", "svelte": ">=5", "vue": ">=3" }, "optionalPeers": ["@nuxt/kit", "harfbuzzjs", "react", "solid-js", "svelte", "vue"], "bin": { "tegaki": "dist/cli.mjs" } }, "sha512-UeQtYgaUSwtccDUc0LJ7YWPywQ/YUFlsdvC2ub0IObviESTMVH0Z+i269xGt9MY39MlUAYneMcALRAjjirbp1w=="],
+    "tegaki": ["tegaki@1.0.3", "", { "peerDependencies": { "@nuxt/kit": "^3.0.0 || ^4.0.0", "astro": ">=4.0.0", "harfbuzzjs": "^1.1.0", "react": ">=18", "solid-js": ">=1", "svelte": ">=5", "vue": ">=3" }, "optionalPeers": ["@nuxt/kit", "astro", "harfbuzzjs", "react", "solid-js", "svelte", "vue"], "bin": { "tegaki": "dist/cli.mjs" } }, "sha512-3BqsfETfF5mVOIWkcye2agwntNdYVs8txHB/4ITWjO5OHsmM00QaCiFOKgRcZqNp8vvtDVfwAg5teom13vSODg=="],
 
     "tiny-inflate": ["tiny-inflate@1.0.3", "", {}, "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw=="],
 
