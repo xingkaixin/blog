@@ -273,6 +273,14 @@
         "a6e65ebefa995ce495ea4c8864ce72f78f8bccafab05c5b0f0644d927d79d049"
       ]
     },
+    "ai-design-options-taste.png": {
+      "fingerprint": "3f1c48fc20591e69bf77f9a85375fcf08bc424d263f586643eacc69db580768e",
+      "outputFingerprints": [
+        "741c2d8690340e4feeeb493248229f7fe6584acac13154b55a1e6207a84eb2e2",
+        "a37e1e6e9a39490d532a2487b57f5bae00c8a3a24e80c8c85b4f40e39aab8b31",
+        "4223516619cdb54ff5324af7ac71d91884c6d1088a778f19268452b072f03235"
+      ]
+    },
     "ai-frontend-design-system-handoff.png": {
       "fingerprint": "8598564abde9caec970ef444856832a93e26a34e5e068d75d3e9d96d19e487e5",
       "outputFingerprints": [
@@ -447,6 +455,14 @@
         "fcde9c74d061fa5641713d48fa908a0ce744bf1f5459c67804fc69bff05a6d65",
         "56dd1bd229a677b54519fee3e9ebc11b8150f09adbe4f435a948c68548e9bec2",
         "248cc6c8ca6b9a1063e68d877376b1f3aac7a9e094046d7ccef49755ccc2e637"
+      ]
+    },
+    "free-capacity-creates-demand.png": {
+      "fingerprint": "83cfe0ee68807a4104e3480af3da8e83af5c8a0db33c3332209c0c7872828f87",
+      "outputFingerprints": [
+        "f7f4725aa1a9270505947208c4ffbcf4be6ce4f4cbcfd46858225500add6a169",
+        "de70256ba58082d3d3edf4c1d79e9b6a364970c40cd557d6bcb02a1666bfb751",
+        "b5283d2f2279b35f3b6e7c974cdffcadf8b707039c6df046be2df195e33ba742"
       ]
     },
     "friction-as-a-feature.png": {

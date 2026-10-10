@@ -524,6 +524,20 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/ai-design-options-taste/ai-design-options-taste-01.png": {
+    "webp": "/posts/images/ai-design-options-taste/ai-design-options-taste-01.webp",
+    "mobile": "/posts/images/ai-design-options-taste/ai-design-options-taste-01-800w.webp",
+    "desktop": "/posts/images/ai-design-options-taste/ai-design-options-taste-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/ai-design-options-taste/ai-design-options-taste-02.png": {
+    "webp": "/posts/images/ai-design-options-taste/ai-design-options-taste-02.webp",
+    "mobile": "/posts/images/ai-design-options-taste/ai-design-options-taste-02-800w.webp",
+    "desktop": "/posts/images/ai-design-options-taste/ai-design-options-taste-02-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
   "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": {
     "webp": "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.webp",
     "mobile": "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01-800w.webp",
@@ -950,6 +964,20 @@
     "desktop": "/posts/images/evaluating-agent-skills/evaluating-agent-skills-01-1200w.webp",
     "width": 1600,
     "height": 900
+  },
+  "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-01.png": {
+    "webp": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-01.webp",
+    "mobile": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-01-800w.webp",
+    "desktop": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-02.png": {
+    "webp": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-02.webp",
+    "mobile": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-02-800w.webp",
+    "desktop": "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-02-1200w.webp",
+    "width": 1680,
+    "height": 945
   },
   "/posts/images/friction-as-a-feature/friction-as-a-feature-01.png": {
     "webp": "/posts/images/friction-as-a-feature/friction-as-a-feature-01.webp",

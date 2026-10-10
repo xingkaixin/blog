@@ -237,6 +237,13 @@
     "width": 1921,
     "height": 819
   },
+  "ai-design-options-taste.png": {
+    "mobile": "/cover/ai-design-options-taste-400.webp",
+    "desktop": "/cover/ai-design-options-taste-800.webp",
+    "full": "/cover/ai-design-options-taste.webp",
+    "width": 1880,
+    "height": 800
+  },
   "ai-frontend-design-system-handoff.png": {
     "mobile": "/cover/ai-frontend-design-system-handoff-400.webp",
     "desktop": "/cover/ai-frontend-design-system-handoff-800.webp",
@@ -388,6 +395,13 @@
     "mobile": "/cover/evaluating-agent-skills-400.webp",
     "desktop": "/cover/evaluating-agent-skills-800.webp",
     "full": "/cover/evaluating-agent-skills.webp",
+    "width": 1880,
+    "height": 800
+  },
+  "free-capacity-creates-demand.png": {
+    "mobile": "/cover/free-capacity-creates-demand-400.webp",
+    "desktop": "/cover/free-capacity-creates-demand-800.webp",
+    "full": "/cover/free-capacity-creates-demand.webp",
     "width": 1880,
     "height": 800
   },

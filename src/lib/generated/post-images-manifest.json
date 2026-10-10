@@ -601,6 +601,22 @@
         "09f317a37049da0880adfb0ee198b0797599f5e1fa79c73a4d02ee88bf4397eb"
       ]
     },
+    "/posts/images/ai-design-options-taste/ai-design-options-taste-01.png": {
+      "fingerprint": "c8e8a41271c9b0018bbb6d9a086b4493ce90579572f7d866ccbeda534169b24e",
+      "outputFingerprints": [
+        "4df80f3ae73939cbe8cee9e6d6c65963fdbc608c0e5dda96125e0c2c769780a2",
+        "76ada4be3449aebc471879dc47990743f0012184c109517afd70acc97c05e9ce",
+        "29d88bd6276d5c952a421fc31f8782ede38fe210f9056aaf3522f670474ac0b9"
+      ]
+    },
+    "/posts/images/ai-design-options-taste/ai-design-options-taste-02.png": {
+      "fingerprint": "e1983cdb5a5f38e54022decda319ef62dc03753198435c7f3b09046f71e7a46b",
+      "outputFingerprints": [
+        "1c045143b3e93da8a9815a2fe9de9e6726e0f37a3d673d73f437cb0f6c08f5ff",
+        "699f1e4374fb829d3c351427fa5a25bfa83e811ad3d2d75822c1ae0c29e2123e",
+        "924c7f6f11c25aff24136aa9f964046171b638cc0c9c1f7a25d3804308023092"
+      ]
+    },
     "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": {
       "fingerprint": "06ed6b9c527384aff583d2749177f19ceced2da4d94ce59916ca2817fa0c8dd6",
       "outputFingerprints": [
@@ -1087,6 +1103,22 @@
         "0e7044f9c03aa5d51579fc8e212debc77c02a0baf0c10d06bdcc1d83be49ab7b",
         "cd9a0829cd18d32043ef8d2abaed1a480aa1ce9d187dfb4c58f90313dda0ef1e",
         "a4ac77a4a194c14c5a53d61ac7a3f641109de1fd40bc4c403d857a8f6f62df2c"
+      ]
+    },
+    "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-01.png": {
+      "fingerprint": "a9e0723fc3945fdf4e235f426df55852bbf6f01ec13874bf227a48649d5de0ba",
+      "outputFingerprints": [
+        "adea3d7ff6841c3981b075b0e396428376ff5a25bae3e9819805d1bc2e573aa2",
+        "f1d08100fc82630a62651eabb49147f8ab1c06aa499f368c7af01e7df2ef458e",
+        "911df9e8764a33d0373149f18baa36575a8cea8cdcdb25533b2105aefae3807f"
+      ]
+    },
+    "/posts/images/free-capacity-creates-demand/free-capacity-creates-demand-02.png": {
+      "fingerprint": "ade216912ca898398184522b46719d633e306110c14011f008550a1ed1333dd6",
+      "outputFingerprints": [
+        "12da0d82a78780d9da03f60c961aa233ddb2d3fb648063069f45935eff65c59b",
+        "8db783eb6d625834f3324c5e52d956d40d9b4528131faa0a4cca8a659f5527c8",
+        "ca59b05033100734c50b38ba14cbd58f27ecafddc1c6084e5257caa7fe058f9e"
       ]
     },
     "/posts/images/friction-as-a-feature/friction-as-a-feature-01.png": {
