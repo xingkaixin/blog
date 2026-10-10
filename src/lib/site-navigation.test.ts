@@ -13,6 +13,7 @@ describe("site navigation", () => {
   it("projects the same route facts for each consumer", () => {
     expect(mobileNavigation().map((route) => route.id)).toEqual([
       "home",
+      "posts",
       "projects",
       "photos",
       "about",
@@ -36,6 +37,7 @@ describe("site navigation", () => {
     expect(siteStatus("/tags/AI/")).toBe("TAG ARCHIVE");
     expect(siteStatus("/tags/")).toBe("TAGS");
     expect(siteStatus("/projects/")).toBe("PROJECTS");
+    expect(siteStatus("/posts/")).toBe("POSTS");
   });
 
   it.each(["100%25", "%2525", "C%2FC%2B%2B", "%E4%B8%AD%E6%96%87", "raw%"])(

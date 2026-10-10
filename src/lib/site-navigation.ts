@@ -1,4 +1,4 @@
-export type SiteRouteId = "home" | "projects" | "photos" | "tags" | "about" | "feed";
+export type SiteRouteId = "home" | "posts" | "projects" | "photos" | "tags" | "about" | "feed";
 
 type SiteRoute = {
   id: SiteRouteId;
@@ -25,6 +25,18 @@ const routes: SiteRoute[] = [
     desktop: false,
     mobile: true,
     sitemap: { changefreq: "weekly", priority: "1.0" },
+  },
+  {
+    id: "posts",
+    href: "/posts/",
+    label: "文章",
+    searchTitle: "文章日志",
+    keywords: "文章 日志 归档 posts archive",
+    status: "POSTS",
+    reload: false,
+    desktop: true,
+    mobile: true,
+    sitemap: { changefreq: "weekly", priority: "0.9" },
   },
   {
     id: "projects",

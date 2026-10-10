@@ -20,6 +20,7 @@ const menuItem =
   "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
 const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
   home: FileTextIcon,
+  posts: FileTextIcon,
   projects: RocketLaunchIcon,
   photos: ImagesIcon,
   tags: TagIcon,

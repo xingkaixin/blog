@@ -1,0 +1,46 @@
+---
+import PostConsole from "@/components/astro/PostConsole.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import type { PostConsoleItem } from "@/lib/post-console";
+import { postHref } from "@/lib/published-post";
+import { estimateReadingMetrics } from "@/lib/reading-metrics";
+import { siteConfig } from "@/lib/site";
+
+const entries = await getPublishedPosts();
+const posts: PostConsoleItem[] = entries.map((entry) => ({
+  ...toPostListItem(entry),
+  ...estimateReadingMetrics(entry.body),
+}));
+const meta = {
+  title: "文章",
+  description: "XingKaiXin 的全部文章：AI 编程、Agent 工程、开发者工具，也有产品观察与生活体验。",
+  url: `${siteConfig.url}/posts/`,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: "首页", url: `${siteConfig.url}/` },
+    { name: "文章", url: `${siteConfig.url}/posts/` },
+  ],
+};
+---
+
+<SiteLayout meta={meta} status={`POSTS · ${posts.length}`}>
+  <h1 class="sr-only">文章</h1>
+  <template data-agent-content>
+    <h1>文章</h1>
+    <p>{meta.description}</p>
+    <h2>全部文章</h2>
+    <ul>
+      {
+        posts.map((post) => (
+          <li>
+            <a href={postHref(post.slug)}>{post.title}</a>
+            {" — "}<time datetime={post.date}>{post.date}</time>
+            <p>{post.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </template>
+  <PostConsole posts={posts} />
+</SiteLayout>

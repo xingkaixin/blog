@@ -276,7 +276,9 @@ const pageTransition = {
 
       document.addEventListener("astro:before-preparation", (event) => {
         const isReturningToPostList =
-          event.from.pathname.startsWith("/posts/") && event.to.pathname === "/";
+          event.from.pathname.startsWith("/posts/") &&
+          event.from.pathname !== "/posts/" &&
+          event.to.pathname === "/posts/";
         if (isReturningToPostList) {
           event.direction = "back";
         }
