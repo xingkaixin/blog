@@ -6,7 +6,7 @@ import { ProjectStickers } from "@/components/project-stickers";
 import { resolveCover } from "@/lib/covers";
 import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
-import type { PostConsoleItem } from "@/lib/post-console";
+import { groupPostsByMonth, type PostConsoleItem } from "@/lib/post-console";
 
 type Props = {
   posts: PostConsoleItem[];
@@ -19,6 +19,8 @@ for (const post of posts) {
   yearCounts.set(year, (yearCounts.get(year) ?? 0) + 1);
 }
 const years = [...yearCounts].map(([year, count]) => ({ value: year, label: year, count }));
+const latestYear = years[0]?.value ?? "";
+const months = groupPostsByMonth(posts);
 const popularTags = buildPostTaxonomy(posts).tags
   .toSorted((left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"))
   .slice(0, 9);
@@ -35,6 +37,7 @@ const previewPost = posts[0];
       options={years}
       allLabel="全部年份"
       totalCount={posts.length}
+      selected={latestYear}
       showCounts
     />
     <PostFilter
@@ -55,6 +58,7 @@ const previewPost = posts[0];
         options={years}
         allLabel="全部"
         totalCount={posts.length}
+        selected={latestYear}
         showCounts
       />
       <PostFilter
@@ -79,10 +83,18 @@ const previewPost = posts[0];
     </aside>
 
     <div class="min-w-0 py-2.5">
-      <div class="hidden border-b border-line px-5 pb-2.5 lg:block">
+      <div class="flex items-center justify-between gap-3 border-b border-line px-3 pb-2.5 lg:px-5">
         <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
           <span data-post-console-heading>全部文章</span> · 按时间倒序
         </p>
+        <button
+          type="button"
+          data-post-months-toggle
+          aria-expanded="false"
+          class="rounded-[6px] px-2 py-1 font-mono text-[11px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          全部展开
+        </button>
       </div>
 
       <div
@@ -90,66 +102,88 @@ const previewPost = posts[0];
         aria-label="文章日志"
       >
         {
-          posts.map((post, index) => {
-            const cover = resolveCover(post.cover);
-            return (
-              <a
-                data-post-row={post.slug}
-                data-post-date={post.date}
-                data-post-summary={post.summary}
-                data-post-tags={JSON.stringify(post.tags)}
-                data-post-cover-alt={post.coverAlt}
-                data-post-cover-mobile={cover.mobile}
-                data-post-cover-desktop={cover.desktop}
-                data-post-cover-width={cover.width}
-                data-post-cover-height={cover.height}
-                data-post-word-count={post.wordCount}
-                data-post-reading-minutes={post.readingMinutes}
-                data-active={index === 0 ? "" : undefined}
-                href={postHref(post.slug)}
-                class="post-row block border-b border-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 data-active:bg-surface"
-              >
-                <span class="block px-3 py-3.5 lg:hidden">
-                  <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500">
-                    <span>{post.date}</span>
-                    {post.tags[0] && (
-                      <>
-                        <span class="text-ink-200">·</span>
-                        <span class="text-accent">{post.tags[0]}</span>
-                      </>
-                    )}
-                  </span>
-                  <span class="mt-1 block text-[15px] leading-6 text-ink-800">{post.title}</span>
-                </span>
-
-                <span class="hidden items-center gap-3 px-5 py-2.5 lg:flex">
-                  <span class="w-[80px] shrink-0 font-mono text-[11px] text-ink-500">{post.date}</span>
-                  <span data-post-title class="min-w-0 flex-1 text-[14px] leading-6 text-ink-800">
-                    {post.title}
-                  </span>
-                  <span class="hidden shrink-0 gap-1.5 2xl:flex">
-                    {post.tags.slice(0, 1).map((tag) => (
-                      <span class="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500">
-                        {tag}
+          months.map((month, monthIndex) => (
+            <details data-post-month={month.key} open={monthIndex === 0} class="group/month">
+              <summary class="flex cursor-pointer list-none items-center gap-2 border-b border-line bg-paper px-3 py-2 font-mono text-[11px] text-ink-500 transition-colors hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:px-5 [&::-webkit-details-marker]:hidden">
+                <svg
+                  aria-hidden="true"
+                  class="h-3 w-3 shrink-0 transition-transform duration-(--duration-quick) group-open/month:rotate-90"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+                <span>{month.label}</span>
+                <span data-post-month-count class="ml-auto">{month.posts.length} 篇</span>
+              </summary>
+              {
+                month.posts.map((post) => {
+                  const cover = resolveCover(post.cover);
+                  return (
+                    <a
+                      data-post-row={post.slug}
+                      data-post-date={post.date}
+                      data-post-summary={post.summary}
+                      data-post-tags={JSON.stringify(post.tags)}
+                      data-post-cover-alt={post.coverAlt}
+                      data-post-cover-mobile={cover.mobile}
+                      data-post-cover-desktop={cover.desktop}
+                      data-post-cover-width={cover.width}
+                      data-post-cover-height={cover.height}
+                      data-post-word-count={post.wordCount}
+                      data-post-reading-minutes={post.readingMinutes}
+                      data-active={post === posts[0] ? "" : undefined}
+                      href={postHref(post.slug)}
+                      class="post-row block border-b border-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 data-active:bg-surface"
+                    >
+                      <span class="block px-3 py-3.5 lg:hidden">
+                        <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500">
+                          <span>{post.date}</span>
+                          {post.tags[0] && (
+                            <>
+                              <span class="text-ink-200">·</span>
+                              <span class="text-accent">{post.tags[0]}</span>
+                            </>
+                          )}
+                        </span>
+                        <span class="mt-1 block text-[15px] leading-6 text-ink-800">{post.title}</span>
                       </span>
-                    ))}
-                  </span>
-                  <svg
-                    aria-hidden="true"
-                    class="post-open-arrow h-4 w-4 shrink-0 text-ink-500"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M5 12h14m-6-6 6 6-6 6" />
-                  </svg>
-                </span>
-              </a>
-            );
-          })
+
+                      <span class="hidden items-center gap-3 px-5 py-2.5 lg:flex">
+                        <span class="w-[80px] shrink-0 font-mono text-[11px] text-ink-500">{post.date}</span>
+                        <span data-post-title class="min-w-0 flex-1 text-[14px] leading-6 text-ink-800">
+                          {post.title}
+                        </span>
+                        <span class="hidden shrink-0 gap-1.5 2xl:flex">
+                          {post.tags.slice(0, 1).map((tag) => (
+                            <span class="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500">
+                              {tag}
+                            </span>
+                          ))}
+                        </span>
+                        <svg
+                          aria-hidden="true"
+                          class="post-open-arrow h-4 w-4 shrink-0 text-ink-500"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M5 12h14m-6-6 6 6-6 6" />
+                        </svg>
+                      </span>
+                    </a>
+                  );
+                })
+              }
+            </details>
+          ))
         }
       </div>
 

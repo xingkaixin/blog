@@ -29,3 +29,21 @@ export function matchesPostConsoleFilter(
     (!filter.tag || post.tags.includes(filter.tag))
   );
 }
+
+export function groupPostsByMonth<T extends Pick<PostConsoleItem, "date">>(posts: T[]) {
+  const months: Array<{ key: string; label: string; posts: T[] }> = [];
+  for (const post of posts) {
+    const key = post.date.slice(0, 7);
+    const current = months.at(-1);
+    if (current?.key === key) {
+      current.posts.push(post);
+    } else {
+      months.push({
+        key,
+        label: `${key.slice(0, 4)} 年 ${Number(key.slice(5))} 月`,
+        posts: [post],
+      });
+    }
+  }
+  return months;
+}

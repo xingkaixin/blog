@@ -32,8 +32,24 @@ export function initializePostConsole(root: HTMLElement): void {
   const rows = [...root.querySelectorAll<HTMLElement>("[data-post-row]")];
   const posts = rows.map(readPostConsoleRow);
   const postsBySlug = new Map(posts.map((post) => [post.slug, post]));
-  const filter: PostConsoleFilter = { year: null, tag: null };
+  const months = [...root.querySelectorAll<HTMLDetailsElement>("[data-post-month]")];
+  const monthsToggle = root.querySelector<HTMLButtonElement>("[data-post-months-toggle]");
+  const initialYear = root.querySelector<HTMLElement>(
+    '[data-filter-kind="year"][aria-pressed="true"]',
+  )?.dataset.filterValue;
+  const filter: PostConsoleFilter = { year: initialYear || null, tag: null };
   let previewSlug = posts[0]?.slug ?? "";
+
+  const visibleMonths = () => months.filter((month) => !month.hidden);
+  const syncMonthsToggle = () => {
+    if (!monthsToggle) {
+      return;
+    }
+    const shown = visibleMonths();
+    const expanded = shown.length > 0 && shown.every((month) => month.open);
+    monthsToggle.textContent = expanded ? "全部收起" : "全部展开";
+    monthsToggle.setAttribute("aria-expanded", String(expanded));
+  };
 
   const renderPreview = (post: PostConsoleRow) => {
     const preview = root.querySelector<HTMLElement>("[data-post-preview]");
@@ -115,6 +131,17 @@ export function initializePostConsole(root: HTMLElement): void {
       const value = button.dataset.filterValue || null;
       button.setAttribute("aria-pressed", String(filter[kind] === value));
     }
+    // 只展开最近的月份；按标签筛选时结果不多，全部展开。
+    let opened = false;
+    for (const month of months) {
+      const count = month.querySelectorAll("[data-post-row]:not([hidden])").length;
+      month.hidden = count === 0;
+      month.open = count > 0 && (filter.tag !== null || !opened);
+      opened ||= count > 0;
+      setText(month, "[data-post-month-count]", `${count} 篇`);
+    }
+    syncMonthsToggle();
+
     setText(root, "[data-post-console-heading]", filter.tag ?? "全部文章");
     const empty = root.querySelector<HTMLElement>("[data-post-console-empty]");
     if (empty) {
@@ -136,6 +163,18 @@ export function initializePostConsole(root: HTMLElement): void {
       filter[kind] = kind === "tag" && filter.tag === value ? null : value;
       applyFilter();
     });
+  }
+
+  monthsToggle?.addEventListener("click", () => {
+    const shown = visibleMonths();
+    const expand = !shown.every((month) => month.open);
+    for (const month of shown) {
+      month.open = expand;
+    }
+    syncMonthsToggle();
+  });
+  for (const month of months) {
+    month.addEventListener("toggle", syncMonthsToggle);
   }
 
   root.querySelector<HTMLButtonElement>("[data-clear-tag]")?.addEventListener("click", () => {

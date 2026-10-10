@@ -14,10 +14,20 @@ type Props = {
   options: FilterOption[];
   allLabel: string;
   totalCount?: number;
+  selected?: string;
   showCounts?: boolean;
 };
 
-const { layout, kind, label, options, allLabel, totalCount, showCounts = false } = Astro.props;
+const {
+  layout,
+  kind,
+  label,
+  options,
+  allLabel,
+  totalCount,
+  selected = "",
+  showCounts = false,
+} = Astro.props;
 const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
 ---
 
@@ -48,7 +58,7 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
           data-post-filter
           data-filter-kind={kind}
           data-filter-value={value}
-          aria-pressed={value === "" ? "true" : "false"}
+          aria-pressed={value === selected ? "true" : "false"}
           class={cn(
             layout === "mobile"
               ? "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"

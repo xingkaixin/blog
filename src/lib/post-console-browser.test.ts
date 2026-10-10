@@ -33,7 +33,7 @@ beforeEach(() => {
         <button data-post-filter data-filter-kind="tag" data-filter-value="AI" aria-pressed="false">AI</button>
       </div>
       <span data-post-console-heading></span>
-      <div data-post-console-list>${posts.map(postRow).join("")}</div>
+      <div data-post-console-list>${posts.map(monthGroup).join("")}</div>
       <div data-post-console-empty hidden><button data-clear-tag></button></div>
       <aside data-post-preview>
         <a data-preview-link><span data-preview-title>first</span></a>
@@ -67,6 +67,14 @@ describe("initializePostConsole", () => {
     button("按年份筛选文章", "全部年份").click();
     button("按标签筛选文章", "AI").click();
     expect(visiblePostSlugs()).toEqual(["first", "third"]);
+  });
+
+  it("opens only the latest month that still has visible posts", () => {
+    button("按年份筛选文章", "2025").click();
+    expect(monthStates()).toEqual(["2026-02:hidden", "2026-01:hidden", "2025-12:open"]);
+
+    button("按年份筛选文章", "全部年份").click();
+    expect(monthStates()).toEqual(["2026-02:open", "2026-01:closed", "2025-12:closed"]);
   });
 
   it("updates preview details from the page without fetching an index", () => {
@@ -124,6 +132,17 @@ function visiblePostSlugs(): string[] {
   return [...root.querySelectorAll<HTMLElement>("[data-post-row]")]
     .filter((element) => !element.hidden)
     .map((element) => element.dataset.postRow ?? "");
+}
+
+function monthStates(): string[] {
+  return [...root.querySelectorAll<HTMLDetailsElement>("[data-post-month]")].map(
+    (month) =>
+      `${month.dataset.postMonth}:${month.hidden ? "hidden" : month.open ? "open" : "closed"}`,
+  );
+}
+
+function monthGroup(item: PostMetadata): string {
+  return `<details data-post-month="${item.date.slice(0, 7)}">${postRow(item)}</details>`;
 }
 
 function post(slug: string, date: string, tags: string[]): PostMetadata {
