@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import hello from "@/assets/footer/hello.png";
 import building from "@/assets/footer/building.png";
 import photography from "@/assets/footer/photography.png";
@@ -20,6 +20,18 @@ const scenes = [
   { id: "credits", label: "片尾" },
   { id: "pond", label: "池塘" },
 ];
+// 首屏看不到这三位，滚动开始后才由脚本填入地址
+const deferredSprites = await Promise.all(
+  [
+    { name: "building", image: building, widths: [640, 1280], sizes: "(max-width: 47.999rem) 27vh, 67vh" },
+    { name: "walker", image: hello, widths: [400, 800], sizes: "(max-width: 47.999rem) 20vh, 44vh" },
+    { name: "photographer", image: photography, widths: [400, 800], sizes: "(max-width: 47.999rem) 20vh, 40vh" },
+  ].map(async ({ name, image, widths, sizes }) => ({
+    name,
+    sizes,
+    image: await getImage({ src: image, widths, format: "webp" }),
+  })),
+);
 ---
 
 <home-story>
@@ -42,9 +54,19 @@ const scenes = [
 
   <div class="cast">
     <div class="sprite" data-sprite="sofa" aria-hidden="true"><AboutCharacter /></div>
-    <Image src={building} alt="" class="sprite" data-sprite="building" widths={[640, 1280]} sizes="(max-width: 47.999rem) 27vh, 67vh" format="webp" />
-    <Image src={hello} alt="" class="sprite" data-sprite="walker" widths={[400, 800]} sizes="(max-width: 47.999rem) 20vh, 44vh" format="webp" />
-    <Image src={photography} alt="" class="sprite" data-sprite="photographer" widths={[400, 800]} sizes="(max-width: 47.999rem) 20vh, 40vh" format="webp" />
+    {deferredSprites.map(({ name, sizes, image }) => (
+      <img
+        class="sprite"
+        data-sprite={name}
+        alt=""
+        data-src={image.src}
+        data-srcset={image.srcSet.attribute}
+        sizes={sizes}
+        width={image.attributes.width}
+        height={image.attributes.height}
+        decoding="async"
+      />
+    ))}
     <Image src={feifei} alt="" class="sprite" data-sprite="feifei" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
     <nav class="rail story-rail" aria-label="首页场景">
       {scenes.map((scene, index) => (
@@ -318,6 +340,7 @@ const scenes = [
       const art = this.querySelector<HTMLElement>("[data-story-art]")!;
       const night = this.querySelector<HTMLElement>("[data-story-night]")!;
       const header = document.querySelector<HTMLElement>("[data-site-header]");
+      let deferred = [...this.querySelectorAll<HTMLImageElement>("img[data-srcset]")];
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const events = new AbortController();
       let stageTop = 0;
@@ -345,6 +368,13 @@ const scenes = [
         frame = 0;
         const p = progress();
         const still = reducedMotion.matches;
+        if (p > 0 && deferred.length) {
+          for (const image of deferred) {
+            image.srcset = image.dataset.srcset!;
+            image.src = image.dataset.src!;
+          }
+          deferred = [];
+        }
         for (const { element, sprite } of cast) {
           const { value, raw, moving, direction } = track(sprite.keys, p);
           const bob = moving ? -Math.abs(Math.sin(raw * Math.PI * (sprite.steps ?? 0))) * (sprite.lift ?? 0) : 0;
