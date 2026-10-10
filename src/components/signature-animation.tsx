@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { TegakiRenderer, type TegakiRendererHandle } from "tegaki/react";
 import glyphData from "@/lib/dancing-script-glyph-data.json";
 import { siteConfig } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 const dancingScriptBundle = {
   version: 0,
@@ -15,7 +16,13 @@ const dancingScriptBundle = {
   glyphData,
 };
 
-export function SignatureAnimation() {
+export function SignatureAnimation({
+  className,
+  fontSize = "36px",
+}: {
+  className?: string;
+  fontSize?: string;
+}) {
   const rendererRef = useRef<TegakiRendererHandle>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAnimationSupported, setIsAnimationSupported] = useState(false);
@@ -76,9 +83,8 @@ export function SignatureAnimation() {
   if (!isAnimationSupported) {
     return (
       <div
-        aria-hidden="true"
-        className="invisible mt-6 flex justify-end"
-        style={{ fontSize: "36px", fontFamily: "cursive" }}
+        className={cn("mt-6 flex justify-end text-ink-600", className)}
+        style={{ fontSize, fontFamily: "'Dancing Script', cursive" }}
       >
         {siteConfig.author}
       </div>
@@ -86,17 +92,19 @@ export function SignatureAnimation() {
   }
 
   return (
-    <div ref={containerRef} className="mt-6 flex justify-end">
-      <span className="signature-static font-display text-4xl text-ink-600">
-        {siteConfig.author}
-      </span>
+    <div
+      ref={containerRef}
+      className={cn("mt-6 flex justify-end text-ink-600", className)}
+      style={{ fontSize, fontFamily: "'Dancing Script', cursive" }}
+    >
+      <span className="signature-static">{siteConfig.author}</span>
       <span className="signature-animated">
         <TegakiRenderer
           ref={rendererRef}
           font={dancingScriptBundle}
           text={siteConfig.author}
           time={{ mode: "uncontrolled", loop: false, speed: 1.2 }}
-          style={{ fontSize: "36px", color: "var(--ink-600)" }}
+          style={{ fontSize: "inherit", color: "inherit" }}
         />
       </span>
     </div>

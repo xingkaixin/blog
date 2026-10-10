@@ -11,6 +11,7 @@ import ContactCard from "./ContactCard.astro";
 import KoiPond from "./KoiPond.astro";
 import RecordPlayer from "./RecordPlayer.astro";
 import SiteCredits from "./SiteCredits.astro";
+import { SignatureAnimation } from "@/components/signature-animation";
 import { siteConfig, siteContacts } from "@/lib/site";
 
 const contacts = Object.values(siteContacts);
@@ -48,7 +49,9 @@ const deferredSprites = await Promise.all(
       format="webp"
       loading="eager"
     />
-    <p class="masthead" data-story-masthead>XingKaiXin</p>
+    <div class="masthead" data-story-masthead>
+      <SignatureAnimation client:load className="mt-0 justify-start text-ink-800" fontSize="inherit" />
+    </div>
     <div class="night" data-story-night></div>
   </div>
 
@@ -171,8 +174,7 @@ const deferredSprites = await Promise.all(
     left: var(--gutter);
     margin: 0;
     font-size: clamp(56px, 13.2vw, 190px);
-    line-height: .92;
-    letter-spacing: -.045em;
+    line-height: 1.2;
     white-space: nowrap;
     color: var(--ink-800);
   }
@@ -263,7 +265,7 @@ const deferredSprites = await Promise.all(
     .pond-water { height: calc(var(--stage-h) * .42); }
   }
 
-  .room { padding-top: calc(var(--stage-h) * .13 + clamp(56px, 13.2vw, 190px) + 16px); }
+  .room { padding-top: calc(var(--stage-h) * .13 + clamp(56px, 13.2vw, 190px) * 1.2 + 16px); }
   .pond { padding-bottom: 0; }
 
   @media (prefers-reduced-motion: reduce) {
