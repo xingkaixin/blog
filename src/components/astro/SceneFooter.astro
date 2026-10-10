@@ -9,8 +9,8 @@ import coast from "@/assets/footer/scenery/coast.png";
 import town from "@/assets/footer/scenery/town.png";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 
-type Props = { currentPath: string; label: string };
-const { currentPath, label } = Astro.props;
+type Props = { currentPath: string; label: string; stage?: boolean };
+const { currentPath, label, stage = true } = Astro.props;
 const scene = currentPath === "/about" ? "hello" : currentPath.startsWith("/photos") ? "photography" : currentPath === "/projects" ? "building" : "writing";
 const scenes = {
   hello: { image: hello, title: "嗨，我是开心。", text: "写代码、拍照片，也记录生活。", alt: "开心微笑着挥手打招呼" },
@@ -22,7 +22,7 @@ const content = scenes[scene];
 ---
 
 <footer class="scene-footer" data-scene={scene}>
-  <div class="footer-stage">
+  {stage && <div class="footer-stage">
     <div class="character">
       <Image src={content.image} alt={content.alt} widths={[360, 720]} sizes="(max-width: 640px) 180px, 320px" width={480} format="webp" loading="lazy" />
       {scene === "photography" && <span class="camera-flash" aria-hidden="true" />}
@@ -50,7 +50,7 @@ const content = scenes[scene];
         ))}
       </div>
     )}
-  </div>
+  </div>}
   <div class="footer-bottom">
     <span>{label}</span>
     <span class="shortcuts">{siteShortcuts.search.hint} 命令面板 · {siteShortcuts.theme.hint} 翻转世界</span>

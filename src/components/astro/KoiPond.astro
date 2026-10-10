@@ -38,10 +38,8 @@
   .pond-stage {
     position: relative;
     overflow: hidden;
-    aspect-ratio: 2 / 1;
-    border-radius: 10px;
+    height: 100%;
     background: #0d2b2b;
-    box-shadow: 0 0 0 1px var(--line);
     cursor: crosshair;
     /* 纵向留给页面滚动，只有横向拖动用来划水 */
     touch-action: pan-y;
@@ -49,7 +47,7 @@
     -webkit-user-select: none;
   }
 
-  /* 池子的世界坐标是 3:1，窄屏改用更高的取景框并横向裁切，画面才不会被压扁。
+  /* 池子的世界坐标是 3:1，取景框比它高时横向裁切，画面才不会被压扁。
      宽度必须由高度和 aspect-ratio 推出：一旦让 canvas 的内在尺寸参与布局，
      绘制缓冲会把自己撑大，再触发 ResizeObserver，一路放大到像素上限。 */
   .pond-canvas {
@@ -73,19 +71,13 @@
 
   .pond-stage:has(.pond-canvas:focus-visible) {
     outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
-
-  @media (min-width: 40rem) {
-    .pond-stage {
-      aspect-ratio: 3 / 1;
-    }
+    outline-offset: -2px;
   }
 
   .pond-hint {
     position: absolute;
     top: 12px;
-    left: 12px;
+    right: 12px;
     margin: 0;
     padding: 6px 12px;
     max-width: calc(100% - 24px);
@@ -297,7 +289,7 @@
     const canvas = stage?.querySelector<HTMLCanvasElement>("[data-pond-canvas]");
     if (!stage || !canvas) {return;}
 
-    // 池子在页面中下部，滚近了再拉取渲染代码，关于页首屏不为它付出 JS 成本
+    // 池子在首页最后一幕，滚近了再拉取渲染代码，首屏不为它付出 JS 成本
     pending = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) {return;}

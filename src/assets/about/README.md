@@ -1,4 +1,4 @@
-# 关于页沙发人物
+# 首页沙发人物
 
 使用内置 image_gen，以 `public/avatar.webp` 作为身份和画风参考。母版为 `sofa-character.png`，页面通过 Astro 输出约 120 KB 的 WebP。
 

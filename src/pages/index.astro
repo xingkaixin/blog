@@ -1,17 +1,8 @@
 ---
-import PostConsole from "@/components/astro/PostConsole.astro";
+import HomeStory from "@/components/astro/HomeStory.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
-import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import type { PostConsoleItem } from "@/lib/post-console";
-import { postHref } from "@/lib/published-post";
-import { estimateReadingMetrics } from "@/lib/reading-metrics";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, siteContacts } from "@/lib/site";
 
-const entries = await getPublishedPosts();
-const posts: PostConsoleItem[] = entries.map((entry) => ({
-  ...toPostListItem(entry),
-  ...estimateReadingMetrics(entry.body),
-}));
 const meta = {
   title: siteConfig.title,
   description: siteConfig.description,
@@ -20,23 +11,26 @@ const meta = {
 };
 ---
 
-<SiteLayout meta={meta} status={`HOME · ${posts.length} POSTS`}>
+<SiteLayout meta={meta} footerStage={false}>
   <h1 class="sr-only">{siteConfig.title}</h1>
   <template data-agent-content>
     <h1>{siteConfig.title}</h1>
     <p>{siteConfig.description}</p>
-    <h2>全部文章</h2>
+    <h2>关于</h2>
+    <p>{siteConfig.about}</p>
+    <blockquote>{siteConfig.motto}</blockquote>
+    <h2>联系</h2>
     <ul>
-      {
-        posts.map((post) => (
-          <li>
-            <a href={postHref(post.slug)}>{post.title}</a>
-            {" — "}<time datetime={post.date}>{post.date}</time>
-            <p>{post.summary}</p>
-          </li>
-        ))
-      }
+      {Object.values(siteContacts).map((contact) => (
+        <li><a href={contact.href}>{contact.label}</a>：{contact.value}</li>
+      ))}
+    </ul>
+    <h2>栏目</h2>
+    <ul>
+      <li><a href="/posts/">文章</a></li>
+      <li><a href="/projects/">项目</a></li>
+      <li><a href="/photos/">照片墙</a></li>
     </ul>
   </template>
-  <PostConsole posts={posts} />
+  <HomeStory />
 </SiteLayout>

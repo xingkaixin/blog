@@ -48,9 +48,9 @@ const sections = [
 ];
 ---
 
-<site-credits id="credits" aria-labelledby="credits-heading">
+<site-credits aria-labelledby="credits-heading">
   <header>
-    <h2 id="credits-heading">Credits</h2>
+    <h2 id="credits-heading">片尾字幕</h2>
     <button class="play-toggle" type="button" aria-label="播放 Stoic Morning" aria-pressed="false" disabled>
       <svg viewBox="0 0 16 16" aria-hidden="true"><path class="play-icon" d="M5 3L13 8L5 13Z" /><path class="stop-icon" d="M4 4H12V12H4Z" /></svg>
     </button>
@@ -69,20 +69,25 @@ const sections = [
       ))}
     </div>
   </div>
+  <p class="music-credit">
+    <a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100061" target="_blank" rel="noopener noreferrer">Stoic Morning — Kevin MacLeod (incompetech.com)</a>
+    · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
+  </p>
 </site-credits>
 
 <style>
-  site-credits { --credits-height: 320px; display: block; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: 80px; }
-  header { display: flex; justify-content: center; align-items: center; gap: 8px; }
-  .play-toggle { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink-500); cursor: pointer; }
+  site-credits { --credits-height: 52dvh; display: block; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .play-toggle { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink-500); cursor: pointer; }
   .play-toggle svg { width: 14px; height: 14px; fill: currentColor; }
   .stop-icon, .play-toggle[aria-pressed="true"] .play-icon { display: none; }
   .play-toggle[aria-pressed="true"] .stop-icon { display: block; }
   .play-toggle:disabled { opacity: .4; cursor: default; }
   .play-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .play-toggle:active:not(:disabled) { transform: scale(.97); }
-  h2, h3 { font-family: var(--font-mono); font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-400); }
-  .screen { display: block; position: relative; height: var(--credits-height); overflow: auto; margin-top: 20px; mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+  h2 { font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 400; color: var(--ink-800); }
+  h3 { font-family: var(--font-mono); font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-400); }
+  .screen { display: block; position: relative; height: var(--credits-height); overflow: auto; margin-top: 16px; mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent); }
   [data-ready] .screen { overflow: hidden; }
   .screen:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .roll { width: 100%; padding: 0 12px; animation: credits-roll 110s linear infinite paused; text-align: center; }
@@ -93,8 +98,12 @@ const sections = [
   .credit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: baseline; gap: 16px; }
   .credit + .credit { margin-top: 16px; }
   dt { font-size: 11px; color: var(--ink-400); line-height: 1.6; text-align: right; overflow-wrap: anywhere; }
-  dd { font-size: 15px; line-height: 1.6; color: var(--ink-700); text-align: left; overflow-wrap: anywhere; }
+  dd { font-size: 15px; line-height: 1.6; color: var(--ink-800); text-align: left; overflow-wrap: anywhere; }
+  .music-credit { margin-top: 12px; font-family: var(--font-mono); font-size: 10px; line-height: 16px; color: var(--ink-400); text-align: center; }
+  .music-credit a { text-decoration: underline; text-decoration-color: var(--ink-300); text-underline-offset: 3px; }
+  .music-credit a:hover { color: var(--accent); }
   @keyframes credits-roll { to { transform: translateY(-50%); } }
+  @media (max-width: 47.999rem) { site-credits { --credits-height: 40dvh; } }
   @media (prefers-reduced-motion: reduce) {
     [data-ready] .screen { overflow-y: auto; }
     .roll { animation: none; }

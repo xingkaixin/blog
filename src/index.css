@@ -56,7 +56,10 @@
   --resize-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-theme="dark"] {
+/* 首页夜景（片尾、池塘）沿用暗色 token；滚到夜景时页眉、页脚和场景导航一起变暗 */
+[data-theme="dark"],
+.story-night,
+:root:has(home-story[data-night]) :is([data-site-header], .scene-footer, .story-rail) {
   --bg: #131715;
   --surface: #1a1f1d;
   --line: #262d2a;
@@ -72,6 +75,7 @@
   --accent: #e5644e;
   --accent-soft: #37201c;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
+  color: var(--ink-800);
   color-scheme: dark;
 }
 

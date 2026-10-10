@@ -33,9 +33,10 @@ type Props = {
   noindex?: boolean;
   status?: string;
   smartHeader?: boolean;
+  footerStage?: boolean;
 };
 
-const { meta, noindex = false, status, smartHeader = meta.type === "article" } = Astro.props;
+const { meta, noindex = false, status, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const image = pageImage(meta);
 const title = pageTitle(meta);
@@ -203,6 +204,7 @@ const pageTransition = {
 
       <header
         class="sticky top-0 z-20 border-b border-line bg-surface"
+        data-site-header
         data-smart-header={smartHeader ? "" : undefined}
       >
         <div class="mx-auto flex h-[60px] max-w-320 items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
@@ -259,6 +261,7 @@ const pageTransition = {
       <SceneFooter
         currentPath={currentPath}
         label={status ?? defaultStatus}
+        stage={footerStage}
       />
     </div>
 

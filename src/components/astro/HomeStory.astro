@@ -1,0 +1,417 @@
+---
+import { Image } from "astro:assets";
+import hello from "@/assets/footer/hello.png";
+import building from "@/assets/footer/building.png";
+import photography from "@/assets/footer/photography.png";
+import feifei from "@/assets/about/feifei-angel.png";
+import wallArt from "@/assets/page-backgrounds/photography.png";
+import AboutCharacter from "./AboutCharacter.astro";
+import AboutIntro from "./AboutIntro.astro";
+import ContactCard from "./ContactCard.astro";
+import KoiPond from "./KoiPond.astro";
+import RecordPlayer from "./RecordPlayer.astro";
+import SiteCredits from "./SiteCredits.astro";
+import { siteConfig, siteContacts } from "@/lib/site";
+
+const contacts = Object.values(siteContacts);
+const scenes = [
+  { id: "living-room", label: "客厅" },
+  { id: "say-hello", label: "打个招呼" },
+  { id: "credits", label: "片尾" },
+  { id: "pond", label: "池塘" },
+];
+---
+
+<home-story>
+  <div class="backdrop" aria-hidden="true">
+    <div class="floor"></div>
+    <Image
+      src={wallArt}
+      alt=""
+      class="wall-art"
+      data-story-art
+      widths={[480, 960]}
+      sizes="30vw"
+      width={460}
+      format="webp"
+      loading="eager"
+    />
+    <p class="masthead" data-story-masthead>XingKaiXin</p>
+    <div class="night" data-story-night></div>
+  </div>
+
+  <div class="cast">
+    <div class="sprite" data-sprite="sofa" aria-hidden="true"><AboutCharacter /></div>
+    <Image src={building} alt="" class="sprite" data-sprite="building" widths={[640, 1280]} sizes="(max-width: 47.999rem) 27vh, 67vh" format="webp" />
+    <Image src={hello} alt="" class="sprite" data-sprite="walker" widths={[400, 800]} sizes="(max-width: 47.999rem) 20vh, 44vh" format="webp" />
+    <Image src={photography} alt="" class="sprite" data-sprite="photographer" widths={[400, 800]} sizes="(max-width: 47.999rem) 20vh, 40vh" format="webp" />
+    <Image src={feifei} alt="" class="sprite" data-sprite="feifei" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
+    <nav class="rail story-rail" aria-label="首页场景">
+      {scenes.map((scene, index) => (
+        <a href={`#${scene.id}`} data-story-rail aria-current={index === 0 ? "step" : undefined}>
+          <span class="rail-label">{scene.label}</span>
+          <span class="rail-dot" aria-hidden="true"></span>
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <section id="living-room" class="scene room" data-story-scene>
+    <div data-story-copy>
+      <div class="room-copy">
+        <div class="kicker-row">
+          <span class="kicker">01 · 客厅</span>
+          <span class="status-pill"><span aria-hidden="true"></span>上海 · 工程师 · 摄影爱好者</span>
+        </div>
+        <AboutIntro />
+        <p class="intro-extra">这里是我的颠倒世界：写 AI 编程和 Agent 工程，做些小而顺手的工具，也记录生活。</p>
+        <figure class="motto"><blockquote>{siteConfig.motto}</blockquote></figure>
+        <div class="record">
+          <RecordPlayer />
+          <p class="record-copy">
+            <span class="record-title" data-idle>放一首 Stoic Morning</span>
+            <span class="record-title" data-active>正在播放 · Stoic Morning</span>
+            <span class="record-hint">片尾字幕会跟着滚动</span>
+          </p>
+        </div>
+      </div>
+      <span class="cue" aria-hidden="true">
+        往下滚，跟我走走
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+      </span>
+    </div>
+  </section>
+
+  <section id="say-hello" class="scene hello" data-story-scene>
+    <div class="hello-copy" data-story-copy>
+      <span class="kicker">02 · 打个招呼</span>
+      <div class="bubble">
+        <h2>Hey，来打个招呼？</h2>
+        <p>聊 AI、工具、摄影，或者只是来打个招呼。</p>
+      </div>
+      <div class="contacts">
+        {contacts.map((contact) => <ContactCard contact={contact} />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="credits" class="scene credits story-night" data-story-scene>
+    <div class="credits-copy" data-story-copy>
+      <span class="kicker">03 · 片尾</span>
+      <SiteCredits />
+    </div>
+  </section>
+
+  <section id="pond" class="scene pond story-night" data-story-scene>
+    <div class="pond-copy" data-story-copy>
+      <span class="kicker">04 · 片尾彩蛋</span>
+      <h2>院子里的池塘</h2>
+      <p>片尾之后，到院子里坐一会儿。池子里有七尾锦鲤。</p>
+    </div>
+    <div class="pond-water"><KoiPond /></div>
+  </section>
+</home-story>
+
+<style>
+  home-story {
+    /* 站点页眉 60px 加 1px 底边；脚本会按实际高度覆盖 */
+    --stage-top: 61px;
+    --stage-h: calc(100dvh - var(--stage-top));
+    --gutter: clamp(20px, 4vw, 56px);
+    position: relative;
+    display: block;
+    isolation: isolate;
+  }
+
+  /* 背景与角色两层都吸附在页眉下方；负外边距让后面的场景从同一起点开始排布 */
+  .backdrop, .cast {
+    position: sticky;
+    top: var(--stage-top);
+    height: var(--stage-h);
+    margin-bottom: calc(-1 * var(--stage-h));
+    overflow: hidden;
+    container-type: size;
+  }
+  .backdrop {
+    z-index: 0;
+    pointer-events: none;
+    background-color: var(--bg);
+    background-image: radial-gradient(color-mix(in srgb, var(--ink-800) 8%, transparent) 1px, transparent 1.4px);
+    background-size: 20px 20px;
+  }
+  .floor { position: absolute; inset: auto 0 0; height: 15cqh; border-top: 1px solid var(--line); background: var(--ink-50); }
+  :global([data-theme="dark"]) .floor { background: #101412; }
+  .wall-art { position: absolute; top: 9cqh; right: 2vw; width: min(30vw, 460px); height: auto; opacity: calc(.16 * var(--art-fade, 1)); }
+  :global([data-theme="dark"]) .wall-art { opacity: calc(.22 * var(--art-fade, 1)); }
+  .masthead {
+    position: absolute;
+    top: 13cqh;
+    left: var(--gutter);
+    margin: 0;
+    font-size: clamp(56px, 13.2vw, 190px);
+    line-height: .92;
+    letter-spacing: -.045em;
+    white-space: nowrap;
+    color: var(--ink-800);
+  }
+  .night {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background-color: #0a0d0c;
+    background-image: radial-gradient(rgb(255 255 255 / .5) 1px, transparent 1.6px), radial-gradient(rgb(255 255 255 / .28) 1px, transparent 1.6px);
+    background-size: 173px 131px, 251px 197px;
+    background-position: 13px 29px, 97px 61px;
+  }
+
+  .cast { z-index: 2; pointer-events: none; }
+  .sprite {
+    position: absolute;
+    left: var(--xw);
+    bottom: var(--bw);
+    height: var(--hw);
+    width: auto;
+    translate: -50% 0;
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+  }
+  [data-sprite="sofa"] { --xw: 68%; --xn: 56%; --hw: 64cqh; --hn: 22cqh; --bw: 3cqh; --bn: 2cqh; aspect-ratio: 1160 / 970; }
+  [data-sprite="walker"] { --hw: 66cqh; --hn: 30cqh; --bw: 2cqh; --bn: 1cqh; opacity: 0; }
+  [data-sprite="building"] { --hw: 56cqh; --hn: 22cqh; --bw: 4cqh; --bn: 2cqh; opacity: 0; }
+  [data-sprite="photographer"] { --hw: 60cqh; --hn: 30cqh; --bw: -1cqh; --bn: 0px; opacity: 0; }
+  [data-sprite="feifei"] { --xw: calc(68% + 28cqh); --xn: calc(56% + 9.6cqh); --hw: 27cqh; --hn: 9.5cqh; --bw: 4cqh; --bn: 2cqh; }
+
+  .rail { position: absolute; right: 20px; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: auto; }
+  .rail a { display: flex; align-items: center; gap: 10px; height: 30px; color: var(--ink-400); font-size: 11px; font-weight: 500; }
+  .rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .rail-label { opacity: 0; translate: 4px 0; white-space: nowrap; transition: opacity 150ms ease-out, translate 150ms ease-out; }
+  .rail-dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--ink-200); transition: height 200ms var(--ease-smooth-out), background-color 200ms; }
+  .rail a[aria-current] { color: var(--ink-800); }
+  .rail a[aria-current] .rail-dot { height: 22px; background: var(--accent); }
+  .rail a[aria-current] .rail-label, .rail a:hover .rail-label, .rail a:focus-visible .rail-label { opacity: 1; translate: 0; }
+
+  .scene { position: relative; z-index: 1; box-sizing: border-box; min-height: var(--stage-h); padding: 96px var(--gutter) 64px; scroll-margin-top: var(--stage-top); }
+  .kicker { font-family: var(--font-mono); font-size: 10px; line-height: 12px; font-weight: 500; letter-spacing: .14em; color: var(--ink-400); }
+  h2 { margin: 0; font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 400; color: var(--ink-800); }
+
+  .room-copy { display: flex; flex-direction: column; gap: 20px; max-width: 520px; }
+  .kicker-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .status-pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink-500); font-size: 11px; font-weight: 500; }
+  .status-pill > span { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); }
+  .intro-extra { margin: 0; font-size: 15px; line-height: 27px; color: var(--ink-500); }
+  .motto { position: relative; align-self: flex-start; max-width: 420px; margin: 2px 0 0; padding: 16px 20px 16px 40px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); box-shadow: var(--shadow-card); rotate: -1.2deg; }
+  .motto::before { content: ""; position: absolute; top: 12px; bottom: 12px; left: 22px; border-left: 1px dashed var(--ink-200); }
+  .motto::after { content: ""; position: absolute; top: -9px; left: calc(50% - 32px); width: 64px; height: 18px; background: color-mix(in srgb, var(--accent) 20%, transparent); rotate: 2deg; }
+  .motto blockquote { margin: 0; font-size: 14px; line-height: 24px; color: var(--ink-700); }
+  .record { display: flex; align-items: flex-end; gap: 14px; }
+  .record-copy { display: flex; flex-direction: column; gap: 2px; margin: 0; padding-bottom: 6px; }
+  .record-title { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-800); }
+  .record-hint { font-size: 12px; line-height: 17px; color: var(--ink-500); }
+  .record [data-active], .record:has(record-player[data-playing]) [data-idle] { display: none; }
+  .record:has(record-player[data-playing]) [data-active] { display: inline; }
+  .cue { position: absolute; left: var(--gutter); bottom: 28px; display: inline-flex; align-items: center; gap: 8px; color: var(--ink-500); font-size: 12px; font-weight: 500; }
+  .cue svg { width: 14px; height: 14px; animation: nudge 1.8s ease-in-out infinite; }
+  @keyframes nudge { 50% { translate: 0 4px; } }
+
+  .hello, .credits { display: flex; align-items: center; }
+  .hello-copy { display: flex; flex-direction: column; gap: 18px; width: min(480px, 46%); margin-left: 46%; }
+  .bubble { position: relative; align-self: flex-start; padding: 18px 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .bubble::before { content: ""; position: absolute; left: -8px; top: 26px; width: 14px; height: 14px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); rotate: 45deg; }
+  .bubble p { margin: 6px 0 0; font-size: 14px; line-height: 23px; color: var(--ink-500); }
+  .contacts { padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .contacts > :global(:last-child) { border-bottom: 0; }
+
+  .credits-copy { display: flex; flex-direction: column; gap: 12px; width: 40%; }
+  home-story[data-rolling] :global(.roll) { animation-play-state: running; }
+
+  .pond { display: flex; flex-direction: column; gap: 32px; }
+  .pond-copy { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
+  .pond-copy p { margin: 0; font-size: 14px; line-height: 23px; color: var(--ink-500); }
+  /* 池子世界是 3:1，取景框不能比它更扁，否则画布盖不满宽度 */
+  .pond-water { height: max(calc(var(--stage-h) * .6), 33.4vw); margin: auto calc(-1 * var(--gutter)) 0; }
+
+  /* 脚本未运行时没有夜幕，夜景场景自己铺底色以保证文字可读 */
+  home-story:not([data-ready]) .story-night { background: #0a0d0c; }
+
+  @media (max-width: 47.999rem) {
+    .sprite { left: var(--xn); bottom: var(--bn); height: var(--hn); }
+    .scene { padding: 48px 20px 34dvh; }
+    .hello-copy, .credits-copy { width: 100%; margin-left: 0; }
+    .wall-art, .rail, .cue, .intro-extra, .bubble::before { display: none; }
+    .pond-water { height: calc(var(--stage-h) * .42); }
+  }
+
+  .room { padding-top: calc(var(--stage-h) * .13 + clamp(56px, 13.2vw, 190px) + 16px); }
+  .pond { padding-bottom: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cue svg { animation: none; }
+    .rail-label, .rail-dot { transition: none; }
+  }
+</style>
+
+<script>
+  type Key = number[];
+  type Sprite = { keys: Key[]; steps?: number; lift?: number };
+
+  // 关键帧：[进度, 宽屏 x %, 宽屏 x cqh, 窄屏 x %, 窄屏 x cqh, 透明度]。四个场景分别停在进度 0、1、2、3。
+  const sprites: Record<string, Sprite> = {
+    sofa: { keys: [[0, 68, 0, 56, 0, 1], [0.3, 68, 0, 56, 0, 1], [0.44, 72, 0, 59, 0, 0], [3, 72, 0, 59, 0, 0]] },
+    walker: {
+      keys: [
+        [0, 68, -9.9, 56, -3.4, 0], [0.28, 68, -9.9, 56, -3.4, 0], [0.4, 66, -9.9, 55, -3.4, 1],
+        [0.9, 20, 0, 72, 0, 1], [1.25, 20, 0, 72, 0, 1], [1.8, 72, 0, 62, 0, 1], [1.88, 72, 0, 62, 0, 0],
+        [2.14, 72, 0, 62, 0, 0], [2.24, 70, 0, 60, 0, 1], [2.82, 14, 0, 22, 0, 1], [2.9, 14, 0, 22, 0, 0], [3, 14, 0, 22, 0, 0],
+      ],
+      steps: 7,
+      lift: 9,
+    },
+    building: {
+      keys: [[0, 72, 0, 62, 0, 0], [1.8, 72, 0, 62, 0, 0], [1.9, 72, 0, 62, 0, 1], [2.12, 72, 0, 62, 0, 1], [2.22, 72, 0, 62, 0, 0], [3, 72, 0, 62, 0, 0]],
+    },
+    photographer: { keys: [[0, 14, 0, 22, 0, 0], [2.82, 14, 0, 22, 0, 0], [2.92, 14, 0, 22, 0, 1], [3, 14, 0, 22, 0, 1]] },
+    feifei: {
+      keys: [
+        [0, 68, 28, 56, 9.6, 1], [0.45, 68, 28, 56, 9.6, 1], [1, 20, -21, 72, -12, 1], [1.35, 20, -21, 72, -12, 1],
+        [1.95, 72, -34, 62, -13, 1], [2.28, 72, -34, 62, -13, 1], [2.95, 14, 22, 22, 11, 1], [3, 14, 22, 22, 11, 1],
+      ],
+      steps: 5,
+      lift: 14,
+    },
+  };
+
+  function smooth(from: number, to: number, value: number) {
+    const x = Math.min(1, Math.max(0, (value - from) / (to - from)));
+    return x * x * (3 - 2 * x);
+  }
+
+  function track(keys: Key[], progress: number) {
+    let index = 0;
+    while (index < keys.length - 2 && progress > keys[index + 1][0]) {
+      index++;
+    }
+    const from = keys[index];
+    const to = keys[index + 1];
+    const raw = Math.min(1, Math.max(0, (progress - from[0]) / (to[0] - from[0])));
+    const eased = raw * raw * (3 - 2 * raw);
+    return {
+      value: from.map((n, k) => n + (to[k] - n) * eased),
+      raw,
+      moving: raw > 0 && raw < 1 && (from[1] !== to[1] || from[2] !== to[2]),
+      direction: Math.sign(to[1] - from[1]),
+    };
+  }
+
+  class HomeStory extends HTMLElement {
+    private cleanup?: () => void;
+
+    connectedCallback() {
+      this.cleanup?.();
+      const scenes = [...this.querySelectorAll<HTMLElement>("[data-story-scene]")];
+      const copies = scenes.map((scene) => scene.querySelector<HTMLElement>("[data-story-copy]")!);
+      const links = [...this.querySelectorAll<HTMLAnchorElement>("[data-story-rail]")];
+      const cast = [...this.querySelectorAll<HTMLElement>("[data-sprite]")].map((element) => ({
+        element,
+        sprite: sprites[element.dataset.sprite!],
+      }));
+      const masthead = this.querySelector<HTMLElement>("[data-story-masthead]")!;
+      const art = this.querySelector<HTMLElement>("[data-story-art]")!;
+      const night = this.querySelector<HTMLElement>("[data-story-night]")!;
+      const header = document.querySelector<HTMLElement>("[data-site-header]");
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const events = new AbortController();
+      let stageTop = 0;
+      let tops: number[] = [];
+      let active = -1;
+      let frame = 0;
+
+      const measure = () => {
+        stageTop = header?.offsetHeight ?? 0;
+        this.style.setProperty("--stage-top", `${stageTop}px`);
+        tops = scenes.map((scene) => scene.getBoundingClientRect().top + scrollY - stageTop);
+      };
+
+      const progress = () => {
+        let value = 0;
+        for (let k = 0; k < tops.length - 1; k++) {
+          if (scrollY >= tops[k]) {
+            value = k + Math.min(1, (scrollY - tops[k]) / (tops[k + 1] - tops[k]));
+          }
+        }
+        return value;
+      };
+
+      const render = () => {
+        frame = 0;
+        const p = progress();
+        const still = reducedMotion.matches;
+        for (const { element, sprite } of cast) {
+          const { value, raw, moving, direction } = track(sprite.keys, p);
+          const bob = moving ? -Math.abs(Math.sin(raw * Math.PI * (sprite.steps ?? 0))) * (sprite.lift ?? 0) : 0;
+          element.style.setProperty("--xw", `calc(${value[1]}% + ${value[2]}cqh)`);
+          element.style.setProperty("--xn", `calc(${value[3]}% + ${value[4]}cqh)`);
+          element.style.opacity = String(value[5]);
+          element.style.transform = still ? "" : `translateY(${bob}px) rotate(${moving ? direction * 2 : 0}deg)`;
+        }
+        masthead.style.opacity = String(1 - smooth(0.12, 0.55, p));
+        masthead.style.transform = still ? "" : `translateY(${-Math.min(p, 1) * 40}cqh)`;
+        art.style.setProperty("--art-fade", String(1 - smooth(0.2, 0.7, p)));
+        night.style.opacity = String(smooth(1.3, 1.75, p));
+
+        const reveal = (copy: HTMLElement, from: number, to: number, leaveFrom?: number, leaveTo?: number) => {
+          const enter = smooth(from, to, p);
+          const leave = leaveFrom === undefined || leaveTo === undefined ? 0 : smooth(leaveFrom, leaveTo, p);
+          copy.style.opacity = String(enter * (1 - leave));
+          copy.style.transform = still ? "" : `translateY(${(1 - enter) * 40}px)`;
+        };
+        copies[0].style.opacity = String(1 - smooth(0.35, 0.75, p));
+        reveal(copies[1], 0.55, 0.92, 1.3, 1.62);
+        reveal(copies[2], 1.55, 1.92, 2.3, 2.6);
+        reveal(copies[3], 2.6, 2.92);
+
+        this.toggleAttribute("data-night", p > 1.55);
+        this.toggleAttribute("data-rolling", p > 1.7 && p < 2.5);
+        const current = Math.min(scenes.length - 1, Math.max(0, Math.round(p)));
+        if (current !== active) {
+          active = current;
+          links.forEach((link, index) => {
+            if (index === current) {
+              link.setAttribute("aria-current", "step");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          });
+        }
+      };
+
+      const schedule = () => {
+        frame ||= requestAnimationFrame(render);
+      };
+      const refresh = () => {
+        measure();
+        schedule();
+      };
+
+      addEventListener("scroll", schedule, { passive: true, signal: events.signal });
+      reducedMotion.addEventListener("change", schedule, { signal: events.signal });
+      const resizeObserver = new ResizeObserver(refresh);
+      resizeObserver.observe(this);
+      measure();
+      render();
+      this.setAttribute("data-ready", "");
+      this.cleanup = () => {
+        events.abort();
+        resizeObserver.disconnect();
+        cancelAnimationFrame(frame);
+      };
+    }
+
+    disconnectedCallback() {
+      this.cleanup?.();
+    }
+  }
+
+  if (!customElements.get("home-story")) {
+    customElements.define("home-story", HomeStory);
+  }
+</script>
