@@ -6,23 +6,23 @@
 
 /* ============================================================
    颠倒世界 · 语义 token
-   正世界（亮）= 宣纸 + 碳墨；底片世界（暗）= 深墨 + 米白。
+   中性色取自 Forest 设计系统：亮色为带绿调的浅灰，暗色为深林墨色。
    唯一贯穿两个世界的颜色是朱印红。
    ============================================================ */
 
 :root {
-  --bg: #fafaf7;
+  --bg: #f8faf9;
   --surface: #ffffff;
-  --line: #e6e4dd;
-  --ink-50: #f4f3ef;
-  --ink-100: #ecebe6;
-  --ink-200: #d8d7d2;
-  --ink-300: #b4b4b6;
-  --ink-400: #85868c;
-  --ink-500: #5f6066;
-  --ink-600: #46474d;
-  --ink-700: #2e2f33;
-  --ink-800: #1b1c1f;
+  --line: #e4e8e6;
+  --ink-50: #f4f6f5;
+  --ink-100: #e9ecea;
+  --ink-200: #d2d9d6;
+  --ink-300: #b0b8b4;
+  --ink-400: #838b87;
+  --ink-500: #5f6763;
+  --ink-600: #474e4b;
+  --ink-700: #262b29;
+  --ink-800: #171a19;
   --accent: #c2402f;
   --accent-soft: #f6e3de;
   --shadow-card: 0 1px 2px rgba(20, 21, 26, 0.04), 0 12px 32px -16px rgba(20, 21, 26, 0.12);
@@ -57,18 +57,18 @@
 }
 
 [data-theme="dark"] {
-  --bg: #131418;
-  --surface: #1c1d23;
-  --line: #2b2c33;
-  --ink-50: #1a1b20;
-  --ink-100: #23242b;
-  --ink-200: #37383f;
-  --ink-300: #55565d;
-  --ink-400: #8b8c92;
-  --ink-500: #9fa0a3;
-  --ink-600: #c0c0bd;
-  --ink-700: #deddd8;
-  --ink-800: #f0efea;
+  --bg: #131715;
+  --surface: #1a1f1d;
+  --line: #262d2a;
+  --ink-50: #1a1f1d;
+  --ink-100: #212725;
+  --ink-200: #363e3b;
+  --ink-300: #535b57;
+  --ink-400: #88918d;
+  --ink-500: #99a29e;
+  --ink-600: #bcc3c0;
+  --ink-700: #d3d8d6;
+  --ink-800: #ecefed;
   --accent: #e5644e;
   --accent-soft: #37201c;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
@@ -219,7 +219,7 @@ body {
 }
 
 [data-theme="dark"] .project-card-scrim {
-  background: linear-gradient(180deg, rgb(19 20 24 / 0.58), rgb(19 20 24 / 0.94));
+  background: linear-gradient(180deg, rgb(19 23 21 / 0.58), rgb(19 23 21 / 0.94));
 }
 
 @media (hover: hover) and (pointer: fine) and (min-width: 1024px) {

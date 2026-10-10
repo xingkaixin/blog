@@ -90,12 +90,12 @@ const pageTransition = {
       title={`${siteConfig.title} RSS`}
       href={`${siteConfig.url}/feed.xml`}
     />
-    <meta name="theme-color" content="#fafaf7" />
+    <meta name="theme-color" content="#f8faf9" />
     <script is:inline define:vars={{ themeToggleEvent }}>
       (function () {
         var storageKey = "site-theme";
         var colorScheme = matchMedia("(prefers-color-scheme: dark)");
-        var themeColors = { light: "#fafaf7", dark: "#131418" };
+        var themeColors = { light: "#f8faf9", dark: "#131715" };
 
         function readStoredTheme() {
           try {
