@@ -87,6 +87,16 @@ function buildGraph(meta: PageMeta) {
   const graph: unknown[] = [personSchema(), websiteSchema()];
 
   if (meta.type === "website") {
+    graph.push({
+      "@type": "ProfilePage",
+      "@id": meta.url,
+      url: meta.url,
+      name: meta.title,
+      description: meta.description,
+      inLanguage: siteConfig.language,
+      isPartOf: { "@id": `${siteConfig.url}/#website` },
+      mainEntity: { "@id": `${siteConfig.url}/#person` },
+    });
     return graph;
   }
 
