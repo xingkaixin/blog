@@ -13,8 +13,11 @@ const DIST_DIR = path.join(ROOT, "dist");
 // 旧 Hexo 站点的文章地址为 /<slug>，迁移后变为 /posts/<slug>/。
 // 为每篇现存文章生成 301，把旧链接的权重转移到新地址；
 // 未迁移内容（旧 tag/分页/已删文章）不软重定向到首页，由静态资源的 404.html 返回 404。
+// 关于页已并入首页。
 export function buildRedirects(posts: Array<{ slug: string }>) {
   const lines = [
+    "/about / 301",
+    "/about/ / 301",
     `${encodeURI("/tags/AI 编程")} ${tagHref("AI编程")} 301`,
     `${encodeURI("/tags/AI 编程/")} ${tagHref("AI编程")} 301`,
     ...posts.map(({ slug }) => {

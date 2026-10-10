@@ -51,7 +51,7 @@ function personSchema() {
     "@type": "Person",
     "@id": `${siteConfig.url}/#person`,
     name: siteConfig.author,
-    url: `${siteConfig.url}/about/`,
+    url: `${siteConfig.url}/`,
     email: siteContacts.email.value,
     description: siteConfig.about,
     sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],

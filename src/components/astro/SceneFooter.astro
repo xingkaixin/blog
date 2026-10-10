@@ -3,7 +3,6 @@ import { Image } from "astro:assets";
 import writing from "@/assets/footer/writing.png";
 import building from "@/assets/footer/building.png";
 import photography from "@/assets/footer/photography.png";
-import hello from "@/assets/footer/hello.png";
 import lake from "@/assets/footer/scenery/lake.png";
 import coast from "@/assets/footer/scenery/coast.png";
 import town from "@/assets/footer/scenery/town.png";
@@ -11,9 +10,8 @@ import { siteShortcuts } from "@/lib/site-shortcuts";
 
 type Props = { currentPath: string; label: string; stage?: boolean };
 const { currentPath, label, stage = true } = Astro.props;
-const scene = currentPath === "/about" ? "hello" : currentPath.startsWith("/photos") ? "photography" : currentPath === "/projects" ? "building" : "writing";
+const scene = currentPath.startsWith("/photos") ? "photography" : currentPath === "/projects" ? "building" : "writing";
 const scenes = {
-  hello: { image: hello, title: "嗨，我是开心。", text: "写代码、拍照片，也记录生活。", alt: "开心微笑着挥手打招呼" },
   photography: { image: photography, title: "再拍一张。", text: "把路过的风景，留在这里。", alt: "开心举起相机，拍摄眼前的风景" },
   building: { image: building, title: "有个想法，正在做。", text: "把日常的小问题，做成顺手的小工具。", alt: "开心坐在电脑前制作工具" },
   writing: { image: writing, title: "写下来，慢慢想。", text: "关于技术，也关于一路上的发现。", alt: "开心坐在桌前，用笔记录想法" },
@@ -71,8 +69,6 @@ const content = scenes[scene];
   .work-dots { display: inline-block; overflow: hidden; width: 3ch; vertical-align: bottom; animation: typing 3s steps(4, end) infinite; }
   .ink-stroke { width: 140px; height: 20px; margin-top: 12px; fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: .5; stroke-dasharray: 150; animation: writing 8s ease-in-out infinite; }
   .camera-flash { position: absolute; left: calc(50% + 17px); top: 14%; width: 20px; height: 20px; border-radius: 50%; background: #fff7d7; box-shadow: 0 0 18px 8px #f3dca870; opacity: 0; animation: shutter 8s ease-out infinite; }
-  [data-scene="hello"] .character img { transform-origin: 50% 95%; animation: greeting 8s ease-in-out infinite; }
-  @keyframes greeting { 0%, 15%, 100% { transform: rotate(0); } 5% { transform: rotate(-2deg); } 10% { transform: rotate(1deg); } }
   .landscapes {
     position: absolute;
     inset: -12px -80px;

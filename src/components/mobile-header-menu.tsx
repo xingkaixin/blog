@@ -1,11 +1,11 @@
 import { FileTextIcon } from "@phosphor-icons/react/dist/csr/FileText";
+import { HouseIcon } from "@phosphor-icons/react/dist/csr/House";
 import { ImagesIcon } from "@phosphor-icons/react/dist/csr/Images";
 import { ListIcon } from "@phosphor-icons/react/dist/csr/List";
 import { MoonStarsIcon } from "@phosphor-icons/react/dist/csr/MoonStars";
 import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
 import { RssIcon } from "@phosphor-icons/react/dist/csr/Rss";
 import { TagIcon } from "@phosphor-icons/react/dist/csr/Tag";
-import { UserIcon } from "@phosphor-icons/react/dist/csr/User";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
@@ -19,12 +19,11 @@ type MobileHeaderMenuProps = {
 const menuItem =
   "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
 const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
-  home: FileTextIcon,
+  home: HouseIcon,
   posts: FileTextIcon,
   projects: RocketLaunchIcon,
   photos: ImagesIcon,
   tags: TagIcon,
-  about: UserIcon,
   feed: RssIcon,
 };
 const routes = mobileNavigation();

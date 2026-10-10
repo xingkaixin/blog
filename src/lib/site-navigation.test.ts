@@ -16,7 +16,6 @@ describe("site navigation", () => {
       "posts",
       "projects",
       "photos",
-      "about",
       "feed",
     ]);
     expect(desktopNavigation().map((route) => route.path)).not.toContain("/");
