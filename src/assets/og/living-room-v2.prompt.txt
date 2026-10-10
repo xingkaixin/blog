@@ -1,0 +1,10 @@
+Use case: illustration-story
+Asset type: homepage Open Graph illustration background for XingKaiXin's personal blog, landscape 1200:630 aspect ratio.
+Primary request: Reimagine the blog's welcoming illustrated living room as a beautifully composed editorial social-sharing illustration.
+Input images: Image 1 is a style reference for olive sofa, clothes and hair, NOT a sprite sheet to reproduce. Image 2 is a character reference for the small gray schnauzer with gold halo. Image 3 is the character identity reference: young East Asian man with curly dark hair, round black glasses, cheerful face, black T-shirt, charcoal trousers, cream sneakers.
+Scene/backdrop: warm ivory paper (#f8f7f2), subtle fine paper grain. A quiet living room vignette confined to the RIGHT 48 percent. The LEFT 52 percent is nearly blank warm ivory reserved for large title typography added by code. Bottom 12 percent also quiet for a footer.
+Subject: one complete curly-haired man with round glasses smiling comfortably on a muted olive green sofa, with a small gray schnauzer and its subtle golden halo sitting beside the sofa. A small wooden side table with a black vinyl record player and a compact camera evokes music and photography. A very faint framed Shanghai skyline sketch on the wall behind the sofa.
+Style/medium: delicate hand-drawn ink outlines and warm watercolor/gouache pencil texture, sophisticated editorial illustration, natural restrained irregularity, consistent with references.
+Composition/framing: Wide landscape. Illustrated scene at x=650..1140, y=110..535 in a 1200x630 frame; full head and feet visible, all subjects connected in a single scene with small soft ground shadows. Blank left area x=0..620. Do not center the artwork. No text anywhere.
+Color palette: warm ivory, olive upholstery, charcoal clothing, muted terracotta accents, warm skin, tiny golden halo.
+Constraints: exactly one person, complete face and round glasses; exactly one small dog; no detached heads, no sprite sheets, no checkerboard. No typography, letters, watermark, UI panels, rounded cards, gradients, glowing effects, or decorative symbols. Opaque background.

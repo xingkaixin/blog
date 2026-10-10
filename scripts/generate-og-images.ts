@@ -16,6 +16,7 @@ const POSTS_DIR = path.join(ROOT, "content", "posts");
 const COVER_DIR = path.join(ROOT, "src", "assets", "cover");
 const OUTPUT_DIR = path.join(ROOT, "public", "og");
 const LOGO_PATH = path.join(ROOT, "public", "logo.svg");
+const SITE_ART_PATH = path.join(ROOT, "src", "assets", "og", "living-room-v2.webp");
 const FONT_DIR = path.join(ROOT, "scripts", "assets", "fonts");
 const CACHE_FILE = path.join(ROOT, ".cache", "og-manifest.json");
 // 每张 OG 图要经 satori 渲染 1200x630 SVG 再由 sharp 编码 PNG。冷缓存下全量并发的
@@ -24,10 +25,8 @@ const CACHE_FILE = path.join(ROOT, ".cache", "og-manifest.json");
 const RENDER_CONCURRENCY = 8;
 const WIDTH = 1200;
 const HEIGHT = 630;
-const CARD = { x: 48, y: 48, w: 1104, h: 534 };
-const COVER = { x: 720, y: 100, w: 390, h: 430 };
-const LOGO_SIZE = 32;
-const LOGO_MARGIN = 24;
+const COVER = { x: 648, y: 152, w: 488, h: 326 };
+const LOGO_SIZE = 34;
 
 const FONT_FILES = [
   { file: "NotoSansSC-Regular.otf", weight: 400 },
@@ -54,13 +53,11 @@ export type GenerateOgImagesResult = {
 };
 
 const colors = {
-  paper: "#fafaf7",
-  surface: "rgba(255,255,255,0.72)",
-  accentSoft: "#f6e3de",
-  ink: "#1b1c1f",
-  inkMuted: "#46474d",
-  inkSoft: "#5f6066",
-  line: "rgba(27,28,31,0.044)",
+  paper: "#f8f7f2",
+  ink: "#232820",
+  inkMuted: "#65685f",
+  accent: "#b84532",
+  line: "#dcded5",
 };
 
 type Child = VNode | string;
@@ -130,39 +127,10 @@ function logoDataUri() {
 
 async function coverDataUri(file: string) {
   const buffer = await sharp(path.join(COVER_DIR, path.basename(file)))
-    .resize(COVER.w, COVER.h, { fit: "cover" })
+    .resize(COVER.w, COVER.h, { fit: "contain", background: colors.paper })
     .png()
     .toBuffer();
   return `data:image/png;base64,${buffer.toString("base64")}`;
-}
-
-function gridLayer(direction: "to right" | "to bottom") {
-  return el("div", {
-    style: {
-      position: "absolute",
-      left: 0,
-      top: 0,
-      width: "100%",
-      height: "100%",
-      backgroundImage: `linear-gradient(${direction}, ${colors.line} 1px, transparent 1px)`,
-      backgroundSize: "24px 24px",
-    },
-  });
-}
-
-function circle(cx: number, cy: number, r: number, opacity: number) {
-  return el("div", {
-    style: {
-      position: "absolute",
-      left: cx - r,
-      top: cy - r,
-      width: r * 2,
-      height: r * 2,
-      borderRadius: "50%",
-      backgroundColor: colors.accentSoft,
-      opacity,
-    },
-  });
 }
 
 function background(...content: Child[]) {
@@ -178,23 +146,6 @@ function background(...content: Child[]) {
         fontFamily: "Noto Sans SC",
       },
     },
-    gridLayer("to right"),
-    gridLayer("to bottom"),
-    circle(160, 96, 260, 0.42),
-    circle(1030, 78, 220, 0.28),
-    el("div", {
-      style: {
-        position: "absolute",
-        left: CARD.x,
-        top: CARD.y,
-        width: CARD.w,
-        height: CARD.h,
-        borderRadius: 38,
-        backgroundColor: colors.surface,
-        border: "1px solid rgba(255,255,255,0.78)",
-        boxShadow: "0 24px 48px rgba(27,28,31,0.18)",
-      },
-    }),
     ...content,
   );
 }
@@ -202,13 +153,7 @@ function background(...content: Child[]) {
 function logo(src: string) {
   return el("img", {
     src,
-    style: {
-      position: "absolute",
-      left: CARD.x + CARD.w - LOGO_MARGIN - LOGO_SIZE,
-      top: CARD.y + CARD.h - LOGO_MARGIN - LOGO_SIZE,
-      width: LOGO_SIZE,
-      height: LOGO_SIZE,
-    },
+    style: { width: LOGO_SIZE, height: LOGO_SIZE },
   });
 }
 
@@ -219,54 +164,36 @@ function postLayout(post: Post, coverSrc: string, logoSrc: string) {
       {
         style: {
           position: "absolute",
-          left: 92,
-          top: 86,
-          width: 584,
-          height: 486,
+          left: 64,
+          top: 54,
           display: "flex",
-          flexDirection: "column",
+          alignItems: "center",
+          gap: 16,
         },
       },
-      text(siteConfig.title, {
-        fontSize: 24,
-        fontWeight: 700,
-        letterSpacing: 4,
-        color: colors.inkSoft,
-      }),
+      logo(logoSrc),
+      text(siteConfig.title, { fontSize: 23, color: colors.inkMuted }),
+    ),
+    el(
+      "div",
+      {
+        style: {
+          position: "absolute",
+          left: 64,
+          top: 152,
+          width: 536,
+          height: 326,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        },
+      },
       text(post.title, {
-        display: "block",
-        marginTop: 30,
-        fontSize: 52,
-        lineHeight: "62px",
+        fontSize: post.title.length > 52 ? 42 : 48,
+        lineHeight: 1.35,
         fontWeight: 700,
         color: colors.ink,
-        lineClamp: 3,
       }),
-      text(post.summary, {
-        display: "block",
-        marginTop: 24,
-        fontSize: 27,
-        lineHeight: "40px",
-        fontWeight: 400,
-        color: colors.inkMuted,
-        lineClamp: 2,
-      }),
-      el("div", { style: { display: "flex", flexGrow: 1 } }),
-      text(formatCalendarDate(post.date), {
-        fontSize: 22,
-        fontWeight: 700,
-        letterSpacing: 2,
-        color: colors.inkSoft,
-      }),
-      el(
-        "div",
-        { style: { display: "flex", gap: 28, marginTop: 16 } },
-        ...post.tags
-          .slice(0, 3)
-          .map((tag) =>
-            text(`# ${tag}`, { fontSize: 20, fontWeight: 700, color: colors.inkMuted }),
-          ),
-      ),
     ),
     el("img", {
       src: coverSrc,
@@ -276,46 +203,82 @@ function postLayout(post: Post, coverSrc: string, logoSrc: string) {
         top: COVER.y,
         width: COVER.w,
         height: COVER.h,
-        borderRadius: 34,
-        objectFit: "cover",
+        objectFit: "contain",
       },
     }),
-    logo(logoSrc),
-  );
-}
-
-function siteLayout(logoSrc: string) {
-  return background(
     el(
       "div",
       {
         style: {
           position: "absolute",
-          left: 92,
-          top: 110,
-          width: 1000,
+          left: 64,
+          top: 536,
+          width: 1072,
+          paddingTop: 22,
+          borderTop: `1px solid ${colors.line}`,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          color: colors.inkMuted,
+          fontSize: 20,
+        },
+      },
+      text(formatCalendarDate(post.date), {}),
+      text(new URL(siteConfig.url).host, { color: colors.accent }),
+    ),
+  );
+}
+
+function siteLayout(artSrc: string) {
+  return background(
+    el("img", {
+      src: artSrc,
+      style: { position: "absolute", left: 0, top: 0, width: WIDTH, height: HEIGHT },
+    }),
+    el(
+      "div",
+      {
+        style: {
+          position: "absolute",
+          left: 64,
+          top: 72,
+          width: 440,
           display: "flex",
           flexDirection: "column",
         },
       },
-      text("PERSONAL BLOG", {
-        fontSize: 24,
+      text(siteConfig.author, {
+        fontSize: 28,
         fontWeight: 700,
-        letterSpacing: 5,
-        color: colors.inkSoft,
+        letterSpacing: 1,
+        color: colors.accent,
       }),
-      text(siteConfig.title, { marginTop: 44, fontSize: 80, fontWeight: 700, color: colors.ink }),
-      text(siteConfig.description, {
-        display: "block",
-        marginTop: 24,
-        fontSize: 30,
-        lineHeight: "44px",
-        fontWeight: 400,
+      text(siteConfig.title, {
+        width: 350,
+        marginTop: 42,
+        fontSize: 78,
+        lineHeight: 1.18,
+        fontWeight: 700,
+        color: colors.ink,
+      }),
+      text("AI 编程 · Agent 工程", {
+        marginTop: 32,
+        fontSize: 25,
         color: colors.inkMuted,
-        lineClamp: 3,
+      }),
+      text("开发者工具 · 摄影与生活", {
+        marginTop: 8,
+        fontSize: 25,
+        color: colors.inkMuted,
       }),
     ),
-    logo(logoSrc),
+    text(new URL(siteConfig.url).host, {
+      position: "absolute",
+      left: 64,
+      top: 554,
+      fontSize: 22,
+      color: colors.accent,
+    }),
   );
 }
 
@@ -325,7 +288,9 @@ async function renderToFile(layout: VNode, output: string) {
     height: HEIGHT,
     fonts: fonts(),
   });
-  await sharp(Buffer.from(svg)).png().toFile(output);
+  await sharp(Buffer.from(svg))
+    .png({ palette: true, quality: 90, effort: 10, compressionLevel: 9 })
+    .toFile(output);
 }
 
 async function renderPost(post: Post, output: string) {
@@ -334,7 +299,8 @@ async function renderPost(post: Post, output: string) {
 }
 
 async function renderSite(output: string) {
-  await renderToFile(siteLayout(await logoDataUri()), output);
+  const art = await sharp(SITE_ART_PATH).resize(WIDTH, HEIGHT).png().toBuffer();
+  await renderToFile(siteLayout(`data:image/png;base64,${art.toString("base64")}`), output);
 }
 
 export async function generateOgImages(
@@ -378,6 +344,9 @@ function defaultOptions(): GenerateOgImagesOptions {
     fs.readFileSync(fileURLToPath(new URL("../src/lib/calendar-date.ts", import.meta.url))),
     fs.readFileSync(fileURLToPath(import.meta.resolve("satori/package.json"))),
     fs.readFileSync(LOGO_PATH),
+    fs.readFileSync(SITE_ART_PATH),
+    siteConfig.url,
+    siteConfig.author,
     ...FONT_FILES.map(({ file }) => fs.readFileSync(path.join(FONT_DIR, file))),
     JSON.stringify(sharp.versions),
   ]);
