@@ -164,7 +164,7 @@ export function PhotoLightbox({
         </div>
 
         <div
-          className="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 pb-2 sm:px-16"
+          className="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 pb-2 [container-type:size] sm:px-16"
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerCancel={() => {
@@ -174,7 +174,10 @@ export function PhotoLightbox({
           <img
             key={photo.id}
             // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
-            style={{ backgroundColor: photo.placeholderColor }}
+            style={{
+              backgroundColor: photo.placeholderColor,
+              width: `min(100cqw, 100cqh * ${photo.width / photo.height})`,
+            }}
             src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
             srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
             sizes={LIGHTBOX_IMAGE_SIZES}
@@ -183,7 +186,7 @@ export function PhotoLightbox({
             height={photo.height}
             decoding="async"
             draggable={false}
-            className="max-h-full max-w-full select-none object-contain"
+            className="select-none"
           />
 
           {previous && (
