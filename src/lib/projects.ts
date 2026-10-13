@@ -33,18 +33,6 @@ export const projects: Project[] = [
     tags: ["iOS", "工具", "贴纸", "照片", "图片编辑"],
   },
   {
-    id: "caffeine-level",
-    name: "Caffeine Level · 慢咖",
-    kind: "iOS 应用",
-    summary: "记录每一杯咖啡，查看咖啡因余量估算。",
-    description:
-      "一款 iPhone 与 iPad 咖啡记录应用。记录饮用时间和剂量，查看咖啡因余量估算与全天变化，支持饮用日历、自定义饮料、主屏幕小组件和本地备份。无需账号，数据保存在设备上。",
-    logo: "/projects/caffeine-level.png",
-    background: "/projects/backgrounds/caffeine-level.webp",
-    url: "https://caffeine-level.xingkaixin.me/",
-    tags: ["iOS", "工具", "咖啡", "咖啡因", "小组件"],
-  },
-  {
     id: "simmerdial",
     name: "Simmerdial",
     kind: "iOS 应用",
@@ -79,28 +67,6 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/spanlet.webp",
     url: "https://spanlet.xingkaixin.me/",
     tags: ["iOS", "工具", "人生进度", "小组件"],
-  },
-  {
-    id: "quotecue",
-    name: "QuoteCue",
-    kind: "浏览器扩展",
-    summary: "选中 AI 回复，批注后继续追问。",
-    description:
-      "一款为 AI 对话设计的浏览器扩展。选中 ChatGPT、Claude、DeepSeek 或 Kimi 回复中的片段添加批注，把多处引用与评论整理成一条结构化追问；草稿按会话保存在本地。",
-    logo: "/projects/quotecue.png",
-    background: "/projects/backgrounds/quotecue.webp",
-    links: [
-      { label: "网站", url: "https://quotecue.xingkaixin.me/" },
-      {
-        label: "Chrome",
-        url: "https://chromewebstore.google.com/detail/quotecue/gbppndnpgjmgmbepccdcbfmdjjiehofp",
-      },
-      {
-        label: "Edge",
-        url: "https://microsoftedge.microsoft.com/addons/detail/icopgahikmamgfagjdjjdfobfnhicbie",
-      },
-    ],
-    tags: ["AI", "Chrome", "Edge", "浏览器扩展"],
   },
   {
     id: "yomitomo",
