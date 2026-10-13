@@ -1,19 +1,21 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/csr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/csr/CaretRight";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
-import { useEffect, useMemo, useRef, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { PhotoBrowsingNavigation } from "@/hooks/use-photo-browsing-session";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_DISPLAY_WIDTH,
   PHOTO_FULL_WIDTH,
+  PHOTO_THUMBNAIL_WIDTH,
   photoVariantSrcSet,
   photoVariantUrl,
   type PhotoAlbum,
   type PhotoRecord,
 } from "@/lib/photo-catalog";
 import { photoFromArrow, photoFromSwipe, planPhotoPreload } from "@/lib/photo-preload";
+import { cn } from "@/lib/utils";
 
 const LIGHTBOX_VARIANT_WIDTHS = [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH] as const;
 const LIGHTBOX_IMAGE_SIZES = "100vw";
@@ -38,6 +40,50 @@ function revealIfOutsideViewport(element: HTMLElement | null): void {
     return;
   }
   element.scrollIntoView({ block: "center", inline: "nearest" });
+}
+
+function loadedTileSource(photoId: string): string | undefined {
+  const tile = document.querySelector<HTMLImageElement>(`[data-photo-id="${photoId}"] img`);
+  return tile?.complete && tile.naturalWidth > 0 ? tile.currentSrc : undefined;
+}
+
+function LightboxImage({ baseUrl, photo }: { baseUrl: string; photo: PhotoRecord }) {
+  const [previewSrc] = useState(
+    () => loadedTileSource(photo.id) ?? photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH),
+  );
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div
+      className="relative overflow-hidden"
+      style={{
+        backgroundColor: photo.placeholderColor,
+        aspectRatio: `${photo.width} / ${photo.height}`,
+        width: `min(100cqw, 100cqh * ${photo.width / photo.height})`,
+      }}
+    >
+      <img
+        src={previewSrc}
+        alt=""
+        decoding="async"
+        draggable={false}
+        className="absolute inset-0 h-full w-full select-none object-cover blur-sm"
+      />
+      <img
+        src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
+        srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
+        sizes={LIGHTBOX_IMAGE_SIZES}
+        alt=""
+        decoding="async"
+        draggable={false}
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out)",
+          !loaded && "opacity-0",
+        )}
+      />
+    </div>
+  );
 }
 
 export function PhotoLightbox({
@@ -171,23 +217,7 @@ export function PhotoLightbox({
             pointerStartRef.current = null;
           }}
         >
-          <img
-            key={photo.id}
-            // key 重挂载会在新图就绪前留一帧空白，用照片主色兜底
-            style={{
-              backgroundColor: photo.placeholderColor,
-              width: `min(100cqw, 100cqh * ${photo.width / photo.height})`,
-            }}
-            src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
-            srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
-            sizes={LIGHTBOX_IMAGE_SIZES}
-            alt=""
-            width={photo.width}
-            height={photo.height}
-            decoding="async"
-            draggable={false}
-            className="select-none"
-          />
+          <LightboxImage key={photo.id} baseUrl={baseUrl} photo={photo} />
 
           {previous && (
             <button
