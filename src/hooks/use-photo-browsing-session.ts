@@ -104,6 +104,13 @@ export function usePhotoBrowsingSession({
     },
     [navigate, select],
   );
+  const openRandomPhoto = useCallback(() => {
+    const photoIds = index ? Object.keys(index.photoMonths) : [];
+    const photoId = photoIds[Math.floor(Math.random() * photoIds.length)];
+    if (photoId) {
+      navigate(planPhotoOpen(window.location.href, window.history.state, photoId));
+    }
+  }, [index, navigate]);
   const selectPhoto = useCallback(
     (photo: PhotoRecord) => {
       navigate(planPhotoSelection(window.location.href, window.history.state, photo.id));
@@ -143,6 +150,7 @@ export function usePhotoBrowsingSession({
     retryNavigation,
     retryPhoto,
     openPhoto,
+    openRandomPhoto,
     selectPhoto,
     closePhoto,
     openTimeline,

@@ -1,3 +1,4 @@
+import { ShuffleIcon } from "@phosphor-icons/react/dist/csr/Shuffle";
 import type { CSSProperties, ReactNode } from "react";
 import {
   PHOTO_THUMBNAIL_WIDTH,
@@ -19,6 +20,7 @@ type PhotoOverviewProps = {
   onRetryMonth: (period: PhotoPeriod) => void;
   onOpenAlbum: (albumId: string | null) => void;
   onOpenMonth: (month: string) => void;
+  onRandomPhoto: () => void;
 };
 
 const PAGE_CLASS_NAME = "mx-auto max-w-340 px-4 pt-8 sm:px-6 lg:px-10 lg:pt-16";
@@ -38,6 +40,7 @@ export function PhotoOverview({
   onRetryMonth,
   onOpenAlbum,
   onOpenMonth,
+  onRandomPhoto,
 }: PhotoOverviewProps) {
   const [featured, ...rest] = items;
   const rollCards = rest.slice(0, ROLL_CARD_COUNT);
@@ -99,6 +102,17 @@ export function PhotoOverview({
               )}
             >
               按时间浏览全部 →
+            </button>
+            <button
+              type="button"
+              onClick={onRandomPhoto}
+              className={cn(
+                "inline-flex min-h-12 items-center gap-2 rounded-full border border-ink-300 px-6 text-[15px] text-ink-800 transition-[transform,border-color] hover:border-ink-500 active:scale-[0.97]",
+                FOCUS_RING_CLASS_NAME,
+              )}
+            >
+              <ShuffleIcon aria-hidden="true" className="h-4 w-4" />
+              随机抽一张
             </button>
           </div>
         </div>

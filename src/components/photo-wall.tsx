@@ -103,6 +103,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           onRetryMonth={retryMonth}
           onOpenAlbum={browsing.openTimeline}
           onOpenMonth={openMonth}
+          onRandomPhoto={browsing.openRandomPhoto}
         />
       )}
       {catalogState.status === "ready" && photoView.mode === "timeline" && (
