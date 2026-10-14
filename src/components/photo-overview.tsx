@@ -1,11 +1,11 @@
-import { photoBackgroundStyle } from "@/lib/photo-background";
+import type { CSSProperties, ReactNode } from "react";
 import {
   PHOTO_THUMBNAIL_WIDTH,
   photoVariantUrl,
   type PhotoPeriod,
   type PhotoRecord,
 } from "@/lib/photo-catalog";
-import type { AlbumOverviewItem, JourneyYear } from "@/lib/photo-wall-model";
+import type { AlbumOverviewItem, PhotoYearActivity } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
 type PhotoOverviewProps = {
@@ -14,20 +14,18 @@ type PhotoOverviewProps = {
   photoCount: number;
   photoRange: string;
   items: AlbumOverviewItem[];
-  journeyYears: JourneyYear[];
+  yearActivity: PhotoYearActivity[];
   failedPeriods: PhotoPeriod[];
   onRetryMonth: (period: PhotoPeriod) => void;
   onOpenAlbum: (albumId: string | null) => void;
+  onOpenMonth: (month: string) => void;
 };
 
-const PAGE_CLASS_NAME = "mx-auto max-w-320 px-4 pt-8 sm:px-5 lg:px-8 lg:pt-12";
+const PAGE_CLASS_NAME = "mx-auto max-w-340 px-4 pt-8 sm:px-6 lg:px-10 lg:pt-16";
 const FOCUS_RING_CLASS_NAME =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
-const FEATURED_PRINT_CLASS_NAMES = [
-  "left-[14%] top-[13%] h-[68%] max-w-[36%] -rotate-4 sm:left-[44%] sm:top-[15%] sm:h-[64%] sm:max-w-[22%]",
-  "left-[48%] top-[9%] h-[72%] max-w-[38%] rotate-3 sm:left-[61%] sm:top-[9%] sm:h-[69%] sm:max-w-[22%] sm:rotate-2",
-  "hidden sm:block sm:left-[79%] sm:top-[22%] sm:h-[60%] sm:max-w-[19%] sm:rotate-5",
-];
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
+const ROLL_CARD_COUNT = 6;
+const MAX_BAR_HEIGHT = 96;
 
 export function PhotoOverview({
   baseUrl,
@@ -35,23 +33,26 @@ export function PhotoOverview({
   photoCount,
   photoRange,
   items,
-  journeyYears,
+  yearActivity,
   failedPeriods,
   onRetryMonth,
   onOpenAlbum,
+  onOpenMonth,
 }: PhotoOverviewProps) {
   const [featured, ...rest] = items;
+  const rollCards = rest.slice(0, ROLL_CARD_COUNT);
+  const rollLabels = rest.slice(ROLL_CARD_COUNT);
+  const monthCount = yearActivity.reduce(
+    (sum, year) => sum + year.months.filter((month) => month.count > 0).length,
+    0,
+  );
+
   return (
     <div className={PAGE_CLASS_NAME}>
-      <PhotoArchiveHeader
-        detail={`PHOTOS · ${albumCount} 个相册 · ${photoCount} 张`}
-        view="overview"
-        onSwitchView={() => onOpenAlbum(null)}
-      />
       {failedPeriods.length > 0 && (
         <div
           role="alert"
-          className="mt-6 flex items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3"
+          className="mb-8 flex items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3"
         >
           <div>
             <p className="text-sm font-medium text-ink-800">相册预览加载失败</p>
@@ -61,7 +62,7 @@ export function PhotoOverview({
             type="button"
             onClick={() => failedPeriods.forEach(onRetryMonth)}
             className={cn(
-              "shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700",
+              "shrink-0 rounded-full border border-line bg-paper px-3.5 py-1.5 text-xs font-medium text-ink-700",
               FOCUS_RING_CLASS_NAME,
             )}
           >
@@ -69,32 +70,111 @@ export function PhotoOverview({
           </button>
         </div>
       )}
-      {featured && (
-        <FeaturedAlbumCard
-          baseUrl={baseUrl}
-          item={featured}
-          onOpen={() => onOpenAlbum(featured.id)}
-        />
-      )}
-      <section className="mt-12 sm:mt-14">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 className="text-lg font-medium text-ink-800 sm:text-xl">城市</h2>
-          <p className="text-[13px] text-ink-500">按最近一次到访排序</p>
+
+      <section className="grid items-end gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+        <div className="flex flex-col gap-7">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-500">
+            Roll 01—{String(albumCount).padStart(2, "0")} · {photoCount} frames
+            {photoRange && ` · ${photoRange}`}
+          </p>
+          <h1 className="font-serif text-[88px] font-black leading-[0.95] tracking-tight text-ink-800 sm:text-[136px]">
+            照片墙
+          </h1>
+          <p className="max-w-110 text-[17px] leading-[1.8] text-ink-600">
+            走过的 {albumCount} 座城市，一共 {photoCount}{" "}
+            张。每座城市是一卷胶卷：按城市翻，或者沿着时间倒着走。
+          </p>
+          <dl className="flex gap-10 border-t border-line pt-4">
+            <OverviewStat value={albumCount} label="座城市" />
+            <OverviewStat value={photoCount} label="张照片" />
+            <OverviewStat value={monthCount} label="个有照片的月份" />
+          </dl>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => onOpenAlbum(null)}
+              className={cn(
+                "inline-flex min-h-12 items-center rounded-full bg-ink-800 px-6 text-[15px] font-medium text-paper transition-transform active:scale-[0.97]",
+                FOCUS_RING_CLASS_NAME,
+              )}
+            >
+              按时间浏览全部 →
+            </button>
+          </div>
         </div>
-        <div className="mt-5 grid gap-x-7 gap-y-8 sm:mt-6 sm:grid-cols-2 sm:gap-y-10 lg:grid-cols-3">
-          {rest.map((item, index) => (
-            <AlbumCard
-              key={item.id}
-              baseUrl={baseUrl}
-              item={item}
-              eager={index < 3}
-              onOpen={() => onOpenAlbum(item.id)}
-            />
-          ))}
-          <AllPhotosCard count={photoCount} range={photoRange} onOpen={() => onOpenAlbum(null)} />
-        </div>
+        {featured && (
+          <FeaturedRoll baseUrl={baseUrl} item={featured} onOpen={() => onOpenAlbum(featured.id)} />
+        )}
       </section>
-      {journeyYears.length > 0 && <JourneyYears years={journeyYears} onOpenAlbum={onOpenAlbum} />}
+
+      <div className="sticky top-[60px] z-10 -mx-4 mt-16 flex flex-wrap items-center justify-between gap-3 border-y border-line bg-paper/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-10 lg:mt-24 lg:px-10">
+        <ViewSwitch view="overview" onSwitchView={() => onOpenAlbum(null)} />
+        <span className="font-mono text-xs tracking-[0.12em] text-ink-500">
+          {albumCount} 卷 · 按最近一次到访
+        </span>
+      </div>
+
+      {rollCards.length > 0 && (
+        <section aria-labelledby="photo-rolls-title" className="mt-12">
+          <h2 id="photo-rolls-title" className="font-serif text-[28px] font-semibold text-ink-800">
+            城市胶卷
+          </h2>
+          <div className="mt-7 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {rollCards.map((item, index) => (
+              <RollCard
+                key={item.id}
+                baseUrl={baseUrl}
+                item={item}
+                eager={index < 3}
+                onOpen={() => onOpenAlbum(item.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {rollLabels.length > 0 && (
+        <section aria-labelledby="photo-roll-labels-title" className="mt-18">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2
+              id="photo-roll-labels-title"
+              className="font-serif text-[22px] font-semibold text-ink-800"
+            >
+              其余 {rollLabels.length} 卷
+            </h2>
+            <p className="font-mono text-xs tracking-[0.12em] text-ink-500">片盒标签 · 点击进入</p>
+          </div>
+          <ul className="mt-4 grid gap-x-8 border-t border-line sm:grid-cols-2 lg:grid-cols-4">
+            {rollLabels.map((item) => (
+              <li key={item.id} className="border-b border-line">
+                <button
+                  type="button"
+                  onClick={() => onOpenAlbum(item.id)}
+                  aria-label={`打开${item.title}，${item.count}张照片`}
+                  className={cn(
+                    "group flex min-h-13 w-full items-baseline gap-3 py-3.5 text-left",
+                    FOCUS_RING_CLASS_NAME,
+                  )}
+                >
+                  <RollNumber roll={item.roll} className="w-6" />
+                  <span className="text-base text-ink-800 transition-colors group-hover:text-accent">
+                    {item.title}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="flex-1 border-b border-dotted border-ink-300"
+                  />
+                  <span className="font-mono text-xs text-ink-500">
+                    {item.latestMonth} · {item.count}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {yearActivity.length > 0 && <YearActivity years={yearActivity} onOpenMonth={onOpenMonth} />}
     </div>
   );
 }
@@ -106,13 +186,13 @@ export function PhotoWallLoading() {
       <div role="status" aria-label="正在加载相册">
         <span
           aria-hidden="true"
-          className="mt-8 block h-[260px] rounded-[12px] bg-ink-100 sm:mt-14 sm:h-[440px] sm:rounded-[14px]"
+          className="mt-12 block h-[260px] rounded-[6px] bg-ink-100 sm:h-[360px]"
         />
-        <div className="mt-12 grid gap-x-7 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }, (_, index) => (
             <div key={index}>
-              <span aria-hidden="true" className="block aspect-3/2 rounded-[12px] bg-ink-100" />
-              <span aria-hidden="true" className="mt-3 block h-4 w-24 bg-ink-100" />
+              <span aria-hidden="true" className="block h-[200px] rounded-[6px] bg-ink-100" />
+              <span aria-hidden="true" className="mt-3.5 block h-6 w-24 bg-ink-100" />
             </div>
           ))}
         </div>
@@ -127,7 +207,7 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
       <PhotoArchiveHeader />
       <div
         role="alert"
-        className="mt-8 flex min-h-72 flex-col items-center justify-center gap-4 rounded-[10px] border border-line bg-surface px-6 text-center"
+        className="mt-10 flex min-h-72 flex-col items-center justify-center gap-4 rounded-[8px] border border-line bg-surface px-6 text-center"
       >
         <div>
           <h2 className="text-lg font-medium text-ink-800">照片暂时无法加载</h2>
@@ -136,7 +216,10 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-[6px] bg-ink-800 px-4 py-2 text-sm font-medium text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 active:scale-[0.97]"
+          className={cn(
+            "rounded-full bg-ink-800 px-5 py-2 text-sm font-medium text-paper active:scale-[0.97]",
+            FOCUS_RING_CLASS_NAME,
+          )}
         >
           重新加载
         </button>
@@ -146,43 +229,55 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
 }
 
 export function PhotoArchiveHeader({
+  title = "照片墙",
   detail,
   view,
   onSwitchView,
 }: {
+  title?: string;
   detail?: string;
   view?: "overview" | "timeline";
   onSwitchView?: () => void;
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-line pb-4 sm:flex-row sm:items-end sm:justify-between sm:pb-5">
+    <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-500">
+        <p className="font-mono text-[11px] tracking-[0.18em] text-ink-500">
           {detail ?? "正在读取照片档案"}
         </p>
-        <h1 className="mt-2.5 font-display text-[44px] font-normal leading-none text-ink-800 sm:text-[56px]">
-          照片墙
+        <h1 className="mt-3 font-serif text-[56px] font-black leading-none tracking-tight text-ink-800 sm:text-[80px]">
+          {title}
         </h1>
       </div>
-      {view && (
-        <div
-          role="group"
-          aria-label="浏览方式"
-          className="flex self-start rounded-[8px] border border-line bg-surface p-1 sm:self-auto"
-        >
-          <ViewSwitchButton
-            pressed={view === "overview"}
-            label="按城市"
-            onClick={view === "overview" ? undefined : onSwitchView}
-          />
-          <ViewSwitchButton
-            pressed={view === "timeline"}
-            label="按时间"
-            onClick={view === "timeline" ? undefined : onSwitchView}
-          />
-        </div>
-      )}
+      {view && <ViewSwitch view={view} onSwitchView={onSwitchView} />}
     </header>
+  );
+}
+
+function ViewSwitch({
+  view,
+  onSwitchView,
+}: {
+  view: "overview" | "timeline";
+  onSwitchView?: () => void;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="浏览方式"
+      className="flex self-start rounded-full border border-line bg-surface p-1 sm:self-auto"
+    >
+      <ViewSwitchButton
+        pressed={view === "overview"}
+        label="按城市"
+        onClick={view === "overview" ? undefined : onSwitchView}
+      />
+      <ViewSwitchButton
+        pressed={view === "timeline"}
+        label="按时间"
+        onClick={view === "timeline" ? undefined : onSwitchView}
+      />
+    </div>
   );
 }
 
@@ -201,7 +296,7 @@ function ViewSwitchButton({
       aria-pressed={pressed}
       onClick={onClick}
       className={cn(
-        "min-h-10 rounded-[6px] px-3.5 text-[13px] text-ink-500 transition-colors hover:text-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
+        "min-h-10 rounded-full px-4 text-sm text-ink-500 transition-colors hover:text-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
         FOCUS_RING_CLASS_NAME,
       )}
     >
@@ -210,7 +305,24 @@ function ViewSwitchButton({
   );
 }
 
-function FeaturedAlbumCard({
+function OverviewStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col-reverse gap-1">
+      <dt className="text-[13px] text-ink-500">{label}</dt>
+      <dd className="text-[40px] font-light leading-none text-ink-800">{value}</dd>
+    </div>
+  );
+}
+
+function RollNumber({ roll, className }: { roll: number; className?: string }) {
+  return (
+    <span className={cn("font-mono text-[11px] text-film", className)}>
+      {String(roll).padStart(2, "0")}
+    </span>
+  );
+}
+
+function FeaturedRoll({
   baseUrl,
   item,
   onOpen,
@@ -219,15 +331,7 @@ function FeaturedAlbumCard({
   item: AlbumOverviewItem;
   onOpen: () => void;
 }) {
-  const label = (
-    <>
-      <span className="font-mono text-[11px] tracking-[0.18em] text-accent">最近一次出发</span>
-      <span className="font-display text-[40px] leading-none text-ink-800 transition-colors group-hover:text-accent sm:text-[64px]">
-        {item.title}
-      </span>
-    </>
-  );
-  const meta = `${item.latestMonth} · ${item.count} 张`;
+  const frames = item.status === "ready" ? item.photos : Array.from({ length: 4 }, () => undefined);
 
   return (
     <button
@@ -235,38 +339,63 @@ function FeaturedAlbumCard({
       onClick={onOpen}
       aria-label={`打开${item.title}，${item.count}张照片`}
       className={cn(
-        "group mt-8 block w-full rounded-[14px] text-left sm:mt-14",
+        "group flex w-full flex-col gap-5 rounded-[8px] text-left",
         FOCUS_RING_CLASS_NAME,
       )}
     >
-      <span className="relative block h-[260px] overflow-hidden rounded-[12px] border border-line bg-surface sm:h-[440px] sm:rounded-[14px]">
-        <span aria-hidden="true" className="photo-sketch" style={photoBackgroundStyle(item.id)} />
-        {FEATURED_PRINT_CLASS_NAMES.map((className, index) => (
-          <PhotoPrint
-            key={item.photos[index]?.id ?? index}
-            baseUrl={baseUrl}
-            photo={item.photos[index]}
-            status={item.status}
-            eager
-            fallbackAspect="3 / 4"
-            className={className}
-          />
-        ))}
-        <span className="absolute left-8 top-8 hidden min-w-60 flex-col gap-2.5 rounded-[10px] border border-line bg-paper/95 px-[26px] py-[22px] sm:flex">
-          {label}
-          <span className="font-mono text-xs text-ink-500">{meta}</span>
-          <span className="mt-2 text-sm font-medium text-ink-800">进入相册 →</span>
-        </span>
+      <span className="flex items-baseline justify-between font-mono text-[11px] tracking-[0.16em] text-ink-500">
+        <span>最近一卷 · LATEST ROLL</span>
+        <span className="text-accent">● {item.latestMonth}</span>
       </span>
-      <span className="mt-3.5 flex items-end justify-between gap-3 sm:hidden">
-        <span className="flex flex-col gap-1.5">{label}</span>
-        <span className="font-mono text-xs text-ink-500">{meta}</span>
+      <FilmStrip className="gap-2.5 p-3 sm:px-3.5">
+        <span className="flex h-[220px] gap-2 sm:h-[320px]">
+          {frames.map((photo, index) => (
+            <span
+              key={photo?.id ?? index}
+              className={cn("relative flex min-w-0 flex-col gap-2", index === 3 && "max-sm:hidden")}
+              style={frameFlex(photo)}
+            >
+              <span aria-hidden="true" className="font-mono text-[10px] tracking-[0.1em] text-film">
+                {index === 0 && "▸ "}
+                {String(index + 1).padStart(2, "0")}
+                {index % 2 === 1 && "A"}
+              </span>
+              <span className="relative min-h-0 flex-1">
+                <FilmFrame
+                  baseUrl={baseUrl}
+                  photo={photo}
+                  loading={item.status === "loading"}
+                  eager
+                />
+                {index === 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -inset-x-2 -inset-y-2.5 -rotate-3 rounded-[48%_52%_46%_54%] border-[2.5px] border-accent"
+                  />
+                )}
+              </span>
+            </span>
+          ))}
+        </span>
+      </FilmStrip>
+      <span className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+        <span className="flex items-baseline gap-4">
+          <span className="font-serif text-[48px] font-black leading-none text-ink-800 transition-colors group-hover:text-accent sm:text-[64px]">
+            {item.title}
+          </span>
+          <span className="font-mono text-xs text-ink-500">
+            ROLL {String(item.roll).padStart(2, "0")}
+          </span>
+        </span>
+        <span className="font-mono text-[13px] text-ink-600">
+          {item.latestMonth} · {item.count} 张 →
+        </span>
       </span>
     </button>
   );
 }
 
-function AlbumCard({
+function RollCard({
   baseUrl,
   item,
   eager,
@@ -277,8 +406,7 @@ function AlbumCard({
   eager: boolean;
   onOpen: () => void;
 }) {
-  const photo = item.photos[0];
-  const portrait = photo ? photo.height > photo.width : false;
+  const frames = item.status === "ready" ? item.photos : Array.from({ length: 3 }, () => undefined);
 
   return (
     <button
@@ -286,158 +414,155 @@ function AlbumCard({
       onClick={onOpen}
       aria-label={`打开${item.title}，${item.count}张照片`}
       className={cn(
-        "group flex w-full flex-col gap-3 rounded-[8px] text-left",
+        "group flex w-full flex-col gap-3.5 rounded-[8px] text-left",
         FOCUS_RING_CLASS_NAME,
       )}
     >
-      <span className="relative block aspect-3/2 overflow-hidden rounded-[12px] border border-line bg-surface">
-        <span aria-hidden="true" className="photo-sketch" style={photoBackgroundStyle(item.id)} />
-        <PhotoPrint
-          baseUrl={baseUrl}
-          photo={photo}
-          status={item.status}
-          eager={eager}
-          fallbackAspect="4 / 3"
-          className={
-            portrait
-              ? "left-[36%] top-[12%] w-[28%] -rotate-3"
-              : "left-[28%] top-[14%] w-[44%] -rotate-2"
-          }
-        />
-      </span>
-      <AlbumCaption title={item.title} meta={`${item.latestMonth} · ${item.count} 张`} />
-    </button>
-  );
-}
-
-function AllPhotosCard({
-  count,
-  range,
-  onOpen,
-}: {
-  count: number;
-  range: string;
-  onOpen: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={`按时间浏览全部${count}张照片`}
-      className={cn(
-        "group flex w-full flex-col gap-3 rounded-[8px] text-left",
-        FOCUS_RING_CLASS_NAME,
-      )}
-    >
-      <span className="relative block aspect-3/2 overflow-hidden rounded-[12px] border border-line bg-surface">
-        <span aria-hidden="true" className="photo-sketch" style={photoBackgroundStyle(null)} />
-        <span className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5 whitespace-nowrap rounded-[8px] border border-line bg-paper/95 px-5 py-3.5">
-          <span className="font-display text-[28px] leading-none text-ink-800">按时间浏览</span>
-          <span className="font-mono text-[11px] text-ink-500">从最近的照片开始</span>
+      <FilmStrip className="gap-2 p-2.5 transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:-translate-y-0.5">
+        <span className="flex h-[168px] gap-1.5">
+          {frames.map((photo, index) => (
+            <span key={photo?.id ?? index} className="min-w-0 flex-1">
+              <FilmFrame
+                baseUrl={baseUrl}
+                photo={photo}
+                loading={item.status === "loading"}
+                eager={eager}
+              />
+            </span>
+          ))}
+        </span>
+      </FilmStrip>
+      <span className="flex items-baseline justify-between gap-3">
+        <span className="flex items-baseline gap-3">
+          <RollNumber roll={item.roll} />
+          <span className="font-serif text-[30px] font-black leading-none text-ink-800 transition-colors group-hover:text-accent">
+            {item.title}
+          </span>
+        </span>
+        <span className="font-mono text-xs text-ink-500">
+          {item.latestMonth} · {item.count} 张
         </span>
       </span>
-      <AlbumCaption title="全部照片" meta={`${range} · ${count} 张`} />
     </button>
   );
 }
 
-function AlbumCaption({ title, meta }: { title: string; meta: string }) {
+function FilmStrip({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <span className="flex items-baseline justify-between gap-3 px-0.5">
-      <span className="text-base font-medium text-ink-800 transition-colors group-hover:text-accent sm:text-[17px]">
-        {title}
-      </span>
-      <span className="font-mono text-xs text-ink-500">{meta}</span>
+    <span className={cn("flex flex-col rounded-[6px] bg-surface", className)}>
+      <span aria-hidden="true" className="film-sprockets" />
+      {children}
+      <span aria-hidden="true" className="film-sprockets" />
     </span>
   );
 }
 
-function PhotoPrint({
+function FilmFrame({
   baseUrl,
   photo,
-  status,
+  loading,
   eager,
-  fallbackAspect,
-  className,
 }: {
   baseUrl: string;
   photo: PhotoRecord | undefined;
-  status: AlbumOverviewItem["status"];
+  loading: boolean;
   eager: boolean;
-  fallbackAspect: string;
-  className: string;
 }) {
-  if (!photo && status === "ready") {
-    return null;
+  if (!photo) {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn(
+          "block h-full w-full bg-ink-100",
+          loading && "animate-pulse motion-reduce:animate-none",
+        )}
+      />
+    );
   }
   return (
-    <span
-      className={cn(
-        "absolute overflow-hidden border-4 border-white bg-ink-100 shadow-[0_1px_2px_rgba(20,21,26,0.08),0_14px_28px_-14px_rgba(20,21,26,0.5)] transition-transform duration-(--duration-fast) ease-(--ease-smooth-out) group-hover:-translate-y-0.5 sm:border-[6px] dark:border-ink-700",
-        status === "loading" && "animate-pulse motion-reduce:animate-none",
-        className,
-      )}
-      style={{ aspectRatio: photo ? `${photo.width} / ${photo.height}` : fallbackAspect }}
-    >
-      {photo && (
-        <img
-          src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
-          alt=""
-          width={photo.width}
-          height={photo.height}
-          loading={eager ? "eager" : "lazy"}
-          fetchPriority={eager ? "high" : "auto"}
-          decoding="async"
-          className="h-full w-full object-cover"
-          style={{ backgroundColor: photo.placeholderColor }}
-        />
-      )}
-    </span>
+    <img
+      src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
+      alt=""
+      width={photo.width}
+      height={photo.height}
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : "auto"}
+      decoding="async"
+      className="block h-full w-full object-cover"
+      style={{ backgroundColor: photo.placeholderColor }}
+    />
   );
 }
 
-function JourneyYears({
+function frameFlex(photo: PhotoRecord | undefined): CSSProperties {
+  return { flex: `${photo ? photo.width / photo.height : 0.75} 1 0` };
+}
+
+function YearActivity({
   years,
-  onOpenAlbum,
+  onOpenMonth,
 }: {
-  years: JourneyYear[];
-  onOpenAlbum: (albumId: string) => void;
+  years: PhotoYearActivity[];
+  onOpenMonth: (month: string) => void;
 }) {
+  const months = years.flatMap((year) => year.months);
+  const peak = months.reduce((best, month) => (month.count > best.count ? month : best), months[0]);
+
   return (
-    <section className="mt-14">
+    <section aria-labelledby="photo-activity-title" className="mt-22">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-lg font-medium text-ink-800 sm:text-xl">旅程年表</h2>
-        <p className="text-[13px] text-ink-500">同一座城市去过多次，会出现在不同年份</p>
+        <h2 id="photo-activity-title" className="font-serif text-[22px] font-semibold text-ink-800">
+          冲洗记录 · 每月拍了多少
+        </h2>
+        <p className="font-mono text-xs text-ink-500">
+          最多：{formatMonth(peak.month)} {peak.count} 张 · 点任意一格跳到那个月
+        </p>
       </div>
-      <dl className="mt-4 border-t border-line">
-        {years.map(({ year, albums }, index) => (
-          <div key={year} className="flex gap-4 border-b border-line py-3 sm:gap-6 sm:py-3.5">
-            <dt
-              className={cn(
-                "w-11 shrink-0 font-mono text-xs leading-8 sm:w-18 sm:text-[13px]",
-                index === 0 ? "text-accent" : "text-ink-500",
-              )}
-            >
-              {year}
-            </dt>
-            <dd className="flex flex-wrap gap-x-4 sm:gap-x-5">
-              {albums.map((album) => (
-                <button
-                  key={album.id}
-                  type="button"
-                  onClick={() => onOpenAlbum(album.id)}
-                  className={cn(
-                    "min-h-8 rounded-[4px] text-sm text-ink-800 transition-colors hover:text-accent",
-                    FOCUS_RING_CLASS_NAME,
-                  )}
-                >
-                  {album.title} <span className="text-ink-500">{album.count}</span>
-                </button>
-              ))}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <div className="mt-7 overflow-x-auto pb-2">
+        <div
+          className="grid min-w-max gap-3"
+          style={{ gridTemplateColumns: `repeat(${years.length}, minmax(96px, 1fr))` }}
+        >
+          {years.map((year) => (
+            <div key={year.year} className="flex flex-col gap-2.5">
+              <div className="flex h-24 items-end gap-[3px] border-b border-ink-300">
+                {year.months.map((month) =>
+                  month.count > 0 ? (
+                    <button
+                      key={month.month}
+                      type="button"
+                      onClick={() => onOpenMonth(month.month)}
+                      aria-label={`${formatMonth(month.month)}，${month.count} 张，跳到这个月`}
+                      title={`${formatMonth(month.month)} · ${month.count} 张`}
+                      className={cn(
+                        "flex-1 rounded-t-[1px] transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
+                        month.count * 2 >= peak.count ? "bg-accent" : "bg-ink-400",
+                      )}
+                      style={{
+                        height: `${Math.min(MAX_BAR_HEIGHT, Math.round(Math.sqrt(month.count) * 10))}px`,
+                      }}
+                    />
+                  ) : (
+                    <span
+                      key={month.month}
+                      aria-hidden="true"
+                      className="h-0.5 flex-1 bg-ink-200"
+                    />
+                  ),
+                )}
+              </div>
+              <div className="flex justify-between font-mono text-xs">
+                <span className="text-ink-800">{year.year}</span>
+                <span className="text-ink-500">{year.total > 0 ? `${year.total} 张` : "—"}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
+}
+
+function formatMonth(month: string): string {
+  return month.replace("-", ".");
 }

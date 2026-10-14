@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import "@/components/photo-background.css";
 import { PhotoLightbox } from "@/components/photo-lightbox";
 import { PhotoOverview, PhotoWallError, PhotoWallLoading } from "@/components/photo-overview";
@@ -69,6 +69,19 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     requestMonth,
   );
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
+  // 总览的月份柱跳到全部照片时间线；等时间线渲染出月份锚点后再滚动。
+  const pendingMonthRef = useRef<string | null>(null);
+  const openMonth = (month: string) => {
+    pendingMonthRef.current = month;
+    browsing.openTimeline(null);
+  };
+  useEffect(() => {
+    const month = pendingMonthRef.current;
+    if (photoView.mode === "timeline" && month) {
+      pendingMonthRef.current = null;
+      jumpToMonth(month);
+    }
+  }, [jumpToMonth, photoView.mode]);
 
   return (
     <section data-photo-darkroom className="min-h-[calc(100svh-160px)] pb-20">
@@ -83,12 +96,13 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
           photoCount={catalogModel.allPhotoCount}
           photoRange={catalogModel.allPhotoRange}
           items={overviewItems}
-          journeyYears={catalogModel.journeyYears}
+          yearActivity={catalogModel.yearActivity}
           failedPeriods={catalogModel.overviewPeriods.filter(
             (period) => period.month in monthErrors,
           )}
           onRetryMonth={retryMonth}
           onOpenAlbum={browsing.openTimeline}
+          onOpenMonth={openMonth}
         />
       )}
       {catalogState.status === "ready" && photoView.mode === "timeline" && (

@@ -6,12 +6,15 @@ import type {
   PhotoRecord,
 } from "./photo-catalog";
 
-const FEATURED_PREVIEW_COUNT = 3;
-const CARD_PREVIEW_COUNT = 1;
+const FEATURED_PREVIEW_COUNT = 4;
+const ROLL_CARD_COUNT = 6;
+const CARD_PREVIEW_COUNT = 3;
 
 export type AlbumOverviewItem = {
   id: string;
   title: string;
+  /** 按最近一次到访排出的胶卷编号，从 1 开始 */
+  roll: number;
   count: number;
   latestMonth: string;
   status: "loading" | "ready" | "error";
@@ -27,9 +30,10 @@ export type PhotoAlbumSummary = PhotoAlbum & {
   count: number;
 };
 
-export type JourneyYear = {
+export type PhotoYearActivity = {
   year: string;
-  albums: PhotoAlbumSummary[];
+  total: number;
+  months: { month: string; count: number }[];
 };
 
 export type PhotoTimelineModel = {
@@ -45,7 +49,7 @@ export type PhotoTimelineModel = {
 type PhotoWallCatalogModel = PhotoTimelineModel & {
   albumCount: number;
   allPhotoRange: string;
-  journeyYears: JourneyYear[];
+  yearActivity: PhotoYearActivity[];
   overviewPeriods: PhotoPeriod[];
   overviewSummaries: AlbumOverviewSummary[];
 };
@@ -62,7 +66,7 @@ export function buildPhotoWallCatalogModel(
       visiblePeriods: [],
       albumCount: 0,
       allPhotoRange: "",
-      journeyYears: [],
+      yearActivity: [],
       overviewPeriods: [],
       overviewSummaries: [],
       allPhotoCount: 0,
@@ -103,9 +107,15 @@ export function buildPhotoWallCatalogModel(
       )
     : [];
   const overviewSummaries = albumSummaries.map((album, position): AlbumOverviewSummary => {
-    const previewCount = position === 0 ? FEATURED_PREVIEW_COUNT : CARD_PREVIEW_COUNT;
+    const previewCount =
+      position === 0
+        ? FEATURED_PREVIEW_COUNT
+        : position <= ROLL_CARD_COUNT
+          ? CARD_PREVIEW_COUNT
+          : 0;
     return {
       ...album,
+      roll: position + 1,
       latestMonth: latestMonth(album.id).replace("-", "."),
       previewCount,
       previewPeriods: previewPeriods(periodsByAlbum.get(album.id) ?? [], album.id, previewCount),
@@ -122,7 +132,7 @@ export function buildPhotoWallCatalogModel(
     visiblePeriods,
     albumCount: index.albums.length,
     allPhotoRange: formatPeriodRange(index.periods),
-    journeyYears: buildJourneyYears(index),
+    yearActivity: buildYearActivity(index.periods),
     overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
     overviewSummaries,
     allPhotoCount,
@@ -156,28 +166,33 @@ export function buildOverviewItems(
   });
 }
 
-function buildJourneyYears(index: PhotoCatalogIndex): JourneyYear[] {
-  const titles = new Map(index.albums.map((album) => [album.id, album.title]));
-  const years = new Map<string, Map<string, number>>();
-  for (const period of index.periods) {
-    const year = period.month.slice(0, 4);
-    for (const [albumId, count] of Object.entries(period.albumCounts)) {
-      if (count <= 0 || !titles.has(albumId)) {
-        continue;
-      }
-      const albums = years.get(year) ?? new Map<string, number>();
-      albums.set(albumId, (albums.get(albumId) ?? 0) + count);
-      years.set(year, albums);
-    }
+function buildYearActivity(periods: PhotoPeriod[]): PhotoYearActivity[] {
+  const newest = periods[0]?.month;
+  const oldest = periods.at(-1)?.month;
+  if (!newest || !oldest) {
+    return [];
   }
-  return [...years].map(([year, albums]) => ({
-    year,
-    albums: [...albums].map(([id, count]) => ({ id, title: titles.get(id) ?? id, count })),
-  }));
+  const counts = new Map(periods.map((period) => [period.month, period.count]));
+  const years: PhotoYearActivity[] = [];
+  for (let year = Number(oldest.slice(0, 4)); year <= Number(newest.slice(0, 4)); year += 1) {
+    const months = Array.from({ length: 12 }, (_, index) => {
+      const month = `${year}-${String(index + 1).padStart(2, "0")}`;
+      return { month, count: counts.get(month) ?? 0 };
+    });
+    years.push({
+      year: String(year),
+      total: months.reduce((sum, month) => sum + month.count, 0),
+      months,
+    });
+  }
+  return years;
 }
 
 function previewPeriods(periods: PhotoPeriod[], albumId: string, limit: number): PhotoPeriod[] {
   const result: PhotoPeriod[] = [];
+  if (limit === 0) {
+    return result;
+  }
   let count = 0;
   for (const period of periods) {
     result.push(period);

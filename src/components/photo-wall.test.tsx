@@ -187,7 +187,7 @@ describe("photo overview recovery", () => {
     await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" />));
     expect(console.error).toHaveBeenCalled();
     expect(container.querySelector('[role="alert"]')).toBeNull();
-    expect(container.querySelectorAll("img")).toHaveLength(3);
+    expect(container.querySelectorAll("img")).toHaveLength(4);
   });
 });
 

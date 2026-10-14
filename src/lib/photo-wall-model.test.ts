@@ -74,23 +74,18 @@ describe("photo wall model", () => {
     expect(model.timelineRange).toBe("2026年8月");
   });
 
-  it("orders albums by latest visit and groups them by year", () => {
+  it("orders albums by latest visit and counts photos per month", () => {
     const catalog = buildPhotoWallCatalogModel(index, null);
     const items = buildOverviewItems(catalog.overviewSummaries, months, {});
 
-    expect(items.map((item) => [item.title, item.count, item.latestMonth])).toEqual([
-      ["旅行", 1, "2026.08"],
-      ["日常", 1, "2026.07"],
+    expect(items.map((item) => [item.roll, item.title, item.count, item.latestMonth])).toEqual([
+      [1, "旅行", 1, "2026.08"],
+      [2, "日常", 1, "2026.07"],
     ]);
     expect(items[0].photos).toEqual([firstPhoto]);
-    expect(catalog.journeyYears).toEqual([
-      {
-        year: "2026",
-        albums: [
-          { id: "travel", title: "旅行", count: 1 },
-          { id: "daily", title: "日常", count: 1 },
-        ],
-      },
+    expect(catalog.yearActivity.map(({ year, total }) => [year, total])).toEqual([["2026", 2]]);
+    expect(catalog.yearActivity[0].months.map((month) => month.count)).toEqual([
+      0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
     ]);
     expect(catalog.overviewPeriods).toEqual(index.periods);
   });
