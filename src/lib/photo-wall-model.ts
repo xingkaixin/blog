@@ -39,7 +39,8 @@ export type PhotoYearActivity = {
 export type PhotoTimelineModel = {
   selectedAlbumId: string | null;
   selectedAlbum: PhotoAlbumSummary | undefined;
-  companionAlbums: PhotoAlbumSummary[];
+  /** 全部相册，按最近一次到访倒序；位置即胶卷编号 */
+  albums: PhotoAlbumSummary[];
   visiblePeriods: PhotoPeriod[];
   allPhotoCount: number;
   totalPhotoCount: number;
@@ -62,7 +63,7 @@ export function buildPhotoWallCatalogModel(
     return {
       selectedAlbumId,
       selectedAlbum: undefined,
-      companionAlbums: [],
+      albums: [],
       visiblePeriods: [],
       albumCount: 0,
       allPhotoRange: "",
@@ -92,7 +93,7 @@ export function buildPhotoWallCatalogModel(
   }
 
   const latestMonth = (albumId: string) => periodsByAlbum.get(albumId)?.[0]?.month ?? "";
-  // 目录按 id 排列；总览与同期城市都按最近一次到访倒序展示。
+  // 目录按 id 排列；总览与时间线筛选都按最近一次到访倒序展示。
   const albumSummaries = index.albums
     .map((album) => ({ ...album, count: albumCounts.get(album.id) ?? 0 }))
     .toSorted((left, right) => latestMonth(right.id).localeCompare(latestMonth(left.id)));
@@ -100,12 +101,6 @@ export function buildPhotoWallCatalogModel(
   const visiblePeriods = selectedAlbumId
     ? (periodsByAlbum.get(selectedAlbumId) ?? [])
     : index.periods;
-  const selectedMonths = new Set(visiblePeriods.map((period) => period.month));
-  const companionAlbums = selectedAlbum
-    ? albumSummaries.filter((album) =>
-        periodsByAlbum.get(album.id)?.some((period) => selectedMonths.has(period.month)),
-      )
-    : [];
   const overviewSummaries = albumSummaries.map((album, position): AlbumOverviewSummary => {
     const previewCount =
       position === 0
@@ -128,7 +123,7 @@ export function buildPhotoWallCatalogModel(
   return {
     selectedAlbumId,
     selectedAlbum,
-    companionAlbums,
+    albums: albumSummaries,
     visiblePeriods,
     albumCount: index.albums.length,
     allPhotoRange: formatPeriodRange(index.periods),

@@ -388,6 +388,10 @@ details .toc-link[aria-current="location"] {
   display: contents;
 }
 
+.photo-frame {
+  display: contents;
+}
+
 .photo-tile {
   width: 100%;
   aspect-ratio: 1;
@@ -439,12 +443,21 @@ details .toc-link[aria-current="location"] {
   .photo-gallery {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 14px;
   }
 
   .photo-row {
     display: flex;
-    gap: 4px;
+    gap: 6px;
+  }
+
+  .photo-frame {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: 6px;
+    width: var(--photo-width);
+    margin: 0;
   }
 
   .photo-tile {

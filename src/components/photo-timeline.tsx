@@ -7,8 +7,8 @@ import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-ca
 import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
 import { cn } from "@/lib/utils";
 
-const COMPANION_CHIP_CLASS_NAME =
-  "flex min-h-10 shrink-0 items-center gap-1.5 rounded-[6px] border border-line bg-surface px-3.5 text-sm text-ink-800 transition-colors hover:border-ink-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper [&>span]:font-mono [&>span]:text-[11px] [&>span]:text-ink-500 aria-pressed:[&>span]:text-ink-200";
+const ALBUM_CHIP_CLASS_NAME =
+  "flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-ink-200 px-3.5 text-sm text-ink-800 transition-colors hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper [&>span]:font-mono [&>span]:text-[11px] [&>span]:text-ink-500 aria-pressed:[&>span]:text-ink-300";
 
 type PhotoTimelineProps = {
   baseUrl: string;
@@ -43,11 +43,14 @@ export function PhotoTimeline({
   const {
     selectedAlbumId,
     selectedAlbum,
-    companionAlbums,
+    albums,
     visiblePeriods,
+    allPhotoCount,
     totalPhotoCount,
     timelineRange,
   } = model;
+  const albumTitles = new Map(albums.map((album) => [album.id, album.title]));
+  const selectedRoll = albums.findIndex((album) => album.id === selectedAlbumId) + 1;
 
   useLayoutEffect(() => {
     const wall = wallRef.current;
@@ -80,23 +83,23 @@ export function PhotoTimeline({
 
   return (
     <>
-      <div className="mx-auto max-w-320 px-4 pt-2 sm:px-5 sm:pt-8 lg:px-8">
+      <div className="mx-auto max-w-340 px-4 pt-4 sm:px-6 sm:pt-10 lg:px-10">
         {selectedAlbum ? (
           <>
             <nav aria-label="位置" className="flex items-center gap-2.5 text-sm text-ink-500">
               <button
                 type="button"
                 onClick={onReturn}
-                className="inline-flex min-h-11 items-center rounded-[5px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                className="inline-flex min-h-11 items-center rounded-[5px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
               >
-                ← 照片墙
+                ← 城市胶卷
               </button>
-              <span aria-hidden="true" className="text-ink-200">
+              <span aria-hidden="true" className="text-ink-300">
                 /
               </span>
               <span className="text-ink-800">{selectedAlbum.title}</span>
             </nav>
-            <header className="relative mt-2 h-[210px] overflow-hidden rounded-[12px] border border-line bg-surface sm:mt-4 sm:h-[420px] sm:rounded-[14px]">
+            <header className="relative mt-2 flex h-[200px] flex-col items-center justify-center gap-3 overflow-hidden rounded-[8px] border border-line bg-surface px-4 text-center sm:mt-4 sm:h-[320px]">
               <span
                 aria-hidden="true"
                 className="photo-sketch"
@@ -105,58 +108,65 @@ export function PhotoTimeline({
                   backgroundPosition: "center 70%",
                 }}
               />
-              <div className="absolute inset-x-0 top-[30px] flex flex-col items-center gap-2.5 px-4 text-center sm:top-[72px] sm:gap-3.5">
-                <h1 className="font-display text-[52px] font-normal leading-none text-ink-800 sm:text-[88px]">
-                  {selectedAlbum.title}
-                </h1>
-                <p className="font-mono text-[11px] tracking-[0.16em] text-ink-600 sm:text-xs">
-                  {timelineRange && `${timelineRange} · `}
-                  {totalPhotoCount} 张
-                </p>
-              </div>
+              <p className="relative font-mono text-[11px] tracking-[0.18em] text-film">
+                ROLL {String(selectedRoll).padStart(2, "0")}
+              </p>
+              <h1 className="relative font-serif text-[56px] font-black leading-none text-ink-800 sm:text-[96px]">
+                {selectedAlbum.title}
+              </h1>
+              <p className="relative font-mono text-xs tracking-[0.12em] text-ink-600">
+                {timelineRange && `${timelineRange} · `}
+                {totalPhotoCount} 张
+              </p>
             </header>
-            {companionAlbums.length > 1 && (
-              <section
-                aria-label="同期城市"
-                className="mt-5 flex flex-col gap-2.5 border-y border-line py-4 sm:mt-8 sm:flex-row sm:items-center sm:gap-5"
-              >
-                <span className="shrink-0 font-mono text-[11px] tracking-[0.16em] text-ink-500">
-                  同期城市
-                </span>
-                <div
-                  role="group"
-                  aria-label="切换相册"
-                  className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden"
-                >
-                  {companionAlbums.map((album) => (
-                    <button
-                      key={album.id}
-                      type="button"
-                      aria-pressed={selectedAlbumId === album.id}
-                      onClick={() => onSelectAlbum(album.id)}
-                      className={COMPANION_CHIP_CLASS_NAME}
-                    >
-                      {album.title}
-                      <span>{album.count}</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
           </>
         ) : (
-          <div className="pt-6 sm:pt-0 lg:pt-4">
-            <PhotoArchiveHeader
-              detail={`${totalPhotoCount} 张${timelineRange ? ` · ${timelineRange}` : ""} · 按拍摄时间倒序`}
-              view="timeline"
-              onSwitchView={onReturn}
-            />
+          <PhotoArchiveHeader
+            title="全部照片"
+            detail={`${totalPhotoCount} 张${timelineRange ? ` · ${timelineRange}` : ""} · 按拍摄时间倒序`}
+            view="timeline"
+            onSwitchView={onReturn}
+          />
+        )}
+
+        {albums.length > 0 && (
+          <div className="sticky top-[60px] z-10 -mx-4 mt-8 flex items-center gap-4 border-y border-line bg-paper/95 py-3 pl-4 backdrop-blur sm:-mx-6 sm:pl-6 lg:-mx-10 lg:pl-10">
+            <span className="hidden shrink-0 font-mono text-[11px] tracking-[0.16em] text-ink-500 sm:block">
+              筛选城市
+            </span>
+            <div
+              role="group"
+              aria-label="按城市筛选"
+              className="flex min-w-0 gap-2 overflow-x-auto pr-4 [scrollbar-width:none] sm:pr-6 lg:pr-10 [&::-webkit-scrollbar]:hidden"
+            >
+              <button
+                type="button"
+                aria-pressed={selectedAlbumId === null}
+                onClick={() => onSelectAlbum(null)}
+                className={ALBUM_CHIP_CLASS_NAME}
+              >
+                全部
+                <span>{allPhotoCount}</span>
+              </button>
+              {albums.map((album) => (
+                <button
+                  key={album.id}
+                  type="button"
+                  aria-pressed={selectedAlbumId === album.id}
+                  onClick={() => onSelectAlbum(album.id)}
+                  className={ALBUM_CHIP_CLASS_NAME}
+                >
+                  {album.title}
+                  <span>{album.count}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         <div
           ref={wallRef}
-          className={cn("min-w-0 py-6 sm:py-8", visiblePeriods.length > 1 && "pr-6 md:pr-10")}
+          className={cn("min-w-0 py-8 sm:py-10", visiblePeriods.length > 1 && "pr-6 md:pr-12")}
         >
           {visiblePeriods.length === 0 ? (
             <div className="flex min-h-56 flex-col items-center justify-center gap-2.5 rounded-[10px] border border-dashed border-ink-200 px-6 text-center">
@@ -175,12 +185,13 @@ export function PhotoTimeline({
               )}
             </div>
           ) : (
-            <div className="space-y-9 md:space-y-12">
+            <div className="space-y-12 md:space-y-16">
               {visiblePeriods.map((period, indexInList) => (
                 <PhotoPeriodSection
                   key={`${selectedAlbumId ?? "all"}-${period.month}`}
                   baseUrl={baseUrl}
                   period={period}
+                  cities={periodCities(period, albumTitles)}
                   monthCatalog={monthCatalogs[period.month]}
                   albumId={selectedAlbumId}
                   error={monthErrors[period.month]}
@@ -201,4 +212,12 @@ export function PhotoTimeline({
       )}
     </>
   );
+}
+
+function periodCities(period: PhotoPeriod, albumTitles: Map<string, string>): string {
+  return Object.entries(period.albumCounts)
+    .filter(([, count]) => count > 0)
+    .map(([albumId]) => albumTitles.get(albumId))
+    .filter(Boolean)
+    .join(" · ");
 }

@@ -49,6 +49,7 @@ describe("photo period", () => {
     const props = {
       baseUrl: "/photos",
       period,
+      cities: "",
       albumId: null,
       eager: false,
       containerWidth: 800,
@@ -94,6 +95,7 @@ describe("photo period", () => {
           albumCounts: {},
           path: "catalog/months/2026-08.aaaaaaaaaaaaaaaaaaaaaaaa.json",
         }}
+        cities=""
         monthCatalog={monthCatalog}
         albumId={null}
         eager={false}
@@ -108,7 +110,7 @@ describe("photo period", () => {
     expect(tiles).toHaveLength(monthCatalog.photos.length);
     for (const tile of tiles) {
       const desktopSize = tile.querySelector("img")?.sizes.split(",").at(-1)?.trim();
-      const layoutWidth = tile.style.getPropertyValue("--photo-width");
+      const layoutWidth = tile.closest("figure")?.style.getPropertyValue("--photo-width");
       expect(desktopSize).toBe(layoutWidth);
     }
   });

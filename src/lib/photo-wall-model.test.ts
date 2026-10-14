@@ -68,7 +68,7 @@ describe("photo wall model", () => {
 
     expect(model.visiblePeriods.map((period) => period.month)).toEqual(["2026-08"]);
     expect(model.selectedAlbum?.title).toBe("旅行");
-    expect(model.companionAlbums.map((album) => album.id)).toEqual(["travel"]);
+    expect(model.albums.map((album) => album.id)).toEqual(["travel", "daily"]);
     expect(model.allPhotoCount).toBe(2);
     expect(model.totalPhotoCount).toBe(1);
     expect(model.timelineRange).toBe("2026年8月");
