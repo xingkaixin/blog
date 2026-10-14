@@ -155,7 +155,7 @@ describe("search dialog entry", () => {
             baseUrl="https://photos.example.com"
             open
             photo={photo}
-            navigation={{ previous, next, position: 2, total: 3, status: "ready" }}
+            navigation={{ previous, next, position: 2, total: 3, strip: [], status: "ready" }}
             albums={[]}
             onClose={vi.fn()}
             onSelect={onSelect}

@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 
 const LIGHTBOX_VARIANT_WIDTHS = [PHOTO_DISPLAY_WIDTH, PHOTO_FULL_WIDTH] as const;
 const LIGHTBOX_IMAGE_SIZES = "100vw";
+const LIGHTBOX_BUTTON_CLASS_NAME =
+  "inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/85 text-ink-800 transition-[transform,border-color] hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.96]";
 
 type PhotoLightboxProps = {
   baseUrl: string;
@@ -185,17 +187,17 @@ export function PhotoLightbox({
             onSelect(selected);
           }
         }}
-        backdropClassName="bg-[#101114]/90 backdrop-blur-md"
-        className="photo-lightbox fixed inset-0 left-0 top-0 flex h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 bg-[#101114] p-0 text-[#f0efea] shadow-none"
+        backdropClassName="bg-black/90 backdrop-blur-md"
+        className="photo-lightbox fixed inset-0 left-0 top-0 flex h-[100dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-none border-0 bg-black p-0 text-ink-800 shadow-none"
       >
-        <div className="flex h-16 shrink-0 items-center justify-between gap-4 px-3 sm:px-5">
+        <div className="flex h-18 shrink-0 items-center justify-between gap-4 px-3 sm:px-6">
           <div className="min-w-0">
             {albumTitles.length > 0 && (
-              <p className="mb-1.5 truncate font-display text-xl leading-none text-[#f0efea]">
+              <p className="mb-1.5 truncate font-serif text-xl font-black leading-none text-ink-800">
                 {albumTitles.join("、")}
               </p>
             )}
-            <p className="truncate font-mono text-xs text-[#9fa0a3]">
+            <p className="truncate font-mono text-xs text-ink-500">
               {formatPhotoCapturedAt(photo.capturedAt)}
             </p>
           </div>
@@ -203,7 +205,7 @@ export function PhotoLightbox({
             type="button"
             aria-label="关闭大图"
             onClick={close}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/8 text-[#f0efea] transition-[transform,background-color] hover:bg-white/14 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96]"
+            className={cn("shrink-0", LIGHTBOX_BUTTON_CLASS_NAME)}
           >
             <XIcon aria-hidden="true" className="h-5 w-5" />
           </button>
@@ -224,7 +226,10 @@ export function PhotoLightbox({
               type="button"
               aria-label="上一张照片"
               onClick={() => onSelect(previous)}
-              className="absolute left-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] max-sm:not-focus:sr-only"
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 max-sm:not-focus:sr-only sm:left-5",
+                LIGHTBOX_BUTTON_CLASS_NAME,
+              )}
             >
               <CaretLeftIcon aria-hidden="true" className="h-5 w-5" />
             </button>
@@ -234,17 +239,49 @@ export function PhotoLightbox({
               type="button"
               aria-label="下一张照片"
               onClick={() => onSelect(next)}
-              className="absolute right-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-[#1c1d23]/85 text-[#f0efea] transition-[transform,background-color] hover:bg-[#2b2c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e] active:scale-[0.96] max-sm:not-focus:sr-only"
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 max-sm:not-focus:sr-only sm:right-5",
+                LIGHTBOX_BUTTON_CLASS_NAME,
+              )}
             >
               <CaretRightIcon aria-hidden="true" className="h-5 w-5" />
             </button>
           )}
         </div>
 
-        <footer className="flex h-10 shrink-0 items-center justify-between gap-4 border-t border-white/10 px-3 font-mono text-[10px] text-[#8b8c92] sm:px-5">
-          <span aria-live="polite" className="text-[#deddd8]">
+        <footer className="flex shrink-0 items-center justify-between gap-4 border-t border-line px-3 py-2.5 font-mono text-[10px] text-ink-500 sm:px-6 sm:py-3">
+          <span aria-live="polite" className="min-w-16 text-ink-700">
             {navigation.position} / {navigation.total}
           </span>
+          {navigation.strip.length > 1 && (
+            <nav aria-label="同一个月的照片" className="hidden gap-2 sm:flex">
+              {navigation.strip.map((frame) => (
+                <button
+                  key={frame.id}
+                  type="button"
+                  aria-label={`查看${formatPhotoCapturedAt(frame.capturedAt)}拍摄的照片`}
+                  aria-current={frame.id === photo.id ? "true" : undefined}
+                  onClick={() => frame.id !== photo.id && onSelect(frame)}
+                  className="relative h-12 w-12 opacity-50 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-current:opacity-100"
+                >
+                  <img
+                    src={photoVariantUrl(baseUrl, frame, PHOTO_THUMBNAIL_WIDTH)}
+                    alt=""
+                    decoding="async"
+                    draggable={false}
+                    className="h-full w-full select-none object-cover"
+                    style={{ backgroundColor: frame.placeholderColor }}
+                  />
+                  {frame.id === photo.id && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -inset-1.5 -rotate-2 rounded-[3px] border-2 border-accent"
+                    />
+                  )}
+                </button>
+              ))}
+            </nav>
+          )}
           {navigation.status === "loading" ? (
             <span role="status">正在加载相邻照片…</span>
           ) : navigation.status === "error" ? (
@@ -253,7 +290,7 @@ export function PhotoLightbox({
               <button
                 type="button"
                 onClick={onRetryNavigation}
-                className="rounded px-2 py-1 text-[#f0efea] underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5644e]"
+                className="rounded px-2 py-1 text-ink-800 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 重试
               </button>

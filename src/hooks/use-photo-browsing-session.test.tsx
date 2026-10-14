@@ -226,6 +226,7 @@ describe("usePhotoBrowsingSession", () => {
       next: undefined,
       position: 2,
       total: 3,
+      strip: [selected],
       status: "loading",
     });
 

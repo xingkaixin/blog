@@ -74,7 +74,13 @@ describe("photo catalog browser", () => {
         "2026-02": catalogs["2026-02"],
       }),
     ).toEqual({
-      navigation: { previous: undefined, next: undefined, position: 1, total: 3 },
+      navigation: {
+        previous: undefined,
+        next: undefined,
+        position: 1,
+        total: 3,
+        strip: [selected],
+      },
       pendingPeriods: [periods[1]],
     });
     expect(planPhotoNavigation(catalog, selected, "trip", catalogs)).toEqual({
@@ -83,6 +89,7 @@ describe("photo catalog browser", () => {
         next: catalogs["2026-03"].photos[0],
         position: 1,
         total: 3,
+        strip: [selected],
       },
       pendingPeriods: [],
     });
@@ -103,7 +110,13 @@ describe("photo catalog browser", () => {
     expect(
       planPhotoNavigation(catalog, photos[2], "trip", { [month.month]: { ...month, photos } }),
     ).toEqual({
-      navigation: { previous: photos[0], next: photos[3], position: 2, total: 3 },
+      navigation: {
+        previous: photos[0],
+        next: photos[3],
+        position: 2,
+        total: 3,
+        strip: [photos[0], photos[2], photos[3]],
+      },
       pendingPeriods: [],
     });
   });
@@ -124,7 +137,13 @@ describe("photo catalog browser", () => {
     const loaded = { [month.month]: { ...month, photos: [...month.photos, otherPhoto] } };
 
     expect(planPhotoNavigation(catalog, month.photos[0], "other", loaded)).toEqual({
-      navigation: { previous: undefined, next: otherPhoto, position: 1, total: 2 },
+      navigation: {
+        previous: undefined,
+        next: otherPhoto,
+        position: 1,
+        total: 2,
+        strip: [month.photos[0], otherPhoto],
+      },
       pendingPeriods: [],
     });
   });

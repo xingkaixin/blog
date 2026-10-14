@@ -26,7 +26,11 @@ export type PhotoNavigation = {
   next: PhotoRecord | undefined;
   position: number;
   total: number;
+  /** 当前照片所在月份里前后各几张，供大图底部的胶片条使用 */
+  strip: PhotoRecord[];
 };
+
+const NAVIGATION_STRIP_RADIUS = 3;
 
 export class PhotoCatalogNotFoundError extends Error {}
 
@@ -140,6 +144,10 @@ export function planPhotoNavigation(
         photoIndex +
         1,
       total: periods.reduce((sum, period) => sum + photoCount(period), 0),
+      strip: photos.slice(
+        Math.max(0, photoIndex - NAVIGATION_STRIP_RADIUS),
+        photoIndex + NAVIGATION_STRIP_RADIUS + 1,
+      ),
     },
     pendingPeriods,
   };
