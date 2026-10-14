@@ -61,7 +61,7 @@
     "@types/react-dom": "^19.3.0",
     "astro": "^7.3.8",
     "exiftool-vendored": "^39.0.1",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.1",
     "oxfmt": "^0.73.0",
     "oxlint": "^1.88.0",
     "oxlint-tsgolint": "^7.0.2004",
