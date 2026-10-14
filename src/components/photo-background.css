@@ -8,7 +8,8 @@
 }
 
 /* 反相让纸白变黑，色相转回 180° 保住朱红；screen 让黑色透出卡片底色。 */
-[data-theme="dark"] .photo-sketch {
+[data-theme="dark"] .photo-sketch,
+[data-photo-darkroom] .photo-sketch {
   filter: invert(1) hue-rotate(180deg) contrast(0.9);
   mix-blend-mode: screen;
   opacity: 0.8;

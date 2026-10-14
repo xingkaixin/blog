@@ -25,6 +25,8 @@
   --ink-800: #171a19;
   --accent: #c2402f;
   --accent-soft: #f6e3de;
+  /* 胶片片边印字的琥珀色，两种主题共用 */
+  --film: #c98a3a;
   --shadow-card: 0 1px 2px rgba(20, 21, 26, 0.04), 0 12px 32px -16px rgba(20, 21, 26, 0.12);
 
   /* shiki 语法高亮跟随站点主题（见 markdown.shikiConfig.theme: "css-variables"） */
@@ -79,10 +81,31 @@
   color-scheme: dark;
 }
 
+/* 照片墙"暗房"：页面挂载照片墙时整页（含页眉页脚）换成暖黑底片色，不随站点主题切换 */
+:root:has([data-photo-darkroom]) {
+  --bg: #121211;
+  --surface: #1b1b19;
+  --line: #2c2b28;
+  --ink-50: #1b1b19;
+  --ink-100: #24231f;
+  --ink-200: #34322d;
+  --ink-300: #4a4740;
+  --ink-400: #6e6a62;
+  --ink-500: #9a958b;
+  --ink-600: #b9b3a8;
+  --ink-700: #d6d0c5;
+  --ink-800: #ece7dd;
+  --accent: #e5644e;
+  --accent-soft: #3a201b;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -16px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
 @theme inline {
   --font-sans: "Outfit", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Smiley Sans Oblique", "Outfit", "PingFang SC", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
   --color-ink-50: var(--ink-50);
   --color-ink-100: var(--ink-100);
   --color-ink-200: var(--ink-200);
@@ -97,6 +120,7 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
+  --color-film: var(--film);
 }
 
 :root {
@@ -344,6 +368,15 @@ details .toc-link[aria-current="location"] {
 /* ============================================================
    照片墙
    ============================================================ */
+
+/* 底片齿孔：两侧各留半个孔距，让孔位居中 */
+.film-sprockets {
+  height: 8px;
+  border-radius: 2px;
+  background-color: var(--ink-200);
+  background-image: repeating-linear-gradient(90deg, var(--bg) 0 9px, transparent 9px 20px);
+  background-position: 6px 0;
+}
 
 .photo-gallery {
   display: grid;

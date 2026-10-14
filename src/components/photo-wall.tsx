@@ -71,7 +71,7 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const { selectionState: photoSelection, selectedPhoto, displayPhoto } = browsing;
 
   return (
-    <section className="min-h-[calc(100svh-160px)] pb-20">
+    <section data-photo-darkroom className="min-h-[calc(100svh-160px)] pb-20">
       {catalogState.status === "loading" && <PhotoWallLoading />}
       {catalogState.status === "error" && (
         <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />
