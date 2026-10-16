@@ -566,6 +566,34 @@
     "width": 1536,
     "height": 1024
   },
+  "/posts/images/ai-native-organization/ai-native-organization-01.png": {
+    "webp": "/posts/images/ai-native-organization/ai-native-organization-01.webp",
+    "mobile": "/posts/images/ai-native-organization/ai-native-organization-01-800w.webp",
+    "desktop": "/posts/images/ai-native-organization/ai-native-organization-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/ai-native-organization/ai-native-organization-02.png": {
+    "webp": "/posts/images/ai-native-organization/ai-native-organization-02.webp",
+    "mobile": "/posts/images/ai-native-organization/ai-native-organization-02-800w.webp",
+    "desktop": "/posts/images/ai-native-organization/ai-native-organization-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01.png": {
+    "webp": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01.webp",
+    "mobile": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01-800w.webp",
+    "desktop": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-02.png": {
+    "webp": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-02.webp",
+    "mobile": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-02-800w.webp",
+    "desktop": "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-02-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
   "/posts/images/ai-review-ai/ai-review-ai-01.png": {
     "webp": "/posts/images/ai-review-ai/ai-review-ai-01.webp",
     "mobile": "/posts/images/ai-review-ai/ai-review-ai-01-800w.webp",
@@ -992,6 +1020,20 @@
     "desktop": "/posts/images/friction-as-a-feature/friction-as-a-feature-02-1200w.webp",
     "width": 1600,
     "height": 900
+  },
+  "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-01.png": {
+    "webp": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-01.webp",
+    "mobile": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-01-800w.webp",
+    "desktop": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-02.png": {
+    "webp": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-02.webp",
+    "mobile": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-02-800w.webp",
+    "desktop": "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-02-1200w.webp",
+    "width": 1680,
+    "height": 945
   },
   "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.png": {
     "webp": "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.webp",

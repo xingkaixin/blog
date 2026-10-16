@@ -258,6 +258,20 @@
     "width": 1536,
     "height": 1024
   },
+  "ai-native-organization.png": {
+    "mobile": "/cover/ai-native-organization-400.webp",
+    "desktop": "/cover/ai-native-organization-800.webp",
+    "full": "/cover/ai-native-organization.webp",
+    "width": 1880,
+    "height": 800
+  },
+  "ai-provider-research-competitor.png": {
+    "mobile": "/cover/ai-provider-research-competitor-400.webp",
+    "desktop": "/cover/ai-provider-research-competitor-800.webp",
+    "full": "/cover/ai-provider-research-competitor.webp",
+    "width": 1880,
+    "height": 800
+  },
   "ai-review-ai.png": {
     "mobile": "/cover/ai-review-ai-400.webp",
     "desktop": "/cover/ai-review-ai-800.webp",
@@ -418,6 +432,13 @@
     "full": "/cover/from-writing-code-to-reviewing-code.webp",
     "width": 1536,
     "height": 864
+  },
+  "frontier-models-developer-fit.png": {
+    "mobile": "/cover/frontier-models-developer-fit-400.webp",
+    "desktop": "/cover/frontier-models-developer-fit-800.webp",
+    "full": "/cover/frontier-models-developer-fit.webp",
+    "width": 1880,
+    "height": 800
   },
   "harness-kv-cache-prefix.png": {
     "mobile": "/cover/harness-kv-cache-prefix-400.webp",

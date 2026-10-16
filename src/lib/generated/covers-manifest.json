@@ -297,6 +297,22 @@
         "c7349464a3f2d555bd5a9b70ec5fbd6d4863fac572f6be5c27dcfe610dcc224e"
       ]
     },
+    "ai-native-organization.png": {
+      "fingerprint": "197cd5054028cd6f3bd7da041a892bc0be36d883061d950ddbc935adae9706c7",
+      "outputFingerprints": [
+        "6b383eb09b989029ddb106f8e59b62e0f05de022e9cd005830ccaf750d677e56",
+        "d785fc15a40a83e850c9dab888490cf8a4a246eaacf53825cbc2202ef93ca50e",
+        "7e75523b4d2e1fb5732ab5f07ba569041f41085266c1f67bd60e5d9125150af2"
+      ]
+    },
+    "ai-provider-research-competitor.png": {
+      "fingerprint": "5d211736ba5b34970b147361cd8d6613cfcc6c8929c2ed527533ae1ebe7b5f78",
+      "outputFingerprints": [
+        "5afb3ea3e88753a2f489050af4590447318a7c33acb09d1904917a0c97ea32f2",
+        "30b48baf84d074bf6fc9543e6261b0572bfeca08a6e8d65afcb5c017d561ba16",
+        "8d8870fb6c5da0eee9787aa74521799243b83053ce2c1f8246f74a679e9fe5b4"
+      ]
+    },
     "ai-review-ai.png": {
       "fingerprint": "fc2082198f1856cbf1d76ed731c1ae1dd8e69c6b0786f7dd81937e8ad6e6e210",
       "outputFingerprints": [
@@ -479,6 +495,14 @@
         "2d4544463debe619608f7782af2fad3012a4524e95ff4b36392e3e50171e6c47",
         "949f45caf9de1a90550ce07d7e2bc2816a20b3f9c6666b8d07dd1d3c7459c151",
         "ddb13119be477786737e826616d0934ee487db786734cc523d5ddfcf2f4f4f6a"
+      ]
+    },
+    "frontier-models-developer-fit.png": {
+      "fingerprint": "4bdbb57b34e943b66b2b159f76cde387c4438cc1592ef61ecaf2dae9e0cd32b3",
+      "outputFingerprints": [
+        "f969d5166d81b632bf4aea461e6739f2a41c338a9d953409b3cbba7b77fbf683",
+        "41122aa38b33b2d084f908679cf157296ba0098189d928089656a9230feffb14",
+        "ff5a17e11b6c934fb36aa87aaa71b7e470661ed8b71822ccfb594feb5e6a3b83"
       ]
     },
     "harness-kv-cache-prefix.png": {

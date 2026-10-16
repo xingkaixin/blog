@@ -649,6 +649,38 @@
         "0b27a6259d82c65f2cd2af5eefa1762e3704afef7c5a7d72d0bc9f4d818b28d1"
       ]
     },
+    "/posts/images/ai-native-organization/ai-native-organization-01.png": {
+      "fingerprint": "5c06797944457fd39fa75ae2a69223833a6e24dad558f519588fd8785f97ce02",
+      "outputFingerprints": [
+        "c9cb7d2e57fac0af3c86f5565de83d8b23a36f3004b1c0245e45f44a699df7fe",
+        "573332b3344bdf26f0c40e59c1da8dfb736ecf3187269a6d3d15ebce03936a3b",
+        "efb0971f218aaf75a94d24910b114b2d9ae2a27b7aac1eaf75977472cc50beed"
+      ]
+    },
+    "/posts/images/ai-native-organization/ai-native-organization-02.png": {
+      "fingerprint": "ce94812ac507665a3c1eaee671e9e27ba8ab41bdc05bf38dbf994adb70363500",
+      "outputFingerprints": [
+        "a6cff7a3d3900a5c7068b04d2a1bbb2bf2f1cdc5c17543e57c3eeaf72c3c986e",
+        "75ef133aa9baa228ea6a8d6e24873047007089f8b2c916b4af681a0d83530ae9",
+        "70a5987839edbc834d3da3202ce15f1faffa0bbf6b64a8155cd50f80889d317b"
+      ]
+    },
+    "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01.png": {
+      "fingerprint": "a05f5600944121afa76c10304f4eb4724027b91d19e86d753c5acb20567bd33f",
+      "outputFingerprints": [
+        "db6adba2a4906f8e65e237b35e744982b066360df86438d10c7af15d9ff8f7e9",
+        "59e45cb8d9190471ae0048962dbce5ac013423bb08550be9ab0c5c34f181a3b6",
+        "34acdf115757039990fae8eb63a4ee7f3c91f8173f0cccec7557de32408c24d9"
+      ]
+    },
+    "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-02.png": {
+      "fingerprint": "bf3af262d93a63bd4a849c2e47d7792398699ed55259ef9b171a056a53356216",
+      "outputFingerprints": [
+        "09970bc7e4735c7f3b6d1dccf9a4872655e31c848af8e22591aa80c1adc0857a",
+        "073a6c130369dbbf36a805db262d798ebd259c73ca8c9c16b2c85996b8e22c84",
+        "585b1466ddb00196dd7e5b9cdfbdc02cae99dc2e4b925a1e26f2845f12ad95ed"
+      ]
+    },
     "/posts/images/ai-review-ai/ai-review-ai-01.png": {
       "fingerprint": "4cd72cd398d2bc40fbcbaacd88e5f69aebe47b442624dcc4004ad9eeb198457e",
       "outputFingerprints": [
@@ -1135,6 +1167,22 @@
         "18887e0d74f1f49b50a696fc086afb948793b89a7ed31d4b6bbb6a5690c75e0f",
         "bedc5faa08a0b4b077af31116373e90aa3a2934e31466caf1953749560a6192b",
         "0dbf890c2a22e8135c4ecb7835d21d60c117fc3ad02d01a344d48f4089672bef"
+      ]
+    },
+    "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-01.png": {
+      "fingerprint": "79de52be1888c683e72adcea64cfae2839c7e080454369a553057d1519c965e1",
+      "outputFingerprints": [
+        "7f1cfa17cf4b23ba6ef3c870b15c3a06711f39f94d9ede3b1df5b092a0bb4c1f",
+        "9f873163cb17d7028f00c79afe4671e89d8bc376b9d51de2e5e81a1b694bee5b",
+        "9abee1aecf8175909eb4350ecdc674ceee105cadd59389079b55f9124546cdcb"
+      ]
+    },
+    "/posts/images/frontier-models-developer-fit/frontier-models-developer-fit-02.png": {
+      "fingerprint": "20e3f10879d696bfe8ea3f2eafb6ef95435ec822c67e7a8419975120bfcb4bf9",
+      "outputFingerprints": [
+        "3c53a3160022a83eceb6ab5aaaf81592ca3f83b735ffb8a0a8aa1de852554a98",
+        "a4326d8f5f7c0bc793e05f47fde77cf1f376605fddb51f48763cf45c59d0fa13",
+        "bd1244716988608663c6235d1e108c01a37e8c503ac38dba2d02a67f0343e5e5"
       ]
     },
     "/posts/images/harness-kv-cache-prefix/harness-kv-cache-prefix-01.png": {
