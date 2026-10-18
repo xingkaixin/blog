@@ -59,7 +59,9 @@ describe("photo overview recovery", () => {
     });
     window.history.replaceState({}, "", "/photos/#album=trip");
     vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
-    await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+    await act(async () =>
+      root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+    );
     await act(async () =>
       container.querySelectorAll<HTMLButtonElement>("[data-photo-id]")[1].click(),
     );
@@ -116,7 +118,9 @@ describe("photo overview recovery", () => {
     });
     window.history.replaceState({}, "", "/photos/#album=trip");
     vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
-    await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+    await act(async () =>
+      root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+    );
     expect(indexLoads).toBe(2);
     expect(fourthLoads).toBe(2);
     expect(container.querySelectorAll("[data-photo-id]")).toHaveLength(4);
@@ -139,7 +143,9 @@ describe("photo overview recovery", () => {
     });
     window.history.replaceState({}, "", "/photos/#album=trip");
     vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
-    await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+    await act(async () =>
+      root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+    );
     await act(async () =>
       container.querySelectorAll<HTMLButtonElement>("[data-photo-id]")[1].click(),
     );
@@ -158,7 +164,9 @@ describe("photo overview recovery", () => {
         catalog.index.periods.slice(0, allFailed ? 2 : 1).map((period) => period.month),
       );
       const requests = serveCatalog(catalog, failed);
-      await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+      await act(async () =>
+        root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+      );
       const loadedSources = [...container.querySelectorAll("img")].map((image) => image.src);
       expect(loadedSources).toHaveLength(0);
       expect(container.querySelector('[role="alert"]')?.textContent).toContain("预览加载失败");
@@ -184,7 +192,9 @@ describe("photo overview recovery", () => {
   it("does not report background month failures unrelated to overview previews", async () => {
     const catalog = fixture(4, false);
     serveCatalog(catalog, new Set([catalog.index.periods[1].month]));
-    await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+    await act(async () =>
+      root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+    );
     expect(console.error).toHaveBeenCalled();
     expect(container.querySelector('[role="alert"]')).toBeNull();
     expect(container.querySelectorAll("img")).toHaveLength(4);
@@ -198,7 +208,9 @@ it("lays out a restored timeline before resize notifications arrive", async () =
   vi.spyOn(ResizeObserver.prototype, "observe").mockImplementation(() => {});
   window.history.replaceState({}, "", "/photos/#album=trip");
 
-  await act(async () => root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />));
+  await act(async () =>
+    root.render(<PhotoWall baseUrl="https://photos.example.com" locale="zh" />),
+  );
 
   expect(container.querySelectorAll("[data-photo-id]")).toHaveLength(2);
   expect(container.querySelector(".photo-period-placeholder")).toBeNull();

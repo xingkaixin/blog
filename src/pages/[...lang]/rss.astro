@@ -1,12 +1,18 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
-import { siteConfig } from "@/lib/site";
+import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
+import { rssMessages } from "@/lib/messages/rss";
+import { siteConfig, siteCopy } from "@/lib/site";
 
+export const getStaticPaths = bilingualStaticPaths;
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = rssMessages[locale];
 const feedUrl = `${siteConfig.url}/feed.xml`;
 const meta = {
-  title: "RSS 订阅",
-  description: "通过 RSS 订阅行开心的颠倒世界，在你习惯的阅读器里接收新文章。",
-  url: `${siteConfig.url}/rss/`,
+  title: t.title,
+  description: t.description(siteCopy[locale].title),
+  url: `${siteConfig.url}${localizedHref("/rss/", locale)}`,
   type: "webpage" as const,
 };
 ---
@@ -18,12 +24,12 @@ const meta = {
       <path d="M64 156a100 100 0 0 1 100 100M64 56a200 200 0 0 1 200 200" stroke="currentColor" stroke-width="28" stroke-linecap="round" />
     </svg>
     <div class="rss-content">
-      <h1>RSS 订阅</h1>
-      <p class="intro">在你习惯的阅读器里，收到我的新文章。</p>
-      <p class="description">关于 AI、编程，也关于生活。无需反复打开网站，订阅后就能在阅读器里看到更新。</p>
+      <h1>{t.title}</h1>
+      <p class="intro">{t.intro}</p>
+      <p class="description">{t.body}</p>
 
       <rss-subscription>
-        <label for="rss-address">订阅地址</label>
+        <label for="rss-address">{t.address}</label>
         <div class="address-row">
           <input id="rss-address" type="url" value={feedUrl} readonly spellcheck="false" />
           <button type="button" hidden>
@@ -31,14 +37,14 @@ const meta = {
               <g class="copy-icon"><rect x="7" y="7" width="10" height="10" rx="2" /><path d="M12 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h2" /></g>
               <path class="check-icon" d="m4 10 4 4 8-8" />
             </svg>
-            <span>复制链接</span>
+            <span>{t.copy}</span>
           </button>
         </div>
         <p class="copy-status" role="status" aria-live="polite"></p>
       </rss-subscription>
 
-      <p class="instructions">复制上面的地址，在 RSS 阅读器中选择「添加订阅」，粘贴即可。</p>
-      <a class="feed-link" href={feedUrl} data-astro-reload>查看原始 RSS 文件</a>
+      <p class="instructions">{t.instructions}</p>
+      <a class="feed-link" href={feedUrl} data-astro-reload>{t.rawFeed}</a>
     </div>
   </article>
 </SiteLayout>
@@ -84,6 +90,9 @@ const meta = {
 </style>
 
 <script>
+  import { localeFromLang } from "@/lib/i18n";
+  import { rssMessages } from "@/lib/messages/rss";
+
   class RssSubscription extends HTMLElement {
     private resetTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -105,25 +114,26 @@ const meta = {
         const button = this.querySelector("button")!;
         const label = button.querySelector("span")!;
         const status = this.querySelector<HTMLElement>('[role="status"]')!;
+        const t = rssMessages[localeFromLang(document.documentElement.lang)];
         clearTimeout(this.resetTimer);
         button.removeAttribute("data-copied");
         button.disabled = true;
-        label.textContent = "复制中…";
+        label.textContent = t.copying;
         status.textContent = "";
         try {
           await navigator.clipboard.writeText(input.value);
           button.setAttribute("data-copied", "");
-          label.textContent = "已复制";
-          status.textContent = "链接已复制，可以粘贴到阅读器了。";
+          label.textContent = t.copied;
+          status.textContent = t.copiedStatus;
           this.resetTimer = setTimeout(() => {
             button.removeAttribute("data-copied");
-            label.textContent = "复制链接";
+            label.textContent = t.copy;
           }, 2500);
         } catch {
-          label.textContent = "重试复制";
+          label.textContent = t.retryCopy;
           input.focus();
           input.select();
-          status.textContent = "未能自动复制。地址已选中，请手动复制。";
+          status.textContent = t.copyFailed;
         } finally {
           button.disabled = false;
         }
