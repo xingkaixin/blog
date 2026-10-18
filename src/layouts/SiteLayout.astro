@@ -25,6 +25,7 @@ import {
   locales,
   ogLocale,
   translatedPath,
+  type Locale,
 } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { siteConfig, siteCopy } from "@/lib/site";
@@ -55,6 +56,8 @@ const alternates = locales.flatMap((target) => {
   return path ? [{ locale: target, href: `${siteConfig.url}${path}` }] : [];
 });
 const englishAlternate = alternates.find((alternate) => alternate.locale === "en");
+const switchLocale: Locale = locale === "zh" ? "en" : "zh";
+const switchPath = translatedPath(Astro.url.pathname, switchLocale);
 const image = pageImage(meta, locale);
 const title = pageTitle(meta, locale);
 const themeToggleEvent = THEME_TOGGLE_EVENT;
@@ -275,6 +278,20 @@ const pageTransition = {
             }
           </nav>
 
+          {switchPath && (
+            <a
+              href={switchPath}
+              hreflang={htmlLang[switchLocale]}
+              lang={htmlLang[switchLocale]}
+              aria-label={t.switchLanguage.aria}
+              data-language-switch={switchLocale}
+              data-astro-reload
+              class="inline-flex h-[34px] shrink-0 items-center rounded-[8px] border border-line bg-surface px-2.5 font-mono text-xs text-ink-600 transition-colors duration-(--duration-quick) hover:bg-ink-50 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            >
+              {t.switchLanguage.label}
+            </a>
+          )}
+
           <MobileHeaderMenu currentPath={currentPath} locale={locale} client:media="(max-width: 1023px)" />
         </div>
       </header>
@@ -291,12 +308,22 @@ const pageTransition = {
     </div>
 
     <script>
+      import { LOCALE_COOKIE } from "@/lib/i18n";
       import { attachSmartHeader, type SmartHeaderController } from "@/lib/smart-header";
       import { installSiteShortcuts } from "@/lib/site-shortcuts";
       import { skipToContent } from "@/lib/skip-to-content";
       import { registerBlogWebMcpTools } from "@/lib/webmcp";
 
       document.addEventListener("click", skipToContent, true);
+      document.addEventListener("click", (event) => {
+        const link =
+          event.target instanceof Element
+            ? event.target.closest<HTMLElement>("[data-language-switch]")
+            : null;
+        if (link) {
+          document.cookie = `${LOCALE_COOKIE}=${link.dataset.languageSwitch}; path=/; max-age=31536000; samesite=lax`;
+        }
+      });
 
       registerBlogWebMcpTools(document).catch((error) => {
         console.error("Failed to register WebMCP tools", error);

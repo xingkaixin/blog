@@ -36,7 +36,7 @@ describe("Worker content negotiation", () => {
     const response = await worker.fetch(new Request("https://xingkaixin.me/"), env);
 
     expect(await response.text()).toBe("<h1>博客</h1>");
-    expect(response.headers.get("Vary")).toBe("Accept-Encoding, Accept");
+    expect(response.headers.get("Vary")).toBe("Accept-Encoding, Accept, Accept-Language, Cookie");
     expect(response.headers.get("Link")).toContain('rel="alternate"; type="text/markdown"');
     expect(response.headers.get("Link")).toContain('rel="api-catalog"');
     expect(response.headers.get("Content-Signal")).toBe("ai-train=no, search=yes, ai-input=no");
@@ -72,19 +72,19 @@ describe("Worker content negotiation", () => {
     expect(response.headers.has("Link")).toBe(false);
   });
 
-  it.each(["text/markdown", "text/html"])(
-    "keeps 304 for %s and varies on Accept",
-    async (accept) => {
-      const request = new Request("https://xingkaixin.me/", {
-        headers: { Accept: accept, "If-None-Match": '"cached"' },
-      });
-      const response = await worker.fetch(request, env);
+  it.each([
+    ["text/markdown", "Accept"],
+    ["text/html", "Accept, Accept-Language, Cookie"],
+  ])("keeps 304 for %s and varies on %s", async (accept, vary) => {
+    const request = new Request("https://xingkaixin.me/", {
+      headers: { Accept: accept, "If-None-Match": '"cached"' },
+    });
+    const response = await worker.fetch(request, env);
 
-      expect(response.status).toBe(304);
-      expect(response.headers.get("Vary")).toBe("Accept");
-      expect(response.body).toBeNull();
-    },
-  );
+    expect(response.status).toBe(304);
+    expect(response.headers.get("Vary")).toBe(vary);
+    expect(response.body).toBeNull();
+  });
 
   it("falls back to HTML when a page has no Markdown asset", async () => {
     const request = new Request("https://xingkaixin.me/about/", {
@@ -119,5 +119,38 @@ describe("Worker content negotiation", () => {
     if (status === 301) {
       expect(response.headers.get("Location")).toBe("/posts/example/");
     }
+  });
+});
+
+describe("Worker language redirect", () => {
+  it("sends English browsers to the English page and keeps the query", async () => {
+    const request = new Request("https://xingkaixin.me/projects/?ref=x", {
+      headers: { "Accept-Language": "en-US,en;q=0.9" },
+    });
+    const response = await worker.fetch(request, env);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe("https://xingkaixin.me/en/projects/?ref=x");
+    expect(response.headers.get("Vary")).toBe("Accept, Accept-Language, Cookie");
+  });
+
+  it.each([
+    ["a Chinese browser", { "Accept-Language": "zh-TW,en;q=0.8" }],
+    ["no language preference", {}],
+    ["a manual Chinese choice", { "Accept-Language": "en", Cookie: "lang=zh" }],
+  ])("stays on the Chinese page for %s", async (_, headers) => {
+    const response = await worker.fetch(new Request("https://xingkaixin.me/", { headers }), env);
+
+    expect(response.status).toBe(200);
+  });
+
+  it("serves Markdown instead of redirecting", async () => {
+    const request = new Request("https://xingkaixin.me/", {
+      headers: { Accept: "text/markdown", "Accept-Language": "en" },
+    });
+    const response = await worker.fetch(request, env);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("text/markdown; charset=utf-8");
   });
 });

@@ -1,3 +1,4 @@
+import { cookieLocale, localeFromPath, preferredLocale, translatedPath } from "./lib/i18n";
 import {
   markdownPathForPage,
   pageForMarkdownPath,
@@ -19,16 +20,51 @@ const homepageDiscoveryLinks = [
   `<${publicApiRoutes.llms}>; rel="describedby"; type="text/plain"`,
 ];
 
-function addVaryAccept(headers: Headers) {
-  const vary = headers.get("Vary");
-  const values = vary
-    ?.split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-  if (!values?.some((value) => value.toLowerCase() === "accept")) {
-    headers.set("Vary", [...(values ?? []), "Accept"].join(", "));
+function addVary(headers: Headers, ...fields: string[]) {
+  const values =
+    headers
+      .get("Vary")
+      ?.split(",")
+      .map((value) => value.trim())
+      .filter(Boolean) ?? [];
+  const missing = fields.filter(
+    (field) => !values.some((value) => value.toLowerCase() === field.toLowerCase()),
+  );
+  if (missing.length > 0) {
+    headers.set("Vary", [...values, ...missing].join(", "));
   }
+}
+
+function addVaryAccept(headers: Headers, pathname: string) {
+  addVary(headers, "Accept");
+  if (isChineseBilingualPage(pathname)) {
+    addVary(headers, "Accept-Language", "Cookie");
+  }
+}
+
+function isChineseBilingualPage(pathname: string) {
+  return localeFromPath(pathname) === "zh" && translatedPath(pathname, "en") !== null;
+}
+
+/** 中文双语页按访客的语言选择跳到英文版；手动选择记在 cookie 里，优先于浏览器语言。 */
+function englishRedirect(request: Request, url: URL) {
+  const englishPath = translatedPath(url.pathname, "en");
+  if (!isChineseBilingualPage(url.pathname) || !englishPath) {
+    return null;
+  }
+  const locale =
+    cookieLocale(request.headers.get("Cookie")) ??
+    preferredLocale(request.headers.get("Accept-Language"));
+  if (locale !== "en") {
+    return null;
+  }
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: new URL(`${englishPath}${url.search}`, siteConfig.url).href,
+      Vary: "Accept, Accept-Language, Cookie",
+    },
+  });
 }
 
 function addHomepageDiscoveryLinks(headers: Headers, pathname: string) {
@@ -80,13 +116,20 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
         headers.set("X-Markdown-Tokens", String(Math.ceil(byteLength / 4)));
       }
       headers.append("Link", canonicalLink(requestUrl.pathname));
-      addVaryAccept(headers);
+      addVary(headers, "Accept");
       addHomepageDiscoveryLinks(headers, requestUrl.pathname);
       return new Response(markdown, {
         headers,
         status: markdownResponse.status,
         statusText: markdownResponse.statusText,
       });
+    }
+  }
+
+  if (request.method === "GET" || request.method === "HEAD") {
+    const redirect = englishRedirect(request, requestUrl);
+    if (redirect) {
+      return redirect;
     }
   }
 
@@ -101,7 +144,7 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
   }
   if (response.status === 304) {
     const headers = new Headers(response.headers);
-    addVaryAccept(headers);
+    addVaryAccept(headers, requestUrl.pathname);
     return responseWithHeaders(request, response, headers);
   }
   if (!response.ok || !response.headers.get("Content-Type")?.includes("text/html")) {
@@ -114,7 +157,7 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
     headers.append("Link", `<${markdownUrl}>; rel="alternate"; type="text/markdown"`);
   }
   headers.set("Content-Signal", contentSignal);
-  addVaryAccept(headers);
+  addVaryAccept(headers, requestUrl.pathname);
   addHomepageDiscoveryLinks(headers, requestUrl.pathname);
   return responseWithHeaders(request, response, headers);
 }
