@@ -2,6 +2,8 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGl
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { localeFromLang } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
@@ -14,6 +16,8 @@ type SearchPanelProps = {
 };
 
 export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
+  const [locale] = useState(() => localeFromLang(document.documentElement.lang));
+  const t = chromeMessages[locale];
   const [query, setQuery] = useState("");
   const [posts, setPosts] = useState<SearchIndexItem[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "loaded" | "failed">("idle");
@@ -56,8 +60,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   }, [open]);
 
   const groups = useMemo(
-    () => buildSearchPalette(query, status === "loaded" ? posts : null),
-    [posts, query, status],
+    () => buildSearchPalette(query, status === "loaded" ? posts : null, locale),
+    [locale, posts, query, status],
   );
 
   const items = useMemo(() => groups.flatMap((group) => group.items), [groups]);
@@ -110,8 +114,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        title="命令面板"
-        description="搜索文章与项目、跳转页面或执行站点命令"
+        title={t.commandPalette}
+        description={t.search.description}
         className="fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
       >
         <div className="flex shrink-0 justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
@@ -121,7 +125,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
         <div className="flex h-[52px] shrink-0 items-center gap-3 border-b border-line px-4">
           <MagnifyingGlassIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-600" />
           <input
-            aria-label="搜索与命令"
+            aria-label={t.search.inputLabel}
             aria-controls="command-palette-results"
             aria-activedescendant={activeItem?.id}
             autoComplete="off"
@@ -132,30 +136,30 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
               setActiveIndex(0);
             }}
             onKeyDown={handleInputKeyDown}
-            placeholder="搜索文章、项目、页面或命令…"
+            placeholder={t.searchLong}
             className="min-w-0 flex-1 bg-transparent font-mono text-sm text-ink-800 outline-none placeholder:text-ink-400"
           />
           {query.trim() && (
             <span aria-hidden="true" className="shrink-0 font-mono text-[10px] text-ink-400">
-              {items.length} 个结果
+              {t.search.results(items.length)}
             </span>
           )}
           <span aria-live="polite" className="sr-only">
-            {query.trim() ? `${items.length} 个结果` : ""}
+            {query.trim() ? t.search.results(items.length) : ""}
           </span>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             className="shrink-0 text-sm text-ink-500 sm:hidden"
           >
-            取消
+            {t.search.cancel}
           </button>
         </div>
 
         <div
           id="command-palette-results"
           role="listbox"
-          aria-label="命令面板结果"
+          aria-label={t.search.resultsLabel}
           className="min-h-0 overflow-y-auto sm:max-h-[430px]"
         >
           {groups.length > 0 ? (
@@ -238,48 +242,50 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                   role="alert"
                   className="mx-4 my-2 flex items-center justify-between gap-3 rounded-[6px] border border-line bg-ink-50 px-3 py-2"
                 >
-                  <span className="text-xs text-ink-500">文章索引加载失败</span>
+                  <span className="text-xs text-ink-500">{t.search.postsFailed}</span>
                   <Button variant="ghost" onClick={() => setStatus("idle")}>
-                    重试
+                    {t.retry}
                   </Button>
                 </div>
               )}
             </div>
           ) : status === "loading" ? (
-            <PaletteLoading />
+            <PaletteLoading label={t.search.loading} />
           ) : status === "failed" ? (
             <div
               role="alert"
               className="flex min-h-64 flex-col items-center justify-center px-6 text-center"
             >
-              <p className="text-base text-ink-800">搜索索引加载失败</p>
-              <p className="mt-2 text-sm text-ink-500">检查网络连接后可以重新加载。</p>
+              <p className="text-base text-ink-800">{t.search.indexFailed}</p>
+              <p className="mt-2 text-sm text-ink-500">{t.search.indexFailedHint}</p>
               <Button variant="secondary" className="mt-4" onClick={() => setStatus("idle")}>
-                重新加载
+                {t.search.reload}
               </Button>
             </div>
           ) : status === "loaded" ? (
             <div className="flex min-h-64 flex-col items-center justify-center px-6 text-center">
-              <p className="text-base text-ink-800">没有命中结果</p>
-              <p className="mt-2 text-sm text-ink-500">试试更短的关键词、标签或项目名。</p>
+              <p className="text-base text-ink-800">{t.search.noResults}</p>
+              <p className="mt-2 text-sm text-ink-500">{t.search.noResultsHint}</p>
             </div>
           ) : null}
         </div>
 
         <div className="hidden h-10 shrink-0 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
-          <span>⏎ 打开</span>
-          <span>↑↓ 移动</span>
-          <span>{siteShortcuts.theme.hint} 翻转世界</span>
-          <span className="ml-auto">esc 关闭</span>
+          <span>⏎ {t.search.open}</span>
+          <span>↑↓ {t.search.move}</span>
+          <span>
+            {siteShortcuts.theme.hint} {t.flipWorld}
+          </span>
+          <span className="ml-auto">esc {t.search.close}</span>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function PaletteLoading() {
+function PaletteLoading({ label }: { label: string }) {
   return (
-    <div role="status" aria-label="正在加载搜索索引" className="space-y-2 px-4 py-4">
+    <div role="status" aria-label={label} className="space-y-2 px-4 py-4">
       <span className="block h-2.5 w-20 bg-ink-100" />
       {Array.from({ length: 6 }, (_, index) => (
         <span key={index} aria-hidden="true" className="block h-10 bg-ink-50 even:bg-ink-100/60" />

@@ -14,7 +14,7 @@ beforeEach(async () => {
   const container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
-  await act(async () => root.render(<MobileHeaderMenu currentPath="/" />));
+  await act(async () => root.render(<MobileHeaderMenu currentPath="/" locale="zh" />));
   trigger = container.querySelector<HTMLButtonElement>("button[aria-controls]")!;
   await act(async () => trigger.click());
 });

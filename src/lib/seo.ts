@@ -1,4 +1,5 @@
-import { siteConfig, siteContacts } from "@/lib/site";
+import { htmlLang, type Locale } from "@/lib/i18n";
+import { siteConfig, siteContacts, siteCopy } from "@/lib/site";
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
@@ -38,22 +39,22 @@ type ArticleMeta = BasePageMeta & {
 
 export type PageMeta = WebsiteMeta | WebpageMeta | ArticleMeta;
 
-export function pageTitle(meta: PageMeta) {
-  return meta.type === "website" ? meta.title : `${meta.title} | ${siteConfig.title}`;
+export function pageTitle(meta: PageMeta, locale: Locale = "zh") {
+  return meta.type === "website" ? meta.title : `${meta.title} | ${siteCopy[locale].title}`;
 }
 
 export function pageImage(meta: PageMeta) {
   return meta.image ?? `${siteConfig.url}/og/site.png`;
 }
 
-function personSchema() {
+function personSchema(locale: Locale) {
   return {
     "@type": "Person",
     "@id": `${siteConfig.url}/#person`,
     name: siteConfig.author,
     url: `${siteConfig.url}/`,
     email: siteContacts.email.value,
-    description: siteConfig.about,
+    description: siteCopy[locale].about,
     sameAs: [siteContacts.github.href, siteContacts.x.href, siteContacts.telegram.href],
   };
 }
@@ -63,6 +64,7 @@ function websiteSchema() {
     "@type": "WebSite",
     "@id": `${siteConfig.url}/#website`,
     name: siteConfig.title,
+    alternateName: siteCopy.en.title,
     url: siteConfig.url,
     description: siteConfig.description,
     inLanguage: siteConfig.language,
@@ -83,8 +85,8 @@ function breadcrumbSchema(items: BreadcrumbItem[]) {
   };
 }
 
-function buildGraph(meta: PageMeta) {
-  const graph: unknown[] = [personSchema(), websiteSchema()];
+function buildGraph(meta: PageMeta, locale: Locale) {
+  const graph: unknown[] = [personSchema(locale), websiteSchema()];
 
   if (meta.type === "website") {
     graph.push({
@@ -93,7 +95,7 @@ function buildGraph(meta: PageMeta) {
       url: meta.url,
       name: meta.title,
       description: meta.description,
-      inLanguage: siteConfig.language,
+      inLanguage: htmlLang[locale],
       isPartOf: { "@id": `${siteConfig.url}/#website` },
       mainEntity: { "@id": `${siteConfig.url}/#person` },
     });
@@ -106,7 +108,7 @@ function buildGraph(meta: PageMeta) {
     url: meta.url,
     name: meta.title,
     description: meta.description,
-    inLanguage: siteConfig.language,
+    inLanguage: htmlLang[locale],
     isPartOf: { "@id": `${siteConfig.url}/#website` },
     author: { "@id": `${siteConfig.url}/#person` },
   };
@@ -147,10 +149,10 @@ function buildGraph(meta: PageMeta) {
   return graph;
 }
 
-export function buildJsonLd(meta: PageMeta) {
+export function buildJsonLd(meta: PageMeta, locale: Locale = "zh") {
   return {
     "@context": "https://schema.org",
-    "@graph": buildGraph(meta),
+    "@graph": buildGraph(meta, locale),
   };
 }
 

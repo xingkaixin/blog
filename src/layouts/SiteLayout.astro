@@ -18,7 +18,9 @@ import {
   serializeJsonLd,
   type PageMeta,
 } from "@/lib/seo";
-import { siteConfig } from "@/lib/site";
+import { htmlLang, localeFromPath, localizedHref, ogLocale } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
+import { siteConfig, siteCopy } from "@/lib/site";
 import {
   desktopNavigation,
   isSiteRouteActive,
@@ -38,11 +40,14 @@ type Props = {
 
 const { meta, noindex = false, status, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
+const locale = localeFromPath(Astro.url.pathname);
+const copy = siteCopy[locale];
+const t = chromeMessages[locale];
 const image = pageImage(meta);
-const title = pageTitle(meta);
+const title = pageTitle(meta, locale);
 const themeToggleEvent = THEME_TOGGLE_EVENT;
 const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
-const navItems = desktopNavigation();
+const navItems = desktopNavigation(locale);
 const defaultStatus = siteStatus(currentPath);
 const pageTransition = {
   forwards: {
@@ -77,7 +82,7 @@ const pageTransition = {
 ---
 
 <!doctype html>
-<html lang={siteConfig.language} transition:name="root" transition:animate="none">
+<html lang={htmlLang[locale]} transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -88,7 +93,7 @@ const pageTransition = {
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={`${siteConfig.title} RSS`}
+      title={`${copy.title} RSS`}
       href={`${siteConfig.url}/feed.xml`}
     />
     <meta name="theme-color" content="#f8faf9" />
@@ -156,8 +161,8 @@ const pageTransition = {
       })();
     </script>
     <meta property="og:type" content={ogType(meta)} />
-    <meta property="og:site_name" content={siteConfig.title} />
-    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content={copy.title} />
+    <meta property="og:locale" content={ogLocale[locale]} />
     <meta property="og:title" content={meta.title} />
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={meta.url} />
@@ -190,7 +195,7 @@ const pageTransition = {
     />
     <noscript><link rel="stylesheet" href={smileyFontUrl} /></noscript>
     <ClientRouter />
-    <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta))}></script>
+    <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta, locale))}></script>
   </head>
   <body>
     <div class="relative flex min-h-[100dvh] flex-col">
@@ -199,7 +204,7 @@ const pageTransition = {
         href="#main-content"
         class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[6px] focus:bg-ink-800 focus:px-4 focus:py-2 focus:text-paper"
       >
-        跳到正文
+        {t.skipToContent}
       </a>
 
       <header
@@ -208,7 +213,7 @@ const pageTransition = {
         data-smart-header={smartHeader ? "" : undefined}
       >
         <div class="mx-auto flex h-[60px] max-w-320 items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
-          <a href="/" class="flex shrink-0 items-center gap-2.5" aria-label="返回首页">
+          <a href={localizedHref("/", locale)} class="flex shrink-0 items-center gap-2.5" aria-label={t.backHome}>
             <img
               src="/logo.svg"
               alt=""
@@ -221,7 +226,7 @@ const pageTransition = {
             </span>
           </a>
 
-          {currentPath !== "/" && (
+          {currentPath !== "/" && currentPath !== "/en" && (
             <span class="hidden max-w-52 shrink-0 truncate font-mono text-xs text-ink-400 xl:inline">
               {decodeURI(currentPath)}
             </span>
@@ -229,10 +234,10 @@ const pageTransition = {
 
           <SearchLauncher />
 
-          <nav aria-label="主导航" class="hidden shrink-0 items-center gap-0.5 lg:flex">
+          <nav aria-label={t.mainNav} class="hidden shrink-0 items-center gap-0.5 lg:flex">
             {
               navItems.map((item) => {
-                const active = isSiteRouteActive(currentPath, item.path);
+                const active = isSiteRouteActive(currentPath, normalizeSitePath(item.href));
                 return (
                   <a
                     href={item.href}
@@ -244,13 +249,14 @@ const pageTransition = {
                     ]}
                   >
                     {item.path}
+                    {item.chineseOnly && <span class="ml-1 text-[10px] text-ink-400">{t.chineseOnly}</span>}
                   </a>
                 );
               })
             }
           </nav>
 
-          <MobileHeaderMenu currentPath={currentPath} client:media="(max-width: 1023px)" />
+          <MobileHeaderMenu currentPath={currentPath} locale={locale} client:media="(max-width: 1023px)" />
         </div>
       </header>
 

@@ -7,6 +7,8 @@ import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
 import { RssIcon } from "@phosphor-icons/react/dist/csr/Rss";
 import { TagIcon } from "@phosphor-icons/react/dist/csr/Tag";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import type { Locale } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { isSiteRouteActive, mobileNavigation, type SiteRouteId } from "@/lib/site-navigation";
 import { siteShortcuts } from "@/lib/site-shortcuts";
@@ -14,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 type MobileHeaderMenuProps = {
   currentPath: string;
+  locale: Locale;
 };
 
 const menuItem =
@@ -26,9 +29,9 @@ const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
   tags: TagIcon,
   feed: RssIcon,
 };
-const routes = mobileNavigation();
-
-export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
+export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps) {
+  const t = chromeMessages[locale];
+  const routes = mobileNavigation(locale);
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -81,7 +84,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
       <button
         ref={triggerRef}
         type="button"
-        aria-label={open ? "关闭导航" : "打开导航"}
+        aria-label={open ? t.closeNav : t.openNav}
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => (open ? closeMenu() : setOpen(true))}
@@ -100,7 +103,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
           open && "is-open",
         )}
       >
-        <nav aria-label="移动端导航" className="space-y-1">
+        <nav aria-label={t.mobileNav} className="space-y-1">
           {routes.map((route, index) => {
             const Icon = routeIcons[route.id];
             const active = isSiteRouteActive(currentPath, route.path);
@@ -122,7 +125,7 @@ export function MobileHeaderMenu({ currentPath }: MobileHeaderMenuProps) {
           <div className="my-1 h-px bg-line" />
           <button type="button" onClick={toggleTheme} className={menuItem}>
             <MoonStarsIcon aria-hidden="true" className="h-4 w-4" />
-            翻转世界
+            {t.flipWorld}
             <span className="ml-auto font-mono text-[10px] text-ink-400">
               {siteShortcuts.theme.hint}
             </span>

@@ -1,6 +1,8 @@
+import type { Locale } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 import { buildPostTaxonomy } from "./post-tags";
-import { primaryProjectUrl, projects, rankProjects, type Project } from "./projects";
+import { localizedProjects, primaryProjectUrl, rankProjects, type Project } from "./projects";
 import { postHref } from "./published-post";
 import { rankPosts, type SearchIndexItem } from "./search";
 import { matchesSearchQuery, normalizeSearchText } from "./search-text";
@@ -33,32 +35,37 @@ export type SearchPaletteGroup = {
 
 type SearchablePaletteItem = SearchPaletteItem & { keywords: string };
 
-const routeLinks: Array<SearchPaletteLink & { keywords: string }> = searchNavigation().map(
-  (route) => ({
-    ...route,
-    kind: "link",
+function routeItemsFor(locale: Locale): SearchablePaletteItem[] {
+  const routeLinks: Array<SearchPaletteLink & { keywords: string }> = searchNavigation(locale).map(
+    (route) => ({
+      ...route,
+      kind: "link",
+      glyph: "›",
+    }),
+  );
+  const themeItem: SearchPaletteThemeCommand & { keywords: string } = {
+    id: "action-theme",
+    kind: "theme",
     glyph: "›",
-  }),
-);
-const themeItem: SearchPaletteThemeCommand & { keywords: string } = {
-  id: "action-theme",
-  kind: "theme",
-  glyph: "›",
-  title: "翻转世界",
-  hint: siteShortcuts.theme.hint,
-  keywords: "主题 亮色 暗色 theme dark light",
-};
-const routeItems: SearchablePaletteItem[] = [...routeLinks, themeItem];
+    title: chromeMessages[locale].flipWorld,
+    hint: siteShortcuts.theme.hint,
+    keywords: "主题 亮色 暗色 翻转世界 theme dark light flip",
+  };
+  return [...routeLinks, themeItem];
+}
 
 export function buildSearchPalette(
   query: string,
   posts: SearchIndexItem[] | null,
+  locale: Locale = "zh",
 ): SearchPaletteGroup[] {
+  const t = chromeMessages[locale].search;
+  const routeItems = routeItemsFor(locale);
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) {
     return [
-      ...(posts ? [{ label: "最近发布", items: posts.slice(0, 4).map(postItem) }] : []),
-      { label: "跳转与命令", items: routeItems },
+      ...(posts ? [{ label: t.latest, items: posts.slice(0, 4).map(postItem) }] : []),
+      { label: t.jump, items: routeItems },
     ];
   }
 
@@ -72,21 +79,23 @@ export function buildSearchPalette(
         id: `tag-${encodeURIComponent(tag)}`,
         kind: "link",
         glyph: "⌗",
-        title: `${tag} · ${count} 篇`,
-        hint: "筛选",
+        title: t.tagTitle(tag, count),
+        hint: t.filter,
         href: href!,
         reload: false,
       })) ?? [];
-  const matchedProjects = rankProjects(projects, query).slice(0, 6).map(projectItem);
+  const matchedProjects = rankProjects(localizedProjects(locale), query)
+    .slice(0, 6)
+    .map(projectItem);
   const matchedRoutes = routeItems.filter((item) =>
     matchesSearchQuery(`${item.title} ${item.hint} ${item.keywords}`, normalizedQuery),
   );
 
   return [
-    { label: `文章 · ${matchedPosts.length}`, items: matchedPosts },
-    { label: "标签", items: matchedTags },
-    { label: "项目", items: matchedProjects },
-    { label: "命令", items: matchedRoutes },
+    { label: t.posts(matchedPosts.length), items: matchedPosts },
+    { label: t.tags, items: matchedTags },
+    { label: t.projects, items: matchedProjects },
+    { label: t.commands, items: matchedRoutes },
   ].filter((group) => group.items.length > 0);
 }
 

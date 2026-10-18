@@ -1,5 +1,9 @@
 ---
+import { localeFromPath } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
+
+const t = chromeMessages[localeFromPath(Astro.url.pathname)];
 ---
 
 <button
@@ -20,10 +24,10 @@ import { siteShortcuts } from "@/lib/site-shortcuts";
     <path d="m21 21-4.3-4.3"></path>
   </svg>
   <span class="min-w-0 flex-1 truncate font-mono text-xs text-ink-400 sm:hidden">
-    搜索 · 跳转
+    {t.searchShort}
   </span>
   <span class="hidden min-w-0 flex-1 truncate font-mono text-xs text-ink-400 sm:block">
-    搜索文章、项目、页面或命令…
+    {t.searchLong}
   </span>
   <kbd
     class="hidden shrink-0 rounded-[4px] border border-ink-200 bg-surface px-1.5 py-0.5 font-mono text-[10px] font-normal text-ink-400 sm:inline-flex"
@@ -38,10 +42,10 @@ import { siteShortcuts } from "@/lib/site-shortcuts";
     hidden
     class="fixed inset-x-4 top-20 z-50 rounded-lg border border-line bg-surface p-4 text-sm text-ink-600 shadow-lg sm:left-auto sm:right-6"
   >
-    <p>搜索暂时无法加载，请检查网络后重试。</p>
+    <p>{t.searchLoadFailed}</p>
     <div class="mt-2 flex gap-4">
-      <button type="button" data-search-trigger class="text-accent underline">重试</button>
-      <button type="button" data-search-reload class="text-accent underline">刷新页面</button>
+      <button type="button" data-search-trigger class="text-accent underline">{t.retry}</button>
+      <button type="button" data-search-reload class="text-accent underline">{t.reloadPage}</button>
     </div>
   </div>
 </div>

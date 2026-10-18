@@ -1,3 +1,5 @@
+import { hasEnglishVersion, localizedHref, type Locale } from "./i18n";
+
 export type SiteRouteId = "home" | "posts" | "projects" | "photos" | "tags" | "feed";
 
 type SiteRoute = {
@@ -5,6 +7,7 @@ type SiteRoute = {
   href: string;
   label: string;
   searchTitle: string;
+  en: { label: string; searchTitle: string };
   keywords: string;
   status: string;
   reload: boolean;
@@ -19,6 +22,7 @@ const routes: SiteRoute[] = [
     href: "/",
     label: "首页",
     searchTitle: "首页",
+    en: { label: "Home", searchTitle: "Home" },
     keywords: "首页 关于 联系 片尾 池塘 home about contact",
     status: "HOME",
     reload: false,
@@ -31,6 +35,7 @@ const routes: SiteRoute[] = [
     href: "/posts/",
     label: "文章",
     searchTitle: "文章日志",
+    en: { label: "Posts (Chinese)", searchTitle: "Posts (Chinese)" },
     keywords: "文章 日志 归档 posts archive",
     status: "POSTS",
     reload: false,
@@ -43,6 +48,7 @@ const routes: SiteRoute[] = [
     href: "/projects/",
     label: "工具箱",
     searchTitle: "工具箱",
+    en: { label: "Projects", searchTitle: "Projects" },
     keywords: "工具 项目 projects",
     status: "PROJECTS",
     reload: false,
@@ -55,6 +61,7 @@ const routes: SiteRoute[] = [
     href: "/photos/",
     label: "照片",
     searchTitle: "照片墙",
+    en: { label: "Photos", searchTitle: "Photo Wall" },
     keywords: "照片 摄影 相册 photos",
     status: "PHOTOS",
     reload: false,
@@ -67,6 +74,7 @@ const routes: SiteRoute[] = [
     href: "/tags/",
     label: "标签",
     searchTitle: "标签索引",
+    en: { label: "Tags (Chinese)", searchTitle: "Tag Index (Chinese)" },
     keywords: "标签 主题 分类 tags taxonomy",
     status: "TAGS",
     reload: false,
@@ -79,6 +87,7 @@ const routes: SiteRoute[] = [
     href: "/rss/",
     label: "订阅 RSS",
     searchTitle: "订阅 RSS",
+    en: { label: "RSS", searchTitle: "Subscribe via RSS" },
     keywords: "订阅 rss feed",
     status: "RSS",
     reload: false,
@@ -101,7 +110,7 @@ export function isSiteRouteActive(currentPath: string, routePath: string): boole
 }
 
 export function siteStatus(currentPath: string): string {
-  const path = normalizeSitePath(currentPath);
+  const path = normalizeSitePath(currentPath.replace(/^\/en(?=\/|$)/u, "") || "/");
   const routeStatus = routes.find((route) => routePath(route.href) === path)?.status;
   if (routeStatus) {
     return routeStatus;
@@ -115,30 +124,35 @@ export function siteStatus(currentPath: string): string {
   return "SYSTEM";
 }
 
-export function desktopNavigation() {
+export function desktopNavigation(locale: Locale = "zh") {
   return routes
     .filter((route) => route.desktop)
-    .map(({ href, reload }) => ({ href, path: routePath(href), reload }));
-}
-
-export function mobileNavigation() {
-  return routes
-    .filter((route) => route.mobile)
-    .map(({ id, href, label, reload }) => ({
-      id,
-      href,
+    .map(({ href, reload }) => ({
+      href: localizedHref(href, locale),
       path: routePath(href),
-      label,
+      chineseOnly: locale === "en" && !hasEnglishVersion(href),
       reload,
     }));
 }
 
-export function searchNavigation() {
-  return routes.map(({ id, href, searchTitle, keywords, reload }) => ({
+export function mobileNavigation(locale: Locale = "zh") {
+  return routes
+    .filter((route) => route.mobile)
+    .map(({ id, href, label, en, reload }) => ({
+      id,
+      href: localizedHref(href, locale),
+      path: routePath(localizedHref(href, locale)),
+      label: locale === "en" ? en.label : label,
+      reload,
+    }));
+}
+
+export function searchNavigation(locale: Locale = "zh") {
+  return routes.map(({ id, href, searchTitle, en, keywords, reload }) => ({
     id: `route-${id}`,
-    href,
+    href: localizedHref(href, locale),
     hint: routePath(href),
-    title: searchTitle,
+    title: locale === "en" ? en.searchTitle : searchTitle,
     keywords,
     reload,
   }));

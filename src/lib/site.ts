@@ -1,3 +1,5 @@
+import type { Locale } from "./i18n";
+
 export const siteContacts = {
   email: {
     id: "email",
@@ -28,7 +30,9 @@ export const siteContacts = {
 export type SiteContactId = keyof typeof siteContacts;
 export type SiteContact = (typeof siteContacts)[SiteContactId];
 
-export const aboutIntro = [
+type AboutIntroPart = string | { kind: "location" | "photography" | "devices"; text: string };
+
+export const aboutIntro: readonly AboutIntroPart[] = [
   "Hey，我是 XingKaiXin，我在",
   { kind: "location", text: "上海" },
   "工作。工作、学习之余，我还是一个",
@@ -36,7 +40,21 @@ export const aboutIntro = [
   "，同时也非常喜欢折腾各类",
   { kind: "devices", text: "数码产品" },
   "。",
-] as const;
+];
+
+const aboutIntroEn: readonly AboutIntroPart[] = [
+  "Hey, I'm XingKaiXin. I work in ",
+  { kind: "location", text: "Shanghai" },
+  ". Outside of work and study, I'm a ",
+  { kind: "photography", text: "photography enthusiast" },
+  " who also loves tinkering with all kinds of ",
+  { kind: "devices", text: "gadgets" },
+  ".",
+];
+
+function plainText(parts: readonly AboutIntroPart[]) {
+  return parts.map((part) => (typeof part === "string" ? part : part.text)).join("");
+}
 
 export const siteConfig = {
   title: "行开心的颠倒世界",
@@ -46,7 +64,27 @@ export const siteConfig = {
   photoUrl: "https://photos.xingkaixin.me",
   author: "XingKaiXin",
   language: "zh-CN",
-  about: aboutIntro.map((part) => (typeof part === "string" ? part : part.text)).join(""),
+  about: plainText(aboutIntro),
   motto:
     "人生不该只有一种体验，不应该每个人的生活都像钉子一样专注。做个兴趣广泛、体验丰富的人，同样幸福",
 };
+
+/** 随页面语言变化的站点文案；中文沿用 siteConfig。 */
+export const siteCopy = {
+  zh: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    aboutIntro,
+    about: siteConfig.about,
+    motto: siteConfig.motto,
+  },
+  en: {
+    title: "XingKaiXin's Upside Down",
+    description:
+      "XingKaiXin's blog on AI coding, agent engineering and developer tools, with notes on products and life along the way.",
+    aboutIntro: aboutIntroEn,
+    about: plainText(aboutIntroEn),
+    motto:
+      "Life shouldn't be just one kind of experience, and not everyone has to live with a nail's single-minded focus. Having wide interests and a life full of experiences is its own kind of happiness.",
+  },
+} satisfies Record<Locale, unknown>;

@@ -1,3 +1,4 @@
+import type { Locale } from "./i18n";
 import { normalizeSearchText, searchTerms } from "./search-text";
 
 export interface ProjectLink {
@@ -14,6 +15,13 @@ interface ProjectDetails {
   logo: string;
   background: string;
   tags: string[];
+  en?: {
+    name?: string;
+    kind: string;
+    summary: string;
+    description: string;
+    tags: string[];
+  };
 }
 
 export type Project = ProjectDetails &
@@ -187,6 +195,29 @@ export const projects: Project[] = [
     tags: ["CLI", "数据库"],
   },
 ];
+
+const englishLinkLabels: Record<string, string> = { 网站: "Website" };
+
+export function localizeProject(project: Project, locale: Locale): Project {
+  if (locale === "zh" || !project.en) {
+    return project;
+  }
+  const { en, ...source } = project;
+  const localized = { ...source, ...en, name: en.name ?? source.name };
+  return localized.links
+    ? {
+        ...localized,
+        links: localized.links.map((link) => ({
+          ...link,
+          label: englishLinkLabels[link.label] ?? link.label,
+        })) as [ProjectLink, ...ProjectLink[]],
+      }
+    : localized;
+}
+
+export function localizedProjects(locale: Locale): Project[] {
+  return projects.map((project) => localizeProject(project, locale));
+}
 
 export function primaryProjectUrl(project: Project): string {
   return project.url ?? project.links[0].url;

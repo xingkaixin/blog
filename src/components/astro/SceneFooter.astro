@@ -6,17 +6,17 @@ import photography from "@/assets/footer/photography.png";
 import lake from "@/assets/footer/scenery/lake.png";
 import coast from "@/assets/footer/scenery/coast.png";
 import town from "@/assets/footer/scenery/town.png";
+import { localeFromPath, translatedPath } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 
 type Props = { currentPath: string; label: string; stage?: boolean };
 const { currentPath, label, stage = true } = Astro.props;
-const scene = currentPath.startsWith("/photos") ? "photography" : currentPath === "/projects" ? "building" : "writing";
-const scenes = {
-  photography: { image: photography, title: "再拍一张。", text: "把路过的风景，留在这里。", alt: "开心举起相机，拍摄眼前的风景" },
-  building: { image: building, title: "有个想法，正在做。", text: "把日常的小问题，做成顺手的小工具。", alt: "开心坐在电脑前制作工具" },
-  writing: { image: writing, title: "写下来，慢慢想。", text: "关于技术，也关于一路上的发现。", alt: "开心坐在桌前，用笔记录想法" },
-};
-const content = scenes[scene];
+const t = chromeMessages[localeFromPath(currentPath)];
+const basePath = translatedPath(currentPath, "zh") ?? currentPath;
+const scene = basePath.startsWith("/photos") ? "photography" : basePath === "/projects/" ? "building" : "writing";
+const images = { photography, building, writing };
+const content = { image: images[scene], ...t.footer[scene] };
 ---
 
 <footer class="scene-footer" data-scene={scene}>
@@ -51,7 +51,7 @@ const content = scenes[scene];
   </div>}
   <div class="footer-bottom">
     <span>{label}</span>
-    <span class="shortcuts">{siteShortcuts.search.hint} 命令面板 · {siteShortcuts.theme.hint} 翻转世界</span>
+    <span class="shortcuts">{siteShortcuts.search.hint} {t.commandPalette} · {siteShortcuts.theme.hint} {t.flipWorld}</span>
   </div>
 </footer>
 
