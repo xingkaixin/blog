@@ -53,6 +53,7 @@ const deferredSprites = await Promise.all(
       <SignatureAnimation client:load className="mt-0 justify-start text-ink-800" fontSize="inherit" />
     </div>
     <div class="night" data-story-night></div>
+    <canvas class="season" data-story-season></canvas>
   </div>
 
   <div class="cast">
@@ -187,6 +188,7 @@ const deferredSprites = await Promise.all(
     background-size: 173px 131px, 251px 197px;
     background-position: 13px 29px, 97px 61px;
   }
+  .season { position: absolute; inset: 0; width: 100%; height: 100%; }
 
   .cast { z-index: 2; pointer-events: none; }
   .sprite {
@@ -275,6 +277,9 @@ const deferredSprites = await Promise.all(
 </style>
 
 <script>
+  import { isSeason, seasonAt } from "@/lib/season";
+  import type { SeasonBackdrop } from "@/lib/season-backdrop";
+
   type Key = number[];
   type Sprite = { keys: Key[]; steps?: number; lift?: number };
 
@@ -341,10 +346,16 @@ const deferredSprites = await Promise.all(
       const masthead = this.querySelector<HTMLElement>("[data-story-masthead]")!;
       const art = this.querySelector<HTMLElement>("[data-story-art]")!;
       const night = this.querySelector<HTMLElement>("[data-story-night]")!;
+      const seasonCanvas = this.querySelector<HTMLCanvasElement>("[data-story-season]")!;
       const header = document.querySelector<HTMLElement>("[data-site-header]");
       let deferred = [...this.querySelectorAll<HTMLImageElement>("img[data-srcset]")];
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const events = new AbortController();
+      // 开发时用 ?season=winter 预览其他季节
+      const previewSeason = import.meta.env.DEV ? new URLSearchParams(location.search).get("season") : null;
+      const season = isSeason(previewSeason) ? previewSeason : seasonAt(new Date());
+      let backdrop: SeasonBackdrop | null = null;
+      let nightAmount = 0;
       let stageTop = 0;
       let tops: number[] = [];
       let active = -1;
@@ -388,7 +399,9 @@ const deferredSprites = await Promise.all(
         masthead.style.opacity = String(1 - smooth(0.12, 0.55, p));
         masthead.style.transform = still ? "" : `translateY(${-Math.min(p, 1) * 40}cqh)`;
         art.style.setProperty("--art-fade", String(1 - smooth(0.2, 0.7, p)));
-        night.style.opacity = String(smooth(1.3, 1.75, p));
+        nightAmount = smooth(1.3, 1.75, p);
+        night.style.opacity = String(nightAmount);
+        backdrop?.setNight(nightAmount);
 
         const reveal = (copy: HTMLElement, from: number, to: number, leaveFrom?: number, leaveTo?: number) => {
           const enter = smooth(from, to, p);
@@ -424,17 +437,31 @@ const deferredSprites = await Promise.all(
         schedule();
       };
 
+      const syncSeasonMotion = () => {
+        backdrop?.setPaused(reducedMotion.matches);
+      };
+
       addEventListener("scroll", schedule, { passive: true, signal: events.signal });
       reducedMotion.addEventListener("change", schedule, { signal: events.signal });
+      reducedMotion.addEventListener("change", syncSeasonMotion, { signal: events.signal });
       const resizeObserver = new ResizeObserver(refresh);
       resizeObserver.observe(this);
       measure();
       render();
       this.setAttribute("data-ready", "");
+      void import("@/lib/season-backdrop").then(({ createSeasonBackdrop }) => {
+        if (events.signal.aborted) {
+          return;
+        }
+        backdrop = createSeasonBackdrop(seasonCanvas, season, reducedMotion.matches);
+        backdrop?.setNight(nightAmount);
+      });
       this.cleanup = () => {
         events.abort();
         resizeObserver.disconnect();
         cancelAnimationFrame(frame);
+        backdrop?.destroy();
+        backdrop = null;
       };
     }
 
