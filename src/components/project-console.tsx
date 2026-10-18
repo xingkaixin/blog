@@ -2,29 +2,25 @@ import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { Locale } from "@/lib/i18n";
+import { projectFilters, projectMessages, type ProjectFilter } from "@/lib/messages/projects";
 import { mountProjectLogoEffects } from "@/lib/project-logo-effect";
-import { rankProjects, type Project } from "@/lib/projects";
+import { localizeProject, rankProjects, type Project } from "@/lib/projects";
 
 type ProjectConsoleProps = {
   projects: Project[];
+  locale: Locale;
 };
 
-const filters = ["全部", "AI", "iOS", "CLI", "扩展", "数据库"] as const;
-
-type ProjectFilter = (typeof filters)[number];
-
-function matchesFilter(project: Project, filter: ProjectFilter): boolean {
-  if (filter === "全部") {
-    return true;
-  }
-  if (filter === "扩展") {
-    return project.kind.includes("扩展") || project.tags.includes("浏览器扩展");
-  }
-  if (filter === "CLI") {
-    return project.kind.includes("CLI") || project.tags.includes("CLI");
-  }
-  return project.tags.includes(filter);
-}
+/** 按中文原始数据判断分类，英文版只换显示文案。 */
+const filterMatchers: Record<ProjectFilter, (project: Project) => boolean> = {
+  all: () => true,
+  ai: (project) => project.tags.includes("AI"),
+  ios: (project) => project.tags.includes("iOS"),
+  cli: (project) => project.kind.includes("CLI") || project.tags.includes("CLI"),
+  extension: (project) => project.kind.includes("扩展") || project.tags.includes("浏览器扩展"),
+  database: (project) => project.tags.includes("数据库"),
+};
 
 function ProjectLogo({ project }: { project: Project }) {
   return (
@@ -36,8 +32,8 @@ function ProjectLogo({ project }: { project: Project }) {
   );
 }
 
-function ProjectLinks({ project }: { project: Project }) {
-  const links = project.links ?? [{ label: "访问产品", url: project.url }];
+function ProjectLinks({ project, visitLabel }: { project: Project; visitLabel: string }) {
+  const links = project.links ?? [{ label: visitLabel, url: project.url }];
 
   return (
     <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2">
@@ -57,7 +53,15 @@ function ProjectLinks({ project }: { project: Project }) {
   );
 }
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({
+  project,
+  index,
+  visitLabel,
+}: {
+  project: Project;
+  index: number;
+  visitLabel: string;
+}) {
   return (
     <article
       data-column={(index % 4) + 1}
@@ -85,21 +89,25 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         <div className="mt-6 sm:mt-auto sm:pt-8">
           <h2 className="text-xl font-medium tracking-[-0.025em] text-ink-800">{project.name}</h2>
           <p className="mt-1.5 max-w-60 text-[13px] leading-5 text-ink-600">{project.summary}</p>
-          <ProjectLinks project={project} />
+          <ProjectLinks project={project} visitLabel={visitLabel} />
         </div>
       </div>
     </article>
   );
 }
 
-export function ProjectConsole({ projects }: ProjectConsoleProps) {
+export function ProjectConsole({ projects, locale }: ProjectConsoleProps) {
+  const t = projectMessages[locale];
   const rootRef = useRef<HTMLElement>(null);
-  const [activeFilter, setActiveFilter] = useState<ProjectFilter>("全部");
+  const [activeFilter, setActiveFilter] = useState<ProjectFilter>("all");
   const [query, setQuery] = useState("");
-  const visibleProjects = useMemo(
-    () => rankProjects(projects, query).filter((project) => matchesFilter(project, activeFilter)),
-    [activeFilter, projects, query],
-  );
+  const visibleProjects = useMemo(() => {
+    const allowed = new Set(projects.filter(filterMatchers[activeFilter]).map(({ id }) => id));
+    return rankProjects(
+      projects.map((project) => localizeProject(project, locale)),
+      query,
+    ).filter((project) => allowed.has(project.id));
+  }, [activeFilter, locale, projects, query]);
   useEffect(() => {
     return rootRef.current ? mountProjectLogoEffects(rootRef.current) : undefined;
   }, []);
@@ -112,10 +120,10 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
       <header className="flex flex-col gap-5 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
-            {projects.length} 个在维护
+            {t.maintained(projects.length)}
           </p>
           <h1 className="mt-2 flex items-center gap-2 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
-            工具箱{" "}
+            {t.title}{" "}
             <span aria-hidden="true" className="font-mono text-xl text-accent">
               :)
             </span>
@@ -124,18 +132,18 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
           <label className="flex h-9 w-full items-center gap-2 rounded-[7px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
             <MagnifyingGlassIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-400" />
-            <span className="sr-only">搜索工具</span>
+            <span className="sr-only">{t.searchLabel}</span>
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索名称、类型或技术…"
+              placeholder={t.searchPlaceholder}
               className="min-w-0 flex-1 bg-transparent font-mono text-xs text-ink-800 outline-none placeholder:text-ink-400 [&::-webkit-search-cancel-button]:hidden"
             />
             {query && (
               <button
                 type="button"
-                aria-label="清除搜索"
+                aria-label={t.clearSearch}
                 onClick={() => setQuery("")}
                 className="text-ink-400 transition-colors hover:text-ink-700 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
               >
@@ -145,10 +153,10 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
           </label>
           <div
             role="group"
-            aria-label="筛选工具"
+            aria-label={t.filterLabel}
             className="flex max-w-full gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {filters.map((filter) => (
+            {projectFilters.map((filter) => (
               <button
                 key={filter}
                 type="button"
@@ -156,7 +164,7 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
                 onClick={() => setActiveFilter(filter)}
                 className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper"
               >
-                {filter}
+                {t.filters[filter]}
               </button>
             ))}
           </div>
@@ -170,22 +178,22 @@ export function ProjectConsole({ projects }: ProjectConsoleProps) {
             className="project-row grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-3.5"
           >
             {row.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
+              <ProjectCard key={project.id} project={project} index={index} visitLabel={t.visit} />
             ))}
           </div>
         ))}
         {visibleProjects.length === 0 && (
           <div className="flex min-h-48 items-center justify-center rounded-[12px] border border-line bg-surface px-6 text-center">
             <div>
-              <p className="text-sm font-medium text-ink-800">没有匹配的工具</p>
-              <p className="mt-1.5 text-xs leading-6 text-ink-500">换个关键词或选择其他分类。</p>
+              <p className="text-sm font-medium text-ink-800">{t.empty}</p>
+              <p className="mt-1.5 text-xs leading-6 text-ink-500">{t.emptyHint}</p>
             </div>
           </div>
         )}
       </div>
 
       <p aria-live="polite" className="mt-3 font-mono text-[10px] text-ink-400">
-        显示 {visibleProjects.length} / {projects.length}
+        {t.showing(visibleProjects.length, projects.length)}
       </p>
     </section>
   );

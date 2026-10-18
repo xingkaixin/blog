@@ -2,13 +2,19 @@
 import { ProjectConsole } from "@/components/project-console";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
+import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
+import { projectMessages } from "@/lib/messages/projects";
 import { projects } from "@/lib/projects";
 import { siteConfig } from "@/lib/site";
 
+export const getStaticPaths = bilingualStaticPaths;
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = projectMessages[locale];
 const meta = {
-  title: "工具箱",
-  description: "Kevin 发布和维护的 iOS 应用、AI、CLI、数据库与开发者工具。",
-  url: `${siteConfig.url}/projects/`,
+  title: t.title,
+  description: t.description,
+  url: `${siteConfig.url}${localizedHref("/projects/", locale)}`,
   type: "webpage" as const,
 };
 ---
@@ -16,6 +22,6 @@ const meta = {
 <SiteLayout meta={meta} status={`PROJECTS · ${projects.length} items`}>
   <div class="relative isolate overflow-hidden">
     <PageArtwork scene="building" />
-    <ProjectConsole projects={projects} client:load />
+    <ProjectConsole projects={projects} locale={locale} client:load />
   </div>
 </SiteLayout>

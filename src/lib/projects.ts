@@ -39,6 +39,14 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/snipjoy.webp",
     url: "https://snipjoy.xingkaixin.me/",
     tags: ["iOS", "工具", "贴纸", "照片", "图片编辑"],
+    en: {
+      name: "Snipjoy",
+      kind: "iOS app",
+      summary: "Turn what you love in a photo into a clear-cut sticker.",
+      description:
+        "A sticker maker for iPhone and iPad. It lifts the subject out of a photo on device, with batch creation, lasso selection, a range of textures and text, and exports transparent PNGs or works through the system sticker extension. Collections, a map and a calendar keep everything organized, and your photos never leave the device.",
+      tags: ["iOS", "Tools", "Stickers", "Photos", "Image editing"],
+    },
   },
   {
     id: "simmerdial",
@@ -51,6 +59,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/simmerdial.webp",
     url: "https://simmerdial.xingkaixin.me/",
     tags: ["iOS", "工具", "厨房计时器", "倒计时"],
+    en: {
+      kind: "iOS app",
+      summary: "Turn the dial, let go, and get back to cooking.",
+      description:
+        "A kitchen timer for iPhone. Turn a mechanical dial to set the countdown and it starts the moment you let go, with an orange ring showing the time left. It supports system alerts, Live Activities on the Lock Screen and the Dynamic Island, needs no account and works offline.",
+      tags: ["iOS", "Tools", "Kitchen timer", "Countdown"],
+    },
   },
   {
     id: "tipnook",
@@ -63,6 +78,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/tipnook.webp",
     url: "https://tipnook.xingkaixin.me/",
     tags: ["iOS", "工具", "小费计算", "分账"],
+    en: {
+      kind: "iOS app",
+      summary: "Work out the tip and split the bill, clearly.",
+      description:
+        "A tip calculator and bill splitter for iPhone. Enter the bill and adjust the tip percentage to see what each of 1–20 people owes. It supports 15 currencies and sharing the bill as text or an image, needs no account and works offline.",
+      tags: ["iOS", "Tools", "Tip calculator", "Bill splitting"],
+    },
   },
   {
     id: "spanlet",
@@ -75,6 +97,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/spanlet.webp",
     url: "https://spanlet.xingkaixin.me/",
     tags: ["iOS", "工具", "人生进度", "小组件"],
+    en: {
+      kind: "iOS app",
+      summary: "See the time you've lived in percentages, years and weeks.",
+      description:
+        "A life-progress app for iPhone. Enter your birthday and pick a life span to see the time you've lived as a percentage, in years and in weeks. It comes with Home Screen and Lock Screen widgets plus a separate year-progress calendar; no account needed, and your data stays on the device.",
+      tags: ["iOS", "Tools", "Life progress", "Widgets"],
+    },
   },
   {
     id: "yomitomo",
@@ -87,6 +116,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/yomitomo.webp",
     url: "https://yomitomo.app",
     tags: ["AI", "阅读工具"],
+    en: {
+      kind: "Desktop app",
+      summary: "Reading, annotations and AI discussion in one place.",
+      description:
+        "Yomitomo is a local companion for deep reading. It brings web reading, text annotations, discussion threads and an AI assistant into the same reading space, so you can note judgments, follow-up questions and context as you read, and have the AI assistant join the annotations around the original text.",
+      tags: ["AI", "Reading tools"],
+    },
   },
   {
     id: "voicen",
@@ -99,6 +135,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/voicen.webp",
     url: "https://voicen.xingkaixin.me/",
     tags: ["AI", "iOS", "语音笔记"],
+    en: {
+      kind: "iOS app",
+      summary: "Turn whatever you say into a tidy note.",
+      description:
+        "A native iOS voice-notes app. Tap to start recording; transcription and LLM polishing run in the background, and each note keeps both the original audio and the cleaned-up text.",
+      tags: ["AI", "iOS", "Voice notes"],
+    },
   },
   {
     id: "codesesh",
@@ -111,6 +154,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/codesesh.webp",
     url: "https://codesesh.xingkaixin.me",
     tags: ["AI", "CLI", "开发者工具"],
+    en: {
+      kind: "Web / CLI",
+      summary: "Browse, replay and search all your AI coding sessions.",
+      description:
+        "Every AI coding session in one place. It scans your local file system and shows conversation history from Claude Code, Cursor, Kimi and other tools in a single web UI, with replay, cost stats and full-text search.",
+      tags: ["AI", "CLI", "Developer tools"],
+    },
   },
   {
     id: "skills",
@@ -123,6 +173,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/skills.webp",
     url: "https://skills.xingkaixin.me",
     tags: ["AI", "SKILLS"],
+    en: {
+      kind: "CLI",
+      summary: "Sync and manage Claude Code skills in one place.",
+      description:
+        "Manages external skill repositories for Claude Code. It aggregates upstream vendor skills and custom sources and exposes them as a standardized skills directory.",
+      tags: ["AI", "SKILLS"],
+    },
   },
   {
     id: "unquote",
@@ -145,6 +202,13 @@ export const projects: Project[] = [
       },
     ],
     tags: ["工具", "JSON", "JSONL"],
+    en: {
+      kind: "Web / Extension",
+      summary: "Unwrap nested JSON strings in one click.",
+      description:
+        "Detects and recursively expands stringified values in JSON, built for the nested JSON in AI model output and MCP/agent tool calls. Supports JSONL, syntax highlighting and path display.",
+      tags: ["Tools", "JSON", "JSONL"],
+    },
   },
   {
     id: "agent-dump",
@@ -157,6 +221,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/agent-dump.webp",
     url: "https://agent-dump.xingkaixin.me",
     tags: ["AI", "CLI"],
+    en: {
+      kind: "CLI",
+      summary: "Export AI coding sessions and token stats.",
+      description:
+        "An exporter for AI coding assistant sessions. It works with Claude Code, OpenCode, Codex, Kimi and more, with interactive selection, batch export and token statistics.",
+      tags: ["AI", "CLI"],
+    },
   },
   {
     id: "ddlbuilder",
@@ -169,6 +240,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/ddlbuilder.webp",
     url: "https://ddl.xingkaixin.me",
     tags: ["工具", "数据库"],
+    en: {
+      kind: "Web app",
+      summary: "Generate CREATE TABLE statements for many databases from a form.",
+      description:
+        "A multi-database DDL generator. Fill in a form to generate DDL for nine databases, including MySQL, PostgreSQL and Oracle, in real time, with partitioned tables, indexes, privileges and SQL import.",
+      tags: ["Tools", "Database"],
+    },
   },
   {
     id: "shipit",
@@ -181,6 +259,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/shipit.webp",
     url: "https://shipit.xingkaixin.me/",
     tags: ["工具", "Web", "视频"],
+    en: {
+      kind: "Web tool",
+      summary: "Turn screenshots and a logo into a launch video.",
+      description:
+        "Turns your product logo, screenshots, name, version and release notes into a 5-second launch video in the browser, with live preview, 1080p/4K output and local MP4 export.",
+      tags: ["Tools", "Web", "Video"],
+    },
   },
   {
     id: "db-ferry",
@@ -193,6 +278,13 @@ export const projects: Project[] = [
     background: "/projects/backgrounds/db-ferry.webp",
     url: "https://db-ferry.xingkaixin.me",
     tags: ["CLI", "数据库"],
+    en: {
+      kind: "CLI",
+      summary: "Move data reliably between databases.",
+      description:
+        "A multi-database migration CLI. A declarative task.toml config streams data between Oracle, MySQL, PostgreSQL, SQLite and other databases, with resumable transfers and batch verification.",
+      tags: ["CLI", "Database"],
+    },
   },
 ];
 
