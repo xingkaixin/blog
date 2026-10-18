@@ -58,10 +58,11 @@
   --resize-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 首页夜景（片尾、池塘）沿用暗色 token；滚到夜景时页眉、页脚和场景导航一起变暗 */
+/* 首页夜景（片尾、池塘）沿用暗色 token；滚到夜景时页眉、页脚、场景导航和季节标签一起变暗 */
 [data-theme="dark"],
 .story-night,
-:root:has(home-story[data-night]) :is([data-site-header], .scene-footer, .story-rail) {
+:root:has(home-story[data-night])
+  :is([data-site-header], .scene-footer, .story-rail, .season-chip) {
   --bg: #131715;
   --surface: #1a1f1d;
   --line: #262d2a;
