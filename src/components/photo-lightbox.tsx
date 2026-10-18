@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { PhotoBrowsingNavigation } from "@/hooks/use-photo-browsing-session";
+import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_DISPLAY_WIDTH,
@@ -98,6 +99,8 @@ export function PhotoLightbox({
   onSelect,
   onRetryNavigation,
 }: PhotoLightboxProps) {
+  const t = usePhotoMessages();
+  const locale = usePhotoLocale();
   const revealOnClose = useRef(false);
   const close = () => {
     revealOnClose.current = true;
@@ -174,8 +177,8 @@ export function PhotoLightbox({
       }}
     >
       <DialogContent
-        title="照片大图"
-        description={formatPhotoCapturedAt(photo.capturedAt)}
+        title={t.lightboxTitle}
+        description={formatPhotoCapturedAt(photo.capturedAt, locale)}
         finalFocus={getPhotoTile}
         onKeyDown={(event) => {
           if (!open || event.defaultPrevented) {
@@ -198,12 +201,12 @@ export function PhotoLightbox({
               </p>
             )}
             <p className="truncate font-mono text-xs text-ink-500">
-              {formatPhotoCapturedAt(photo.capturedAt)}
+              {formatPhotoCapturedAt(photo.capturedAt, locale)}
             </p>
           </div>
           <button
             type="button"
-            aria-label="关闭大图"
+            aria-label={t.closeLightbox}
             onClick={close}
             className={cn("shrink-0", LIGHTBOX_BUTTON_CLASS_NAME)}
           >
@@ -224,7 +227,7 @@ export function PhotoLightbox({
           {previous && (
             <button
               type="button"
-              aria-label="上一张照片"
+              aria-label={t.previous}
               onClick={() => onSelect(previous)}
               className={cn(
                 "absolute left-3 top-1/2 -translate-y-1/2 max-sm:not-focus:sr-only sm:left-5",
@@ -237,7 +240,7 @@ export function PhotoLightbox({
           {next && (
             <button
               type="button"
-              aria-label="下一张照片"
+              aria-label={t.next}
               onClick={() => onSelect(next)}
               className={cn(
                 "absolute right-3 top-1/2 -translate-y-1/2 max-sm:not-focus:sr-only sm:right-5",
@@ -254,12 +257,12 @@ export function PhotoLightbox({
             {navigation.position} / {navigation.total}
           </span>
           {navigation.strip.length > 1 && (
-            <nav aria-label="同一个月的照片" className="hidden gap-2 sm:flex">
+            <nav aria-label={t.sameMonth} className="hidden gap-2 sm:flex">
               {navigation.strip.map((frame) => (
                 <button
                   key={frame.id}
                   type="button"
-                  aria-label={`查看${formatPhotoCapturedAt(frame.capturedAt)}拍摄的照片`}
+                  aria-label={t.viewPhoto(formatPhotoCapturedAt(frame.capturedAt, locale))}
                   aria-current={frame.id === photo.id ? "true" : undefined}
                   onClick={() => frame.id !== photo.id && onSelect(frame)}
                   className="relative h-12 w-12 opacity-50 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-current:opacity-100"
@@ -283,22 +286,22 @@ export function PhotoLightbox({
             </nav>
           )}
           {navigation.status === "loading" ? (
-            <span role="status">正在加载相邻照片…</span>
+            <span role="status">{t.loadingNeighbors}</span>
           ) : navigation.status === "error" ? (
             <span role="alert" className="flex items-center gap-3">
-              相邻照片加载失败
+              {t.neighborsFailed}
               <button
                 type="button"
                 onClick={onRetryNavigation}
                 className="rounded px-2 py-1 text-ink-800 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                重试
+                {t.retry}
               </button>
             </span>
           ) : (
             <>
-              <span className="sm:hidden">左右滑动 · Esc 关闭</span>
-              <span className="hidden sm:inline">← → 切换 · Esc 关闭</span>
+              <span className="sm:hidden">{t.swipeHint}</span>
+              <span className="hidden sm:inline">{t.keyHint}</span>
             </>
           )}
         </footer>

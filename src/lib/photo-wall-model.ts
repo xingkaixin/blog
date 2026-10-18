@@ -1,3 +1,5 @@
+import type { Locale } from "./i18n";
+import { formatCaptureMonth } from "./photo-captured-at";
 import type {
   PhotoAlbum,
   PhotoCatalogIndex,
@@ -58,6 +60,7 @@ type PhotoWallCatalogModel = PhotoTimelineModel & {
 export function buildPhotoWallCatalogModel(
   index: PhotoCatalogIndex | null,
   selectedAlbumId: string | null,
+  locale: Locale = "zh",
 ): PhotoWallCatalogModel {
   if (!index) {
     return {
@@ -126,13 +129,13 @@ export function buildPhotoWallCatalogModel(
     albums: albumSummaries,
     visiblePeriods,
     albumCount: index.albums.length,
-    allPhotoRange: formatPeriodRange(index.periods),
+    allPhotoRange: formatPeriodRange(index.periods, locale),
     yearActivity: buildYearActivity(index.periods),
     overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
     overviewSummaries,
     allPhotoCount,
     totalPhotoCount: selectedAlbumId ? (selectedAlbum?.count ?? 0) : allPhotoCount,
-    timelineRange: formatPeriodRange(visiblePeriods),
+    timelineRange: formatPeriodRange(visiblePeriods, locale),
   };
 }
 
@@ -199,15 +202,14 @@ function previewPeriods(periods: PhotoPeriod[], albumId: string, limit: number):
   return result;
 }
 
-export function formatPeriodRange(periods: PhotoPeriod[]): string {
+export function formatPeriodRange(periods: PhotoPeriod[], locale: Locale = "zh"): string {
   const newest = periods[0]?.month;
   const oldest = periods.at(-1)?.month;
   if (!newest || !oldest) {
     return "";
   }
   if (newest === oldest) {
-    const [year, month] = newest.split("-");
-    return `${year}年${Number(month)}月`;
+    return formatCaptureMonth(newest, locale);
   }
   const newestYear = newest.slice(0, 4);
   const oldestYear = oldest.slice(0, 4);

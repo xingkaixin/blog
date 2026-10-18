@@ -2,6 +2,7 @@ import { useLayoutEffect, useState, type RefObject } from "react";
 import { PhotoArchiveHeader } from "@/components/photo-overview";
 import { PhotoPeriodSection } from "@/components/photo-period";
 import { PhotoTimeRail } from "@/components/photo-time-rail";
+import { usePhotoMessages } from "@/hooks/use-photo-messages";
 import { photoBackgroundStyle } from "@/lib/photo-background";
 import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
 import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
@@ -39,6 +40,7 @@ export function PhotoTimeline({
   onOpenPhoto,
   onJumpMonth,
 }: PhotoTimelineProps) {
+  const t = usePhotoMessages();
   const [containerWidth, setContainerWidth] = useState(0);
   const {
     selectedAlbumId,
@@ -86,13 +88,16 @@ export function PhotoTimeline({
       <div className="mx-auto max-w-340 px-4 pt-4 sm:px-6 sm:pt-10 lg:px-10">
         {selectedAlbum ? (
           <>
-            <nav aria-label="位置" className="flex items-center gap-2.5 text-sm text-ink-500">
+            <nav
+              aria-label={t.breadcrumb}
+              className="flex items-center gap-2.5 text-sm text-ink-500"
+            >
               <button
                 type="button"
                 onClick={onReturn}
                 className="inline-flex min-h-11 items-center rounded-[5px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
               >
-                ← 城市胶卷
+                {t.backToRolls}
               </button>
               <span aria-hidden="true" className="text-ink-300">
                 /
@@ -116,14 +121,14 @@ export function PhotoTimeline({
               </h1>
               <p className="relative font-mono text-xs tracking-[0.12em] text-ink-600">
                 {timelineRange && `${timelineRange} · `}
-                {totalPhotoCount} 张
+                {t.photos(totalPhotoCount)}
               </p>
             </header>
           </>
         ) : (
           <PhotoArchiveHeader
-            title="全部照片"
-            detail={`${totalPhotoCount} 张${timelineRange ? ` · ${timelineRange}` : ""} · 按拍摄时间倒序`}
+            title={t.allPhotos}
+            detail={`${t.photos(totalPhotoCount)}${timelineRange ? ` · ${timelineRange}` : ""} · ${t.newestFirst}`}
             view="timeline"
             onSwitchView={onReturn}
           />
@@ -132,11 +137,11 @@ export function PhotoTimeline({
         {albums.length > 0 && (
           <div className="sticky top-[60px] z-10 -mx-4 mt-8 flex items-center gap-4 border-y border-line bg-paper/95 py-3 pl-4 backdrop-blur sm:-mx-6 sm:pl-6 lg:-mx-10 lg:pl-10">
             <span className="hidden shrink-0 font-mono text-[11px] tracking-[0.16em] text-ink-500 sm:block">
-              筛选城市
+              {t.filterCities}
             </span>
             <div
               role="group"
-              aria-label="按城市筛选"
+              aria-label={t.filterCitiesLabel}
               className="flex min-w-0 gap-2 overflow-x-auto pr-4 [scrollbar-width:none] sm:pr-6 lg:pr-10 [&::-webkit-scrollbar]:hidden"
             >
               <button
@@ -145,7 +150,7 @@ export function PhotoTimeline({
                 onClick={() => onSelectAlbum(null)}
                 className={ALBUM_CHIP_CLASS_NAME}
               >
-                全部
+                {t.all}
                 <span>{allPhotoCount}</span>
               </button>
               {albums.map((album) => (
@@ -171,16 +176,16 @@ export function PhotoTimeline({
           {visiblePeriods.length === 0 ? (
             <div className="flex min-h-56 flex-col items-center justify-center gap-2.5 rounded-[10px] border border-dashed border-ink-200 px-6 text-center">
               <h2 className="text-[17px] font-medium text-ink-800">
-                {selectedAlbumId ? "这个相册还没有照片" : "还没有照片"}
+                {selectedAlbumId ? t.emptyAlbum : t.empty}
               </h2>
-              <p className="text-[13px] text-ink-500">新照片发布后会按拍摄时间出现在这里。</p>
+              <p className="text-[13px] text-ink-500">{t.emptyHint}</p>
               {selectedAlbumId && (
                 <button
                   type="button"
                   onClick={onReturn}
                   className="mt-1 min-h-10 rounded-[5px] text-[13px] font-medium text-ink-800 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                 >
-                  ← 回到照片墙
+                  {t.backToWall}
                 </button>
               )}
             </div>

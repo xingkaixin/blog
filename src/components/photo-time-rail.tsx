@@ -6,6 +6,8 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
+import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
+import { formatCaptureMonth } from "@/lib/photo-captured-at";
 import type { PhotoPeriod } from "@/lib/photo-catalog";
 
 type PhotoTimeRailProps = {
@@ -13,11 +15,6 @@ type PhotoTimeRailProps = {
   activeMonth: string;
   onSelect: (month: string) => void;
 };
-
-function formatMonth(month: string): string {
-  const [year, monthNumber] = month.split("-");
-  return `${year}年${Number(monthNumber)}月`;
-}
 
 function periodIndexFromPointer(
   element: HTMLElement,
@@ -30,6 +27,8 @@ function periodIndexFromPointer(
 }
 
 export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailProps) {
+  const t = usePhotoMessages();
+  const locale = usePhotoLocale();
   const railRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<HTMLSpanElement>(null);
   const labelPositionRef = useRef<HTMLSpanElement>(null);
@@ -73,10 +72,10 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
 
       marker.style.transform = `translate3d(0, ${markerY}px, 0)`;
       labelPosition.style.transform = `translate3d(0, ${labelY}px, 0)`;
-      label.textContent = formatMonth(periods[boundedIndex].month);
+      label.textContent = formatCaptureMonth(periods[boundedIndex].month, locale);
       previewIndexRef.current = boundedIndex;
     },
-    [periods],
+    [locale, periods],
   );
 
   useEffect(() => {
@@ -176,19 +175,19 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
 
   return (
     <aside
-      aria-label="照片时间线"
+      aria-label={t.timeline}
       className="pointer-events-none fixed bottom-6 right-1 top-24 z-10 flex w-8 justify-center md:right-3 md:w-12 lg:right-5"
     >
       <div
         ref={railRef}
         role="slider"
         tabIndex={0}
-        aria-label="按月份跳转"
+        aria-label={t.jumpToMonth}
         aria-orientation="vertical"
         aria-valuemin={0}
         aria-valuemax={periods.length - 1}
         aria-valuenow={ariaValue}
-        aria-valuetext={formatMonth(periods[activeIndex].month)}
+        aria-valuetext={formatCaptureMonth(periods[activeIndex].month, locale)}
         data-revealed={scrolling ? "true" : undefined}
         className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 data-[dragging=true]:opacity-100 data-[revealed=true]:opacity-100 md:w-9"
         onPointerDown={handlePointerDown}

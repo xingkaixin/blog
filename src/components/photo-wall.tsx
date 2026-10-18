@@ -6,19 +6,24 @@ import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
+import { PhotoLocaleContext } from "@/hooks/use-photo-messages";
+import type { Locale } from "@/lib/i18n";
+import { englishAlbumTitle, photoMessages } from "@/lib/messages/photos";
 import { buildOverviewItems, buildPhotoWallCatalogModel } from "@/lib/photo-wall-model";
 
 type PhotoWallProps = {
   baseUrl: string;
+  locale: Locale;
 };
 
 const INITIAL_PERIOD_COUNT = 2;
 
-export function PhotoWall({ baseUrl }: PhotoWallProps) {
+export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
+  const t = photoMessages[locale];
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
   const {
     state: catalogState,
-    index,
+    index: sourceIndex,
     months: monthCatalogs,
     monthErrors,
     reload: loadCatalog,
@@ -26,6 +31,19 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
     retryMonth,
     resolvePhoto,
   } = usePhotoCatalogSession(normalizedBaseUrl);
+  const index = useMemo(
+    () =>
+      sourceIndex && locale === "en"
+        ? {
+            ...sourceIndex,
+            albums: sourceIndex.albums.map((album) => ({
+              ...album,
+              title: englishAlbumTitle(album.id),
+            })),
+          }
+        : sourceIndex,
+    [locale, sourceIndex],
+  );
   const browsing = usePhotoBrowsingSession({
     index,
     months: monthCatalogs,
@@ -37,8 +55,8 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   const photoView = browsing.view;
   const selectedAlbumId = photoView.mode === "timeline" ? photoView.albumId : null;
   const catalogModel = useMemo(
-    () => buildPhotoWallCatalogModel(index, selectedAlbumId),
-    [index, selectedAlbumId],
+    () => buildPhotoWallCatalogModel(index, selectedAlbumId, locale),
+    [index, locale, selectedAlbumId],
   );
   const overviewItems = useMemo(
     () =>
@@ -84,76 +102,78 @@ export function PhotoWall({ baseUrl }: PhotoWallProps) {
   }, [jumpToMonth, photoView.mode]);
 
   return (
-    <section data-photo-darkroom className="min-h-[calc(100svh-160px)] pb-20">
-      {catalogState.status === "loading" && <PhotoWallLoading />}
-      {catalogState.status === "error" && (
-        <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />
-      )}
-      {catalogState.status === "ready" && photoView.mode === "overview" && (
-        <PhotoOverview
-          baseUrl={normalizedBaseUrl}
-          albumCount={catalogModel.albumCount}
-          photoCount={catalogModel.allPhotoCount}
-          photoRange={catalogModel.allPhotoRange}
-          items={overviewItems}
-          yearActivity={catalogModel.yearActivity}
-          failedPeriods={catalogModel.overviewPeriods.filter(
-            (period) => period.month in monthErrors,
-          )}
-          onRetryMonth={retryMonth}
-          onOpenAlbum={browsing.openTimeline}
-          onOpenMonth={openMonth}
-          onRandomPhoto={browsing.openRandomPhoto}
-        />
-      )}
-      {catalogState.status === "ready" && photoView.mode === "timeline" && (
-        <PhotoTimeline
-          baseUrl={normalizedBaseUrl}
-          model={catalogModel}
-          monthCatalogs={monthCatalogs}
-          monthErrors={monthErrors}
-          activeMonth={activeMonth}
-          wallRef={wallRef}
-          onReturn={browsing.returnToOverview}
-          onSelectAlbum={browsing.selectAlbum}
-          onLoadMonth={requestMonth}
-          onRetryMonth={retryMonth}
-          onOpenPhoto={browsing.openPhoto}
-          onJumpMonth={jumpToMonth}
-        />
-      )}
+    <PhotoLocaleContext value={locale}>
+      <section data-photo-darkroom className="min-h-[calc(100svh-160px)] pb-20">
+        {catalogState.status === "loading" && <PhotoWallLoading />}
+        {catalogState.status === "error" && (
+          <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />
+        )}
+        {catalogState.status === "ready" && photoView.mode === "overview" && (
+          <PhotoOverview
+            baseUrl={normalizedBaseUrl}
+            albumCount={catalogModel.albumCount}
+            photoCount={catalogModel.allPhotoCount}
+            photoRange={catalogModel.allPhotoRange}
+            items={overviewItems}
+            yearActivity={catalogModel.yearActivity}
+            failedPeriods={catalogModel.overviewPeriods.filter(
+              (period) => period.month in monthErrors,
+            )}
+            onRetryMonth={retryMonth}
+            onOpenAlbum={browsing.openTimeline}
+            onOpenMonth={openMonth}
+            onRandomPhoto={browsing.openRandomPhoto}
+          />
+        )}
+        {catalogState.status === "ready" && photoView.mode === "timeline" && (
+          <PhotoTimeline
+            baseUrl={normalizedBaseUrl}
+            model={catalogModel}
+            monthCatalogs={monthCatalogs}
+            monthErrors={monthErrors}
+            activeMonth={activeMonth}
+            wallRef={wallRef}
+            onReturn={browsing.returnToOverview}
+            onSelectAlbum={browsing.selectAlbum}
+            onLoadMonth={requestMonth}
+            onRetryMonth={retryMonth}
+            onOpenPhoto={browsing.openPhoto}
+            onJumpMonth={jumpToMonth}
+          />
+        )}
 
-      {photoSelection.status === "error" && (
-        <div
-          role="alert"
-          className="fixed bottom-11 left-1/2 z-20 flex w-[min(420px,calc(100vw-1.5rem))] -translate-x-1/2 items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3 shadow-lg"
-        >
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-ink-800">照片暂时无法打开</p>
-            <p className="mt-1 truncate text-xs text-ink-500">{photoSelection.message}</p>
-          </div>
-          <button
-            type="button"
-            onClick={browsing.retryPhoto}
-            className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        {photoSelection.status === "error" && (
+          <div
+            role="alert"
+            className="fixed bottom-11 left-1/2 z-20 flex w-[min(420px,calc(100vw-1.5rem))] -translate-x-1/2 items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3 shadow-lg"
           >
-            重试
-          </button>
-        </div>
-      )}
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-ink-800">{t.photoOpenFailed}</p>
+              <p className="mt-1 truncate text-xs text-ink-500">{photoSelection.message}</p>
+            </div>
+            <button
+              type="button"
+              onClick={browsing.retryPhoto}
+              className="shrink-0 rounded-[6px] border border-line bg-paper px-3 py-1.5 text-xs font-medium text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            >
+              {t.retry}
+            </button>
+          </div>
+        )}
 
-      {displayPhoto && index && browsing.navigation && (
-        <PhotoLightbox
-          baseUrl={normalizedBaseUrl}
-          open={selectedPhoto !== null}
-          photo={displayPhoto}
-          navigation={browsing.navigation}
-          albums={index.albums}
-          onClose={browsing.closePhoto}
-          onSelect={browsing.selectPhoto}
-          onRetryNavigation={browsing.retryNavigation}
-        />
-      )}
-    </section>
+        {displayPhoto && index && browsing.navigation && (
+          <PhotoLightbox
+            baseUrl={normalizedBaseUrl}
+            open={selectedPhoto !== null}
+            photo={displayPhoto}
+            navigation={browsing.navigation}
+            albums={index.albums}
+            onClose={browsing.closePhoto}
+            onSelect={browsing.selectPhoto}
+            onRetryNavigation={browsing.retryNavigation}
+          />
+        )}
+      </section>
+    </PhotoLocaleContext>
   );
 }

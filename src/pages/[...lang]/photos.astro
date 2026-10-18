@@ -1,0 +1,32 @@
+---
+import { PhotoWall } from "@/components/photo-wall";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
+import { photoMessages } from "@/lib/messages/photos";
+import { siteConfig } from "@/lib/site";
+
+export const getStaticPaths = bilingualStaticPaths;
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = photoMessages[locale];
+const configuredPhotoUrl = import.meta.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
+const photoBaseUrl = import.meta.env.DEV && (import.meta.env.PHOTO_PREVIEW_DIRECTORY?.trim() || configuredPhotoUrl.startsWith("http"))
+  ? "/__photos"
+  : configuredPhotoUrl;
+const homeUrl = `${siteConfig.url}${localizedHref("/", locale)}`;
+const pageUrl = `${siteConfig.url}${localizedHref("/photos/", locale)}`;
+const meta = {
+  title: t.title,
+  description: t.description,
+  url: pageUrl,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: t.home, url: homeUrl },
+    { name: t.title, url: pageUrl },
+  ],
+};
+---
+
+<SiteLayout meta={meta} status="PHOTOS · ARCHIVE">
+  <PhotoWall baseUrl={photoBaseUrl} locale={locale} client:load />
+</SiteLayout>

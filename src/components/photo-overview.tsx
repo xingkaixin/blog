@@ -1,5 +1,7 @@
 import { ShuffleIcon } from "@phosphor-icons/react/dist/csr/Shuffle";
 import type { CSSProperties, ReactNode } from "react";
+import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
+import { formatCaptureMonth } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
   photoVariantUrl,
@@ -42,6 +44,7 @@ export function PhotoOverview({
   onOpenMonth,
   onRandomPhoto,
 }: PhotoOverviewProps) {
+  const t = usePhotoMessages();
   const [featured, ...rest] = items;
   const rollCards = rest.slice(0, ROLL_CARD_COUNT);
   const rollLabels = rest.slice(ROLL_CARD_COUNT);
@@ -58,8 +61,8 @@ export function PhotoOverview({
           className="mb-8 flex items-center justify-between gap-4 rounded-[8px] border border-line bg-surface px-4 py-3"
         >
           <div>
-            <p className="text-sm font-medium text-ink-800">相册预览加载失败</p>
-            <p className="mt-1 text-xs text-ink-500">请检查网络后重试。</p>
+            <p className="text-sm font-medium text-ink-800">{t.previewFailed}</p>
+            <p className="mt-1 text-xs text-ink-500">{t.checkNetwork}</p>
           </div>
           <button
             type="button"
@@ -69,7 +72,7 @@ export function PhotoOverview({
               FOCUS_RING_CLASS_NAME,
             )}
           >
-            重试预览
+            {t.retryPreview}
           </button>
         </div>
       )}
@@ -81,16 +84,15 @@ export function PhotoOverview({
             {photoRange && ` · ${photoRange}`}
           </p>
           <h1 className="font-serif text-[88px] font-black leading-[0.95] tracking-tight text-ink-800 sm:text-[136px]">
-            照片墙
+            {t.title}
           </h1>
           <p className="max-w-110 text-[17px] leading-[1.8] text-ink-600">
-            走过的 {albumCount} 座城市，一共 {photoCount}{" "}
-            张。每座城市是一卷胶卷：按城市翻，或者沿着时间倒着走。
+            {t.intro(albumCount, photoCount)}
           </p>
           <dl className="flex gap-10 border-t border-line pt-4">
-            <OverviewStat value={albumCount} label="座城市" />
-            <OverviewStat value={photoCount} label="张照片" />
-            <OverviewStat value={monthCount} label="个有照片的月份" />
+            <OverviewStat value={albumCount} label={t.stats.cities} />
+            <OverviewStat value={photoCount} label={t.stats.photos} />
+            <OverviewStat value={monthCount} label={t.stats.months} />
           </dl>
           <div className="flex flex-wrap gap-3">
             <button
@@ -101,7 +103,7 @@ export function PhotoOverview({
                 FOCUS_RING_CLASS_NAME,
               )}
             >
-              按时间浏览全部 →
+              {t.browseAll}
             </button>
             <button
               type="button"
@@ -112,7 +114,7 @@ export function PhotoOverview({
               )}
             >
               <ShuffleIcon aria-hidden="true" className="h-4 w-4" />
-              随机抽一张
+              {t.random}
             </button>
           </div>
         </div>
@@ -124,14 +126,14 @@ export function PhotoOverview({
       <div className="sticky top-[60px] z-10 -mx-4 mt-16 flex flex-wrap items-center justify-between gap-3 border-y border-line bg-paper/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-10 lg:mt-24 lg:px-10">
         <ViewSwitch view="overview" onSwitchView={() => onOpenAlbum(null)} />
         <span className="font-mono text-xs tracking-[0.12em] text-ink-500">
-          {albumCount} 卷 · 按最近一次到访
+          {t.rollsByVisit(albumCount)}
         </span>
       </div>
 
       {rollCards.length > 0 && (
         <section aria-labelledby="photo-rolls-title" className="mt-12">
           <h2 id="photo-rolls-title" className="font-serif text-[28px] font-semibold text-ink-800">
-            城市胶卷
+            {t.cityRolls}
           </h2>
           <div className="mt-7 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
             {rollCards.map((item, index) => (
@@ -154,9 +156,9 @@ export function PhotoOverview({
               id="photo-roll-labels-title"
               className="font-serif text-[22px] font-semibold text-ink-800"
             >
-              其余 {rollLabels.length} 卷
+              {t.otherRolls(rollLabels.length)}
             </h2>
-            <p className="font-mono text-xs tracking-[0.12em] text-ink-500">片盒标签 · 点击进入</p>
+            <p className="font-mono text-xs tracking-[0.12em] text-ink-500">{t.rollLabelsHint}</p>
           </div>
           <ul className="mt-4 grid gap-x-8 border-t border-line sm:grid-cols-2 lg:grid-cols-4">
             {rollLabels.map((item) => (
@@ -164,7 +166,7 @@ export function PhotoOverview({
                 <button
                   type="button"
                   onClick={() => onOpenAlbum(item.id)}
-                  aria-label={`打开${item.title}，${item.count}张照片`}
+                  aria-label={t.openAlbum(item.title, item.count)}
                   className={cn(
                     "group flex min-h-13 w-full items-baseline gap-3 py-3.5 text-left",
                     FOCUS_RING_CLASS_NAME,
@@ -194,10 +196,11 @@ export function PhotoOverview({
 }
 
 export function PhotoWallLoading() {
+  const t = usePhotoMessages();
   return (
     <div className={PAGE_CLASS_NAME}>
       <PhotoArchiveHeader />
-      <div role="status" aria-label="正在加载相册">
+      <div role="status" aria-label={t.loadingAlbums}>
         <span
           aria-hidden="true"
           className="mt-12 block h-[260px] rounded-[6px] bg-ink-100 sm:h-[360px]"
@@ -216,6 +219,7 @@ export function PhotoWallLoading() {
 }
 
 export function PhotoWallError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const t = usePhotoMessages();
   return (
     <div className={PAGE_CLASS_NAME}>
       <PhotoArchiveHeader />
@@ -224,7 +228,7 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
         className="mt-10 flex min-h-72 flex-col items-center justify-center gap-4 rounded-[8px] border border-line bg-surface px-6 text-center"
       >
         <div>
-          <h2 className="text-lg font-medium text-ink-800">照片暂时无法加载</h2>
+          <h2 className="text-lg font-medium text-ink-800">{t.loadFailed}</h2>
           <p className="mt-2 text-sm leading-7 text-ink-500">{message}</p>
         </div>
         <button
@@ -235,7 +239,7 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
             FOCUS_RING_CLASS_NAME,
           )}
         >
-          重新加载
+          {t.reload}
         </button>
       </div>
     </div>
@@ -243,7 +247,7 @@ export function PhotoWallError({ message, onRetry }: { message: string; onRetry:
 }
 
 export function PhotoArchiveHeader({
-  title = "照片墙",
+  title,
   detail,
   view,
   onSwitchView,
@@ -253,14 +257,15 @@ export function PhotoArchiveHeader({
   view?: "overview" | "timeline";
   onSwitchView?: () => void;
 }) {
+  const t = usePhotoMessages();
   return (
     <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="font-mono text-[11px] tracking-[0.18em] text-ink-500">
-          {detail ?? "正在读取照片档案"}
+          {detail ?? t.readingArchive}
         </p>
         <h1 className="mt-3 font-serif text-[56px] font-black leading-none tracking-tight text-ink-800 sm:text-[80px]">
-          {title}
+          {title ?? t.title}
         </h1>
       </div>
       {view && <ViewSwitch view={view} onSwitchView={onSwitchView} />}
@@ -275,20 +280,21 @@ function ViewSwitch({
   view: "overview" | "timeline";
   onSwitchView?: () => void;
 }) {
+  const t = usePhotoMessages();
   return (
     <div
       role="group"
-      aria-label="浏览方式"
+      aria-label={t.viewSwitch}
       className="flex self-start rounded-full border border-line bg-surface p-1 sm:self-auto"
     >
       <ViewSwitchButton
         pressed={view === "overview"}
-        label="按城市"
+        label={t.byCity}
         onClick={view === "overview" ? undefined : onSwitchView}
       />
       <ViewSwitchButton
         pressed={view === "timeline"}
-        label="按时间"
+        label={t.byDate}
         onClick={view === "timeline" ? undefined : onSwitchView}
       />
     </div>
@@ -345,20 +351,21 @@ function FeaturedRoll({
   item: AlbumOverviewItem;
   onOpen: () => void;
 }) {
+  const t = usePhotoMessages();
   const frames = item.status === "ready" ? item.photos : Array.from({ length: 4 }, () => undefined);
 
   return (
     <button
       type="button"
       onClick={onOpen}
-      aria-label={`打开${item.title}，${item.count}张照片`}
+      aria-label={t.openAlbum(item.title, item.count)}
       className={cn(
         "group flex w-full flex-col gap-5 rounded-[8px] text-left",
         FOCUS_RING_CLASS_NAME,
       )}
     >
       <span className="flex items-baseline justify-between font-mono text-[11px] tracking-[0.16em] text-ink-500">
-        <span>最近一卷 · LATEST ROLL</span>
+        <span>{t.latestRoll}</span>
         <span className="text-accent">● {item.latestMonth}</span>
       </span>
       <FilmStrip className="gap-2.5 p-3 sm:px-3.5">
@@ -402,7 +409,7 @@ function FeaturedRoll({
           </span>
         </span>
         <span className="font-mono text-[13px] text-ink-600">
-          {item.latestMonth} · {item.count} 张 →
+          {item.latestMonth} · {t.photos(item.count)} →
         </span>
       </span>
     </button>
@@ -420,13 +427,14 @@ function RollCard({
   eager: boolean;
   onOpen: () => void;
 }) {
+  const t = usePhotoMessages();
   const frames = item.status === "ready" ? item.photos : Array.from({ length: 3 }, () => undefined);
 
   return (
     <button
       type="button"
       onClick={onOpen}
-      aria-label={`打开${item.title}，${item.count}张照片`}
+      aria-label={t.openAlbum(item.title, item.count)}
       className={cn(
         "group flex w-full flex-col gap-3.5 rounded-[8px] text-left",
         FOCUS_RING_CLASS_NAME,
@@ -454,7 +462,7 @@ function RollCard({
           </span>
         </span>
         <span className="font-mono text-xs text-ink-500">
-          {item.latestMonth} · {item.count} 张
+          {item.latestMonth} · {t.photos(item.count)}
         </span>
       </span>
     </button>
@@ -519,6 +527,8 @@ function YearActivity({
   years: PhotoYearActivity[];
   onOpenMonth: (month: string) => void;
 }) {
+  const t = usePhotoMessages();
+  const locale = usePhotoLocale();
   const months = years.flatMap((year) => year.months);
   const peak = months.reduce((best, month) => (month.count > best.count ? month : best), months[0]);
 
@@ -526,10 +536,10 @@ function YearActivity({
     <section aria-labelledby="photo-activity-title" className="mt-22">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 id="photo-activity-title" className="font-serif text-[22px] font-semibold text-ink-800">
-          冲洗记录 · 每月拍了多少
+          {t.developLog}
         </h2>
         <p className="font-mono text-xs text-ink-500">
-          最多：{formatMonth(peak.month)} {peak.count} 张 · 点任意一格跳到那个月
+          {t.peak(formatMonth(peak.month), peak.count)}
         </p>
       </div>
       <div className="mt-7 overflow-x-auto pb-2">
@@ -546,8 +556,8 @@ function YearActivity({
                       key={month.month}
                       type="button"
                       onClick={() => onOpenMonth(month.month)}
-                      aria-label={`${formatMonth(month.month)}，${month.count} 张，跳到这个月`}
-                      title={`${formatMonth(month.month)} · ${month.count} 张`}
+                      aria-label={t.monthCell(formatCaptureMonth(month.month, locale), month.count)}
+                      title={`${formatMonth(month.month)} · ${t.photos(month.count)}`}
                       className={cn(
                         "flex-1 rounded-t-[1px] transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
                         month.count * 2 >= peak.count ? "bg-accent" : "bg-ink-400",
@@ -567,7 +577,7 @@ function YearActivity({
               </div>
               <div className="flex justify-between font-mono text-xs">
                 <span className="text-ink-800">{year.year}</span>
-                <span className="text-ink-500">{year.total > 0 ? `${year.total} 张` : "—"}</span>
+                <span className="text-ink-500">{year.total > 0 ? t.photos(year.total) : "—"}</span>
               </div>
             </div>
           ))}

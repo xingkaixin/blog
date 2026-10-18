@@ -1,4 +1,5 @@
 import { memo, useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
+import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
@@ -67,6 +68,7 @@ export const PhotoPeriodSection = memo(function PhotoPeriodSection({
   onRetry,
   onOpenPhoto,
 }: PhotoPeriodSectionProps) {
+  const t = usePhotoMessages();
   const sectionRef = useRef<HTMLElement>(null);
   const requestVisible = useEffectEvent(() => onVisible(period));
   const expectedCount = albumId ? (period.albumCounts[albumId] ?? 0) : period.count;
@@ -116,7 +118,7 @@ export const PhotoPeriodSection = memo(function PhotoPeriodSection({
             </span>
           )}
         </div>
-        <span className="font-mono text-xs text-ink-500">{expectedCount} 张</span>
+        <span className="font-mono text-xs text-ink-500">{t.photos(expectedCount)}</span>
       </div>
 
       <div className="flex flex-col gap-3 rounded-[6px] bg-surface p-1.5 md:px-3.5 md:pb-4 md:pt-3">
@@ -131,13 +133,13 @@ export const PhotoPeriodSection = memo(function PhotoPeriodSection({
           />
         ) : error ? (
           <div className="flex min-h-48 flex-col items-center justify-center gap-3 px-5 text-center">
-            <p className="text-sm text-ink-600">这个月份的照片暂时无法加载。</p>
+            <p className="text-sm text-ink-600">{t.monthFailed}</p>
             <button
               type="button"
               onClick={() => onRetry(period)}
               className="rounded-full border border-line bg-paper px-4 py-2 text-sm font-medium text-ink-700 transition-[transform,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.97]"
             >
-              重试
+              {t.retry}
             </button>
           </div>
         ) : (
@@ -149,6 +151,7 @@ export const PhotoPeriodSection = memo(function PhotoPeriodSection({
 });
 
 function PhotoPeriodPlaceholder({ count }: { count: number }) {
+  const t = usePhotoMessages();
   const style: PlaceholderStyle = {
     "--photo-mobile-rows": Math.max(1, Math.ceil(count / 3)),
     "--photo-desktop-rows": Math.max(1, Math.ceil(count / 4)),
@@ -157,7 +160,7 @@ function PhotoPeriodPlaceholder({ count }: { count: number }) {
   return (
     <div
       role="status"
-      aria-label="正在加载这个月份的照片"
+      aria-label={t.loadingMonth}
       className="photo-period-placeholder grid grid-cols-3 gap-0.5 md:grid-cols-4 md:gap-1"
       style={style}
     >
@@ -169,6 +172,8 @@ function PhotoPeriodPlaceholder({ count }: { count: number }) {
 }
 
 function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: PhotoGridProps) {
+  const t = usePhotoMessages();
+  const locale = usePhotoLocale();
   const rows = useMemo(() => {
     const sheetWidth = containerWidth - SHEET_PADDING * 2;
     const targetRowHeight = Math.min(300, Math.max(200, sheetWidth / 5));
@@ -206,7 +211,7 @@ function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: Phot
                     className="photo-tile group relative block overflow-hidden focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent active:opacity-90"
                     style={{ backgroundColor: photo.placeholderColor }}
                     data-photo-id={photo.id}
-                    aria-label={`查看${formatPhotoCapturedAt(photo.capturedAt)}拍摄的照片`}
+                    aria-label={t.viewPhoto(formatPhotoCapturedAt(photo.capturedAt, locale))}
                     onClick={() => onOpenPhoto(photo)}
                   >
                     <img
