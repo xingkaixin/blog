@@ -85,6 +85,6 @@ export const siteCopy = {
     aboutIntro: aboutIntroEn,
     about: plainText(aboutIntroEn),
     motto:
-      "Life shouldn't be just one kind of experience, and not everyone has to live with a nail's single-minded focus. Having wide interests and a life full of experiences is its own kind of happiness.",
+      "Life shouldn't be just one kind of experience, and not everyone has to be laser-focused on one thing. Having wide interests and a life full of experiences is its own kind of happiness.",
   },
 } satisfies Record<Locale, unknown>;

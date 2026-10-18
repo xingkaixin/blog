@@ -6,7 +6,7 @@ export type ProjectFilter = (typeof projectFilters)[number];
 
 const zh = {
   title: "工具箱",
-  description: "Kevin 发布和维护的 iOS 应用、AI、CLI、数据库与开发者工具。",
+  description: "XingKaiXin 发布和维护的 iOS 应用、AI、CLI、数据库与开发者工具。",
   maintained: (count: number) => `${count} 个在维护`,
   searchLabel: "搜索工具",
   searchPlaceholder: "搜索名称、类型或技术…",
