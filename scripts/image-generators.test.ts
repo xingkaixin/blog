@@ -193,25 +193,34 @@ describe("image generators", () => {
         renders.push(current.slug);
         fs.writeFileSync(output, current.title);
       },
-      renderSite: async (output) => {
-        renders.push("site");
+      renderSite: async (output, locale) => {
+        renders.push(`site-${locale}`);
         fs.writeFileSync(output, "site");
       },
     };
 
-    expect(await generateOgImages(options)).toEqual({ rendered: 2, skipped: 0, removed: 0 });
-    expect(await generateOgImages(options)).toEqual({ rendered: 0, skipped: 2, removed: 0 });
+    expect(await generateOgImages(options)).toEqual({ rendered: 3, skipped: 0, removed: 0 });
+    expect(await generateOgImages(options)).toEqual({ rendered: 0, skipped: 3, removed: 0 });
 
     cover = Buffer.from("changed-cover");
     fs.writeFileSync(path.join(outputDirectory, "orphan.png"), "orphan");
-    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 1, removed: 1 });
+    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 2, removed: 1 });
 
     options.rendererFingerprint = "renderer-v2";
-    expect(await generateOgImages(options)).toEqual({ rendered: 2, skipped: 0, removed: 0 });
+    expect(await generateOgImages(options)).toEqual({ rendered: 3, skipped: 0, removed: 0 });
 
-    fs.rmSync(path.join(outputDirectory, "site.png"));
-    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 1, removed: 0 });
-    expect(renders).toEqual(["site", "demo", "demo", "site", "demo", "site"]);
+    fs.rmSync(path.join(outputDirectory, "site-en.png"));
+    expect(await generateOgImages(options)).toEqual({ rendered: 1, skipped: 2, removed: 0 });
+    expect(renders).toEqual([
+      "site-zh",
+      "site-en",
+      "demo",
+      "demo",
+      "site-zh",
+      "site-en",
+      "demo",
+      "site-en",
+    ]);
   });
 
   it("reads OG sources only when a render slot is available", async () => {
@@ -232,7 +241,7 @@ describe("image generators", () => {
       cacheFile: path.join(root, "cache.json"),
       posts,
       rendererFingerprint: "renderer-v1",
-      concurrency: 2,
+      concurrency: 3,
       coverSource: (post) => {
         reads.push(post.slug);
         return Buffer.from(post.slug);

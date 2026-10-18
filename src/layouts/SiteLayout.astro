@@ -18,7 +18,14 @@ import {
   serializeJsonLd,
   type PageMeta,
 } from "@/lib/seo";
-import { htmlLang, localeFromPath, localizedHref, ogLocale } from "@/lib/i18n";
+import {
+  htmlLang,
+  localeFromPath,
+  localizedHref,
+  locales,
+  ogLocale,
+  translatedPath,
+} from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { siteConfig, siteCopy } from "@/lib/site";
 import {
@@ -43,7 +50,12 @@ const currentPath = normalizeSitePath(Astro.url.pathname);
 const locale = localeFromPath(Astro.url.pathname);
 const copy = siteCopy[locale];
 const t = chromeMessages[locale];
-const image = pageImage(meta);
+const alternates = locales.flatMap((target) => {
+  const path = translatedPath(Astro.url.pathname, target);
+  return path ? [{ locale: target, href: `${siteConfig.url}${path}` }] : [];
+});
+const englishAlternate = alternates.find((alternate) => alternate.locale === "en");
+const image = pageImage(meta, locale);
 const title = pageTitle(meta, locale);
 const themeToggleEvent = THEME_TOGGLE_EVENT;
 const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
@@ -90,6 +102,10 @@ const pageTransition = {
     <meta name="description" content={meta.description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={meta.url} />
+    {alternates.map((alternate) => (
+      <link rel="alternate" hreflang={htmlLang[alternate.locale]} href={alternate.href} />
+    ))}
+    {englishAlternate && <link rel="alternate" hreflang="x-default" href={englishAlternate.href} />}
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -163,6 +179,9 @@ const pageTransition = {
     <meta property="og:type" content={ogType(meta)} />
     <meta property="og:site_name" content={copy.title} />
     <meta property="og:locale" content={ogLocale[locale]} />
+    {alternates
+      .filter((alternate) => alternate.locale !== locale)
+      .map((alternate) => <meta property="og:locale:alternate" content={ogLocale[alternate.locale]} />)}
     <meta property="og:title" content={meta.title} />
     <meta property="og:description" content={meta.description} />
     <meta property="og:url" content={meta.url} />

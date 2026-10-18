@@ -1,3 +1,4 @@
+import { translatedPath } from "@/lib/i18n";
 import { buildPostTaxonomy } from "@/lib/post-tags";
 import { postHref, type PublishedPost } from "@/lib/published-post";
 import { siteConfig } from "@/lib/site";
@@ -15,9 +16,12 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "tags">>)
     ].join("\n");
 
   const entries = [
-    ...sitemapNavigation().map((route) =>
-      urlEntry(`${siteConfig.url}${route.href}`, route.changefreq, route.priority),
-    ),
+    ...sitemapNavigation().flatMap((route) => {
+      const englishHref = translatedPath(route.href, "en");
+      return [route.href, ...(englishHref ? [englishHref] : [])].map((href) =>
+        urlEntry(`${siteConfig.url}${href}`, route.changefreq, route.priority),
+      );
+    }),
     ...buildPostTaxonomy(posts).archives.map(({ href }) =>
       urlEntry(`${siteConfig.url}${href}`, "weekly", "0.6"),
     ),

@@ -6,8 +6,9 @@ import { fileURLToPath } from "node:url";
 import satori, { type SatoriOptions } from "satori";
 import sharp from "sharp";
 import { formatCalendarDate } from "../src/lib/calendar-date";
+import type { Locale } from "../src/lib/i18n";
 import type { PublishedPost } from "../src/lib/published-post";
-import { siteConfig } from "../src/lib/site";
+import { siteConfig, siteCopy } from "../src/lib/site";
 import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
 import { readPublishedPosts } from "./lib/post-catalog";
 
@@ -42,7 +43,7 @@ export type GenerateOgImagesOptions = {
   rendererFingerprint: string;
   coverSource: (post: Post) => Buffer;
   renderPost: (post: Post, output: string) => Promise<void>;
-  renderSite: (output: string) => Promise<void>;
+  renderSite: (output: string, locale: Locale) => Promise<void>;
   concurrency?: number;
 };
 
@@ -94,10 +95,15 @@ function postFingerprintParts(
   return [rendererFingerprint, JSON.stringify(renderInput), coverSource];
 }
 
-function siteFingerprintParts(rendererFingerprint: string): string[] {
+const siteTaglines: Record<Locale, [string, string]> = {
+  zh: ["AI 编程 · Agent 工程", "开发者工具 · 摄影与生活"],
+  en: ["AI Coding · Agent Engineering", "Dev Tools · Photography & Life"],
+};
+
+function siteFingerprintParts(rendererFingerprint: string, locale: Locale): string[] {
   const renderInput = {
-    title: siteConfig.title,
-    description: siteConfig.description,
+    title: siteCopy[locale].title,
+    taglines: siteTaglines[locale],
   };
   return [rendererFingerprint, JSON.stringify(renderInput)];
 }
@@ -229,7 +235,8 @@ function postLayout(post: Post, coverSrc: string, logoSrc: string) {
   );
 }
 
-function siteLayout(artSrc: string) {
+function siteLayout(artSrc: string, locale: Locale) {
+  const [firstTagline, secondTagline] = siteTaglines[locale];
   return background(
     el("img", {
       src: artSrc,
@@ -253,20 +260,21 @@ function siteLayout(artSrc: string) {
         letterSpacing: 1,
         color: colors.accent,
       }),
-      text(siteConfig.title, {
-        width: 350,
+      text(siteCopy[locale].title, {
+        // 英文站名更长，缩小字号并放宽到整栏，保持两行
+        width: locale === "en" ? 440 : 350,
         marginTop: 42,
-        fontSize: 78,
+        fontSize: locale === "en" ? 60 : 78,
         lineHeight: 1.18,
         fontWeight: 700,
         color: colors.ink,
       }),
-      text("AI 编程 · Agent 工程", {
+      text(firstTagline, {
         marginTop: 32,
         fontSize: 25,
         color: colors.inkMuted,
       }),
-      text("开发者工具 · 摄影与生活", {
+      text(secondTagline, {
         marginTop: 8,
         fontSize: 25,
         color: colors.inkMuted,
@@ -298,22 +306,26 @@ async function renderPost(post: Post, output: string) {
   await renderToFile(postLayout(post, cover, logoSrc), output);
 }
 
-async function renderSite(output: string) {
+async function renderSite(output: string, locale: Locale) {
   const art = await sharp(SITE_ART_PATH).resize(WIDTH, HEIGHT).png().toBuffer();
-  await renderToFile(siteLayout(`data:image/png;base64,${art.toString("base64")}`), output);
+  await renderToFile(siteLayout(`data:image/png;base64,${art.toString("base64")}`, locale), output);
 }
 
 export async function generateOgImages(
   options: GenerateOgImagesOptions = defaultOptions(),
 ): Promise<GenerateOgImagesResult> {
-  const siteOutput = path.join(options.outputDirectory, "site.png");
+  const sitePlans = (["zh", "en"] as const).map((locale): ArtifactPlan => {
+    const key = locale === "zh" ? "site" : "site-en";
+    const output = path.join(options.outputDirectory, `${key}.png`);
+    return {
+      key,
+      fingerprint: () => fingerprint(siteFingerprintParts(options.rendererFingerprint, locale)),
+      outputs: [output],
+      generate: () => options.renderSite(output, locale),
+    };
+  });
   const plans: ArtifactPlan[] = [
-    {
-      key: "site",
-      fingerprint: () => fingerprint(siteFingerprintParts(options.rendererFingerprint)),
-      outputs: [siteOutput],
-      generate: () => options.renderSite(siteOutput),
-    },
+    ...sitePlans,
     ...options.posts.map((post): ArtifactPlan => {
       const output = path.join(options.outputDirectory, `${post.slug}.png`);
       return {

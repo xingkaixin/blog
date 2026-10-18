@@ -43,8 +43,8 @@ export function pageTitle(meta: PageMeta, locale: Locale = "zh") {
   return meta.type === "website" ? meta.title : `${meta.title} | ${siteCopy[locale].title}`;
 }
 
-export function pageImage(meta: PageMeta) {
-  return meta.image ?? `${siteConfig.url}/og/site.png`;
+export function pageImage(meta: PageMeta, locale: Locale = "zh") {
+  return meta.image ?? `${siteConfig.url}/og/${locale === "en" ? "site-en" : "site"}.png`;
 }
 
 function personSchema(locale: Locale) {
