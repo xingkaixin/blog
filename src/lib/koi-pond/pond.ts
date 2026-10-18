@@ -18,7 +18,9 @@ export interface PondHandle {
   destroy(loseContext?: boolean): void;
 }
 
-export type PondResult = { ok: true; pond: PondHandle } | { ok: false; reason: string };
+export type PondFailure = "webgl2" | "float-target" | "canvas2d" | "shader";
+
+export type PondResult = { ok: true; pond: PondHandle } | { ok: false; reason: PondFailure };
 
 export interface PondOptions {
   /** false 时只渲染一帧静止水面：不自动落雨、不响应指针。用于 prefers-reduced-motion。 */
@@ -59,13 +61,13 @@ export function createPond(canvas: HTMLCanvasElement, options: PondOptions): Pon
     powerPreference: "high-performance",
   });
   if (!gl) {
-    return { ok: false, reason: "当前浏览器不支持 WebGL2，无法运行这片水面。" };
+    return { ok: false, reason: "webgl2" };
   }
   if (
     !gl.getExtension("EXT_color_buffer_float") &&
     !gl.getExtension("EXT_color_buffer_half_float")
   ) {
-    return { ok: false, reason: "当前设备不支持浮点渲染目标，无法运行波动仿真。" };
+    return { ok: false, reason: "float-target" };
   }
   return buildPond(gl, canvas, options);
 }
@@ -77,7 +79,7 @@ function buildPond(
 ): PondResult {
   const overlayCtx = options.overlay.getContext("2d");
   if (!overlayCtx) {
-    return { ok: false, reason: "当前浏览器不支持 Canvas 2D，无法显示垂钓互动。" };
+    return { ok: false, reason: "canvas2d" };
   }
   /* --- GL 工具 --------------------------------------------------------- */
 
@@ -203,7 +205,7 @@ function buildPond(
     programs.forEach((program) => program.dispose());
     gl.deleteVertexArray(quadVao);
     gl.deleteBuffer(quadBuf);
-    return { ok: false, reason: "着色器编译失败，无法运行这片水面。" };
+    return { ok: false, reason: "shader" };
   }
   const [progSim, progUnder, progComp, progKoi] = programs;
 

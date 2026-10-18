@@ -158,6 +158,9 @@
   font-size: 8px;
   letter-spacing: 2px;
 }
+.map-water-label:lang(en) {
+  letter-spacing: 0;
+}
 .map-north {
   fill: none;
   stroke: var(--ink-400);

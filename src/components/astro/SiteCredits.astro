@@ -1,4 +1,8 @@
 ---
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+
+const t = homeMessages[localeFromPath(Astro.url.pathname)];
 const sections = [
   { title: "Cast", entries: [
     ["Design & content", "XingKaiXin"],
@@ -50,12 +54,12 @@ const sections = [
 
 <site-credits aria-labelledby="credits-heading">
   <header>
-    <h2 id="credits-heading">片尾字幕</h2>
-    <button class="play-toggle" type="button" aria-label="播放 Stoic Morning" aria-pressed="false" disabled>
+    <h2 id="credits-heading">{t.credits.heading}</h2>
+    <button class="play-toggle" type="button" aria-label={t.record.play} aria-pressed="false" disabled>
       <svg viewBox="0 0 16 16" aria-hidden="true"><path class="play-icon" d="M5 3L13 8L5 13Z" /><path class="stop-icon" d="M4 4H12V12H4Z" /></svg>
     </button>
   </header>
-  <div class="screen" role="region" aria-label="Credits 名单" tabindex="0">
+  <div class="screen" role="region" aria-label={t.credits.list} tabindex="0">
     <div class="roll">
       {[0, 1].map((copy) => (
         <div class="reel" aria-hidden={copy === 1 ? "true" : undefined}>
@@ -123,6 +127,7 @@ const sections = [
       const events = new AbortController();
       const options = { signal: events.signal };
       const recordButton = document.querySelector<HTMLButtonElement>("record-player button");
+      const fallbackLabel = button.getAttribute("aria-label") ?? "";
       let hovering = false;
       const sync = () => {
         const musicPlaying = recordButton?.getAttribute("aria-pressed") === "true";
@@ -130,7 +135,7 @@ const sections = [
         this.toggleAttribute("data-playing", running);
         button.disabled = !recordButton || recordButton.disabled;
         button.setAttribute("aria-pressed", String(musicPlaying));
-        button.setAttribute("aria-label", recordButton?.getAttribute("aria-label") || "播放 Stoic Morning");
+        button.setAttribute("aria-label", recordButton?.getAttribute("aria-label") || fallbackLabel);
       };
       button.addEventListener("click", () => recordButton?.click(), options);
       screen.addEventListener("pointerenter", (event) => {

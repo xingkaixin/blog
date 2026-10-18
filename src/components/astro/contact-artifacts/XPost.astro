@@ -1,8 +1,11 @@
 ---
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
 import { siteConfig } from "@/lib/site";
 
 type Props = { value: string };
 const { value } = Astro.props;
+const t = homeMessages[localeFromPath(Astro.url.pathname)].contact;
 ---
 
 <div class="x-card">
@@ -16,7 +19,7 @@ const { value } = Astro.props;
       <p class="x-handle">{value}</p>
     </div>
   </div>
-  <p class="x-post">人生不该只有一种体验。</p>
+  <p class="x-post">{t.xPost}</p>
 </div>
 
 <style>

@@ -1,0 +1,43 @@
+---
+import HomeStory from "@/components/astro/HomeStory.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+import { siteConfig, siteContacts, siteCopy } from "@/lib/site";
+
+export const getStaticPaths = bilingualStaticPaths;
+
+const locale = localeFromPath(Astro.url.pathname);
+const copy = siteCopy[locale];
+const t = homeMessages[locale];
+const meta = {
+  title: copy.title,
+  description: t.description,
+  url: `${siteConfig.url}${localizedHref("/", locale)}`,
+  type: "website" as const,
+};
+---
+
+<SiteLayout meta={meta} footerStage={false}>
+  <h1 class="sr-only">{copy.title}</h1>
+  <template data-agent-content>
+    <h1>{copy.title}</h1>
+    <p>{copy.description}</p>
+    <h2>{t.agent.about}</h2>
+    <p>{copy.about}</p>
+    <blockquote>{copy.motto}</blockquote>
+    <h2>{t.agent.contact}</h2>
+    <ul>
+      {Object.values(siteContacts).map((contact) => (
+        <li><a href={contact.href}>{t.contact.labels[contact.id] ?? contact.label}</a>{locale === "en" ? ": " : "："}{contact.value}</li>
+      ))}
+    </ul>
+    <h2>{t.agent.sections}</h2>
+    <ul>
+      <li><a href="/posts/">{t.agent.posts}</a></li>
+      <li><a href={localizedHref("/projects/", locale)}>{t.agent.projects}</a></li>
+      <li><a href={localizedHref("/photos/", locale)}>{t.agent.photos}</a></li>
+    </ul>
+  </template>
+  <HomeStory />
+</SiteLayout>

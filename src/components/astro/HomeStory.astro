@@ -12,22 +12,21 @@ import KoiPond from "./KoiPond.astro";
 import RecordPlayer from "./RecordPlayer.astro";
 import SiteCredits from "./SiteCredits.astro";
 import { SignatureAnimation } from "@/components/signature-animation";
-import { siteConfig, siteContacts } from "@/lib/site";
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+import { siteContacts, siteCopy } from "@/lib/site";
 
+const locale = localeFromPath(Astro.url.pathname);
+const t = homeMessages[locale];
 const contacts = Object.values(siteContacts);
-const scenes = [
-  { id: "living-room", label: "客厅" },
-  { id: "say-hello", label: "打个招呼" },
-  { id: "credits", label: "片尾" },
-  { id: "pond", label: "池塘" },
-];
+const scenes = (["living-room", "say-hello", "credits", "pond"] as const).map((id) => ({ id, label: t.scenes[id] }));
 // 夏天白天是树影，到了片尾的夜色换成萤火
 const seasonLabels = [
-  { id: "spring", label: "春 · 落樱", glyph: "M7 12.5C4 11 2.4 8.6 2.6 6 2.8 3.8 4.2 2.2 5.6 2.4 6.3 2.5 6.7 3.1 7 3.8 7.3 3.1 7.7 2.5 8.4 2.4 9.8 2.2 11.2 3.8 11.4 6 11.6 8.6 10 11 7 12.5Z" },
-  { id: "summer-day", label: "夏 · 树影", glyph: "M2.5 11.5C2.5 6 6 2.5 11.5 2.5 11.5 8 8 11.5 2.5 11.5ZM2.5 11.5 8 6" },
-  { id: "summer-night", label: "夏 · 萤火", glyph: "M7 5.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 1 0 0-3.6ZM7 1.5v1.6M7 10.9v1.6M1.5 7h1.6M10.9 7h1.6" },
-  { id: "autumn", label: "秋 · 落叶", glyph: "M7 12.5V8.2M7 8.2C4.2 8.2 1.8 6 1.6 3.4 4 2.8 5.6 3 6.4 2.6L7 4.6 7.6 2.6C8.4 3 10 2.8 12.4 3.4 12.2 6 9.8 8.2 7 8.2Z" },
-  { id: "winter", label: "冬 · 初雪", glyph: "M7 1.5v11M2.2 4.2l9.6 5.6M2.2 9.8l9.6-5.6" },
+  { id: "spring", label: t.seasons["spring"], glyph: "M7 12.5C4 11 2.4 8.6 2.6 6 2.8 3.8 4.2 2.2 5.6 2.4 6.3 2.5 6.7 3.1 7 3.8 7.3 3.1 7.7 2.5 8.4 2.4 9.8 2.2 11.2 3.8 11.4 6 11.6 8.6 10 11 7 12.5Z" },
+  { id: "summer-day", label: t.seasons["summer-day"], glyph: "M2.5 11.5C2.5 6 6 2.5 11.5 2.5 11.5 8 8 11.5 2.5 11.5ZM2.5 11.5 8 6" },
+  { id: "summer-night", label: t.seasons["summer-night"], glyph: "M7 5.2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 1 0 0-3.6ZM7 1.5v1.6M7 10.9v1.6M1.5 7h1.6M10.9 7h1.6" },
+  { id: "autumn", label: t.seasons["autumn"], glyph: "M7 12.5V8.2M7 8.2C4.2 8.2 1.8 6 1.6 3.4 4 2.8 5.6 3 6.4 2.6L7 4.6 7.6 2.6C8.4 3 10 2.8 12.4 3.4 12.2 6 9.8 8.2 7 8.2Z" },
+  { id: "winter", label: t.seasons["winter"], glyph: "M7 1.5v11M2.2 4.2l9.6 5.6M2.2 9.8l9.6-5.6" },
 ];
 // 首屏看不到这三位，滚动开始后才由脚本填入地址
 const deferredSprites = await Promise.all(
@@ -80,7 +79,7 @@ const deferredSprites = await Promise.all(
       />
     ))}
     <Image src={feifei} alt="" class="sprite" data-sprite="feifei" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
-    <nav class="rail story-rail" aria-label="首页场景">
+    <nav class="rail story-rail" aria-label={t.railLabel}>
       {scenes.map((scene, index) => (
         <a href={`#${scene.id}`} data-story-rail aria-current={index === 0 ? "step" : undefined}>
           <span class="rail-label">{scene.label}</span>
@@ -95,7 +94,7 @@ const deferredSprites = await Promise.all(
           {season.label}
         </span>
       ))}
-      <button type="button" aria-label="暂停季节动画" aria-pressed="false">
+      <button type="button" aria-label={t.pauseSeason} aria-pressed="false">
         <svg data-icon="pause" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M4 3h2v8H4ZM8 3h2v8H8Z" /></svg>
         <svg data-icon="play" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M4.5 3 11 7l-6.5 4Z" /></svg>
       </button>
@@ -106,23 +105,23 @@ const deferredSprites = await Promise.all(
     <div data-story-copy>
       <div class="room-copy">
         <div class="kicker-row">
-          <span class="kicker">01 · 客厅</span>
-          <span class="status-pill"><span aria-hidden="true"></span>上海 · 工程师 · 摄影爱好者</span>
+          <span class="kicker">{t.room.kicker}</span>
+          <span class="status-pill"><span aria-hidden="true"></span>{t.room.status}</span>
         </div>
         <AboutIntro />
-        <p class="intro-extra">这里是我的颠倒世界：写 AI 编程和 Agent 工程，做些小而顺手的工具，也记录生活。</p>
-        <figure class="motto"><blockquote>{siteConfig.motto}</blockquote></figure>
+        <p class="intro-extra">{t.room.extra}</p>
+        <figure class="motto"><blockquote>{siteCopy[locale].motto}</blockquote></figure>
         <div class="record">
           <RecordPlayer />
           <p class="record-copy">
-            <span class="record-title" data-idle>放一首 Stoic Morning</span>
-            <span class="record-title" data-active>正在播放 · Stoic Morning</span>
-            <span class="record-hint">片尾字幕会跟着滚动</span>
+            <span class="record-title" data-idle>{t.room.recordIdle}</span>
+            <span class="record-title" data-active>{t.room.recordActive}</span>
+            <span class="record-hint">{t.room.recordHint}</span>
           </p>
         </div>
       </div>
       <span class="cue" aria-hidden="true">
-        往下滚，跟我走走
+        {t.room.cue}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
       </span>
     </div>
@@ -130,10 +129,10 @@ const deferredSprites = await Promise.all(
 
   <section id="say-hello" class="scene hello" data-story-scene>
     <div class="hello-copy" data-story-copy>
-      <span class="kicker">02 · 打个招呼</span>
+      <span class="kicker">{t.hello.kicker}</span>
       <div class="bubble">
-        <h2>Hey，来打个招呼？</h2>
-        <p>聊 AI、工具、摄影，或者只是来打个招呼。</p>
+        <h2>{t.hello.title}</h2>
+        <p>{t.hello.text}</p>
       </div>
       <div class="contacts">
         {contacts.map((contact) => <ContactCard contact={contact} />)}
@@ -143,16 +142,16 @@ const deferredSprites = await Promise.all(
 
   <section id="credits" class="scene credits story-night" data-story-scene>
     <div class="credits-copy" data-story-copy>
-      <span class="kicker">03 · 片尾</span>
+      <span class="kicker">{t.creditsKicker}</span>
       <SiteCredits />
     </div>
   </section>
 
   <section id="pond" class="scene pond story-night" data-story-scene>
     <div class="pond-copy" data-story-copy>
-      <span class="kicker">04 · 片尾彩蛋</span>
-      <h2>院子里的池塘</h2>
-      <p>片尾之后，到院子里坐一会儿。池子里有七尾锦鲤。</p>
+      <span class="kicker">{t.pond.kicker}</span>
+      <h2>{t.pond.title}</h2>
+      <p>{t.pond.text}</p>
     </div>
     <div class="pond-water"><KoiPond /></div>
   </section>

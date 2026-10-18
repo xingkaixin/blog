@@ -3,6 +3,10 @@
  * 锦鲤池：WebGL2 实时水面。渲染代码在滚进视口时才动态载入，
  * 并只在可见且用户未要求减少动效时消耗 GPU。
  */
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+
+const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
 ---
 
 <div class="pond-stage" data-pond-stage>
@@ -11,10 +15,10 @@
     data-pond-canvas
     role="button"
     tabindex="0"
-    aria-label="池塘水面"
+    aria-label={t.surface}
     aria-describedby="pond-instructions"></canvas>
   <canvas class="pond-overlay" data-pond-overlay aria-hidden="true"></canvas>
-  <p class="pond-hint" data-pond-hint role="status" aria-live="polite" aria-atomic="true">点击或拖动水面 · 也可以拿起竹竿钓鱼</p>
+  <p class="pond-hint" data-pond-hint role="status" aria-live="polite" aria-atomic="true">{t.phases.idle}</p>
   <div class="pond-dock" data-pond-dock hidden>
     <button type="button" class="pond-rod" data-pond-rod aria-pressed="false">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">
@@ -22,16 +26,16 @@
         <path d="M21 3c0 6-6 10-6 14" stroke-width="1.2" />
         <circle cx="15" cy="17" r="2" fill="#ee532f" stroke-width="0.8" />
       </svg>
-      <span data-pond-rod-label>竹竿垂钓</span>
+      <span data-pond-rod-label>{t.rod}</span>
     </button>
-    <span class="pond-basket" aria-label="累计钓获，鱼儿随后放回池中">
+    <span class="pond-basket" aria-label={t.basket}>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="m4 10 2 10h12l2-10M3 10h18M8 10l4-7 4 7M10 13v4m4-4v4" />
       </svg>
-      <span data-pond-count>0 尾</span>
+      <span data-pond-count>{t.caught(0)}</span>
     </span>
   </div>
-  <p id="pond-instructions" class="sr-only">七尾锦鲤在池中游动。点击或横向拖动水面划水。拿起竹竿后，移动指针或轻点水面放置浮漂；鱼儿咬钩时点击或向上移动鼠标提竿。键盘按回车开始，方向键移动浮漂，回车或空格提竿，Escape 放下竹竿。钓获后会把鱼儿放回池中。</p>
+  <p id="pond-instructions" class="sr-only">{t.instructions}</p>
 </div>
 
 <style>
@@ -195,6 +199,8 @@
 <script>
   import type { PondHandle } from "@/lib/koi-pond/pond";
   import type { FishingStatus } from "@/lib/koi-pond/fishing";
+  import { localeFromLang } from "@/lib/i18n";
+  import { homeMessages } from "@/lib/messages/home";
 
   let pond: PondHandle | null = null;
   let pending: IntersectionObserver | null = null;
@@ -222,28 +228,22 @@
     const count = stage.querySelector<HTMLElement>("[data-pond-count]");
     if (!hint || !overlay || !dock || !button || !label || !count) {return;}
     const mine = generation;
-    const [{ createPond }, { KOI_SPECIES, FishingPhase }] = await Promise.all([
+    const t = homeMessages[localeFromLang(document.documentElement.lang)].koi;
+    const [{ createPond }, { FishingPhase }] = await Promise.all([
       import("@/lib/koi-pond/pond"),
       import("@/lib/koi-pond/fishing"),
     ]);
     if (mine !== generation) {return;}
 
-    const messages: Record<FishingStatus["phase"], string> = {
-      idle: "点击或拖动水面 · 也可以拿起竹竿钓鱼",
-      waiting: "移动浮漂靠近鱼儿 · 咬钩时点击提竿",
-      nibble: "鱼儿正在试探 · 再等一等",
-      bite: "咬钩了！点击、向上提竿或按空格",
-      reeling: "钓到了！",
-    };
     const updateFishing = (status: FishingStatus) => {
       stage.dataset.fishing = status.phase;
       button.setAttribute("aria-pressed", String(status.phase !== "idle"));
-      label.textContent = status.phase === "idle" ? "竹竿垂钓" : "放下竹竿";
-      count.textContent = `${status.caught} 尾`;
+      label.textContent = status.phase === "idle" ? t.rod : t.dropRod;
+      count.textContent = t.caught(status.caught);
       hint.classList.remove("is-hidden");
       hint.textContent = status.catch
-        ? `钓获 ${KOI_SPECIES[status.catch.palette].name} · ${status.catch.length} cm`
-        : status.missed ? "鱼儿脱钩了 · 稍等片刻再试试" : messages[status.phase];
+        ? t.landed(t.species[status.catch.palette], status.catch.length)
+        : status.missed ? t.missed : t.phases[status.phase];
     };
     updateFishing({ phase: FishingPhase.Idle, caught: 0 });
     canvas.tabIndex = motion.matches ? -1 : 0;
@@ -269,7 +269,7 @@
       canvas.removeAttribute("aria-describedby");
       const message = document.createElement("p");
       message.className = "pond-fail";
-      message.textContent = result.reason;
+      message.textContent = t.failures[result.reason];
       stage.append(message);
       return;
     }

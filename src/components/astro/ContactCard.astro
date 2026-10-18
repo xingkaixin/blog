@@ -1,4 +1,6 @@
 ---
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
 import type { SiteContact, SiteContactId } from "@/lib/site";
 import Envelope from "./contact-artifacts/Envelope.astro";
 import GithubTerminal from "./contact-artifacts/GithubTerminal.astro";
@@ -43,6 +45,8 @@ const contactPresentations = {
 >;
 
 const { icon, Artifact } = contactPresentations[contact.id];
+const t = homeMessages[localeFromPath(Astro.url.pathname)].contact;
+const label = t.labels[contact.id] ?? contact.label;
 ---
 
 <contact-preview class="contact-anchor relative block border-b border-ink-100">
@@ -67,14 +71,14 @@ const { icon, Artifact } = contactPresentations[contact.id];
       <path d={icon.path} />
     </svg>
     <span class="min-w-0 flex-1">
-      <span class="block text-[12px] text-ink-700 group-hover:text-accent">{contact.label}</span>
+      <span class="block text-[12px] text-ink-700 group-hover:text-accent">{label}</span>
       <span class="mt-0.5 block truncate font-mono text-[9px] text-ink-400">{contact.value}</span>
     </span>
     <span aria-hidden="true"
       class="font-mono text-[11px] text-ink-300 group-hover:text-accent">↗</span>
   </a>
-  <div id={`contact-${contact.id}`} class="artifact" popover="auto" role="group" aria-label={`${contact.label}联系卡片`}>
-    <a class="contact-surface" href={contact.href} target="_blank" rel="noopener noreferrer" aria-label={`${contact.label}：${contact.value}`}>
+  <div id={`contact-${contact.id}`} class="artifact" popover="auto" role="group" aria-label={t.card(label)}>
+    <a class="contact-surface" href={contact.href} target="_blank" rel="noopener noreferrer" aria-label={t.link(label, contact.value)}>
       <Artifact value={contact.value} />
     </a>
   </div>

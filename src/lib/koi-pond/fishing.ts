@@ -13,13 +13,14 @@ export interface Point {
   y: number;
 }
 
+// 下标即锦鲤配色编号，品种名按同样顺序放在 homeMessages.koi.species
 export const KOI_SPECIES = [
-  { name: "红白锦鲤", min: 42, max: 58 },
-  { name: "秋翠锦鲤", min: 38, max: 52 },
-  { name: "黄金锦鲤", min: 45, max: 62 },
-  { name: "白别甲", min: 40, max: 55 },
-  { name: "丹顶锦鲤", min: 43, max: 60 },
-  { name: "乌鲤", min: 39, max: 56 },
+  { min: 42, max: 58 },
+  { min: 38, max: 52 },
+  { min: 45, max: 62 },
+  { min: 40, max: 55 },
+  { min: 43, max: 60 },
+  { min: 39, max: 56 },
 ] as const;
 
 export interface Catch {

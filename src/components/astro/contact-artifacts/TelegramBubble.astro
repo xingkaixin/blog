@@ -1,6 +1,10 @@
 ---
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+
 type Props = { value: string };
 const { value } = Astro.props;
+const t = homeMessages[localeFromPath(Astro.url.pathname)].contact;
 ---
 
 <div class="tg-card">
@@ -12,7 +16,7 @@ const { value } = Astro.props;
   </span>
   <div class="tg-bubble">
     <p class="tg-handle">{value}</p>
-    <p class="tg-msg">随时来聊：AI、摄影、数码。</p>
+    <p class="tg-msg">{t.telegram}</p>
   </div>
 </div>
 

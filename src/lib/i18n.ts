@@ -41,3 +41,8 @@ export function localizedHref(href: string, locale: Locale): string {
 export function hasEnglishVersion(href: string): boolean {
   return translatedPath(href, "en") !== null;
 }
+
+/** 双语页面的 getStaticPaths：同一个页面文件生成中文根路径和 /en/ 两份。 */
+export function bilingualStaticPaths() {
+  return [{ params: { lang: undefined } }, { params: { lang: "en" } }];
+}
