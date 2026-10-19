@@ -17,19 +17,23 @@
 
 ```
 ├── content/posts/          # 博客文章 (Markdown 格式)
-├── public/                # 静态资源
-├── scripts/                # 构建脚本
+├── config/                 # Cloudflare 规则与 R2 CORS 配置
+├── docs/                   # 照片墙、性能等运维文档
+├── public/                 # 静态资源与生成产物
+├── scripts/                # 构建、校验与照片发布脚本
 ├── src/
-│   ├── assets/            # 非公开图片母版（封面与文章插图）
-│   ├── components/         # Astro 组件与 React islands
-│   │   ├── astro/          # 静态展示组件
+│   ├── assets/             # 非公开图片母版（封面与文章插图）
+│   ├── components/         # React islands
+│   │   ├── astro/          # Astro 展示组件
 │   │   └── ui/             # React UI 基础组件
+│   ├── hooks/              # React Hooks
 │   ├── layouts/            # Astro 布局
-│   ├── lib/                # 工具函数和业务逻辑
-│   └── pages/              # Astro 文件路由
+│   ├── lib/                # 领域逻辑、渲染与 SEO
+│   ├── pages/              # Astro 文件路由
+│   ├── content.config.ts   # 内容集合配置
+│   └── worker.ts           # Cloudflare Worker 入口
 ├── astro.config.ts         # Astro 配置
-├── src/content.config.ts   # 内容集合配置
-└── package.json             # 项目依赖
+└── package.json            # 依赖与命令
 ```
 
 ## 主要功能
@@ -42,10 +46,11 @@
 - 阅读进度指示器
 - SEO meta、OG 与 JSON-LD 静态生成
 - R2 照片墙、相册筛选与 HEIC 发布流程
+- 首页、工具箱、照片墙与 RSS 页中英双语
 
 ## 快速开始
 
-项目使用 mise 和 `mise.lock` 固定 Bun 1.4.0，CI 从 `package.json` 读取同一版本。
+项目使用 mise 和 `mise.lock` 固定 Bun 版本，CI 从 `package.json` 的 `packageManager` 读取同一版本。
 
 ```bash
 # 安装固定版本的 Bun
