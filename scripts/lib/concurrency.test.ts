@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapWithConcurrency } from "./lib/concurrency";
+import { mapWithConcurrency } from "./concurrency";
 
 describe("bounded concurrency", () => {
   it("drains in-flight work before reporting the first failure", async () => {

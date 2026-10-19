@@ -9,14 +9,14 @@ import {
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
+import { PHOTO_CATALOG_CONTROL_KEY } from "./photo-catalog-control";
 import {
   createR2PhotoObjectStore,
   FilePhotoObjectStore,
   PhotoStoreConflictError,
   R2PhotoObjectStore,
   type R2PhotoClient,
-} from "./lib/photo-store";
+} from "./photo-store";
 
 const temporaryDirectories: string[] = [];
 

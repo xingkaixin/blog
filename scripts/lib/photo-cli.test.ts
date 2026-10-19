@@ -4,7 +4,7 @@ import {
   runPhotoCli,
   type PhotoCliIo,
   type PhotoCliProcessor,
-} from "./lib/photo-cli";
+} from "./photo-cli";
 
 describe("photo CLI", () => {
   it("makes orphan scans explicit and exclusive to garbage collection", () => {

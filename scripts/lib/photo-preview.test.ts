@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createServer, build, type ViteDevServer } from "vite";
 import { afterEach, describe, expect, it } from "vitest";
-import { assertPhotoDirectoryOutsidePublic, photoPreviewPlugin } from "./lib/photo-preview";
+import { assertPhotoDirectoryOutsidePublic, photoPreviewPlugin } from "./photo-preview";
 
 const directories: string[] = [];
 const servers: ViteDevServer[] = [];

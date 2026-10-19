@@ -6,7 +6,7 @@ import {
   parsePhotoCatalogControl,
   photoCatalogIndexFromControl,
   type PhotoCatalogControl,
-} from "./lib/photo-catalog-control";
+} from "./photo-catalog-control";
 
 const photoId = "0123456789abcdef0123456789abcdef";
 const periodPath = "catalog/months/2026-04.0123456789abcdef01234567.json";

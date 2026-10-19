@@ -5,9 +5,9 @@ import path from "node:path";
 import { ExifTool } from "exiftool-vendored";
 import sharp from "sharp";
 import { describe, expect, it, vi } from "vitest";
-import { photoVariantSrcSet, photoVariantUrl } from "../src/lib/photo-catalog";
-import { runPhotoCommand } from "./lib/photo-command";
-import { isSupportedPhoto, processPhotoFile, resolveCapturedAt } from "./lib/photo-source";
+import { photoVariantSrcSet, photoVariantUrl } from "../../src/lib/photo-catalog";
+import { runPhotoCommand } from "./photo-command";
+import { isSupportedPhoto, processPhotoFile, resolveCapturedAt } from "./photo-source";
 
 vi.mock("node:child_process", { spy: true });
 

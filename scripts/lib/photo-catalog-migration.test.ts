@@ -2,10 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { PHOTO_CATALOG_INDEX_KEY, parsePhotoCatalogIndex } from "../src/lib/photo-catalog";
-import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { migratePhotoCatalog } from "./lib/photo-catalog-store";
-import { FilePhotoObjectStore } from "./lib/photo-store";
+import { PHOTO_CATALOG_INDEX_KEY, parsePhotoCatalogIndex } from "../../src/lib/photo-catalog";
+import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
+import { migratePhotoCatalog } from "./photo-catalog-store";
+import { FilePhotoObjectStore } from "./photo-store";
 
 const temporaryDirectories: string[] = [];
 

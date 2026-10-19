@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { describe, expect, it, vi } from "vitest";
-import { PHOTO_CATALOG_CONTROL_KEY } from "./lib/photo-catalog-control";
-import { PhotoStoreConflictError, R2PhotoObjectStore } from "./lib/photo-store";
+import { PHOTO_CATALOG_CONTROL_KEY } from "./photo-catalog-control";
+import { PhotoStoreConflictError, R2PhotoObjectStore } from "./photo-store";
 
 const publicKey = `photos/${PHOTO_CATALOG_CONTROL_KEY}`;
 const privateKey = `photo-control/${PHOTO_CATALOG_CONTROL_KEY}`;

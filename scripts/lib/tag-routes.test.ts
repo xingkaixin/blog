@@ -3,9 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { expect, it } from "vitest";
-import { tagHref } from "../src/lib/post-tags";
-import { siteConfig } from "../src/lib/site";
-import { readPublishedPosts } from "./lib/post-catalog";
+import { tagHref } from "../../src/lib/post-tags";
+import { siteConfig } from "../../src/lib/site";
+import { readPublishedPosts } from "./post-catalog";
 
 it("builds tag archives whose paths and canonical URLs match encoded links", () => {
   const project = process.cwd();

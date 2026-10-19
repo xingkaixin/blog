@@ -6,10 +6,10 @@ import {
   PHOTO_CATALOG_INDEX_KEY,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
-} from "../src/lib/photo-catalog";
-import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { PhotoCatalogEditor } from "./lib/photo-catalog-store";
-import { FilePhotoObjectStore, type PhotoTextObject } from "./lib/photo-store";
+} from "../../src/lib/photo-catalog";
+import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
+import { PhotoCatalogEditor } from "./photo-catalog-store";
+import { FilePhotoObjectStore, type PhotoTextObject } from "./photo-store";
 
 const temporaryDirectories: string[] = [];
 const photoId = "a".repeat(32);

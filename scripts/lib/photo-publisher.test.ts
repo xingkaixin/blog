@@ -2,20 +2,20 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isPhotoArtifactKey, photoMediaObjectKey } from "../src/lib/photo-artifact";
+import { isPhotoArtifactKey, photoMediaObjectKey } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_VARIANT_WIDTHS,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
   type PhotoVariantWidth,
-} from "../src/lib/photo-catalog";
-import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./lib/photo-catalog-control";
-import { migratePhotoCatalog, PhotoCatalogEditor } from "./lib/photo-catalog-store";
-import { collectPhotoGarbage } from "./lib/photo-garbage-collector";
-import { publishPhotos } from "./lib/photo-publisher";
-import { retirePhotos } from "./lib/photo-retirement";
-import { hashPhotoFile, type ProcessedPhoto } from "./lib/photo-source";
+} from "../../src/lib/photo-catalog";
+import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
+import { migratePhotoCatalog, PhotoCatalogEditor } from "./photo-catalog-store";
+import { collectPhotoGarbage } from "./photo-garbage-collector";
+import { publishPhotos } from "./photo-publisher";
+import { retirePhotos } from "./photo-retirement";
+import { hashPhotoFile, type ProcessedPhoto } from "./photo-source";
 import {
   FilePhotoObjectStore,
   PhotoStoreConflictError,
@@ -23,7 +23,7 @@ import {
   type PhotoObjectStore,
   type PhotoTextObject,
   type PutPhotoObjectOptions,
-} from "./lib/photo-store";
+} from "./photo-store";
 
 class MemoryPhotoStore implements PhotoObjectStore {
   readonly objects = new Map<string, PhotoObjectBody>();
