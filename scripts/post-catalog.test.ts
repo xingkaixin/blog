@@ -1,8 +1,9 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { siteConfig } from "../src/lib/site";
 import { buildSitemap } from "../src/lib/sitemap";
 import { buildRedirects } from "./generate-redirects";
-import { parsePublishedPost } from "./lib/post-catalog";
+import { parsePublishedPost, readPublishedPosts } from "./lib/post-catalog";
 
 const publishedSource = `---
 title: New post
@@ -15,6 +16,12 @@ coverAlt: Cover
 Body`;
 
 describe("post catalog", () => {
+  it("accepts every post in content/posts", () => {
+    expect(readPublishedPosts(path.join(process.cwd(), "content", "posts")).length).toBeGreaterThan(
+      0,
+    );
+  });
+
   it("rejects unquoted YAML dates before generating artifacts", () => {
     const source = publishedSource.replace("'2026-07-11'", "2026-07-11");
     expect(() => parsePublishedPost("unquoted-date", source)).toThrow("date");
