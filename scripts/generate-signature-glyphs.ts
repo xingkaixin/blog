@@ -6,7 +6,7 @@ import { siteConfig } from "../src/lib/site";
 
 const ROOT = process.cwd();
 const SOURCE_FILE = path.join(ROOT, "scripts", "assets", "dancing-script-glyph-data.json");
-const OUTPUT_FILE = path.join(ROOT, "src", "lib", "dancing-script-glyph-data.json");
+const OUTPUT_FILE = path.join(ROOT, "src", "lib", "generated", "dancing-script-glyph-data.json");
 const GRAPHEME_SEGMENTER = new Intl.Segmenter("zh-CN", { granularity: "grapheme" });
 
 export function signatureCharacters(text: string) {

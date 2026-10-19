@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TegakiRenderer, type TegakiRendererHandle } from "tegaki/react";
-import glyphData from "@/lib/dancing-script-glyph-data.json";
+import glyphData from "@/lib/generated/dancing-script-glyph-data.json";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 

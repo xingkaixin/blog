@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import glyphData from "../src/lib/dancing-script-glyph-data.json";
+import glyphData from "../src/lib/generated/dancing-script-glyph-data.json";
 import { siteConfig } from "../src/lib/site";
 import { selectSignatureGlyphs, signatureCharacters } from "./generate-signature-glyphs";
 
