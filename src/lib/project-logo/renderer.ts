@@ -1,10 +1,4 @@
-import {
-  blurSource,
-  compositeSource,
-  crtSource,
-  outlineSource,
-  vertexSource,
-} from "./project-logo-shaders";
+import { blurSource, compositeSource, crtSource, outlineSource, vertexSource } from "./shaders";
 
 export const LOGO_SIZE = 112;
 export const SWEEP_DURATION = 2400;

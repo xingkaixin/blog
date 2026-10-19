@@ -1,4 +1,4 @@
-import { createProjectLogoRenderer, SWEEP_DURATION } from "./project-logo-renderer";
+import { createProjectLogoRenderer, SWEEP_DURATION } from "./renderer";
 
 const FRAME_MS = 1000 / 24;
 

@@ -4,7 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { projectFilters, projectMessages, type ProjectFilter } from "@/lib/messages/projects";
-import { mountProjectLogoEffects } from "@/lib/project-logo-effect";
+import { mountProjectLogoEffects } from "@/lib/project-logo/effect";
 import { localizeProject, rankProjects, type Project } from "@/lib/projects";
 
 type ProjectConsoleProps = {
