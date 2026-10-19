@@ -139,7 +139,7 @@ const label = t.labels[contact.id] ?? contact.label;
 </style>
 
 <script>
-  import { ContactPreview } from "@/components/contact-preview";
+  import { ContactPreview } from "@/lib/contact-preview";
 
   if (!customElements.get("contact-preview")) {
     customElements.define("contact-preview", ContactPreview);
