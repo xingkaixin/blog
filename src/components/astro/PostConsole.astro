@@ -61,24 +61,26 @@ const previewPost = posts[0];
         selected={latestYear}
         showCounts
       />
-      <PostFilter
-        layout="desktop"
-        kind="tag"
-        label="标签"
-        options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
-        allLabel="全部"
-      />
+      <div class="relative flex flex-1 flex-col gap-6">
+        <PostFilter
+          layout="desktop"
+          kind="tag"
+          label="标签"
+          options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
+          allLabel="全部"
+        />
 
-      <PageArtwork scene="writing" />
+        <PageArtwork scene="writing" />
 
-      <div class="mt-auto border-t border-line pt-4">
-        <p class="font-mono text-[11px] leading-5 text-ink-500">
-          {posts.length} 篇 · {totalWords.toLocaleString("zh-CN")} 字<br />
-          最近更新 {posts[0]?.date ?? "-"}
-        </p>
-        <div class="relative mt-2.5 h-9 overflow-hidden">
-          <ProjectStickers client:visible />
+        <div class="mt-auto border-t border-line pt-4">
+          <p class="font-mono text-[11px] leading-5 text-ink-500">
+            {posts.length} 篇 · {totalWords.toLocaleString("zh-CN")} 字<br />
+            最近更新 {posts[0]?.date ?? "-"}
+          </p>
+          <div class="h-20"></div>
         </div>
+
+        <ProjectStickers client:visible />
       </div>
     </aside>
 

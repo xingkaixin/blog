@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import Matter from "matter-js";
+import { useEffect, useRef } from "react";
 import { projects } from "@/lib/projects";
 
-const SIZE = 30;
-const X_MIN_RATIO = 0;
-const X_MAX_RATIO = 1;
-const logos = [...new Set(projects.map((project) => project.logo))].slice(0, 5);
+const { Bodies, Body, Composite, Constraint, Engine, Events, Sleeping } = Matter;
+
+const SIZE = 26;
+const HALF = SIZE / 2;
+const WALL = 80;
+const STEP_MS = 1000 / 60;
+const MAX_SPEED = 18;
+const logos = [...new Set(projects.map((project) => project.logo))];
 
 // 8 方向 1px 白色 drop-shadow 叠加，基于 alpha 通道贴合 logo 实际轮廓描边
 const WHITE_STROKE = [
@@ -22,177 +27,217 @@ const WHITE_STROKE = [
 
 const RESTING_SHADOW = "drop-shadow(0 2px 3px rgba(31,24,18,0.2))";
 
-interface Sticker {
-  logo: string;
-  x: number;
-  y: number;
-  rotation: number;
-}
-
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
+
+function createWalls(width: number, height: number) {
+  const options = { isStatic: true, friction: 0.8 };
+  return [
+    Bodies.rectangle(width / 2, height + WALL / 2, width + WALL * 2, WALL, options),
+    Bodies.rectangle(width / 2, -WALL / 2, width + WALL * 2, WALL, options),
+    Bodies.rectangle(-WALL / 2, height / 2, WALL, height + WALL * 2, options),
+    Bodies.rectangle(width + WALL / 2, height / 2, WALL, height + WALL * 2, options),
+  ];
+}
 
 export function ProjectStickers() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    index: number;
-    offsetX: number;
-    offsetY: number;
-    rect: DOMRect;
-    x: number;
-    y: number;
-  } | null>(null);
-  const [stickers, setStickers] = useState<Sticker[]>([]);
-  const [dragging, setDragging] = useState<number | null>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const grabRef = useRef<(event: React.PointerEvent, index: number) => void>(() => {});
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) {
-      return;
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
     }
-    const { width, height } = el.getBoundingClientRect();
-    const xMin = width * X_MIN_RATIO;
-    const xSpan = Math.max(width * (X_MAX_RATIO - X_MIN_RATIO) - SIZE, 0);
-    setStickers(
-      logos.map((logo) => ({
-        logo,
-        x: xMin + Math.random() * xSpan,
-        y: Math.random() * Math.max(height - SIZE, 0),
-        rotation: (Math.random() - 0.5) * 36,
-      })),
-    );
-  }, []);
+    let { width, height } = container.getBoundingClientRect();
+    const engine = Engine.create({ enableSleeping: true, positionIterations: 10 });
+    engine.gravity.y = 1.6;
 
-  const onPointerDown = (e: React.PointerEvent, index: number) => {
-    const el = containerRef.current;
-    if (!el || dragRef.current) {
-      return;
-    }
-    e.currentTarget.setPointerCapture(e.pointerId);
-    const rect = el.getBoundingClientRect();
-    dragRef.current = {
-      index,
-      offsetX: e.clientX - rect.left - stickers[index].x,
-      offsetY: e.clientY - rect.top - stickers[index].y,
-      rect,
-      x: stickers[index].x,
-      y: stickers[index].y,
-    };
-    setDragging(index);
-  };
-
-  // 拖动期间直接写 DOM transform，绕过 React 重渲染，松手时再提交状态
-  const onPointerMove = (e: React.PointerEvent) => {
-    const drag = dragRef.current;
-    if (!drag) {
-      return;
-    }
-    drag.x = clamp(e.clientX - drag.rect.left - drag.offsetX, 0, drag.rect.width - SIZE);
-    drag.y = clamp(e.clientY - drag.rect.top - drag.offsetY, 0, drag.rect.height - SIZE);
-    (e.currentTarget as HTMLElement).style.transform = `translate(${drag.x}px, ${drag.y}px)`;
-  };
-
-  const finishDrag = () => {
-    const drag = dragRef.current;
-    if (drag) {
-      setStickers((prev) =>
-        prev.map((s, i) => (i === drag.index ? { ...s, x: drag.x, y: drag.y } : s)),
+    const perRow = Math.max(Math.floor(width / (SIZE + 6)), 1);
+    const bodies = logos.map((_, index) => {
+      const row = Math.floor(index / perRow);
+      const column = index % perRow;
+      return Bodies.rectangle(
+        (column + 0.5) * (width / perRow) + (Math.random() - 0.5) * 6,
+        height - 70 - row * (SIZE + 10),
+        SIZE,
+        SIZE,
+        {
+          chamfer: { radius: SIZE * 0.22 },
+          restitution: 0.15,
+          friction: 0.6,
+          frictionAir: 0.015,
+          angle: (Math.random() - 0.5) * 0.6,
+        },
       );
-    }
-    dragRef.current = null;
-    setDragging(null);
-  };
+    });
+    let walls = createWalls(width, height);
+    Composite.add(engine.world, [...walls, ...bodies]);
 
-  const onKeyDown = (event: React.KeyboardEvent, index: number) => {
-    const delta = event.shiftKey ? 10 : 2;
-    const movement: Record<string, [number, number]> = {
-      ArrowLeft: [-delta, 0],
-      ArrowRight: [delta, 0],
-      ArrowUp: [0, -delta],
-      ArrowDown: [0, delta],
+    Events.on(engine, "afterUpdate", () => {
+      for (const body of bodies) {
+        if (body.speed > MAX_SPEED) {
+          Body.setVelocity(body, {
+            x: (body.velocity.x / body.speed) * MAX_SPEED,
+            y: (body.velocity.y / body.speed) * MAX_SPEED,
+          });
+        }
+        // 拖拽挤压可能把相邻 logo 推穿墙体，越界时拉回世界内
+        const x = clamp(body.position.x, HALF, width - HALF);
+        const y = clamp(body.position.y, HALF, height - HALF);
+        if (x !== body.position.x || y !== body.position.y) {
+          Body.setPosition(body, { x, y });
+        }
+      }
+    });
+
+    const render = () => {
+      bodies.forEach((body, index) => {
+        const el = itemRefs.current[index];
+        if (el) {
+          el.style.transform = `translate(${body.position.x - HALF}px, ${body.position.y - HALF}px) rotate(${body.angle}rad)`;
+        }
+      });
     };
-    const offset = movement[event.key];
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!offset || !rect) {
-      return;
+
+    let drag: { constraint: Matter.Constraint; index: number } | null = null;
+    let frame = 0;
+    let last = 0;
+    let lag = 0;
+
+    const tick = (now: number) => {
+      lag = Math.min(lag + now - last, STEP_MS * 5);
+      last = now;
+      while (lag >= STEP_MS) {
+        Engine.update(engine, STEP_MS);
+        lag -= STEP_MS;
+      }
+      render();
+      frame = drag || bodies.some((body) => !body.isSleeping) ? requestAnimationFrame(tick) : 0;
+    };
+
+    const start = () => {
+      if (frame) {
+        return;
+      }
+      last = performance.now();
+      lag = 0;
+      frame = requestAnimationFrame(tick);
+    };
+
+    const toWorld = (event: PointerEvent | React.PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      return {
+        x: clamp(event.clientX - rect.left, HALF, width - HALF),
+        y: clamp(event.clientY - rect.top, HALF, height - HALF),
+      };
+    };
+
+    grabRef.current = (event, index) => {
+      if (drag) {
+        return;
+      }
+      event.currentTarget.setPointerCapture(event.pointerId);
+      const body = bodies[index];
+      const point = toWorld(event);
+      const constraint = Constraint.create({
+        pointA: point,
+        bodyB: body,
+        pointB: { x: point.x - body.position.x, y: point.y - body.position.y },
+        stiffness: 0.2,
+        damping: 0.1,
+        length: 0.01,
+      });
+      Composite.add(engine.world, constraint);
+      Sleeping.set(body, false);
+      drag = { constraint, index };
+      itemRefs.current[index]?.setAttribute("data-dragging", "");
+      start();
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (drag) {
+        drag.constraint.pointA = toWorld(event);
+      }
+    };
+
+    const onRelease = () => {
+      if (!drag) {
+        return;
+      }
+      Composite.remove(engine.world, drag.constraint);
+      itemRefs.current[drag.index]?.removeAttribute("data-dragging");
+      drag = null;
+    };
+
+    const observer = new ResizeObserver(([entry]) => {
+      const next = entry.contentRect;
+      if (next.width === 0 || (next.width === width && next.height === height)) {
+        return;
+      }
+      // 地面贴着容器底部，高度变化时整体平移，避免 logo 悬空或陷进地面
+      const shift = next.height - height;
+      width = next.width;
+      height = next.height;
+      Composite.remove(engine.world, walls);
+      walls = createWalls(width, height);
+      Composite.add(engine.world, walls);
+      for (const body of bodies) {
+        Body.setPosition(body, { x: body.position.x, y: body.position.y + shift });
+        Sleeping.set(body, false);
+      }
+      start();
+    });
+
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      for (let i = 0; i < 300; i += 1) {
+        Engine.update(engine, STEP_MS);
+      }
     }
-    event.preventDefault();
-    setStickers((current) =>
-      current.map((sticker, stickerIndex) =>
-        stickerIndex === index
-          ? {
-              ...sticker,
-              x: clamp(sticker.x + offset[0], 0, rect.width - SIZE),
-              y: clamp(sticker.y + offset[1], 0, rect.height - SIZE),
-            }
-          : sticker,
-      ),
-    );
-  };
+    render();
+    container.setAttribute("data-ready", "");
+    start();
+    observer.observe(container);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onRelease);
+    window.addEventListener("pointercancel", onRelease);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onRelease);
+      window.removeEventListener("pointercancel", onRelease);
+      Events.off(engine, "afterUpdate");
+      Engine.clear(engine);
+    };
+  }, []);
 
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none absolute inset-0 hidden overflow-hidden lg:block"
+      aria-hidden="true"
+      className="project-stickers pointer-events-none absolute inset-0 hidden lg:block"
     >
-      {stickers.map((s, i) => {
-        const isDragging = dragging === i;
-        return (
-          <div
-            data-header-sticker
-            role="button"
-            tabIndex={0}
-            aria-label={`移动装饰贴纸 ${i + 1}，使用方向键调整位置`}
-            key={s.logo}
-            onPointerDown={(e) => onPointerDown(e, i)}
-            onPointerMove={onPointerMove}
-            onPointerUp={finishDrag}
-            onPointerCancel={finishDrag}
-            onKeyDown={(event) => onKeyDown(event, i)}
-            style={{
-              width: SIZE,
-              height: SIZE,
-              transform: `translate(${s.x}px, ${s.y}px)`,
-              zIndex: isDragging ? 30 : 10,
-              willChange: "transform",
-            }}
-            className="pointer-events-auto absolute left-0 top-0 cursor-grab touch-none rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
-          >
-            <div
-              data-header-sticker-entry
-              className="header-sticker-entry relative h-full w-full"
-              style={{ transitionDelay: `${Math.min(i, 5) * 40}ms` }}
-            >
-              {/* 拿起时的落影：radial-gradient + opacity 过渡，全程走合成器，避免 Chrome 逐帧重算 filter */}
-              <div
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  left: "8%",
-                  right: "8%",
-                  bottom: "-20%",
-                  height: "36%",
-                  borderRadius: "50%",
-                  background: "radial-gradient(ellipse, rgba(20,21,26,0.35), transparent 70%)",
-                  opacity: isDragging ? 1 : 0,
-                  transition: "opacity 0.2s ease",
-                }}
-              />
-              <img
-                src={s.logo}
-                alt=""
-                draggable={false}
-                style={{
-                  transform: `rotate(${isDragging ? 0 : s.rotation}deg) scale(${isDragging ? 1.18 : 1})`,
-                  filter: `${WHITE_STROKE} ${RESTING_SHADOW}`,
-                  // 拿起用 ease-out 平稳抬起，放下用回弹曲线做出"啪"地贴下的手感
-                  transition: `transform 0.25s ${isDragging ? "cubic-bezier(0.2,0.85,0.25,1)" : "cubic-bezier(0.34,1.56,0.64,1)"}`,
-                }}
-                className="relative h-full w-full select-none object-contain"
-              />
-            </div>
-          </div>
-        );
-      })}
+      {logos.map((logo, index) => (
+        <div
+          key={logo}
+          ref={(el) => {
+            itemRefs.current[index] = el;
+          }}
+          onPointerDown={(event) => grabRef.current(event, index)}
+          style={{ width: SIZE, height: SIZE }}
+          className="project-sticker pointer-events-auto absolute left-0 top-0 cursor-grab touch-none will-change-transform active:cursor-grabbing"
+        >
+          <img
+            src={logo}
+            alt=""
+            draggable={false}
+            style={{ filter: `${WHITE_STROKE} ${RESTING_SHADOW}` }}
+            className="h-full w-full select-none object-contain"
+          />
+        </div>
+      ))}
     </div>
   );
 }
