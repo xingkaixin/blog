@@ -617,6 +617,22 @@
         "924c7f6f11c25aff24136aa9f964046171b638cc0c9c1f7a25d3804308023092"
       ]
     },
+    "/posts/images/ai-engineering-total-cost/ai-engineering-total-cost-01.png": {
+      "fingerprint": "19987497630f432e3a1783c671c52fccd1d1e91dd4f5da4c58f9f77727809fc6",
+      "outputFingerprints": [
+        "807776d7d85bb3a42aafe65eae14be681edb3a8f31957e2ae56851db37020214",
+        "dca9f9df30342d42fd29a2f3aa19f000e58cbc011161d5785bd4245472bbc4c1",
+        "b7d25c53a0030ad40041cecd4a6d021b87162c53be8d44654bbd27bad2764945"
+      ]
+    },
+    "/posts/images/ai-engineering-total-cost/ai-engineering-total-cost-02.png": {
+      "fingerprint": "c58731f85ee1ada0ace6db77a51480c0c64c18495f859582b2267717c8c1a78d",
+      "outputFingerprints": [
+        "d66bee082d9edf8b958d57653dfee9cec5c13f49d6287f6553c1f56550cd657f",
+        "d3655048dc2ac1567e8ae81fa371e0057f0f6ae48fdb5b9c1c1ec42324b11e94",
+        "20b1a354ea3e6b2c503d79d91c9f4366769d4dc895fcdc89efb745f6f2c77214"
+      ]
+    },
     "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": {
       "fingerprint": "b26916e4aa472d3bb897a2d4d13121ff6d40e578563df53aabc9f1aa90f98fdb",
       "outputFingerprints": [
@@ -1023,6 +1039,22 @@
         "accb545a78f799159bf1327c3c9828abc9ffffd824824f6208e179e18d7384b4",
         "6991501c7ce27969e7885f8a1b780322996842a3a92437146367b0c69298b5d2",
         "c7e5623f4a091f6c50e2ac6f6e6ea4c6460034ca9a053655d1f27f183c959664"
+      ]
+    },
+    "/posts/images/deepinfer-vs-vllm-llamacpp/deepinfer-vs-vllm-llamacpp-01.png": {
+      "fingerprint": "2270123d72d619ee0ea9034b956093ea717856ed7d3953fe268c0e34a574866c",
+      "outputFingerprints": [
+        "f046f6a9d130ed6e24f4a02ed802d3ec55703bc0882bfbfad96f9741e4dd228c",
+        "fc363181420d6a0e4cb2f961c31553e999369f5541a4e1a52e073f9aaadfaebd",
+        "328cf6d8ed2c8a0d4807baa5b10b9ef958c30224d17a4a299edd8005c62939de"
+      ]
+    },
+    "/posts/images/deepinfer-vs-vllm-llamacpp/deepinfer-vs-vllm-llamacpp-decode-pareto.png": {
+      "fingerprint": "4c86a50e64100c4de67ac6d17b433e499cc9d587c5e09b904d643390e3715302",
+      "outputFingerprints": [
+        "447abd80998938460c31fb28cfd780e1fdebb12b0e683fcf43ed3a981cbd48b1",
+        "6ff402bf9dec05f72f23e5c4793a808ea517fb6c90ffea58aea251d8788fde44",
+        "eb9eef116a9b8ba2143c0b0e9c3908b09a4a84568ec084bd43c9b8d66429bae6"
       ]
     },
     "/posts/images/deepseek-harness-133-plugins/deepseek-harness-133-plugins-01.png": {
@@ -1479,6 +1511,22 @@
         "a28ec0d5cfa3ead2436db31bf489f37cd170018b03ef4fa66fe371d7d96acf4b",
         "131836dc06c37408fec37439d438603cd48d7649253669de41a51a031fe2766b",
         "ca01c0fb74c68e8ce15a830f5c34494a8ea802bb0b164e05e700ccefa1783aeb"
+      ]
+    },
+    "/posts/images/recursive-self-improvement-evidence/recursive-self-improvement-evidence-01.png": {
+      "fingerprint": "37c67c37007479123b9bd50706593e2724c1680f599ef3dc368f907c739e4eea",
+      "outputFingerprints": [
+        "781a8d2a257cb00f6e3c6b403f2ed740640aba590717a4e514139a11e68497d1",
+        "4335bfe2e42ef92797acdf44eeeac7fe82c23810c9a2e1ca72b5b8c94f2e2044",
+        "7693f08f80089f94ce15e5385f423f9faeb0dad707bf48c5d90c1057158bbf6d"
+      ]
+    },
+    "/posts/images/recursive-self-improvement-evidence/recursive-self-improvement-evidence-02.png": {
+      "fingerprint": "f7d9636ca2948d49387a9b9bea56f6ce1deff5b3547890d5298db46a9a88619d",
+      "outputFingerprints": [
+        "410323b80840177327ef119569c0614b1ee4781c301e8cc27539ae7bda9c6045",
+        "24adf3b01a38ddeaf9e69dc6ec5d62178e9117ff7c1b1f41ca256fbcf602cfa3",
+        "96aeae05f2e8e4f10b0936b25171066733467f5b7f2c85abf33a722cc8e90656"
       ]
     },
     "/posts/images/review-bottleneck-pipeline/review-bottleneck-pipeline-01.png": {

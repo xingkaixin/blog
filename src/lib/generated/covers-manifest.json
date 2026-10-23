@@ -281,6 +281,14 @@
         "4223516619cdb54ff5324af7ac71d91884c6d1088a778f19268452b072f03235"
       ]
     },
+    "ai-engineering-total-cost.png": {
+      "fingerprint": "e83f207b358296ad5dbf60748f2513d4001ed1780ed25db6f330f0b749f2ac06",
+      "outputFingerprints": [
+        "2d782cbdfca0f624330749b15331245ebb65029494b14f33c92d7b55ebf33bd4",
+        "c8da07f5817e2281d7559ece002d163d19b6b952114bd8b9b836d438f29a84c8",
+        "04ddab5c8e4210b6e70d79ddf519a9fc24e9d45cff8a2d369cb2e46977a5c294"
+      ]
+    },
     "ai-frontend-design-system-handoff.png": {
       "fingerprint": "b33d60d8240d986d057393b873e30e8f61a3e6bfb517e9c17cb1db0a76729bb2",
       "outputFingerprints": [
@@ -439,6 +447,14 @@
         "44d01aa3b6cb8c651bd4dce3f9f54cc7d99d38b7948042df9ca369a37c2b6454",
         "18aa8bd1614c5055c64158cf9b91ec862922d99356772ddcf9f86e3b9f1241c4",
         "99bbf990dc884a744c8463baa646531be62bf8102e520cdd1025370846c63d77"
+      ]
+    },
+    "deepinfer-vs-vllm-llamacpp.png": {
+      "fingerprint": "d90d86433328fab8bf822240a0678e424b72b9b92b1e366b41bff27fdf14a3d1",
+      "outputFingerprints": [
+        "a924f449aa51a1b5e9d11d6b83126d4cab9cebce8f28f679352f1f601762af95",
+        "fe087ad10358cfc02ea96c523adf75f3e2f4e2c9812d463f4418dd999dd8e612",
+        "988af4e33ba9fcd551ed974329f8d271f305692b24b83321040909eb6ba2cd11"
       ]
     },
     "deepseek-harness-133-plugins.png": {
@@ -631,6 +647,14 @@
         "d302c0c916dd6b6ec4fea7a4bbff695895bf99c902e0f6f5d3627461b8f711bd",
         "c0f5037878595d297041cd3bd1bf100ce22e765ac6056d801dff1fba86d08990",
         "d71a47dcbe7c62c7968f6a06365e5bc59451288efc9edf217137c6b62daea19a"
+      ]
+    },
+    "recursive-self-improvement-evidence.png": {
+      "fingerprint": "284a9abc18516a4a82699e2ebcf69322f6c5cfc4e7954966c0f70059d95bc88e",
+      "outputFingerprints": [
+        "c124c6e525a558ba75d42ef968c5e413ac7c9465d5a696cc2c3b04950c952350",
+        "17862426433844431732e591f7c1a44b1758c412562a1c4cc7cf457463703671",
+        "bf66af7e2994ab9e1ad5050d3048f2099010f1f5ac532b44f4f9c76503d02b00"
       ]
     },
     "review-bottleneck-pipeline.png": {

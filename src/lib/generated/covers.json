@@ -244,6 +244,13 @@
     "width": 1880,
     "height": 800
   },
+  "ai-engineering-total-cost.png": {
+    "mobile": "/cover/ai-engineering-total-cost-400.webp",
+    "desktop": "/cover/ai-engineering-total-cost-800.webp",
+    "full": "/cover/ai-engineering-total-cost.webp",
+    "width": 1927,
+    "height": 820
+  },
   "ai-frontend-design-system-handoff.png": {
     "mobile": "/cover/ai-frontend-design-system-handoff-400.webp",
     "desktop": "/cover/ai-frontend-design-system-handoff-800.webp",
@@ -383,6 +390,13 @@
     "full": "/cover/cot-distillation-thinking-block.webp",
     "width": 1922,
     "height": 818
+  },
+  "deepinfer-vs-vllm-llamacpp.png": {
+    "mobile": "/cover/deepinfer-vs-vllm-llamacpp-400.webp",
+    "desktop": "/cover/deepinfer-vs-vllm-llamacpp-800.webp",
+    "full": "/cover/deepinfer-vs-vllm-llamacpp.webp",
+    "width": 1880,
+    "height": 800
   },
   "deepseek-harness-133-plugins.png": {
     "mobile": "/cover/deepseek-harness-133-plugins-400.webp",
@@ -551,6 +565,13 @@
     "full": "/cover/persona-distillation.webp",
     "width": 1536,
     "height": 864
+  },
+  "recursive-self-improvement-evidence.png": {
+    "mobile": "/cover/recursive-self-improvement-evidence-400.webp",
+    "desktop": "/cover/recursive-self-improvement-evidence-800.webp",
+    "full": "/cover/recursive-self-improvement-evidence.webp",
+    "width": 1880,
+    "height": 800
   },
   "review-bottleneck-pipeline.png": {
     "mobile": "/cover/review-bottleneck-pipeline-400.webp",

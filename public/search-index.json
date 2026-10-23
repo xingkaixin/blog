@@ -1,5 +1,38 @@
 [
   {
+    "slug": "recursive-self-improvement-evidence",
+    "title": "Agent 自我改进，为何还不能证明智能爆炸",
+    "date": "2026-10-23",
+    "summary": "Agent 自我改进实验已经展示了任务能力的提升，但升级后的系统能否更高效地推动下一轮升级，证据仍不充分。读 Weco 的实验，要分清任务得分提高与改进能力提高。",
+    "tags": [
+      "Agent",
+      "人工智能",
+      "自我改进"
+    ]
+  },
+  {
+    "slug": "deepinfer-vs-vllm-llamacpp",
+    "title": "DeepSeek 开源推理引擎 DeepInfer：它和 vLLM、llama.cpp 有什么不同",
+    "date": "2026-10-21",
+    "summary": "DeepInfer、vLLM、llama.cpp、MLX 服务的对象不同。一年半前说不直接开源推理引擎的 DeepSeek，这次放出了 DeepInfer 和 recipe。本文讲清开源了什么、还缺什么，以及手里的机器该用哪个。",
+    "tags": [
+      "DeepSeek",
+      "大模型",
+      "推理引擎"
+    ]
+  },
+  {
+    "slug": "ai-engineering-total-cost",
+    "title": "AI 编程提效，谁来判断该做页面还是做模板",
+    "date": "2026-10-19",
+    "summary": "AI 编程能把单个活动页写得很快，却可能推迟“改做模板”的判断。以淘宝活动页从手写到模板化为例，讲清怎样让 AI 识别共性、算清总成本，再用新需求验证方案。",
+    "tags": [
+      "AI编程",
+      "软件工程",
+      "Agent"
+    ]
+  },
+  {
     "slug": "ai-provider-research-competitor",
     "title": "用 OpenAI 做研究，也可能与它竞争",
     "date": "2026-10-16",
