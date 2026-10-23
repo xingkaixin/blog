@@ -15,7 +15,6 @@ type PhotoOverviewProps = {
   baseUrl: string;
   albumCount: number;
   photoCount: number;
-  photoRange: string;
   items: AlbumOverviewItem[];
   yearActivity: PhotoYearActivity[];
   failedPeriods: PhotoPeriod[];
@@ -35,7 +34,6 @@ export function PhotoOverview({
   baseUrl,
   albumCount,
   photoCount,
-  photoRange,
   items,
   yearActivity,
   failedPeriods,
@@ -48,10 +46,6 @@ export function PhotoOverview({
   const [featured, ...rest] = items;
   const rollCards = rest.slice(0, ROLL_CARD_COUNT);
   const rollLabels = rest.slice(ROLL_CARD_COUNT);
-  const monthCount = yearActivity.reduce(
-    (sum, year) => sum + year.months.filter((month) => month.count > 0).length,
-    0,
-  );
 
   return (
     <div className={PAGE_CLASS_NAME}>
@@ -79,21 +73,12 @@ export function PhotoOverview({
 
       <section className="grid items-end gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
         <div className="flex flex-col gap-7">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-500">
-            Roll 01—{String(albumCount).padStart(2, "0")} · {photoCount} frames
-            {photoRange && ` · ${photoRange}`}
-          </p>
           <h1 className="font-serif text-[88px] font-black leading-[0.95] tracking-tight text-ink-800 sm:text-[136px]">
             {t.title}
           </h1>
           <p className="max-w-110 text-[17px] leading-[1.8] text-ink-600">
             {t.intro(albumCount, photoCount)}
           </p>
-          <dl className="flex gap-10 border-t border-line pt-4">
-            <OverviewStat value={albumCount} label={t.stats.cities} />
-            <OverviewStat value={photoCount} label={t.stats.photos} />
-            <OverviewStat value={monthCount} label={t.stats.months} />
-          </dl>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
@@ -123,11 +108,8 @@ export function PhotoOverview({
         )}
       </section>
 
-      <div className="sticky top-[60px] z-10 -mx-4 mt-16 flex flex-wrap items-center justify-between gap-3 border-y border-line bg-paper/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-10 lg:mt-24 lg:px-10">
+      <div className="sticky top-[60px] z-10 -mx-4 mt-16 border-y border-line bg-paper/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-10 lg:mt-24 lg:px-10">
         <ViewSwitch view="overview" onSwitchView={() => onOpenAlbum(null)} />
-        <span className="font-mono text-xs tracking-[0.12em] text-ink-500">
-          {t.rollsByVisit(albumCount)}
-        </span>
       </div>
 
       {rollCards.length > 0 && (
@@ -151,15 +133,12 @@ export function PhotoOverview({
 
       {rollLabels.length > 0 && (
         <section aria-labelledby="photo-roll-labels-title" className="mt-18">
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2
-              id="photo-roll-labels-title"
-              className="font-serif text-[22px] font-semibold text-ink-800"
-            >
-              {t.otherRolls(rollLabels.length)}
-            </h2>
-            <p className="font-mono text-xs tracking-[0.12em] text-ink-500">{t.rollLabelsHint}</p>
-          </div>
+          <h2
+            id="photo-roll-labels-title"
+            className="font-serif text-[22px] font-semibold text-ink-800"
+          >
+            {t.otherRolls(rollLabels.length)}
+          </h2>
           <ul className="mt-4 grid gap-x-8 border-t border-line sm:grid-cols-2 lg:grid-cols-4">
             {rollLabels.map((item) => (
               <li key={item.id} className="border-b border-line">
@@ -325,15 +304,6 @@ function ViewSwitchButton({
   );
 }
 
-function OverviewStat({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="flex flex-col-reverse gap-1">
-      <dt className="text-[13px] text-ink-500">{label}</dt>
-      <dd className="text-[40px] font-light leading-none text-ink-800">{value}</dd>
-    </div>
-  );
-}
-
 function RollNumber({ roll, className }: { roll: number; className?: string }) {
   return (
     <span className={cn("font-mono text-[11px] text-film", className)}>
@@ -364,9 +334,8 @@ function FeaturedRoll({
         FOCUS_RING_CLASS_NAME,
       )}
     >
-      <span className="flex items-baseline justify-between font-mono text-[11px] tracking-[0.16em] text-ink-500">
-        <span>{t.latestRoll}</span>
-        <span className="text-accent">● {item.latestMonth}</span>
+      <span className="font-mono text-[11px] tracking-[0.16em] text-accent">
+        ● {item.latestMonth}
       </span>
       <FilmStrip className="gap-2.5 p-3 sm:px-3.5">
         <span className="flex h-[220px] gap-2 sm:h-[320px]">
@@ -534,14 +503,9 @@ function YearActivity({
 
   return (
     <section aria-labelledby="photo-activity-title" className="mt-22">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 id="photo-activity-title" className="font-serif text-[22px] font-semibold text-ink-800">
-          {t.developLog}
-        </h2>
-        <p className="font-mono text-xs text-ink-500">
-          {t.peak(formatMonth(peak.month), peak.count)}
-        </p>
-      </div>
+      <h2 id="photo-activity-title" className="font-serif text-[22px] font-semibold text-ink-800">
+        {t.developLog}
+      </h2>
       <div className="mt-7 overflow-x-auto pb-2">
         <div
           className="grid min-w-max gap-3"

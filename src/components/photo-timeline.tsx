@@ -128,7 +128,7 @@ export function PhotoTimeline({
         ) : (
           <PhotoArchiveHeader
             title={t.allPhotos}
-            detail={`${t.photos(totalPhotoCount)}${timelineRange ? ` · ${timelineRange}` : ""} · ${t.newestFirst}`}
+            detail={`${t.photos(totalPhotoCount)}${timelineRange ? ` · ${timelineRange}` : ""}`}
             view="timeline"
             onSwitchView={onReturn}
           />
@@ -136,9 +136,6 @@ export function PhotoTimeline({
 
         {albums.length > 0 && (
           <div className="sticky top-[60px] z-10 -mx-4 mt-8 flex items-center gap-4 border-y border-line bg-paper/95 py-3 pl-4 backdrop-blur sm:-mx-6 sm:pl-6 lg:-mx-10 lg:pl-10">
-            <span className="hidden shrink-0 font-mono text-[11px] tracking-[0.16em] text-ink-500 sm:block">
-              {t.filterCities}
-            </span>
             <div
               role="group"
               aria-label={t.filterCitiesLabel}

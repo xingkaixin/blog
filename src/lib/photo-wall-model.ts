@@ -51,7 +51,6 @@ export type PhotoTimelineModel = {
 
 type PhotoWallCatalogModel = PhotoTimelineModel & {
   albumCount: number;
-  allPhotoRange: string;
   yearActivity: PhotoYearActivity[];
   overviewPeriods: PhotoPeriod[];
   overviewSummaries: AlbumOverviewSummary[];
@@ -69,7 +68,6 @@ export function buildPhotoWallCatalogModel(
       albums: [],
       visiblePeriods: [],
       albumCount: 0,
-      allPhotoRange: "",
       yearActivity: [],
       overviewPeriods: [],
       overviewSummaries: [],
@@ -129,7 +127,6 @@ export function buildPhotoWallCatalogModel(
     albums: albumSummaries,
     visiblePeriods,
     albumCount: index.albums.length,
-    allPhotoRange: formatPeriodRange(index.periods, locale),
     yearActivity: buildYearActivity(index.periods),
     overviewPeriods: index.periods.filter((period) => previewMonths.has(period.month)),
     overviewSummaries,

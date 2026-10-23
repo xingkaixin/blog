@@ -113,7 +113,6 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
             baseUrl={normalizedBaseUrl}
             albumCount={catalogModel.albumCount}
             photoCount={catalogModel.allPhotoCount}
-            photoRange={catalogModel.allPhotoRange}
             items={overviewItems}
             yearActivity={catalogModel.yearActivity}
             failedPeriods={catalogModel.overviewPeriods.filter(
