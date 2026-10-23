@@ -32,13 +32,6 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
 ---
 
 <div>
-  {
-    layout === "desktop" && (
-      <p class="mb-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
-        {label}
-      </p>
-    )
-  }
   <div
     role="group"
     aria-label={`按${label}筛选文章`}

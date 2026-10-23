@@ -24,7 +24,6 @@ const months = groupPostsByMonth(posts);
 const popularTags = buildPostTaxonomy(posts).tags
   .toSorted((left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"))
   .slice(0, 9);
-const totalWords = posts.reduce((sum, post) => sum + post.wordCount, 0);
 const previewPost = posts[0];
 ---
 
@@ -72,13 +71,7 @@ const previewPost = posts[0];
 
         <PageArtwork scene="writing" />
 
-        <div class="mt-auto border-t border-line pt-4">
-          <p class="font-mono text-[11px] leading-5 text-ink-500">
-            {posts.length} 篇 · {totalWords.toLocaleString("zh-CN")} 字<br />
-            最近更新 {posts[0]?.date ?? "-"}
-          </p>
-          <div class="h-20"></div>
-        </div>
+        <div class="mt-auto h-20"></div>
 
         <ProjectStickers client:visible />
       </div>
@@ -87,7 +80,7 @@ const previewPost = posts[0];
     <div class="min-w-0 py-2.5">
       <div class="flex items-center justify-between gap-3 border-b border-line px-3 pb-2.5 lg:px-5">
         <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
-          <span data-post-console-heading>全部文章</span> · 按时间倒序
+          <span data-post-console-heading>全部文章</span>
         </p>
         <button
           type="button"

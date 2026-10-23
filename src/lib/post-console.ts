@@ -14,7 +14,7 @@ export function postPreviewContent(
 ) {
   return {
     coverSrcSet: `${cover.mobile} 1x, ${cover.desktop} 2x`,
-    wordCount: post.wordCount.toLocaleString("zh-CN"),
+    wordCount: `${post.wordCount.toLocaleString("zh-CN")} 字`,
     readingMinutes: `${post.readingMinutes} min`,
     tags: post.tags.join(" · "),
   };

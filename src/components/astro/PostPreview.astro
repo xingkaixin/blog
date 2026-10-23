@@ -45,22 +45,14 @@ const content = postPreviewContent(post, cover);
   <p data-preview-summary class="mt-2 line-clamp-5 text-[13px] leading-6 text-ink-600">
     {post.summary}
   </p>
-  <dl class="mt-4 grid gap-1.5 font-mono text-[11px] text-ink-500">
-    <div class="flex justify-between gap-3">
-      <dt>字数</dt>
-      <dd data-preview-word-count class="text-ink-600">{content.wordCount}</dd>
-    </div>
-    <div class="flex justify-between gap-3">
-      <dt>阅读</dt>
-      <dd data-preview-reading-minutes class="text-ink-600">{content.readingMinutes}</dd>
-    </div>
-    <div class="flex justify-between gap-3">
-      <dt>标签</dt>
-      <dd data-preview-tags class="max-w-44 text-right text-ink-600 [word-break:keep-all]">
-        {content.tags}
-      </dd>
-    </div>
-  </dl>
+  <p class="mt-4 font-mono text-[11px] leading-5 text-ink-600">
+    <span data-preview-word-count>{content.wordCount}</span>
+    <span class="text-ink-200">·</span>
+    <span data-preview-reading-minutes>{content.readingMinutes}</span>
+  </p>
+  <p data-preview-tags class="mt-1 font-mono text-[11px] leading-5 text-ink-500 [word-break:keep-all]">
+    {content.tags}
+  </p>
 
   <div data-preview-related-section hidden={related.length === 0} class="mt-4 border-t border-line pt-3.5">
     <template data-preview-related-template><PostPreviewLink /></template>
