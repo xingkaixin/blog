@@ -76,6 +76,8 @@ const meta = {
   }
   input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   .copy-status { min-height: 24px; margin-top: 8px; font-size: 12px; line-height: 2; color: var(--ink-600); }
+  /* The button already shows success; keep the message for screen readers without shifting layout. */
+  .copy-status[data-quiet] { clip-path: inset(50%); }
   .instructions { margin: 8px 0 16px; font-size: 13px; line-height: 1.9; color: var(--ink-500); }
   .feed-link { font-size: 12px; color: var(--ink-500); text-decoration: underline; text-underline-offset: 4px; }
   .feed-link:hover { color: var(--accent); }
@@ -120,11 +122,13 @@ const meta = {
         button.disabled = true;
         label.textContent = t.copying;
         status.textContent = "";
+        status.removeAttribute("data-quiet");
         try {
           await navigator.clipboard.writeText(input.value);
           button.setAttribute("data-copied", "");
           label.textContent = t.copied;
           status.textContent = t.copiedStatus;
+          status.setAttribute("data-quiet", "");
           this.resetTimer = setTimeout(() => {
             button.removeAttribute("data-copied");
             label.textContent = t.copy;

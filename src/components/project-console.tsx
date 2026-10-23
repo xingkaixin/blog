@@ -192,7 +192,7 @@ export function ProjectConsole({ projects, locale }: ProjectConsoleProps) {
         )}
       </div>
 
-      <p aria-live="polite" className="mt-3 font-mono text-[10px] text-ink-400">
+      <p aria-live="polite" className="sr-only">
         {t.showing(visibleProjects.length, projects.length)}
       </p>
     </section>
