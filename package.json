@@ -30,7 +30,7 @@
     "postinstall": "bun scripts/patch-smiley-font.ts",
     "preview": "astro preview",
     "test": "bun --bun vitest run",
-    "typecheck": "astro check && tsc -p tsconfig.app.json --pretty false && tsc -p tsconfig.node.json --pretty false"
+    "typecheck": "astro sync && tsc -p tsconfig.app.json --pretty false --runExternalCode && tsc -p tsconfig.node.json --pretty false"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -47,10 +47,10 @@
     "tegaki": "^1.1.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.11",
     "@astrojs/internal-helpers": "0.13.0",
     "@astrojs/markdown-remark": "^7.3.3",
     "@astrojs/react": "^7.1.0",
+    "@astrojs/ts-content-mapper": "0.2.0",
     "@aws-sdk/client-s3": "^3.1153.0",
     "@iannuttall/seo-graph-astro": "0.0.10",
     "@shadcn/lint": "^0.2.3",
@@ -70,7 +70,7 @@
     "satori": "^0.63.1",
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
-    "typescript": "~6.0.3",
+    "typescript": "7.1.0-beta",
     "vite": "^8.3.4",
     "vitest": "^5.0.5"
   },
