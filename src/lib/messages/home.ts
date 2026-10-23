@@ -24,7 +24,6 @@ const zh = {
   },
   pauseSeason: "暂停季节动画",
   room: {
-    kicker: "01 · 客厅",
     status: "上海 · 工程师 · 摄影爱好者",
     extra: "这里是我的颠倒世界：写 AI 编程和 Agent 工程，做些小而顺手的工具，也记录生活。",
     recordIdle: "放一首 Stoic Morning",
@@ -33,13 +32,10 @@ const zh = {
     cue: "往下滚，跟我走走",
   },
   hello: {
-    kicker: "02 · 打个招呼",
     title: "Hey，来打个招呼？",
     text: "聊 AI、工具、摄影，或者只是来打个招呼。",
   },
-  creditsKicker: "03 · 片尾",
   pond: {
-    kicker: "04 · 片尾彩蛋",
     title: "院子里的池塘",
     text: "片尾之后，到院子里坐一会儿。池子里有七尾锦鲤。",
   },
@@ -126,7 +122,6 @@ const en: HomeMessages = {
   },
   pauseSeason: "Pause the seasonal animation",
   room: {
-    kicker: "01 · Living room",
     status: "Shanghai · Engineer · Photography enthusiast",
     extra:
       "Welcome to my upside-down world. I write about AI coding and agent engineering, build small, handy tools, and keep notes on life.",
@@ -136,13 +131,10 @@ const en: HomeMessages = {
     cue: "Scroll down and walk with me",
   },
   hello: {
-    kicker: "02 · Say hello",
     title: "Hey, want to say hi?",
     text: "Talk about AI, tools, photography, or just drop by to say hello.",
   },
-  creditsKicker: "03 · Credits",
   pond: {
-    kicker: "04 · After the credits",
     title: "The pond in the yard",
     text: "After the credits, come sit in the yard for a while. Seven koi live in the pond.",
   },

@@ -104,8 +104,7 @@ const deferredSprites = await Promise.all(
   <section id="living-room" class="scene room" data-story-scene>
     <div data-story-copy>
       <div class="room-copy">
-        <div class="kicker-row">
-          <span class="kicker">{t.room.kicker}</span>
+        <div class="status-row">
           <span class="status-pill"><span aria-hidden="true"></span>{t.room.status}</span>
         </div>
         <AboutIntro />
@@ -129,7 +128,6 @@ const deferredSprites = await Promise.all(
 
   <section id="say-hello" class="scene hello" data-story-scene>
     <div class="hello-copy" data-story-copy>
-      <span class="kicker">{t.hello.kicker}</span>
       <div class="bubble">
         <h2>{t.hello.title}</h2>
         <p>{t.hello.text}</p>
@@ -142,14 +140,12 @@ const deferredSprites = await Promise.all(
 
   <section id="credits" class="scene credits story-night" data-story-scene>
     <div class="credits-copy" data-story-copy>
-      <span class="kicker">{t.creditsKicker}</span>
       <SiteCredits />
     </div>
   </section>
 
   <section id="pond" class="scene pond story-night" data-story-scene>
     <div class="pond-copy" data-story-copy>
-      <span class="kicker">{t.pond.kicker}</span>
       <h2>{t.pond.title}</h2>
       <p>{t.pond.text}</p>
     </div>
@@ -253,11 +249,10 @@ const deferredSprites = await Promise.all(
   .season-chip [aria-pressed="true"] [data-icon="play"] { display: block; }
 
   .scene { position: relative; z-index: 1; box-sizing: border-box; min-height: var(--stage-h); padding: 96px var(--gutter) 64px; scroll-margin-top: var(--stage-top); }
-  .kicker { font-family: var(--font-mono); font-size: 10px; line-height: 12px; font-weight: 500; letter-spacing: .14em; color: var(--ink-400); }
   h2 { margin: 0; font-family: var(--font-display); font-size: 30px; line-height: 36px; font-weight: 400; color: var(--ink-800); }
 
   .room-copy { display: flex; flex-direction: column; gap: 20px; max-width: 520px; }
-  .kicker-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .status-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
   .status-pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink-500); font-size: 11px; font-weight: 500; }
   .status-pill > span { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); }
   .intro-extra { margin: 0; font-size: 15px; line-height: 27px; color: var(--ink-500); }
