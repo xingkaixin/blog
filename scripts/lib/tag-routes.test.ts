@@ -62,7 +62,7 @@ it("builds tag archives whose paths and canonical URLs match encoded links", () 
       const file = path.join(root, "dist", decodeURI(href), "index.html");
       const html = fs.readFileSync(file, "utf8");
       expect(html).toContain(`rel="canonical" href="${siteConfig.url}${href}"`);
-      expect(html).toContain(`TAG · ${tag} · 2`);
+      expect(html).toContain(`标记为“${tag}”的 2 篇文章`);
     }
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

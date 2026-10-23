@@ -33,7 +33,6 @@ import {
   desktopNavigation,
   isSiteRouteActive,
   normalizeSitePath,
-  siteStatus,
 } from "@/lib/site-navigation";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import "../index.css";
@@ -41,12 +40,11 @@ import "../index.css";
 type Props = {
   meta: PageMeta;
   noindex?: boolean;
-  status?: string;
   smartHeader?: boolean;
   footerStage?: boolean;
 };
 
-const { meta, noindex = false, status, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
+const { meta, noindex = false, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const locale = localeFromPath(Astro.url.pathname);
 const copy = siteCopy[locale];
@@ -63,7 +61,6 @@ const title = pageTitle(meta, locale);
 const themeToggleEvent = THEME_TOGGLE_EVENT;
 const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
 const navItems = desktopNavigation(locale);
-const defaultStatus = siteStatus(currentPath);
 const pageTransition = {
   forwards: {
     old: {
@@ -300,11 +297,7 @@ const pageTransition = {
         <slot />
       </main>
 
-      <SceneFooter
-        currentPath={currentPath}
-        label={status ?? defaultStatus}
-        stage={footerStage}
-      />
+      <SceneFooter currentPath={currentPath} stage={footerStage} />
     </div>
 
     <script>

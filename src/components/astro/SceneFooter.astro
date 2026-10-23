@@ -10,8 +10,8 @@ import { localeFromPath, translatedPath } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 
-type Props = { currentPath: string; label: string; stage?: boolean };
-const { currentPath, label, stage = true } = Astro.props;
+type Props = { currentPath: string; stage?: boolean };
+const { currentPath, stage = true } = Astro.props;
 const t = chromeMessages[localeFromPath(currentPath)];
 const basePath = translatedPath(currentPath, "zh") ?? currentPath;
 const scene = basePath.startsWith("/photos") ? "photography" : basePath === "/projects/" ? "building" : "writing";
@@ -50,7 +50,6 @@ const content = { image: images[scene], ...t.footer[scene] };
     )}
   </div>}
   <div class="footer-bottom">
-    <span>{label}</span>
     <span class="shortcuts">{siteShortcuts.search.hint} {t.commandPalette} · {siteShortcuts.theme.hint} {t.flipWorld}</span>
   </div>
 </footer>
@@ -104,8 +103,7 @@ const content = { image: images[scene], ...t.footer[scene] };
     .character img { height: 180px; }
     .footer-title { font-size: 23px; }
     .footer-description { font-size: 12px; max-width: 15em; }
-    .footer-bottom { padding: 10px 20px; justify-content: space-between; }
-    .shortcuts { display: none; }
+    .footer-bottom { display: none; }
     .landscapes { inset: 0 -48px; filter: blur(2px) saturate(.75); }
   }
   @media (prefers-reduced-motion: reduce) {

@@ -6,7 +6,6 @@ import {
   normalizeSitePath,
   searchNavigation,
   sitemapNavigation,
-  siteStatus,
 } from "@/lib/site-navigation";
 
 describe("site navigation", () => {
@@ -30,13 +29,8 @@ describe("site navigation", () => {
     expect(sitemapNavigation().map((route) => route.href)).toContain("/tags/");
   });
 
-  it("normalizes active paths and derives page status", () => {
+  it("normalizes active paths", () => {
     expect(isSiteRouteActive("/photos/", "/photos")).toBe(true);
-    expect(siteStatus("/posts/example/")).toBe("READING");
-    expect(siteStatus("/tags/AI/")).toBe("TAG ARCHIVE");
-    expect(siteStatus("/tags/")).toBe("TAGS");
-    expect(siteStatus("/projects/")).toBe("PROJECTS");
-    expect(siteStatus("/posts/")).toBe("POSTS");
   });
 
   it.each(["100%25", "%2525", "C%2FC%2B%2B", "%E4%B8%AD%E6%96%87", "raw%"])(
@@ -45,7 +39,6 @@ describe("site navigation", () => {
       const path = normalizeSitePath(`/tags/${tag}/`);
       expect(path).toBe(`/tags/${tag}`);
       expect(normalizeSitePath(path)).toBe(path);
-      expect(siteStatus(path)).toBe("TAG ARCHIVE");
       expect(isSiteRouteActive(path, "/photos")).toBe(false);
     },
   );

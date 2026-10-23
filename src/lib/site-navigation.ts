@@ -9,7 +9,6 @@ type SiteRoute = {
   searchTitle: string;
   en: { label: string; searchTitle: string };
   keywords: string;
-  status: string;
   reload: boolean;
   desktop: boolean;
   mobile: boolean;
@@ -24,7 +23,6 @@ const routes: SiteRoute[] = [
     searchTitle: "首页",
     en: { label: "Home", searchTitle: "Home" },
     keywords: "首页 关于 联系 片尾 池塘 home about contact",
-    status: "HOME",
     reload: false,
     desktop: false,
     mobile: true,
@@ -37,7 +35,6 @@ const routes: SiteRoute[] = [
     searchTitle: "文章日志",
     en: { label: "Posts (Chinese)", searchTitle: "Posts (Chinese)" },
     keywords: "文章 日志 归档 posts archive",
-    status: "POSTS",
     reload: false,
     desktop: true,
     mobile: true,
@@ -50,7 +47,6 @@ const routes: SiteRoute[] = [
     searchTitle: "工具箱",
     en: { label: "Projects", searchTitle: "Projects" },
     keywords: "工具 项目 projects",
-    status: "PROJECTS",
     reload: false,
     desktop: true,
     mobile: true,
@@ -63,7 +59,6 @@ const routes: SiteRoute[] = [
     searchTitle: "照片墙",
     en: { label: "Photos", searchTitle: "Photo Wall" },
     keywords: "照片 摄影 相册 photos",
-    status: "PHOTOS",
     reload: false,
     desktop: true,
     mobile: true,
@@ -76,7 +71,6 @@ const routes: SiteRoute[] = [
     searchTitle: "标签索引",
     en: { label: "Tags (Chinese)", searchTitle: "Tag Index (Chinese)" },
     keywords: "标签 主题 分类 tags taxonomy",
-    status: "TAGS",
     reload: false,
     desktop: false,
     mobile: false,
@@ -89,7 +83,6 @@ const routes: SiteRoute[] = [
     searchTitle: "订阅 RSS",
     en: { label: "RSS", searchTitle: "Subscribe via RSS" },
     keywords: "订阅 rss feed",
-    status: "RSS",
     reload: false,
     desktop: true,
     mobile: true,
@@ -107,21 +100,6 @@ function routePath(href: string): string {
 
 export function isSiteRouteActive(currentPath: string, routePath: string): boolean {
   return normalizeSitePath(currentPath) === routePath;
-}
-
-export function siteStatus(currentPath: string): string {
-  const path = normalizeSitePath(currentPath.replace(/^\/en(?=\/|$)/u, "") || "/");
-  const routeStatus = routes.find((route) => routePath(route.href) === path)?.status;
-  if (routeStatus) {
-    return routeStatus;
-  }
-  if (path.startsWith("/posts/")) {
-    return "READING";
-  }
-  if (path.startsWith("/tags/")) {
-    return "TAG ARCHIVE";
-  }
-  return "SYSTEM";
 }
 
 export function desktopNavigation(locale: Locale = "zh") {
