@@ -14,6 +14,6 @@ export async function getStaticPaths() {
 }
 
 export const GET: APIRoute<Props> = ({ props }) =>
-  new Response(JSON.stringify(toWebMcpPost(toPostListItem(props.post), props.post.body)), {
+  new Response(JSON.stringify(toWebMcpPost(toPostListItem(props.post), props.post.body ?? "")), {
     headers: { "Content-Type": "application/json; charset=utf-8" },
   });

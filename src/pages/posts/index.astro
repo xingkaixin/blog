@@ -10,7 +10,7 @@ import { siteConfig } from "@/lib/site";
 const entries = await getPublishedPosts();
 const posts: PostConsoleItem[] = entries.map((entry) => ({
   ...toPostListItem(entry),
-  ...estimateReadingMetrics(entry.body),
+  ...estimateReadingMetrics(entry.body ?? ""),
 }));
 const meta = {
   title: "文章",

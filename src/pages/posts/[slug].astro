@@ -36,7 +36,7 @@ export async function getStaticPaths() {
 
 const { post, archivedTags, related } = Astro.props as Props;
 const archivedTagSet = new Set(archivedTags);
-const readingMetrics = estimateReadingMetrics(post.body);
+const readingMetrics = estimateReadingMetrics(post.body ?? "");
 const { Content, headings } = await render(post);
 const postMeta = toPostDetail(post, headings);
 const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
