@@ -217,7 +217,7 @@ const pageTransition = {
     <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta, locale))}></script>
   </head>
   <body>
-    <div class="relative flex min-h-[100dvh] flex-col">
+    <div data-site-shell class="relative flex min-h-[100dvh] flex-col">
       {meta.type === "article" && <ReadingProgress />}
       <a
         href="#main-content"
