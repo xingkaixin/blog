@@ -3,6 +3,7 @@ import { render } from "astro:content";
 import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import PostTag from "@/components/astro/PostTag.astro";
+import QuoteToolbar from "@/components/astro/QuoteToolbar.astro";
 import TocNav from "@/components/astro/TocNav.astro";
 import { SignatureAnimation } from "@/components/signature-animation";
 import SiteLayout from "@/layouts/SiteLayout.astro";
@@ -110,9 +111,10 @@ const meta = {
         </figure>
 
         <div class="border-y border-line py-8 sm:px-2 print:border-0 print:py-0">
-          <div class="article-prose">
+          <div class="article-prose" data-quote-scope>
             <Content />
           </div>
+          <QuoteToolbar title={postMeta.title} date={postMeta.date} url={canonicalPostUrl} />
         </div>
 
         {

@@ -1,0 +1,223 @@
+---
+import { siteConfig } from "@/lib/site";
+
+type Props = {
+  title: string;
+  date: string;
+  url: string;
+};
+
+const { title, date, url } = Astro.props;
+const path = new URL(url).pathname;
+const toolButton =
+  "inline-flex h-9 items-center gap-1.5 rounded-[7px] px-3 font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60";
+const dialogButton =
+  "inline-flex h-9 items-center rounded-[6px] px-3.5 font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+---
+
+<quote-toolbar data-title={title} data-date={date} data-url={url} data-path={path} data-author={siteConfig.author} class="print:hidden">
+  <div
+    role="toolbar"
+    aria-label="选中文字操作"
+    data-quote-toolbar
+    hidden
+    class="fixed left-0 top-0 z-30 flex items-center gap-0.5 rounded-[10px] bg-ink-800 p-1 shadow-[0_12px_32px_-12px_rgba(20,21,26,0.4)]"
+  >
+    <button type="button" data-quote-action="copy" class:list={[toolButton, "text-ink-200 hover:bg-ink-700 hover:text-paper"]}>
+      <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+      </svg>
+      <span data-label>复制</span>
+    </button>
+    <button type="button" data-quote-action="link" class:list={[toolButton, "text-ink-200 hover:bg-ink-700 hover:text-paper"]}>
+      <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+      </svg>
+      <span data-label>引用链接</span>
+    </button>
+    <span aria-hidden="true" class="mx-0.5 h-[18px] w-px bg-ink-600"></span>
+    <button type="button" data-quote-action="card" class:list={[toolButton, "bg-accent text-white hover:brightness-110"]}>
+      <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h4" />
+      </svg>
+      <span data-label>生成卡片</span>
+    </button>
+  </div>
+
+  <dialog
+    data-quote-dialog
+    aria-label="金句卡"
+    class="m-auto max-w-[calc(100vw-32px)] rounded-[12px] border border-line bg-surface p-4 text-ink-800 shadow-[0_24px_64px_-24px_rgba(20,21,26,0.45)] backdrop:bg-ink-800/40"
+  >
+    <img data-quote-preview alt="" width="540" height="675" class="block h-auto w-[min(360px,calc(100vw-66px))] rounded-[6px] border border-line" />
+    <div class="mt-4 flex flex-wrap items-center gap-2">
+      <button type="button" data-quote-save class:list={[dialogButton, "bg-ink-800 text-paper hover:bg-accent hover:text-white"]}>保存图片</button>
+      <button type="button" data-quote-copy-image hidden class:list={[dialogButton, "border border-line text-ink-700 hover:text-accent"]}>
+        <span data-label>复制图片</span>
+      </button>
+      <button type="button" data-quote-close class:list={[dialogButton, "ml-auto text-ink-500 hover:text-ink-800"]}>关闭</button>
+    </div>
+  </dialog>
+</quote-toolbar>
+
+<script>
+  import { quoteCitation, renderQuoteCard, textFragmentUrl } from "@/lib/quote-card";
+
+  const FEEDBACK_MS = 1600;
+
+  function flash(button: HTMLButtonElement, message: string) {
+    const label = button.querySelector<HTMLElement>("[data-label]")!;
+    label.dataset.original ??= label.textContent ?? "";
+    label.textContent = message;
+    window.setTimeout(() => {
+      label.textContent = label.dataset.original ?? "";
+    }, FEEDBACK_MS);
+  }
+
+  class QuoteToolbar extends HTMLElement {
+    private events?: AbortController;
+
+    connectedCallback() {
+      const scope = document.querySelector<HTMLElement>("[data-quote-scope]");
+      if (!scope) {
+        return;
+      }
+      const toolbar = this.querySelector<HTMLElement>("[data-quote-toolbar]")!;
+      const dialog = this.querySelector<HTMLDialogElement>("[data-quote-dialog]")!;
+      const preview = this.querySelector<HTMLImageElement>("[data-quote-preview]")!;
+      const copyImage = this.querySelector<HTMLButtonElement>("[data-quote-copy-image]")!;
+      const { title = "", date = "", url = "", path = "", author = "" } = this.dataset;
+      this.events = new AbortController();
+      const signal = this.events.signal;
+      let quote = "";
+      let range: Range | null = null;
+      let card: Blob | null = null;
+      copyImage.hidden = typeof ClipboardItem === "undefined";
+
+      const hide = () => {
+        toolbar.hidden = true;
+        range = null;
+      };
+      const place = () => {
+        if (!range) {
+          return;
+        }
+        const rect = range.getBoundingClientRect();
+        const width = toolbar.offsetWidth;
+        const height = toolbar.offsetHeight;
+        // 触屏的系统选区菜单在上方，工具条让到选区下面
+        const below = matchMedia("(pointer: coarse)").matches || rect.top - height - 10 < 8;
+        const top = below ? rect.bottom + 10 : rect.top - height - 10;
+        const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, 8), innerWidth - width - 8);
+        toolbar.style.transform = `translate(${left}px, ${top}px)`;
+      };
+      const evaluate = () => {
+        const selection = getSelection();
+        if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
+          hide();
+          return;
+        }
+        const current = selection.getRangeAt(0);
+        const text = selection.toString().replace(/\s+/g, " ").trim();
+        if (!scope.contains(current.commonAncestorContainer) || text.length < 2) {
+          hide();
+          return;
+        }
+        quote = text;
+        range = current;
+        toolbar.hidden = false;
+        place();
+      };
+      const copyText = async (button: HTMLButtonElement, text: string, done: string) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          flash(button, done);
+        } catch {
+          flash(button, "复制失败");
+        }
+      };
+
+      document.addEventListener("pointerup", () => requestAnimationFrame(evaluate), { signal });
+      document.addEventListener("keyup", evaluate, { signal });
+      document.addEventListener(
+        "selectionchange",
+        () => {
+          if (getSelection()?.isCollapsed ?? true) {
+            hide();
+          }
+        },
+        { signal },
+      );
+      window.addEventListener("scroll", place, { passive: true, signal });
+      window.addEventListener("resize", place, { signal });
+      // 按下工具条按钮时不能让浏览器清掉选区
+      toolbar.addEventListener("pointerdown", (event) => event.preventDefault(), { signal });
+
+      toolbar.addEventListener(
+        "click",
+        async (event) => {
+          const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-quote-action]") : null;
+          if (!button || !quote) {
+            return;
+          }
+          const action = button.dataset.quoteAction;
+          if (action === "copy") {
+            await copyText(button, quoteCitation({ quote, title, author }, url), "已复制");
+          } else if (action === "link") {
+            await copyText(button, textFragmentUrl(url, quote), "已复制链接");
+          } else if (action === "card") {
+            button.disabled = true;
+            try {
+              const theme = document.documentElement.dataset.theme === "dark" ? "night" : "day";
+              card = await renderQuoteCard({ quote, title, date, path, author, theme });
+              URL.revokeObjectURL(preview.src);
+              preview.src = URL.createObjectURL(card);
+              preview.alt = `金句卡：${quote}`;
+              dialog.showModal();
+            } catch {
+              flash(button, "生成失败");
+            } finally {
+              button.disabled = false;
+            }
+          }
+        },
+        { signal },
+      );
+
+      this.querySelector("[data-quote-close]")!.addEventListener("click", () => dialog.close(), { signal });
+      this.querySelector("[data-quote-save]")!.addEventListener(
+        "click",
+        () => {
+          const link = document.createElement("a");
+          link.href = preview.src;
+          link.download = `${path.split("/").filter(Boolean).at(-1) ?? "quote"}-quote.png`;
+          link.click();
+        },
+        { signal },
+      );
+      copyImage.addEventListener(
+        "click",
+        async () => {
+          if (!card) {
+            return;
+          }
+          try {
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": card })]);
+            flash(copyImage, "已复制");
+          } catch {
+            flash(copyImage, "复制失败");
+          }
+        },
+        { signal },
+      );
+    }
+
+    disconnectedCallback() {
+      this.events?.abort();
+    }
+  }
+
+  if (!customElements.get("quote-toolbar")) {
+    customElements.define("quote-toolbar", QuoteToolbar);
+  }
+</script>
