@@ -56,7 +56,7 @@
     "@shadcn/lint": "^0.2.3",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/bun": "^1.4.3",
+    "@types/bun": "^1.4.4",
     "@types/matter-js": "^0.20.2",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
@@ -78,5 +78,5 @@
     "fflate": "0.7.5",
     "postcss-selector-parser": "7.1.6"
   },
-  "packageManager": "bun@1.4.3"
+  "packageManager": "bun@1.4.4"
 }
