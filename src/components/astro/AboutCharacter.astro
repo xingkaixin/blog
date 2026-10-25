@@ -76,6 +76,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       const pupils = this.querySelector<SVGGElement>("[data-pupils]")!;
       const scene = this.querySelector<SVGSVGElement>(".scene")!;
       const media = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+      const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const events = new AbortController();
       const options = { signal: events.signal, passive: true };
       let visible = false;
@@ -86,11 +87,15 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       let targetY = 0;
       let frame = 0;
       let previousTime = 0;
+      // 唱片播放时随拍点头：一、三拍重，二、四拍轻
+      let nod = 0;
+      let nodAt = 0;
+      let nodStrength = 0;
 
       function paint() {
         // The painted face already leans right; additional shear exaggerates that asymmetry.
         const turn = x > 0 ? x * 0.4 : x;
-        head.style.transform = `translate(${turn * 9}px, ${y * 8}px) rotate(${turn * 5}deg) scale(${1 - Math.abs(turn) * 0.035}, ${1 - Math.abs(y) * 0.08})`;
+        head.style.transform = `translate(${turn * 9}px, ${y * 8 + nod * 12}px) rotate(${turn * 5 + nod * 2}deg) scale(${1 - Math.abs(turn) * 0.035}, ${1 - Math.abs(y) * 0.08})`;
         face.style.transform = `translate(${turn * 20}px, ${y * 24}px) skewY(${Math.min(x, 0) * 2}deg) scaleY(${1 - Math.abs(y) * 0.05})`;
         pupils.style.transform = `translate(${x * 11}px, ${y * 9}px)`;
       }
@@ -101,7 +106,11 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
         const blend = 1 - Math.exp(-elapsed / 110);
         x += (targetX - x) * blend;
         y += (targetY - y) * blend;
-        const settled = Math.abs(targetX - x) + Math.abs(targetY - y) < 0.001;
+        nod = nodStrength * Math.exp(-(time - nodAt) / 140);
+        if (nod < 0.002) {
+          nod = 0;
+        }
+        const settled = Math.abs(targetX - x) + Math.abs(targetY - y) < 0.001 && nod === 0;
         if (settled) {
           x = targetX;
           y = targetY;
@@ -115,7 +124,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
           cancelAnimationFrame(frame);
           frame = 0;
           pointer = undefined;
-          x = y = targetX = targetY = 0;
+          x = y = targetX = targetY = nod = nodStrength = 0;
           paint();
           return;
         }
@@ -150,6 +159,17 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       window.addEventListener("pointerout", (event) => {
         if (!event.relatedTarget) {
           reset();
+        }
+      }, options);
+      document.addEventListener("record-beat", (event) => {
+        if (!visible || reducedMotion.matches || document.hidden) {
+          return;
+        }
+        nodAt = performance.now();
+        nodStrength = (event as CustomEvent<number>).detail % 2 === 0 ? 1 : 0.55;
+        if (!frame) {
+          previousTime = nodAt;
+          frame = requestAnimationFrame(animate);
         }
       }, options);
       window.addEventListener("blur", reset, options);

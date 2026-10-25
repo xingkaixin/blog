@@ -9,6 +9,10 @@ export interface SeasonBackdrop {
   /** 0 为白天的客厅，1 为片尾与池塘的夜色，跟随首页夜幕的淡入进度。 */
   setNight(amount: number): void;
   setPaused(paused: boolean): void;
+  /** 从 (x, y) 抛出一枚当季粒子；lift 与 weight 取 0–1，分别决定抛多高、粒子多大 */
+  emit(x: number, y: number, lift: number, weight: number): void;
+  /** 以 (x, y) 为圆心荡开一圈淡波纹 */
+  ripple(x: number, y: number, from: number, to: number): void;
   destroy(): void;
 }
 
@@ -257,6 +261,40 @@ interface Drifter {
   blinkPhase: number;
 }
 
+interface Flyer {
+  kind: FallerKind | "mote";
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  age: number;
+  fall: number;
+  sway: number;
+  swayPhase: number;
+  spin: number;
+  spinPhase: number;
+}
+
+interface Ripple {
+  x: number;
+  y: number;
+  from: number;
+  to: number;
+  age: number;
+}
+
+/** 音符粒子：沿用各季的形状，夏天是光点；尺寸按力度在区间里取 */
+const flyerSpecs: Record<Season, { kinds: readonly Flyer["kind"][]; size: Range; fall: number }> = {
+  spring: { kinds: ["petal"], size: [10, 17], fall: 30 },
+  summer: { kinds: ["mote"], size: [3, 6], fall: -8 },
+  autumn: { kinds: ["ginkgo", "ginkgo", "plane"], size: [16, 26], fall: 34 },
+  winter: { kinds: ["snow"], size: [4, 8], fall: 24 },
+};
+const FLYER_LIFE = 9;
+const FLYER_LIMIT = 80;
+const RIPPLE_LIFE = 1.4;
+
 const between = ([min, max]: Range) => min + Math.random() * (max - min);
 
 function createLayer(spec: FallSpec): FallLayer {
@@ -430,6 +468,8 @@ export function createSeasonBackdrop(
   let elapsed = 0;
   let last = 0;
   let frame = 0;
+  const flyers: Flyer[] = [];
+  const ripples: Ripple[] = [];
 
   function drawShape(
     kind: ShapeKind,
@@ -607,6 +647,82 @@ export function createSeasonBackdrop(
     }
   }
 
+  function stepFlyers(dt: number) {
+    for (let index = flyers.length - 1; index >= 0; index--) {
+      const flyer = flyers[index];
+      flyer.age += dt;
+      // 先被抛起，减速后并入背景里的下落节奏
+      flyer.vy = Math.min(flyer.vy + 160 * dt, flyer.fall);
+      flyer.vx *= 1 - 0.9 * dt;
+      flyer.x += flyer.vx * dt + Math.sin(flyer.age * 1.3 + flyer.swayPhase) * flyer.sway * dt;
+      flyer.y += flyer.vy * dt;
+      if (flyer.age > FLYER_LIFE || flyer.y > height + 40 || flyer.x > width + 40) {
+        flyers.splice(index, 1);
+      }
+    }
+    for (let index = ripples.length - 1; index >= 0; index--) {
+      ripples[index].age += dt;
+      if (ripples[index].age > RIPPLE_LIFE) {
+        ripples.splice(index, 1);
+      }
+    }
+  }
+
+  function drawFlyers(colors: Colors) {
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = dark || night > 0.5 ? "rgb(236 239 237)" : "rgb(23 26 25)";
+    for (const ripple of ripples) {
+      const progress = ripple.age / RIPPLE_LIFE;
+      ctx.globalAlpha = 0.18 * (1 - progress);
+      ctx.beginPath();
+      ctx.arc(
+        ripple.x,
+        ripple.y,
+        ripple.from + (ripple.to - ripple.from) * (1 - (1 - progress) ** 3),
+        0,
+        TAU,
+      );
+      ctx.stroke();
+    }
+    for (const flyer of flyers) {
+      const fade = Math.min(1, flyer.age / 0.12) * Math.min(1, (FLYER_LIFE - flyer.age) / 1.5);
+      const { kind, x, y, size } = flyer;
+      if (kind === "mote") {
+        if (night > 0 && glow) {
+          const radius = size * 3.5;
+          ctx.globalAlpha = fade * night;
+          ctx.drawImage(glow, x - radius, y - radius, radius * 2, radius * 2);
+        }
+        ctx.globalAlpha = fade * 0.85;
+        ctx.fillStyle = colors.mote;
+        ctx.beginPath();
+        ctx.arc(x, y, size / 2, 0, TAU);
+        ctx.fill();
+      } else if (kind === "snow") {
+        if (flakes) {
+          ctx.globalAlpha = fade * colors.snowEdge;
+          ctx.drawImage(flakes.edge, x - size, y - size, size * 2, size * 2);
+          ctx.globalAlpha = fade * (1 - colors.snowEdge);
+          ctx.drawImage(flakes.glow, x - size, y - size, size * 2, size * 2);
+        }
+      } else {
+        ctx.globalAlpha = fade;
+        const turn = (TAU * flyer.age) / flyer.spin + flyer.spinPhase;
+        const flip = Math.cos(turn);
+        const facing = Math.abs(flip) < 0.08 ? Math.sign(flip || 1) * 0.08 : flip;
+        drawShape(
+          kind,
+          x,
+          y,
+          kind === "petal" ? flyer.spinPhase + turn * 0.4 : turn,
+          size * facing,
+          size,
+          colors,
+        );
+      }
+    }
+  }
+
   function draw() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalAlpha = 1;
@@ -623,13 +739,16 @@ export function createSeasonBackdrop(
     if (summer) {
       drawSummer(colors, share);
     }
+    drawFlyers(colors);
     ctx.globalAlpha = 1;
   }
 
   function tick(now: number) {
     // 切回标签页时不让粒子一次跳过整段时间
-    elapsed += Math.min(0.1, (now - last) / 1000);
+    const dt = Math.min(0.1, (now - last) / 1000);
+    elapsed += dt;
     last = now;
+    stepFlyers(dt);
     draw();
     frame = requestAnimationFrame(tick);
   }
@@ -694,6 +813,32 @@ export function createSeasonBackdrop(
     setPaused(next) {
       paused = next;
       sync();
+    },
+    emit(x, y, lift, weight) {
+      // 动画停着时不攒粒子，免得恢复时一下涌出来
+      if (!frame || flyers.length >= FLYER_LIMIT) {
+        return;
+      }
+      const spec = flyerSpecs[season];
+      flyers.push({
+        kind: spec.kinds[Math.floor(Math.random() * spec.kinds.length)],
+        x,
+        y,
+        vx: between([40, 90]) + lift * width * 0.12,
+        vy: -(110 + lift * Math.min(300, height * 0.6)) * between([0.9, 1.1]),
+        size: spec.size[0] + (spec.size[1] - spec.size[0]) * weight,
+        age: 0,
+        fall: spec.fall,
+        sway: between([10, 24]),
+        swayPhase: Math.random() * TAU,
+        spin: between([3, 6]),
+        spinPhase: Math.random() * TAU,
+      });
+    },
+    ripple(x, y, from, to) {
+      if (frame) {
+        ripples.push({ x, y, from, to, age: 0 });
+      }
     },
     destroy() {
       cancelAnimationFrame(frame);
