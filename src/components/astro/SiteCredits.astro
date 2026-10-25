@@ -39,9 +39,8 @@ const sections = [
     ["Image processing", "Bun.Image & Sharp"],
     ["Photo metadata", "ExifTool"],
     ["Social preview images", "Satori"],
-    ["Music", "Stoic Morning"],
-    ["Composed by", "Kevin MacLeod · incompetech.com"],
-    ["Music license", "CC BY 4.0"],
+    ["Music", "Seasons from the Sofa"],
+    ["Composed by", "Claude Code"],
   ] },
   { title: "Production tools", entries: [
     ["Testing", "Vitest"],
@@ -73,10 +72,6 @@ const sections = [
       ))}
     </div>
   </div>
-  <p class="music-credit">
-    <a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100061" target="_blank" rel="noopener noreferrer">Stoic Morning — Kevin MacLeod (incompetech.com)</a>
-    · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>
-  </p>
 </site-credits>
 
 <style>
@@ -103,9 +98,6 @@ const sections = [
   .credit + .credit { margin-top: 16px; }
   dt { font-size: 11px; color: var(--ink-400); line-height: 1.6; text-align: right; overflow-wrap: anywhere; }
   dd { font-size: 15px; line-height: 1.6; color: var(--ink-800); text-align: left; overflow-wrap: anywhere; }
-  .music-credit { margin-top: 12px; font-family: var(--font-mono); font-size: 10px; line-height: 16px; color: var(--ink-400); text-align: center; }
-  .music-credit a { text-decoration: underline; text-decoration-color: var(--ink-300); text-underline-offset: 3px; }
-  .music-credit a:hover { color: var(--accent); }
   @keyframes credits-roll { to { transform: translateY(-50%); } }
   @media (max-width: 47.999rem) { site-credits { --credits-height: 40dvh; } }
   @media (prefers-reduced-motion: reduce) {

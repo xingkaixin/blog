@@ -44,7 +44,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
     </svg>
   </button>
   <span class="status sr-only" aria-live="polite">{t.toPlay}</span>
-  <audio preload="none" src="https://photos.xingkaixin.me/audio/stoic-morning/43e9639741ee30d1.mp3"></audio>
+  <audio preload="none" src="https://photos.xingkaixin.me/audio/seasons-from-the-sofa/54744e54d4bd1c7f.mp3"></audio>
   <noscript><span class="status sr-only">{t.noScript}</span></noscript>
 </record-player>
 
@@ -70,8 +70,12 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
 </style>
 
 <script>
+  import { homeSong, type RecordNote } from "@/lib/home-score";
   import { localeFromLang } from "@/lib/i18n";
   import { homeMessages } from "@/lib/messages/home";
+  import type { Piano, createPiano as CreatePiano } from "@/lib/piano-synth";
+
+  const melody = homeSong.notes.filter((note) => note.hand === "melody");
 
   class RecordPlayer extends HTMLElement {
     private cleanup?: () => void;
@@ -87,7 +91,41 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       let requested = false;
       let attempt = 0;
       let fadeFrame = 0;
+      let followFrame = 0;
+      let cue = 0;
+      let lastBeat = -1;
+      let createPiano: typeof CreatePiano | undefined;
+      let piano: Piano | undefined;
+      let pianoContext: AudioContext | undefined;
       button.disabled = false;
+
+      const announce = (type: string, detail: unknown) => {
+        this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail }));
+      };
+      // 按播放进度对照乐谱，把旋律音和拍点派发给页面上的动画
+      const follow = () => {
+        const time = audio.currentTime;
+        while (cue < melody.length && melody[cue].time <= time) {
+          const { midi, velocity, duration, time: at } = melody[cue++];
+          // 切回标签页时跳过积压的音，不让粒子一次涌出
+          if (time - at < 0.25) {
+            announce("record-note", { midi, velocity, duration, jam: false } satisfies RecordNote);
+          }
+        }
+        const beat = Math.floor(homeSong.beatOf(time));
+        if (beat !== lastBeat && beat < homeSong.totalBeats) {
+          lastBeat = beat;
+          announce("record-beat", beat);
+        }
+        followFrame = requestAnimationFrame(follow);
+      };
+      const startFollowing = () => {
+        cancelAnimationFrame(followFrame);
+        cue = melody.findIndex((note) => note.time >= audio.currentTime);
+        cue = cue === -1 ? melody.length : cue;
+        lastBeat = Math.floor(homeSong.beatOf(audio.currentTime));
+        followFrame = requestAnimationFrame(follow);
+      };
 
       const show = (playing: boolean, message: string) => {
         this.toggleAttribute("data-playing", playing);
@@ -99,6 +137,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         requested = false;
         attempt++;
         cancelAnimationFrame(fadeFrame);
+        cancelAnimationFrame(followFrame);
         audio.pause();
         show(false, audio.currentTime > 0 && !audio.ended ? t.toResume : t.toPlay);
       };
@@ -126,6 +165,10 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
             return;
           }
           show(true, t.toPause);
+          startFollowing();
+          void import("@/lib/piano-synth").then((module) => {
+            createPiano = module.createPiano;
+          });
           const start = performance.now();
           const fadeIn = (time: number) => {
             const progress = Math.max(0, Math.min(1, (time - start - 420) / 300));
@@ -141,6 +184,25 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
           }
         }
       }, options);
+      // 访客轻点画面时弹一个当前和弦内的音，height 为 0–1，越高音越高
+      this.addEventListener("record-jam", (event) => {
+        if (!requested || !createPiano) {
+          return;
+        }
+        pianoContext ??= new AudioContext();
+        void pianoContext.resume();
+        // 与录音在 35% 音量下的响度大致相当
+        piano ??= createPiano(pianoContext, 0.3);
+        const { height } = (event as CustomEvent<{ height: number }>).detail;
+        const beat = homeSong.beatOf(audio.currentTime);
+        const chord = homeSong.chords.findLast((candidate) => candidate.beat <= beat) ?? homeSong.chords[0];
+        const target = 62 + height * 26;
+        const midi = Array.from({ length: 30 }, (_, index) => 60 + index)
+          .filter((candidate) => chord.tones.includes(candidate % 12))
+          .reduce((best, candidate) => (Math.abs(candidate - target) < Math.abs(best - target) ? candidate : best));
+        piano.play(midi, pianoContext.currentTime + 0.005, 1.4, 0.52);
+        announce("record-note", { midi, velocity: 0.52, duration: 0.5, jam: true } satisfies RecordNote);
+      }, options);
       audio.addEventListener("ended", stop, options);
       audio.addEventListener("error", fail, options);
       audio.addEventListener("pause", () => {
@@ -152,6 +214,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       this.cleanup = () => {
         events.abort();
         stop();
+        void pianoContext?.close();
       };
     }
 

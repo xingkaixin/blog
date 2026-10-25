@@ -26,9 +26,10 @@ const zh = {
   room: {
     status: "上海 · 工程师 · 摄影爱好者",
     extra: "这里是我的颠倒世界：写 AI 编程和 Agent 工程，做些小而顺手的工具，也记录生活。",
-    recordIdle: "放一首 Stoic Morning",
-    recordActive: "正在播放 · Stoic Morning",
+    recordIdle: "放一首《沙发上的四季》",
+    recordActive: "正在播放 · 沙发上的四季",
     recordHint: "片尾字幕会跟着滚动",
+    recordJam: "轻点画面，和它合奏",
     cue: "往下滚，跟我走走",
   },
   hello: {
@@ -56,8 +57,8 @@ const zh = {
     caption: "长江入海处，黄浦江两岸。",
   },
   record: {
-    play: "播放 Stoic Morning",
-    pause: "暂停 Stoic Morning",
+    play: "播放《沙发上的四季》",
+    pause: "暂停《沙发上的四季》",
     toPlay: "点击播放",
     toResume: "点击继续",
     toPause: "点击暂停",
@@ -125,9 +126,10 @@ const en: HomeMessages = {
     status: "Shanghai · Engineer · Photography enthusiast",
     extra:
       "Welcome to my upside-down world. I write about AI coding and agent engineering, build small, handy tools, and keep notes on life.",
-    recordIdle: "Play Stoic Morning",
-    recordActive: "Now playing · Stoic Morning",
+    recordIdle: "Play Seasons from the Sofa",
+    recordActive: "Now playing · Seasons from the Sofa",
     recordHint: "The end credits roll along with it",
+    recordJam: "Tap the room to play along",
     cue: "Scroll down and walk with me",
   },
   hello: {
@@ -156,8 +158,8 @@ const en: HomeMessages = {
     caption: "Where the Yangtze meets the sea, on both banks of the Huangpu.",
   },
   record: {
-    play: "Play Stoic Morning",
-    pause: "Pause Stoic Morning",
+    play: "Play Seasons from the Sofa",
+    pause: "Pause Seasons from the Sofa",
     toPlay: "Press to play",
     toResume: "Press to resume",
     toPause: "Press to pause",
