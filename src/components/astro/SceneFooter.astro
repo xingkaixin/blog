@@ -19,7 +19,7 @@ const images = { photography, building, writing };
 const content = { image: images[scene], ...t.footer[scene] };
 ---
 
-<footer class="scene-footer" data-scene={scene}>
+<footer class="scene-footer print:hidden" data-scene={scene}>
   {stage && <div class="footer-stage">
     <div class="character">
       <Image src={content.image} alt={content.alt} widths={[360, 720]} sizes="(max-width: 640px) 180px, 320px" width={480} format="webp" loading="lazy" />

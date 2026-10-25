@@ -41,9 +41,33 @@ function isHeading(tagName: string | undefined) {
   return /^h[1-6]$/.test(tagName ?? "");
 }
 
+function element(tagName: string, className: string, children: HastNode[]): HastNode {
+  return { type: "element", tagName, properties: { className: [className] }, children };
+}
+
+// 纸面上点不了链接，外链在正文里编号，完整地址列在文末
+function printReferences(references: Map<string, { index: number; text: string }>): HastNode {
+  return element("section", "print-references", [
+    element("p", "print-references-title", [{ type: "text", value: "文中链接" }]),
+    element(
+      "ol",
+      "print-references-list",
+      [...references].map(([href, { text }]) =>
+        element("li", "print-reference", [
+          ...(text === href
+            ? []
+            : [element("span", "print-reference-text", [{ type: "text", value: text }])]),
+          element("span", "print-reference-url", [{ type: "text", value: href }]),
+        ]),
+      ),
+    ),
+  ]);
+}
+
 export function rehypeBlogContent() {
   return (tree: HastNode) => {
     const allocateHeadingId = createHeadingIdAllocator();
+    const references = new Map<string, { index: number; text: string }>();
 
     walk(tree, (node) => {
       if (node.type !== "element") {
@@ -67,10 +91,16 @@ export function rehypeBlogContent() {
       if (node.tagName === "a" && typeof node.properties?.href === "string") {
         const href = node.properties.href;
         if (isExternalWebLink(href)) {
+          const reference = references.get(href) ?? {
+            index: references.size + 1,
+            text: textContent(node),
+          };
+          references.set(href, reference);
           node.properties = {
             ...node.properties,
             target: "_blank",
             rel: "noreferrer",
+            dataPrintRef: reference.index,
           };
         }
         return;
@@ -133,5 +163,9 @@ export function rehypeBlogContent() {
         },
       ];
     });
+
+    if (references.size > 0) {
+      tree.children = [...(tree.children ?? []), printReferences(references)];
+    }
   };
 }

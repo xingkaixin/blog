@@ -357,6 +357,161 @@ body {
   content: "";
 }
 
+.print-references {
+  display: none;
+}
+
+/* ============================================================
+   文章打印
+   ============================================================ */
+
+@page {
+  size: A4;
+  margin: 18mm 18mm 20mm;
+
+  /* 页眉网址、日期与页脚标题由文章页按篇注入 content */
+  @top-left {
+    font:
+      8pt "JetBrains Mono",
+      monospace;
+    color: #5f6763;
+  }
+
+  @top-right {
+    font:
+      8pt "JetBrains Mono",
+      monospace;
+    color: #5f6763;
+  }
+
+  @bottom-left {
+    font:
+      8pt "JetBrains Mono",
+      monospace;
+    color: #838b87;
+  }
+
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font:
+      8pt "JetBrains Mono",
+      monospace;
+    color: #838b87;
+  }
+}
+
+@media print {
+  /* 打印总在白纸上，暗色主题也换回亮色 token */
+  :root,
+  [data-theme="dark"] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --line: #d2d9d6;
+    --ink-50: #f4f6f5;
+    --ink-100: #e9ecea;
+    --ink-200: #d2d9d6;
+    --ink-300: #b0b8b4;
+    --ink-400: #838b87;
+    --ink-500: #5f6763;
+    --ink-600: #474e4b;
+    --ink-700: #262b29;
+    --ink-800: #171a19;
+    --accent: #c2402f;
+    color-scheme: light;
+  }
+
+  .article-prose :where(p, li, blockquote) {
+    font-family: var(--font-serif);
+    font-size: 10.5pt;
+    line-height: 1.8;
+  }
+
+  .article-prose h2 {
+    margin-top: 1.6em;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .article-prose :where(h2, h3) {
+    break-after: avoid;
+  }
+
+  .article-prose :where(picture, img, pre, table, blockquote, figure) {
+    break-inside: avoid;
+  }
+
+  .article-prose img {
+    width: auto;
+    max-height: 8cm;
+    margin-inline: auto;
+    border-radius: 0;
+  }
+
+  .article-prose pre {
+    white-space: pre-wrap;
+    background: none;
+  }
+
+  .article-prose a {
+    color: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+  }
+
+  .article-prose a[data-print-ref]::after {
+    content: "[" attr(data-print-ref) "]";
+    margin-left: 1px;
+    vertical-align: super;
+    font: 7pt var(--font-mono);
+    color: var(--accent);
+  }
+
+  .print-references {
+    display: block;
+    margin-top: 2.5em;
+    padding-top: 1em;
+    border-top: 0.5pt solid var(--ink-300);
+    break-inside: avoid;
+  }
+
+  .print-references-title {
+    margin: 0;
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--ink-800);
+  }
+
+  .print-references-list {
+    margin: 0.8em 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: print-reference;
+  }
+
+  .print-reference {
+    display: grid;
+    grid-template-columns: 2.4em minmax(0, 1fr);
+    margin: 0 0 0.6em;
+    padding: 0;
+    font-size: 9pt;
+    line-height: 1.5;
+    counter-increment: print-reference;
+  }
+
+  .print-reference::before {
+    content: "[" counter(print-reference) "]";
+    grid-row: span 2;
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+
+  .print-reference-url {
+    font: 8pt var(--font-mono);
+    color: var(--ink-500);
+    overflow-wrap: anywhere;
+  }
+}
+
 .toc-link[aria-current="location"] {
   color: var(--ink-800);
   font-weight: 500;

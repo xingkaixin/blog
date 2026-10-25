@@ -40,6 +40,12 @@ const readingMetrics = estimateReadingMetrics(post.body ?? "");
 const { Content, headings } = await render(post);
 const postMeta = toPostDetail(post, headings);
 const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
+const cssString = (value: string) => JSON.stringify(value).replaceAll("<", "\\3c ");
+const printPageStyle = `@page {
+  @top-left { content: ${cssString(canonicalPostUrl.replace(/^https:\/\//, ""))}; }
+  @top-right { content: ${cssString(postMeta.date)}; }
+  @bottom-left { content: ${cssString(postMeta.title)}; }
+}`;
 const meta = {
   title: postMeta.title,
   description: postMeta.summary,
@@ -57,6 +63,7 @@ const meta = {
 ---
 
 <SiteLayout meta={meta}>
+  <style is:inline set:html={printPageStyle}></style>
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <div
       class:list={[
@@ -96,13 +103,13 @@ const meta = {
 
       <article class="order-3 min-w-0 space-y-8 lg:col-start-1 lg:row-start-2">
         <figure
-          class="w-full max-w-full overflow-hidden rounded-[10px] border border-line"
+          class="w-full max-w-full overflow-hidden rounded-[10px] border border-line print:hidden"
           transition:name={`cover-${postMeta.slug}`}
         >
           <PostCover cover={postMeta.cover} alt={postMeta.coverAlt} priority />
         </figure>
 
-        <div class="border-y border-line py-8 sm:px-2">
+        <div class="border-y border-line py-8 sm:px-2 print:border-0 print:py-0">
           <div class="article-prose">
             <Content />
           </div>
@@ -110,7 +117,7 @@ const meta = {
 
         {
           related.length > 0 && (
-            <nav aria-labelledby="related-posts-heading">
+            <nav aria-labelledby="related-posts-heading" class="print:hidden">
               <h2 id="related-posts-heading" class="font-display text-2xl text-ink-800">
                 继续阅读
               </h2>
@@ -135,7 +142,7 @@ const meta = {
           )
         }
 
-        <div class="relative rounded-[10px] border border-line bg-surface/60 px-5 py-7 sm:px-8">
+        <div class="relative break-inside-avoid rounded-[10px] border border-line bg-surface/60 px-5 py-7 sm:px-8 print:border-0 print:bg-transparent print:px-0">
               <svg
                 aria-hidden="true"
                 class="absolute right-5 top-5 h-7 w-7 text-ink-400"
@@ -206,7 +213,7 @@ const meta = {
 
       {
         postMeta.toc.length > 0 && (
-          <aside class="order-2 lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
+          <aside class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
             <TocNav items={postMeta.toc} />
           </aside>
         )

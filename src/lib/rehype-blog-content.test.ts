@@ -203,6 +203,25 @@ describe("rehype blog content", () => {
     expect(code).toContain('loading="lazy"');
   });
 
+  it("numbers external links once and lists them for print", async () => {
+    const renderer = await createMarkdownProcessor({
+      syntaxHighlight: false,
+      rehypePlugins: [rehypeBlogContent],
+    });
+    const { code } = await renderer.render(
+      "[报告](https://a.example/) 与 [仓库](https://b.example/)，再看[报告](https://a.example/)和[关于](/about/)",
+    );
+
+    expect([...code.matchAll(/data-print-ref="(\d+)"/g)].map((match) => match[1])).toEqual([
+      "1",
+      "2",
+      "1",
+    ]);
+    expect(code).toContain(
+      '<span class="print-reference-text">报告</span><span class="print-reference-url">https://a.example/</span></li><li class="print-reference"><span class="print-reference-text">仓库</span>',
+    );
+  });
+
   it("rejects managed post images that are missing from generated data", () => {
     const image = {
       type: "element",
