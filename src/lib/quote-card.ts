@@ -94,9 +94,52 @@ function truncate(text: string, maxWidth: number, measure: (value: string) => nu
   return characters.join("");
 }
 
-export function textFragmentUrl(pageUrl: string, quote: string): string {
+export type SelectedText = {
+  text: string;
+  from: number;
+  to: number;
+};
+
+// 短于这个长度的单段引文整句匹配，否则只取首尾两小段
+const FRAGMENT_EXACT_MAX = 60;
+const FRAGMENT_EDGE = 16;
+
+function wordBoundaries(text: string): number[] {
+  const segments = new Intl.Segmenter("zh", { granularity: "word" }).segment(text);
+  return [...Array.from(segments, ({ index }) => index), text.length];
+}
+
+function fragmentTerm(value: string): string {
   // 文本片段语法用 - 和 , 分隔参数，引文里的这两个字符必须转义
-  return `${pageUrl}#:~:text=${encodeURIComponent(quote).replaceAll("-", "%2D")}`;
+  return encodeURIComponent(value.replace(/\s+/g, " ").trim()).replaceAll("-", "%2D");
+}
+
+// 浏览器只在词边界上匹配文本片段，也不跨段落匹配同一个词条，
+// 所以选区两端先扩到整词，跨段时改用「开头,结尾」两个词条
+export function textFragmentUrl(pageUrl: string, selected: SelectedText[]): string {
+  const first = selected[0];
+  const last = selected.at(-1);
+  if (!first || !last) {
+    return pageUrl;
+  }
+  const firstBoundaries = wordBoundaries(first.text);
+  const lastBoundaries = wordBoundaries(last.text);
+  const start = firstBoundaries.findLast((boundary) => boundary <= first.from) ?? 0;
+  const end = lastBoundaries.find((boundary) => boundary >= last.to) ?? last.text.length;
+  if (first === last && end - start <= FRAGMENT_EXACT_MAX) {
+    return `${pageUrl}#:~:text=${fragmentTerm(first.text.slice(start, end))}`;
+  }
+  const startLimit = first === last ? end : first.text.length;
+  const startEnd = Math.min(
+    firstBoundaries.find((boundary) => boundary >= start + FRAGMENT_EDGE) ?? startLimit,
+    startLimit,
+  );
+  const endLimit = first === last ? startEnd : 0;
+  const endStart = Math.max(
+    lastBoundaries.findLast((boundary) => boundary <= end - FRAGMENT_EDGE) ?? endLimit,
+    endLimit,
+  );
+  return `${pageUrl}#:~:text=${fragmentTerm(first.text.slice(start, startEnd))},${fragmentTerm(last.text.slice(endStart, end))}`;
 }
 
 export function quoteCitation(
@@ -113,7 +156,7 @@ async function loadImage(src: string): Promise<HTMLImageElement> {
   return image;
 }
 
-export async function renderQuoteCard(card: QuoteCard): Promise<Blob> {
+export async function renderQuoteCard(card: QuoteCard): Promise<HTMLCanvasElement> {
   const meta = `${card.date} · ${card.path}`;
   const [logo] = await Promise.all([
     loadImage("/logo.svg"),
@@ -211,10 +254,5 @@ export async function renderQuoteCard(card: QuoteCard): Promise<Blob> {
     ),
   );
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Quote card export failed"))),
-      "image/png",
-    );
-  });
+  return canvas;
 }
