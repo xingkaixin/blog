@@ -8,8 +8,8 @@ const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 
 const t = homeMessages[localeFromPath(Astro.url.pathname)];
 ---
 
-<about-character>
-  <svg class="scene" viewBox="0 -20 1160 970" role="img" aria-label={t.character}>
+<about-character data-expression="smile">
+  <svg class="scene" viewBox="0 -20 1160 970" role="group" aria-label={t.character}>
     <defs>
       <clipPath id="about-body-outline">
         <path d="M397 224 Q424 216 454 226 L457 255 Q509 258 552 282 L816 282 Q875 279 882 335 L886 417 Q984 420 1013 455 Q1028 477 1019 526 L1003 733 Q1000 759 979 765 L963 769 L955 831 Q946 838 936 831 L924 772 L716 781 L714 797 L694 806 Q696 812 707 821 L719 842 Q747 861 753 886 L753 898 Q723 920 657 901 Q617 888 620 862 L626 836 L637 814 L615 810 L609 781 L241 783 L229 846 Q216 853 203 846 L194 780 Q172 779 157 759 L149 788 Q137 796 128 788 L122 731 Q101 719 99 702 L87 491 Q78 508 69 481 Q54 453 69 424 Q89 392 118 375 L121 322 Q125 279 177 276 L283 274 Q342 257 384 261 L395 249Z" />
@@ -21,39 +21,60 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
     <svg width="1040" height="950" viewBox="0 0 1040 950" aria-hidden="true">
       <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-body-outline)" />
     </svg>
-    <g transform="translate(335 4) scale(.5)" aria-hidden="true">
-      <g data-head>
-        <svg width="440" height="500" viewBox="1050 140 440 500">
-          <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-head-outline)" />
-        </svg>
-        <g data-face>
-          <g fill="#ed9b83" opacity=".38">
-            <ellipse cx="109" cy="353" rx="27" ry="12" />
-            <ellipse cx="286" cy="366" rx="27" ry="12" />
-          </g>
-          <g fill="#403a34">
-            <path d="M91 239 Q114 221 145 240 L144 250 Q115 240 93 250 Q88 247 91 239Z" />
-            <path d="M236 248 Q267 236 291 259 L287 268 Q265 252 239 258Z" />
-          </g>
-          <g data-pupils fill="#302b26">
-            <ellipse cx="125" cy="302" rx="12" ry="17" />
-            <ellipse cx="264" cy="312" rx="12" ry="17" />
-            <g fill="#fff9ed" opacity=".8">
-              <ellipse cx="121" cy="297" rx="3" ry="4" />
-              <ellipse cx="260" cy="307" rx="3" ry="4" />
+    <g transform="translate(335 4) scale(.5)">
+      <g data-head aria-hidden="true">
+        <g data-head-art>
+          <svg width="440" height="500" viewBox="1050 140 440 500">
+            <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-head-outline)" />
+          </svg>
+          <g data-face>
+            <g fill="#ed9b83" opacity=".38">
+              <ellipse cx="109" cy="353" rx="27" ry="12" />
+              <ellipse cx="286" cy="366" rx="27" ry="12" />
             </g>
+            <g fill="#403a34" data-face-expression="smile">
+              <path d="M91 239 Q114 221 145 240 L144 250 Q115 240 93 250 Q88 247 91 239Z" />
+              <path d="M236 248 Q267 236 291 259 L287 268 Q265 252 239 258Z" />
+            </g>
+            <g fill="none" stroke="#403a34" stroke-width="8" stroke-linecap="round">
+              <path data-face-expression="surprised" d="M93 226 Q118 205 145 225 M237 233 Q265 215 291 240" />
+              <path data-face-expression="ouch" d="M94 246 Q118 250 143 238 M238 246 Q265 263 289 254" />
+            </g>
+            <g data-pupils fill="#302b26">
+              <g data-face-expression="smile">
+                <ellipse cx="125" cy="302" rx="12" ry="17" />
+                <ellipse cx="264" cy="312" rx="12" ry="17" />
+                <g fill="#fff9ed" opacity=".8">
+                  <ellipse cx="121" cy="297" rx="3" ry="4" />
+                  <ellipse cx="260" cy="307" rx="3" ry="4" />
+                </g>
+              </g>
+              <g data-face-expression="surprised">
+                <ellipse cx="125" cy="302" rx="13" ry="23" />
+                <ellipse cx="264" cy="312" rx="13" ry="23" />
+              </g>
+              <path data-face-expression="ouch" d="M108 291 L133 303 L109 315 M280 302 L255 313 L279 326" fill="none" stroke="#302b26" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <path d="M196 315 Q187 344 190 351 Q199 359 207 352" fill="#edb194" stroke="#d99379" stroke-width="2" stroke-linecap="round" />
+            <g fill="none" stroke="#393630" stroke-width="4.5" stroke-linecap="round">
+              <ellipse cx="125" cy="302" rx="52" ry="55" transform="rotate(-5 125 302)" />
+              <ellipse cx="264" cy="312" rx="53" ry="55" transform="rotate(7 264 312)" />
+              <path d="M177 306 Q194 296 211 310 M73 298 L52 286 M317 314 L337 307" />
+            </g>
+            <g data-face-expression="smile">
+              <path d="M153 382 Q191 400 237 389 Q226 431 193 427 Q164 424 153 382Z" fill="#49352c" stroke="#40352d" stroke-width="3" stroke-linejoin="round" />
+              <path d="M158 386 Q194 400 232 392 L226 403 Q190 408 164 398Z" fill="#fff8e9" />
+              <path d="M176 421 Q193 405 213 422 Q194 429 176 421Z" fill="#e79c87" />
+            </g>
+            <ellipse data-face-expression="surprised" cx="195" cy="405" rx="22" ry="29" fill="#49352c" stroke="#40352d" stroke-width="3" />
+            <path data-face-expression="ouch" d="M160 405 Q174 383 185 405 Q198 425 211 405 Q221 388 234 410" fill="none" stroke="#49352c" stroke-width="7" stroke-linecap="round" />
           </g>
-          <path d="M196 315 Q187 344 190 351 Q199 359 207 352" fill="#edb194" stroke="#d99379" stroke-width="2" stroke-linecap="round" />
-          <g fill="none" stroke="#393630" stroke-width="4.5" stroke-linecap="round">
-            <ellipse cx="125" cy="302" rx="52" ry="55" transform="rotate(-5 125 302)" />
-            <ellipse cx="264" cy="312" rx="53" ry="55" transform="rotate(7 264 312)" />
-            <path d="M177 306 Q194 296 211 310 M73 298 L52 286 M317 314 L337 307" />
-          </g>
-          <path d="M153 382 Q191 400 237 389 Q226 431 193 427 Q164 424 153 382Z" fill="#49352c" stroke="#40352d" stroke-width="3" stroke-linejoin="round" />
-          <path d="M158 386 Q194 400 232 392 L226 403 Q190 408 164 398Z" fill="#fff8e9" />
-          <path d="M176 421 Q193 405 213 422 Q194 429 176 421Z" fill="#e79c87" />
         </g>
+        <foreignObject class="head-canvas" x="-140" y="-140" width="720" height="780">
+          <canvas aria-hidden="true"></canvas>
+        </foreignObject>
       </g>
+      <rect data-head-hit x="5" y="0" width="430" height="480" rx="100" fill="transparent" role="button" tabindex="0" aria-label={t.characterAction} />
     </g>
   </svg>
 </about-character>
@@ -63,9 +84,25 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
   .scene { display: block; width: 100%; height: auto; overflow: visible; }
   [data-head] { transform-origin: 185px 475px; }
   [data-face] { transform-origin: 195px 320px; }
+  .head-canvas { opacity: 0; pointer-events: none; overflow: visible; }
+  .head-canvas canvas { display: block; width: 100%; height: 100%; }
+  about-character[data-elastic] .head-canvas { opacity: 1; }
+  about-character[data-elastic] [data-head-art] { opacity: 0; }
+  [data-head-hit] { pointer-events: all; touch-action: pan-y pinch-zoom; }
+  [data-head-hit]:focus-visible { outline: none; stroke: var(--accent); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+  [data-face-expression] { display: none; }
+  about-character[data-expression="smile"] [data-face-expression="smile"],
+  about-character[data-expression="surprised"] [data-face-expression="surprised"],
+  about-character[data-expression="ouch"] [data-face-expression="ouch"] { display: inline; }
+  @media (hover: hover) and (pointer: fine) {
+    [data-head-hit] { cursor: grab; }
+    about-character[data-dragging] [data-head-hit] { cursor: grabbing; }
+  }
 </style>
 
 <script>
+  import { createElasticHead, type ElasticHead, type HeadExpression } from "@/lib/elastic-head";
+
   class AboutCharacter extends HTMLElement {
     private cleanup?: () => void;
 
@@ -75,7 +112,12 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       const face = this.querySelector<SVGGElement>("[data-face]")!;
       const pupils = this.querySelector<SVGGElement>("[data-pupils]")!;
       const scene = this.querySelector<SVGSVGElement>(".scene")!;
-      const media = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+      const art = this.querySelector<SVGGElement>("[data-head-art]")!;
+      const outline = this.querySelector<SVGClipPathElement>("#about-head-outline")!;
+      const canvas = this.querySelector("canvas")!;
+      const hit = this.querySelector<SVGRectElement>("[data-head-hit]")!;
+      const sprite = this.closest<HTMLElement>("[data-sprite]");
+      const media = matchMedia("(min-width: 48rem) and (hover: hover) and (pointer: fine)");
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const events = new AbortController();
       const options = { signal: events.signal, passive: true };
@@ -87,10 +129,80 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       let targetY = 0;
       let frame = 0;
       let previousTime = 0;
+      let renderer: ElasticHead | null = null;
+      let preparation: Promise<void> | undefined;
+      let dragging: number | null = null;
+      let elastic = false;
+      let expression: HeadExpression = "smile";
+      let reactionTimer = 0;
       // 唱片播放时随拍点头：一、三拍重，二、四拍轻
       let nod = 0;
       let nodAt = 0;
       let nodStrength = 0;
+
+      const shown = () => visible && !document.hidden && Number(sprite?.style.opacity || "1") > 0.05;
+      const canAnimate = () => shown() && media.matches && !reducedMotion.matches;
+
+      const setExpression = (value: HeadExpression) => {
+        expression = value;
+        this.dataset.expression = value;
+      };
+      const setElastic = (value: boolean) => {
+        elastic = value;
+        this.toggleAttribute("data-elastic", value);
+      };
+      const resizeRenderer = () => {
+        const matrix = head.getScreenCTM();
+        if (matrix) {
+          renderer?.resize(Math.hypot(matrix.a, matrix.b) * Math.min(devicePixelRatio, 2));
+        }
+      };
+      const prepare = () => {
+        if (preparation || !canAnimate()) {
+          return;
+        }
+        preparation = createElasticHead(canvas, art, outline).then((result) => {
+          if (events.signal.aborted) {
+            result?.dispose();
+            return;
+          }
+          renderer = result;
+          resizeRenderer();
+        });
+      };
+
+      function wake() {
+        if (!frame) {
+          previousTime = performance.now();
+          frame = requestAnimationFrame(animate);
+        }
+      }
+
+      function react() {
+        clearTimeout(reactionTimer);
+        setExpression("surprised");
+        reactionTimer = window.setTimeout(() => {
+          setExpression("smile");
+          wake();
+        }, 550);
+      }
+
+      const stopInteraction = () => {
+        clearTimeout(reactionTimer);
+        const pointerId = dragging;
+        dragging = null;
+        this.removeAttribute("data-dragging");
+        if (pointerId !== null && hit.hasPointerCapture(pointerId)) {
+          hit.releasePointerCapture(pointerId);
+        }
+        renderer?.reset();
+        setElastic(false);
+        setExpression("smile");
+      };
+
+      function point(event: PointerEvent) {
+        return new DOMPoint(event.clientX, event.clientY).matrixTransform(head.getScreenCTM()!.inverse());
+      }
 
       function paint() {
         // The painted face already leans right; additional shear exaggerates that asymmetry.
@@ -104,23 +216,32 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
         const elapsed = Math.min(time - previousTime, 64);
         previousTime = time;
         const blend = 1 - Math.exp(-elapsed / 110);
-        x += (targetX - x) * blend;
-        y += (targetY - y) * blend;
+        if (!elastic) {
+          x += (targetX - x) * blend;
+          y += (targetY - y) * blend;
+        }
         nod = nodStrength * Math.exp(-(time - nodAt) / 140);
         if (nod < 0.002) {
           nod = 0;
         }
-        const settled = Math.abs(targetX - x) + Math.abs(targetY - y) < 0.001 && nod === 0;
-        if (settled) {
+        const moving = elastic && renderer ? renderer.draw(elapsed / 1000, expression) : false;
+        if (elastic && dragging === null && !moving && expression === "smile") {
+          setElastic(false);
+        }
+        const settled = elastic || Math.abs(targetX - x) + Math.abs(targetY - y) < 0.001;
+        if (settled && !elastic) {
           x = targetX;
           y = targetY;
         }
         paint();
-        frame = settled ? 0 : requestAnimationFrame(animate);
+        frame = settled && !moving && nod === 0 ? 0 : requestAnimationFrame(animate);
       }
 
       function update() {
-        if (!visible || !media.matches || document.hidden) {
+        if (!shown()) {
+          stopInteraction();
+        }
+        if (!canAnimate()) {
           cancelAnimationFrame(frame);
           frame = 0;
           pointer = undefined;
@@ -128,6 +249,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
           paint();
           return;
         }
+        prepare();
         const bounds = scene.getBoundingClientRect();
         // Use the resting head position so its own movement cannot feed back into the target.
         const centerX = bounds.left + bounds.width * (430 / 1160);
@@ -138,54 +260,120 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
         const distance = Math.max(reach, Math.hypot(dx, dy));
         targetX = dx / distance;
         targetY = dy / distance;
-        if (!frame) {
-          previousTime = performance.now();
-          frame = requestAnimationFrame(animate);
-        }
+        wake();
       }
 
       function reset() {
+        stopInteraction();
         pointer = undefined;
         update();
       }
 
+      hit.addEventListener("pointerdown", (event) => {
+        if (!shown() || dragging !== null || (event.pointerType === "mouse" && event.button !== 0)) {
+          return;
+        }
+        if (!canAnimate() || event.pointerType !== "mouse" || !renderer) {
+          react();
+          return;
+        }
+        event.preventDefault();
+        clearTimeout(reactionTimer);
+        dragging = event.pointerId;
+        this.setAttribute("data-dragging", "");
+        hit.setPointerCapture(event.pointerId);
+        renderer.grab(point(event));
+        nod = nodStrength = 0;
+        setExpression("surprised");
+        setElastic(true);
+        resizeRenderer();
+        wake();
+      }, { signal: events.signal });
+      hit.addEventListener("pointerup", (event) => {
+        if (dragging !== event.pointerId) {
+          return;
+        }
+        dragging = null;
+        this.removeAttribute("data-dragging");
+        hit.releasePointerCapture(event.pointerId);
+        renderer?.release();
+        react();
+        wake();
+      }, options);
+      hit.addEventListener("pointercancel", reset, options);
+      hit.addEventListener("lostpointercapture", () => {
+        if (dragging !== null) {
+          reset();
+        }
+      }, options);
+      hit.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          reset();
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          react();
+        }
+      }, { signal: events.signal });
+      hit.addEventListener("click", (event) => {
+        if (event.detail === 0) {
+          react();
+        }
+      }, options);
+      canvas.addEventListener("webglcontextlost", () => {
+        stopInteraction();
+        renderer = null;
+        update();
+      }, options);
+
       window.addEventListener("pointermove", (event) => {
-        if (event.pointerType !== "mouse" || !visible || !media.matches) {
+        if (event.pointerType !== "mouse" || !canAnimate()) {
           return;
         }
         pointer = { x: event.clientX, y: event.clientY };
+        if (dragging === event.pointerId) {
+          const distance = renderer!.pull(point(event));
+          setExpression(distance > 30 ? "ouch" : "surprised");
+          wake();
+          return;
+        }
         update();
       }, options);
       window.addEventListener("pointerout", (event) => {
-        if (!event.relatedTarget) {
+        if (!event.relatedTarget && dragging === null) {
           reset();
         }
       }, options);
       document.addEventListener("record-beat", (event) => {
-        if (!visible || reducedMotion.matches || document.hidden) {
+        if (!shown() || reducedMotion.matches || elastic) {
           return;
         }
         nodAt = performance.now();
         nodStrength = (event as CustomEvent<number>).detail % 2 === 0 ? 1 : 0.55;
-        if (!frame) {
-          previousTime = nodAt;
-          frame = requestAnimationFrame(animate);
-        }
+        wake();
       }, options);
       window.addEventListener("blur", reset, options);
-      window.addEventListener("scroll", update, options);
-      window.addEventListener("resize", update, options);
+      window.addEventListener("scroll", () => {
+        stopInteraction();
+        update();
+      }, options);
+      window.addEventListener("resize", () => {
+        reset();
+        resizeRenderer();
+      }, options);
       document.addEventListener("visibilitychange", reset, options);
       media.addEventListener("change", reset, options);
+      reducedMotion.addEventListener("change", reset, options);
       const observer = new IntersectionObserver(([entry]) => {
         visible = entry.isIntersecting;
         update();
       });
       observer.observe(this);
       this.cleanup = () => {
+        stopInteraction();
         events.abort();
         observer.disconnect();
         cancelAnimationFrame(frame);
+        renderer?.dispose();
       };
     }
 

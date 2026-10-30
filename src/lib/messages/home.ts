@@ -41,6 +41,7 @@ const zh = {
     text: "片尾之后，到院子里坐一会儿。池子里有七尾锦鲤。",
   },
   character: "卷发、圆眼镜的开心，悠闲地坐在沙发上，目光随着鼠标轻轻转动",
+  characterAction: "拖动脸颊，松手回弹；也可以点击或按回车切换表情",
   contact: {
     labels: { email: "邮箱" } as Partial<Record<string, string>>,
     card: (label: string) => `${label}联系卡片`,
@@ -142,6 +143,8 @@ const en: HomeMessages = {
   },
   character:
     "Kaixin, with curly hair and round glasses, lounging on the sofa, eyes following your cursor",
+  characterAction:
+    "Drag my cheek and release to spring back, or tap or press Enter to change my expression",
   contact: {
     labels: { email: "Email" },
     card: (label) => `${label} contact card`,

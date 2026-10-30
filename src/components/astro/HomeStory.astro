@@ -69,7 +69,7 @@ const deferredSprites = await Promise.all(
   </div>
 
   <div class="cast">
-    <div class="sprite" data-sprite="sofa" aria-hidden="true"><AboutCharacter /></div>
+    <div class="sprite" data-sprite="sofa"><AboutCharacter /></div>
     {deferredSprites.map(({ name, sizes, image }) => (
       <img
         class="sprite"
@@ -477,6 +477,9 @@ const deferredSprites = await Promise.all(
           element.style.setProperty("--xw", `calc(${value[1]}% + ${value[2]}cqh)`);
           element.style.setProperty("--xn", `calc(${value[3]}% + ${value[4]}cqh)`);
           element.style.opacity = String(value[5]);
+          if (element.dataset.sprite === "sofa") {
+            element.inert = value[5] < 0.05;
+          }
           element.style.transform = still ? "" : `translateY(${bob}px) rotate(${moving ? direction * 2 : 0}deg)`;
         }
         masthead.style.opacity = String(1 - smooth(0.12, 0.55, p));
