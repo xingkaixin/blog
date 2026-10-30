@@ -32,6 +32,10 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss(), photoPreviewPlugin(previewDirectory)],
+    build: {
+      // 字体保持独立文件，才能按 unicode-range 按需下载并被预加载；小于 4 KB 的子集默认会被内联进 CSS。
+      assetsInlineLimit: (file) => (file.endsWith(".woff2") ? false : undefined),
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
