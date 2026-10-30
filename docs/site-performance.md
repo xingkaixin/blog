@@ -6,7 +6,7 @@
 
 - `/_astro/` 的构建资源使用内容哈希文件名，由 `public/_headers` 设置一年 `immutable`
   缓存。修改内容必须生成新文件名，不能覆盖同一个 URL。
-- `/cover/`、`/posts/images/`、`/fonts/`、搜索索引和 HTML 不套用这条长期缓存。
+- `/cover/`、`/posts/images/`、搜索索引和 HTML 不套用这条长期缓存。字体也经构建输出到 `/_astro/`。
 - HTML 与 Markdown 通过 `Accept` 协商，Worker 为页面响应添加 `Vary: Accept`。
   `cloudflare.config.ts` 让页面先执行 Worker，图片、字体、JS 等资源直接由 Assets 返回。
   不启用 Worker 整体响应缓存或全站 Cache Everything，避免 HTML 与 Markdown 混用。
@@ -55,13 +55,44 @@ Workers 部署后检查，包括 HTML／Markdown、HEAD、旧文章重定向、4
 
 ## 字体
 
+`src/assets/fonts/` 的字体与 `@font-face` 由 `scripts/subset-fonts.py` 手动生成，构建只打包，
+不处理字体。脚本用本机 Google Chrome 打开 `dist/` 的全部页面，按每段文字的计算样式统计
+各字体实际用到的字符、字重和 OpenType 特性，再用 fontTools 裁剪：
+
+```bash
+bun run build
+uv run scripts/subset-fonts.py
+bun run build
+```
+
+第二次构建打包新字体。脚本输出可复现，重跑后 `git status src/assets/fonts` 没有变化就无需提交。
+
+- 每个字体保留实际用到的字符，加上源字体已有的 Latin-1 与 Latin Extended-A 字符。
+  fontsource 的 latin 子集只含 Ă ı Œ œ 四个 Latin Extended-A 字符，其余字符和中文仍由系统字体显示。
+- 核心文件含 ASCII、弯引号、破折号、省略号、间隔号，以及半数以上页面用到的字符；签名字体只含
+  签名字母和空格。其余字符放进扩展文件，靠 `unicode-range` 按需下载，得意黑的中文单独成 `-cjk` 文件。
+  每页都预加载 Outfit 400 与 JetBrains Mono 的核心文件；Outfit 500 有 58 页不用，不预加载。
+- 只保留默认开启和样式中启用的 OpenType 特性。保留源字体的字形名和 `head` 包围盒，macOS 删掉它们
+  会改变光栅化；保留只影响 Windows 的 `prep`、`gasp`，共约 30 B。
+- 得意黑（保留字体名 Smiley、得意黑）与 Dancing Script（保留字体名 Dancing Script）的子集按 OFL
+  改了字体内部名称，CSS 中的 family 名不变。
+
+以下情况需要重跑：
+
+- 新文章标题、标签或其他得意黑文字出现子集外的汉字，否则这些字会用回退字体显示。新文章最常触发。
+- 页面用到某字体尚未包含的符号，例如 Outfit 正文里的 ™ € −；ASCII 与 Latin-1 已全部保留。
+- 新增字重、`font-variant-*`、`font-feature-settings`、竖排或 `hyphens: auto`，或修改签名 `siteConfig.author`。
+- 升级 `@fontsource/outfit`、`@fontsource/jetbrains-mono`、`cn-fontsource-smiley-sans-oblique-regular`，
+  或替换 `scripts/assets/fonts/dancing-script.ttf`。
+
 中文字体 CSS 使用 `media="print"` 下载，加载完成后切换为 `all`，保留
 `font-display: swap` 与系统回退字体。它不再阻塞首次屏幕渲染。
 `transition:persist` 在 Astro 页面跳转时保留已启用的样式表；禁用 JavaScript 时由
-`noscript` 提供普通样式表。英文正文和等宽字体保持原加载方式。
+`noscript` 提供普通样式表。其余字体的 `@font-face` 随全站样式表加载。
 
 验证时检查浏览器 Resource Timing 的 `renderBlockingStatus`，并检查直接打开文章、
 从首页跳转到文章和禁用 JavaScript 后的标题字体。不要把减少阻塞资源误记为字体字节数减少。
+本机装了得意黑时，浏览器会优先用 `local()`，测量网络字体前先在测试中去掉它。
 
 Cloudflare 产品依据：[Pages 缓存](https://developers.cloudflare.com/pages/configuration/serving-pages/)、
 [Pages Web Analytics](https://developers.cloudflare.com/pages/how-to/web-analytics/)、
