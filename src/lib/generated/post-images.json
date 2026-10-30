@@ -650,6 +650,20 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-01.png": {
+    "webp": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-01.webp",
+    "mobile": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-01-800w.webp",
+    "desktop": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-02.png": {
+    "webp": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-02.webp",
+    "mobile": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-02-800w.webp",
+    "desktop": "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png": {
     "webp": "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.webp",
     "mobile": "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01-800w.webp",
@@ -1321,6 +1335,20 @@
     "desktop": "/posts/images/persona-distillation/persona-distillation-03-1200w.webp",
     "width": 2752,
     "height": 1536
+  },
+  "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-01.png": {
+    "webp": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-01.webp",
+    "mobile": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-01-800w.webp",
+    "desktop": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-01-1200w.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-02.png": {
+    "webp": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-02.webp",
+    "mobile": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-02-800w.webp",
+    "desktop": "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-02-1200w.webp",
+    "width": 1680,
+    "height": 945
   },
   "/posts/images/recursive-self-improvement-evidence/recursive-self-improvement-evidence-01.png": {
     "webp": "/posts/images/recursive-self-improvement-evidence/recursive-self-improvement-evidence-01.webp",

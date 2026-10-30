@@ -745,6 +745,22 @@
         "de36f7e464b460070b4376ff2c4cb659b54af5af124910fea55dd6fb8cba4d71"
       ]
     },
+    "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-01.png": {
+      "fingerprint": "1469a0cc972a4a417bd8c7ead9016b3074dfc0ab84491c9125f6b02b0db77027",
+      "outputFingerprints": [
+        "e8078fbbc3906d0660ad48bc941ae4a398c8ad4ea7d1f5f9b7e6ec9da1f1b3dc",
+        "5a91c63322cd986435e9be8c717d745f8eb50d3dfe3705ef914bc0bbd9482054",
+        "9db94b4e78c05c7d9e9301f09d8aebb2987116834dbeeda91e5860b7040b64e7"
+      ]
+    },
+    "/posts/images/ai-slop-quality-metrics/ai-slop-quality-metrics-02.png": {
+      "fingerprint": "6c464379c096e3b70e361300c58ff26e08a1e75ffce7dfadc673699c1f5bd0b7",
+      "outputFingerprints": [
+        "d02df9f3d7d7f3478e88d78454e37c47c3508619965665303c2c49e36322a817",
+        "6732d21e92dcb7ab3784020c13efc4677aaa7004dad383216614f1acc565760b",
+        "762ea090584b22a3a3826f3b5d2776d07c9699abc113e2b07b8e5e2dac9f1828"
+      ]
+    },
     "/posts/images/ai-tests-closed-loop/ai-tests-closed-loop-01.png": {
       "fingerprint": "5ec7e7b0ce543d86fefe5a036658db5f23605ed4d4b6ec8df670207fb4a84f9e",
       "outputFingerprints": [
@@ -1511,6 +1527,22 @@
         "a28ec0d5cfa3ead2436db31bf489f37cd170018b03ef4fa66fe371d7d96acf4b",
         "131836dc06c37408fec37439d438603cd48d7649253669de41a51a031fe2766b",
         "ca01c0fb74c68e8ce15a830f5c34494a8ea802bb0b164e05e700ccefa1783aeb"
+      ]
+    },
+    "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-01.png": {
+      "fingerprint": "7789083e5184b9810cdf9d4ad39ecc0c10842d6474d81e0f94b041b228b1f184",
+      "outputFingerprints": [
+        "da4bfbb415d59f54dfa2b2ed930b71846fa7b2f5133dde71950d4a74d605a6d1",
+        "8f43b7886b45b48dc8d5cfc46b294f9343e2b030c3d72c98c87f41d357cee95b",
+        "05d1664b4df8862ad39138377e51670b8ee6cc3ba17819cdaab41966a172d201"
+      ]
+    },
+    "/posts/images/personal-agent-after-subsidies/personal-agent-after-subsidies-02.png": {
+      "fingerprint": "911c6017264486d1ecd05051ed596a2cedc2b7c3c75e7f27ccf0a0460bb3f1cb",
+      "outputFingerprints": [
+        "adac403a74164618946bbff973595d7d83392997a1709a1ed387aa1896f7dd26",
+        "c6bbcfdf348801309030894bb6b3da75b108d6874ca5defcc3c5a044b8d79ad1",
+        "575af65a50099687dba700db6582fa83fcba723584558ec98d070c1b0924e8c4"
       ]
     },
     "/posts/images/recursive-self-improvement-evidence/recursive-self-improvement-evidence-01.png": {

@@ -1,5 +1,29 @@
 [
   {
+    "slug": "personal-agent-after-subsidies",
+    "title": "Personal Agent：补贴之后，用户为什么付钱",
+    "date": "2026-10-28",
+    "summary": "Personal Agent 被比作早期滴滴，但它没有打车的双边网络效应，用户越多账单越大；云厂商的创业额度也不覆盖第三方模型。判断机会，要看补贴撤掉后，能否以可承受的成本稳定完成一件用户愿意付钱的事。",
+    "tags": [
+      "Agent",
+      "AI",
+      "产品思考",
+      "创业"
+    ]
+  },
+  {
+    "slug": "ai-slop-quality-metrics",
+    "title": "AI 代码质量，能靠一个分数衡量吗",
+    "date": "2026-10-26",
+    "summary": "AI Slop 可以用行数、重复和复杂度寻找线索，但总分不能替代维护判断。把指标用于定位问题，再观察代码面对后续需求的修改负担，才能避免为了好看的分数制造另一种烂代码。",
+    "tags": [
+      "AI编程",
+      "代码质量",
+      "代码审查",
+      "软件工程"
+    ]
+  },
+  {
     "slug": "recursive-self-improvement-evidence",
     "title": "Agent 自我改进，为何还不能证明智能爆炸",
     "date": "2026-10-23",

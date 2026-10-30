@@ -293,6 +293,13 @@
     "width": 1536,
     "height": 864
   },
+  "ai-slop-quality-metrics.png": {
+    "mobile": "/cover/ai-slop-quality-metrics-400.webp",
+    "desktop": "/cover/ai-slop-quality-metrics-800.webp",
+    "full": "/cover/ai-slop-quality-metrics.webp",
+    "width": 1880,
+    "height": 800
+  },
   "ai-tests-closed-loop.png": {
     "mobile": "/cover/ai-tests-closed-loop-400.webp",
     "desktop": "/cover/ai-tests-closed-loop-800.webp",
@@ -565,6 +572,13 @@
     "full": "/cover/persona-distillation.webp",
     "width": 1536,
     "height": 864
+  },
+  "personal-agent-after-subsidies.png": {
+    "mobile": "/cover/personal-agent-after-subsidies-400.webp",
+    "desktop": "/cover/personal-agent-after-subsidies-800.webp",
+    "full": "/cover/personal-agent-after-subsidies.webp",
+    "width": 1927,
+    "height": 820
   },
   "recursive-self-improvement-evidence.png": {
     "mobile": "/cover/recursive-self-improvement-evidence-400.webp",

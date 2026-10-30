@@ -337,6 +337,14 @@
         "607ef30095d3095fc0c8875685bad21aaea33048b9128a9333e9c48653e23c94"
       ]
     },
+    "ai-slop-quality-metrics.png": {
+      "fingerprint": "46bcb67759d54ff8f7e419e1053dc28dd58531a372c8fe9a334df21d892c9d56",
+      "outputFingerprints": [
+        "f1107b1aefd3568c06bf497b14a6557a566cf8edd61e59927dfdcdff2734b2c2",
+        "bca48a0d8bd4c49270f4c44751aafd93f50da20dc364faef557a84ecec21ecbc",
+        "486c6de868f3ded5dddeb2129274f71983d6913e8adbde7ee5e39a8d9bb22e7d"
+      ]
+    },
     "ai-tests-closed-loop.png": {
       "fingerprint": "c166c32261d2a36ec6e96d8e177a6c69be21f974fab97f8a68439f7844626974",
       "outputFingerprints": [
@@ -647,6 +655,14 @@
         "d302c0c916dd6b6ec4fea7a4bbff695895bf99c902e0f6f5d3627461b8f711bd",
         "c0f5037878595d297041cd3bd1bf100ce22e765ac6056d801dff1fba86d08990",
         "d71a47dcbe7c62c7968f6a06365e5bc59451288efc9edf217137c6b62daea19a"
+      ]
+    },
+    "personal-agent-after-subsidies.png": {
+      "fingerprint": "466ff746846f39610ae9099265e2bf0e0b0a8b42419863d1f9eab1345873eb3b",
+      "outputFingerprints": [
+        "1925e2cef69ab0e83990912034122d0e38ea3220605a847bf1ea335d938c3ac4",
+        "fe9a63dc23220a0e35d4baf9cb785fc9a650db7bf2de0d5a637e465ce31d5ffc",
+        "1b3d82135f19c9545ffc1a13aff35081040c9541fde8ca1b3ee727e3c802f13d"
       ]
     },
     "recursive-self-improvement-evidence.png": {
