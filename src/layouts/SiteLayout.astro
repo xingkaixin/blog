@@ -1,8 +1,7 @@
 ---
-import jetBrainsMono400Url from "@fontsource/jetbrains-mono/latin-400.css?url";
-import outfit400Url from "@fontsource/outfit/latin-400.css?url";
-import outfit500Url from "@fontsource/outfit/latin-500.css?url";
-import smileyFontUrl from "cn-fontsource-smiley-sans-oblique-regular/font.css?url";
+import jetBrainsMono400CoreUrl from "@/assets/fonts/jetbrains-mono-400-core.woff2?url";
+import outfit400CoreUrl from "@/assets/fonts/outfit-400-core.woff2?url";
+import smileyFontUrl from "@/assets/fonts/smiley-sans.css?url";
 import { ClientRouter } from "astro:transitions";
 import SceneFooter from "@/components/astro/SceneFooter.astro";
 import ReadingProgress from "@/components/astro/ReadingProgress.astro";
@@ -35,6 +34,7 @@ import {
   normalizeSitePath,
 } from "@/lib/site-navigation";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+import "@/assets/fonts/fonts.css";
 import "../index.css";
 
 type Props = {
@@ -59,7 +59,8 @@ const switchPath = translatedPath(Astro.url.pathname, switchLocale);
 const image = pageImage(meta, locale);
 const title = pageTitle(meta, locale);
 const themeToggleEvent = THEME_TOGGLE_EVENT;
-const fontUrls = [outfit400Url, outfit500Url, jetBrainsMono400Url];
+// 只预加载每页首屏都会用到的核心字体
+const preloadFontUrls = [outfit400CoreUrl, jetBrainsMono400CoreUrl];
 const navItems = desktopNavigation(locale);
 const pageTransition = {
   forwards: {
@@ -203,7 +204,9 @@ const pageTransition = {
     <meta name="twitter:description" content={meta.description} />
     <meta name="twitter:image" content={image} />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    {fontUrls.map((href) => <link rel="stylesheet" href={href} />)}
+    {preloadFontUrls.map((href) => (
+      <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+    ))}
     <!-- 先用回退字体显示文字，中文字体 CSS 下载完成后再参与屏幕渲染。 -->
     <link
       rel="stylesheet"

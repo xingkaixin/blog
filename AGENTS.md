@@ -36,6 +36,10 @@ draft: true # 可选，草稿不发布
 是生成产物。不要直接编辑；修改母版或生成逻辑后运行对应生成命令，并提交结果。
 封面与插图数据通过 `src/lib/covers.ts`、`src/lib/post-images.ts` 读取。
 
+`src/assets/fonts/` 也是生成产物，但不在构建中生成：由 `uv run scripts/subset-fonts.py`
+按 `dist/` 实际用字手动裁剪。新文章标题出现新汉字等情况需要重跑，见
+`docs/site-performance.md` 的字体一节。
+
 ## 双语页面
 
 只有首页、工具箱、照片墙和 RSS 页有英文版。新增双语页面要同步三处：

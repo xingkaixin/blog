@@ -17,6 +17,7 @@
     "content/",
     "src/lib/covers.ts",
     "src/lib/post-images.ts",
+    "src/assets/fonts/",
     ".claude/"
   ]
 }

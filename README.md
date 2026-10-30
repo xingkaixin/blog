@@ -78,6 +78,7 @@ bun run format:check  # 仅检查格式
 bun run photos:publish -- <照片或目录...>  # 发布照片到 R2
 bun run photos:delete -- <照片或目录...> --confirm  # 从 R2 移除照片
 bun run photos:gc -- --confirm  # 回收超过缓存宽限期的照片对象
+uv run scripts/subset-fonts.py  # 按 dist/ 实际用字重新裁剪网页字体（先 build）
 ```
 
 照片存储、CORS、本地预览与发布参数见

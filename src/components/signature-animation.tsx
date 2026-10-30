@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { TegakiRenderer, type TegakiRendererHandle } from "tegaki/react";
+import fontUrl from "@/assets/fonts/dancing-script-400-core.woff2?url";
 import glyphData from "@/lib/generated/dancing-script-glyph-data.json";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -8,8 +9,8 @@ const dancingScriptBundle = {
   version: 0,
   family: "Dancing Script",
   lineCap: "round" as const,
-  fontUrl: "/fonts/dancing-script.ttf",
-  fontFaceCSS: `@font-face { font-family: 'Dancing Script'; src: url(/fonts/dancing-script.ttf); }`,
+  fontUrl,
+  fontFaceCSS: `@font-face { font-family: 'Dancing Script'; src: url(${fontUrl}); }`,
   unitsPerEm: 1000,
   ascender: 920,
   descender: -280,
