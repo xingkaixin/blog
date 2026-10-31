@@ -54,7 +54,7 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
           aria-pressed={value === selected ? "true" : "false"}
           class={cn(
             layout === "mobile"
-              ? "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white"
+              ? "shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white pointer-coarse:min-h-9"
               : showCounts
                 ? "flex w-full items-center justify-between rounded-[6px] px-2 py-1.5 text-[13px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 aria-pressed:bg-ink-100 aria-pressed:font-medium aria-pressed:text-ink-800"
                 : "rounded-[5px] border border-line bg-surface px-1.5 py-1 font-mono text-[10px] tracking-[0.03em] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-white",

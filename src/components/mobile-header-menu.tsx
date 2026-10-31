@@ -88,7 +88,7 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => (open ? closeMenu() : setOpen(true))}
-        className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[8px] border border-line bg-surface text-ink-600 transition-[transform,background-color] hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.96]"
+        className="relative inline-flex h-[34px] w-[34px] items-center justify-center rounded-[8px] border border-line bg-surface text-ink-600 transition-[transform,background-color] before:absolute before:-inset-[5px] hover:bg-ink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 active:scale-[0.96]"
       >
         <ListIcon aria-hidden="true" className="h-4 w-4" />
       </button>

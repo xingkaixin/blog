@@ -508,8 +508,8 @@ function YearActivity({
       </h2>
       <div className="mt-7 overflow-x-auto pb-2">
         <div
-          className="grid min-w-max gap-3"
-          style={{ gridTemplateColumns: `repeat(${years.length}, minmax(96px, 1fr))` }}
+          className="grid min-w-max grid-cols-[repeat(var(--years),minmax(96px,1fr))] gap-3 pointer-coarse:grid-cols-[repeat(var(--years),minmax(168px,1fr))]"
+          style={{ "--years": years.length } as CSSProperties}
         >
           {years.map((year) => (
             <div key={year.year} className="flex flex-col gap-2.5">
@@ -522,14 +522,18 @@ function YearActivity({
                       onClick={() => onOpenMonth(month.month)}
                       aria-label={t.monthCell(formatCaptureMonth(month.month, locale), month.count)}
                       title={`${formatMonth(month.month)} · ${t.photos(month.count)}`}
-                      className={cn(
-                        "flex-1 rounded-t-[1px] transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
-                        month.count * 2 >= peak.count ? "bg-accent" : "bg-ink-400",
-                      )}
-                      style={{
-                        height: `${Math.min(MAX_BAR_HEIGHT, Math.round(Math.sqrt(month.count) * 10))}px`,
-                      }}
-                    />
+                      className="group flex h-full flex-1 items-end focus-visible:outline-none"
+                    >
+                      <span
+                        className={cn(
+                          "w-full rounded-t-[1px] transition-colors group-hover:bg-accent group-focus-visible:bg-accent",
+                          month.count * 2 >= peak.count ? "bg-accent" : "bg-ink-400",
+                        )}
+                        style={{
+                          height: `${Math.min(MAX_BAR_HEIGHT, Math.round(Math.sqrt(month.count) * 10))}px`,
+                        }}
+                      />
+                    </button>
                   ) : (
                     <span
                       key={month.month}

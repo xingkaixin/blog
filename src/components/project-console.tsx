@@ -162,7 +162,7 @@ export function ProjectConsole({ projects, locale }: ProjectConsoleProps) {
                 type="button"
                 aria-pressed={activeFilter === filter}
                 onClick={() => setActiveFilter(filter)}
-                className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper"
+                className="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper pointer-coarse:min-h-9"
               >
                 {t.filters[filter]}
               </button>
