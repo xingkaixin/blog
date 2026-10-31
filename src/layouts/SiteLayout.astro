@@ -47,6 +47,7 @@ type Props = {
 const { meta, noindex = false, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const locale = localeFromPath(Astro.url.pathname);
+const darkroom = isSiteRouteActive(currentPath, normalizeSitePath(localizedHref("/photos/", locale)));
 const copy = siteCopy[locale];
 const t = chromeMessages[locale];
 const alternates = locales.flatMap((target) => {
@@ -95,7 +96,7 @@ const pageTransition = {
 ---
 
 <!doctype html>
-<html lang={htmlLang[locale]} transition:name="root" transition:animate="none">
+<html lang={htmlLang[locale]} data-darkroom={darkroom ? "" : undefined} transition:name="root" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
@@ -118,7 +119,7 @@ const pageTransition = {
       (function () {
         var storageKey = "site-theme";
         var colorScheme = matchMedia("(prefers-color-scheme: dark)");
-        var themeColors = { light: "#f8faf9", dark: "#131715" };
+        var themeColors = { light: "#f8faf9", dark: "#131715", darkroom: "#1b1b19" };
 
         function readStoredTheme() {
           try {
@@ -143,7 +144,8 @@ const pageTransition = {
           document.documentElement.dataset.theme = theme;
           var themeColor = document.querySelector('meta[name="theme-color"]');
           if (themeColor) {
-            themeColor.setAttribute("content", themeColors[theme]);
+            var darkroom = document.documentElement.hasAttribute("data-darkroom");
+            themeColor.setAttribute("content", themeColors[darkroom ? "darkroom" : theme]);
           }
         }
 

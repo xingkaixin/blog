@@ -150,6 +150,12 @@ body {
   background: var(--bg);
   color: var(--ink-800);
 }
+/* 手机横屏时 Safari 在刘海两侧留白，留白取根背景色，页眉同色才没有接缝 */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  [data-site-header] {
+    background: var(--bg);
+  }
+}
 /* iOS 聚焦字号小于 16px 的输入框时会放大页面，失焦后也不恢复 */
 @media (pointer: coarse) {
   input,
