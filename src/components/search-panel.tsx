@@ -1,7 +1,16 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 import { localeFromLang } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
@@ -24,6 +33,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const mountedRef = useRef(true);
   const itemRefs = useRef(new Map<string, HTMLElement>());
+  const keyboardInset = useKeyboardInset(open);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -116,7 +126,8 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
       <DialogContent
         title={t.commandPalette}
         description={t.search.description}
-        className="fixed bottom-0 left-0 top-auto flex max-h-[82dvh] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
+        style={{ "--keyboard-inset": `${keyboardInset}px` } as CSSProperties}
+        className="fixed bottom-(--keyboard-inset) left-0 top-auto flex max-h-[min(82dvh,calc(100dvh-var(--keyboard-inset)-3rem))] w-full max-w-none translate-x-0 translate-y-0 flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface p-0 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:bottom-auto sm:left-1/2 sm:top-[16dvh] sm:w-[min(620px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
       >
         <div className="flex shrink-0 justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
           <span className="h-1 w-9 rounded-full bg-ink-200" />
