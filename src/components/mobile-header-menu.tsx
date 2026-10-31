@@ -126,7 +126,7 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
           <button type="button" onClick={toggleTheme} className={menuItem}>
             <MoonStarsIcon aria-hidden="true" className="h-4 w-4" />
             {t.flipWorld}
-            <span className="ml-auto font-mono text-[10px] text-ink-400">
+            <span className="ml-auto font-mono text-[10px] text-ink-400 pointer-coarse:hidden">
               {siteShortcuts.theme.hint}
             </span>
           </button>

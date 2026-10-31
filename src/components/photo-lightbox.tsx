@@ -314,8 +314,8 @@ export function PhotoLightbox({
             </span>
           ) : (
             <>
-              <span className="sm:hidden">{t.swipeHint}</span>
-              <span className="hidden sm:inline">{t.keyHint}</span>
+              <span className="hidden pointer-coarse:inline">{t.swipeHint}</span>
+              <span className="pointer-coarse:hidden">{t.keyHint}</span>
             </>
           )}
         </footer>

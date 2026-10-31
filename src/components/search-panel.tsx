@@ -207,7 +207,12 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                           {item.glyph}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-sm">{item.title}</span>
-                        <span className="shrink-0 font-mono text-[10px] text-ink-400">
+                        <span
+                          className={cn(
+                            "shrink-0 font-mono text-[10px] text-ink-400",
+                            item.kind === "theme" && "pointer-coarse:hidden",
+                          )}
+                        >
                           {item.hint}
                         </span>
                       </>
@@ -281,7 +286,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
           ) : null}
         </div>
 
-        <div className="hidden h-10 shrink-0 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:flex">
+        <div className="hidden h-10 shrink-0 items-center gap-5 border-t border-line bg-ink-50 px-4 font-mono text-[10px] text-ink-400 sm:pointer-fine:flex">
           <span>⏎ {t.search.open}</span>
           <span>↑↓ {t.search.move}</span>
           <span>
