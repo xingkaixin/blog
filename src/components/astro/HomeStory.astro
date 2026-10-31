@@ -167,7 +167,11 @@ const deferredSprites = await Promise.all(
   home-story {
     /* 站点页眉 60px 加 1px 底边；脚本会按实际高度覆盖 */
     --stage-top: 61px;
-    --stage-h: calc(100dvh - var(--stage-top));
+    /* 舞台按工具栏收起时的视口定高，工具栏伸缩时不重排；贴底的角色再抬高工具栏的高度 */
+    --stage-h: calc(100lvh - var(--stage-top));
+    --toolbar-h: calc(100lvh - 100svh);
+    --masthead-top: calc(var(--stage-h) * .13);
+    --masthead-size: clamp(56px, min(13.2vw, 24svh), 190px);
     --gutter: clamp(20px, 4vw, 56px);
     position: relative;
     display: block;
@@ -196,10 +200,10 @@ const deferredSprites = await Promise.all(
   :global([data-theme="dark"]) .wall-art { opacity: calc(.22 * var(--art-fade, 1)); }
   .masthead {
     position: absolute;
-    top: 13cqh;
+    top: var(--masthead-top);
     left: var(--gutter);
     margin: 0;
-    font-size: clamp(56px, 13.2vw, 190px);
+    font-size: var(--masthead-size);
     line-height: 1.2;
     white-space: nowrap;
     color: var(--ink-800);
@@ -219,10 +223,10 @@ const deferredSprites = await Promise.all(
   .sprite {
     position: absolute;
     left: var(--xw);
-    bottom: var(--bw);
+    bottom: calc(var(--bw) + var(--toolbar-h));
     height: var(--hw);
     width: auto;
-    translate: -50% 0;
+    translate: -50% var(--sprite-drop, 0px);
     transform-origin: 50% 100%;
     will-change: transform, opacity;
   }
@@ -308,15 +312,21 @@ const deferredSprites = await Promise.all(
   home-story:not([data-ready]) .story-night { background: #0a0d0c; }
 
   @media (max-width: 47.999rem) {
-    .sprite { left: var(--xn); bottom: var(--bn); height: var(--hn); }
-    .scene { padding: 48px 20px 34dvh; }
+    home-story { --masthead-top: 52px; }
+    .sprite { left: var(--xn); bottom: calc(var(--bn) + var(--toolbar-h)); height: var(--hn); }
+    .scene { padding: 48px 20px 34svh; }
     .hello-copy, .credits-copy { width: 100%; margin-left: 0; }
     .wall-art, .rail, .cue, .intro-extra, .bubble::before { display: none; }
     .season-chip { top: 12px; right: 12px; }
     .pond-water { height: calc(var(--stage-h) * .42); }
   }
 
-  .room { padding-top: calc(var(--stage-h) * .13 + clamp(56px, 13.2vw, 190px) * 1.2 + 16px); }
+  /* 手机横屏时页面两侧的留白取根背景色，地板同色才没有接缝 */
+  @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+    .floor, :global([data-theme="dark"]) .floor { background: var(--bg); }
+  }
+
+  .room { padding-top: calc(var(--masthead-top) + var(--masthead-size) * 1.2 + 16px); }
   .pond { padding-bottom: 0; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -416,6 +426,7 @@ const deferredSprites = await Promise.all(
         element,
         sprite: sprites[element.dataset.sprite!],
       }));
+      const sofa = cast.find(({ element }) => element.dataset.sprite === "sofa")!.element;
       const masthead = this.querySelector<HTMLElement>("[data-story-masthead]")!;
       const art = this.querySelector<HTMLElement>("[data-story-art]")!;
       const night = this.querySelector<HTMLElement>("[data-story-night]")!;
@@ -425,6 +436,7 @@ const deferredSprites = await Promise.all(
       const header = document.querySelector<HTMLElement>("[data-site-header]");
       let deferred = [...this.querySelectorAll<HTMLImageElement>("img[data-srcset]")];
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      const narrowScreen = matchMedia("(max-width: 47.999rem)");
       const events = new AbortController();
       // 开发时用 ?season=winter 预览其他季节
       const previewSeason = import.meta.env.DEV ? new URLSearchParams(location.search).get("season") : null;
@@ -441,6 +453,7 @@ const deferredSprites = await Promise.all(
       let nightAmount = 0;
       let stageTop = 0;
       let tops: number[] = [];
+      let sofaDrop = 0;
       let active = -1;
       let frame = 0;
 
@@ -448,6 +461,9 @@ const deferredSprites = await Promise.all(
         stageTop = header?.offsetHeight ?? 0;
         this.style.setProperty("--stage-top", `${stageTop}px`);
         tops = scenes.map((scene) => scene.getBoundingClientRect().top + scrollY - stageTop);
+        // 手机首屏放不下文案和沙发时，沙发先沉到文案下方，随文案滚走再升起
+        const copyBottom = copies[0].getBoundingClientRect().bottom + scrollY;
+        sofaDrop = narrowScreen.matches ? Math.max(0, copyBottom + 12 - stageTop - sofa.offsetTop) : 0;
       };
 
       const progress = () => {
@@ -482,8 +498,14 @@ const deferredSprites = await Promise.all(
           }
           element.style.transform = still ? "" : `translateY(${bob}px) rotate(${moving ? direction * 2 : 0}deg)`;
         }
+        this.style.setProperty("--sprite-drop", `${Math.max(0, sofaDrop - scrollY)}px`);
         masthead.style.opacity = String(1 - smooth(0.12, 0.55, p));
-        masthead.style.transform = still ? "" : `translateY(${-Math.min(p, 1) * 40}cqh)`;
+        // 手机上文案比舞台高，页名要跟文案同速离开，否则会被滚上来的文案压住
+        if (narrowScreen.matches) {
+          masthead.style.transform = `translateY(${-Math.max(0, scrollY)}px)`;
+        } else {
+          masthead.style.transform = still ? "" : `translateY(${-Math.min(p, 1) * 40}cqh)`;
+        }
         art.style.setProperty("--art-fade", String(1 - smooth(0.2, 0.7, p)));
         nightAmount = smooth(1.3, 1.75, p);
         night.style.opacity = String(nightAmount);

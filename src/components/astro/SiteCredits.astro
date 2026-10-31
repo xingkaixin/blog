@@ -75,7 +75,7 @@ const sections = [
 </site-credits>
 
 <style>
-  site-credits { --credits-height: 52dvh; display: block; }
+  site-credits { --credits-height: 52svh; display: block; }
   header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .play-toggle { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink-500); cursor: pointer; }
   .play-toggle svg { width: 14px; height: 14px; fill: currentColor; }
@@ -99,7 +99,7 @@ const sections = [
   dt { font-size: 11px; color: var(--ink-400); line-height: 1.6; text-align: right; overflow-wrap: anywhere; }
   dd { font-size: 15px; line-height: 1.6; color: var(--ink-800); text-align: left; overflow-wrap: anywhere; }
   @keyframes credits-roll { to { transform: translateY(-50%); } }
-  @media (max-width: 47.999rem) { site-credits { --credits-height: 40dvh; } }
+  @media (max-width: 47.999rem) { site-credits { --credits-height: 40svh; } }
   @media (prefers-reduced-motion: reduce) {
     [data-ready] .screen { overflow-y: auto; }
     .roll { animation: none; }
