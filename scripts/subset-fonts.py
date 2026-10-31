@@ -9,14 +9,17 @@
 """
 
 import http.server
+import json
 import re
 import socketserver
 import threading
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from functools import partial
 from io import BytesIO
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 from fontTools import subset
 from fontTools.merge import Merger
@@ -27,6 +30,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
 OUT = ROOT / "src" / "assets" / "fonts"
 NODE_MODULES = ROOT / "node_modules"
+NOTO_SERIF_FILES = NODE_MODULES / "@fontsource/noto-serif-sc/files"
+PHOTO_MESSAGES = ROOT / "src/lib/messages/photos.ts"
+PHOTO_CATALOG_URL = "https://photos.xingkaixin.me/catalog/index.json"
 
 SPACE = 0x20
 HYPHEN = 0x2010
@@ -56,6 +62,16 @@ VARIANT_FEATURES = {
 }
 
 
+def photo_title_text() -> str:
+    messages = PHOTO_MESSAGES.read_text(encoding="utf-8")
+    labels = re.findall(r"^\s*(?:title|cityRolls|otherRolls|developLog|allPhotos):.*$", messages, re.M)
+    # Cloudflare 拒绝 urllib 默认的 User-Agent
+    with urlopen(Request(PHOTO_CATALOG_URL, headers={"User-Agent": "subset-fonts"})) as response:
+        albums = json.load(response)["albums"]
+    # 灯箱用顿号连接同一张照片所属的多个相册名
+    return "、".join(labels + [album["title"] for album in albums])
+
+
 @dataclass
 class Face:
     family: str
@@ -68,6 +84,8 @@ class Face:
     local: str | None = None
     # 只渲染固定文字的字体不把整个 ASCII 放进核心；空格始终保留，浏览器用含空格的字面取行高等主字体度量。
     core_ascii: bool = True
+    # 静态页读不到的文字，只有点进页面才渲染或来自线上数据。
+    static_text: Callable[[], str] | None = None
     chars: set[int] = field(default_factory=set)
     features: set[str] = field(default_factory=set)
     hyphenates: bool = False
@@ -99,6 +117,17 @@ FACES = [
         sheet="smiley-sans.css",
         rename="XKX Display",
         local="Smiley Sans Oblique",
+    ),
+    *(
+        Face(
+            "Noto Serif SC",
+            weight,
+            f"noto-serif-sc-{weight}",
+            sorted(NOTO_SERIF_FILES.glob(f"noto-serif-sc-*-{weight}-normal.woff2")),
+            sheet="noto-serif.css",
+            static_text=photo_title_text,
+        )
+        for weight in (600, 900)
     ),
 ]
 
@@ -325,6 +354,10 @@ def main() -> None:
     fonts = {face.slug: load_source(face) for face in FACES}
     runs = collect_runs()
     assign_runs(runs, fonts)
+    for face in FACES:
+        if face.static_text:
+            face.chars |= {ord(char) for char in face.static_text()} & set(fonts[face.slug].getBestCmap())
+            face.features |= DEFAULT_FEATURES
     page_count = len({run["page"] for run in runs})
     vertical = any(run["vertical"] for run in runs)
 

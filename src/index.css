@@ -106,7 +106,7 @@
   --font-sans: "Outfit", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --font-display: "Smiley Sans Oblique", "Outfit", "PingFang SC", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-serif: "Source Han Serif SC", "Songti SC", "STSong", "Noto Serif SC", serif;
   --color-ink-50: var(--ink-50);
   --color-ink-100: var(--ink-100);
   --color-ink-200: var(--ink-200);
@@ -150,18 +150,20 @@ body {
   background: var(--bg);
   color: var(--ink-800);
 }
-/* 手机横屏时 Safari 在刘海两侧留白，留白取根背景色，页眉同色才没有接缝 */
-@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
-  [data-site-header] {
-    background: var(--bg);
-  }
-}
+
 /* iOS 聚焦字号小于 16px 的输入框时会放大页面，失焦后也不恢复 */
 @media (pointer: coarse) {
   input,
   textarea,
   select {
     font-size: 16px;
+  }
+}
+
+/* 手机横屏时 Safari 在刘海两侧留白，留白取根背景色，页眉同色才没有接缝 */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  [data-site-header] {
+    background: var(--bg);
   }
 }
 

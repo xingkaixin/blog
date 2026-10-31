@@ -50,6 +50,7 @@
     "@astrojs/ts-content-mapper": "0.2.0",
     "@aws-sdk/client-s3": "^3.1153.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/noto-serif-sc": "^5.3.1",
     "@fontsource/outfit": "^5.3.0",
     "@iannuttall/seo-graph-astro": "0.0.10",
     "@shadcn/lint": "^0.2.3",

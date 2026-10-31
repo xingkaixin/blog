@@ -1,0 +1,54 @@
+/* 由 scripts/subset-fonts.py 生成，不要手动编辑。 */
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("./noto-serif-sc-600-core.woff2") format("woff2");
+  unicode-range: U+20-7E, U+B7, U+2013-2014, U+2018-2019, U+201C-201D, U+2026;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("./noto-serif-sc-600-ext.woff2") format("woff2");
+  unicode-range: U+A0-B6, U+B8-103, U+110-113, U+11A-11B, U+128-12B, U+143-144, U+147-148, U+14C-14F, U+152-153, U+168-16D;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("./noto-serif-sc-600-cjk.woff2") format("woff2");
+  unicode-range: U+3001, U+4E1C, U+4EAC, U+4ED3, U+4F59, U+5168, U+5176, U+51B2, U+5377, U+53F0, U+54C8, U+57CE, U+5899, U+5927, U+59EC, U+5B81, U+5C14, U+5DDE, U+5E02, U+5E86, U+5F55, U+5FD7, U+6237, U+626C, U+63D0, U+660E, U+66FC, U+6A2A, U+6CE2, U+6D17, U+6E05, U+6E2F, U+6E7E, U+6EE8, U+6FB3, U+7167, U+7247, U+795E, U+80E1, U+80F6, U+82AD, U+82CF, U+8BB0, U+8C37, U+8DEF, U+8FC8, U+90E8, U+90FD, U+91CD, U+9570, U+95E8, U+962A, U+96C5, U+9999;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url("./noto-serif-sc-900-core.woff2") format("woff2");
+  unicode-range: U+20-7E, U+B7, U+2013-2014, U+2018-2019, U+201C-201D, U+2026;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url("./noto-serif-sc-900-ext.woff2") format("woff2");
+  unicode-range: U+A0-B6, U+B8-103, U+110-113, U+11A-11B, U+128-12B, U+143-144, U+147-148, U+14C-14F, U+152-153, U+168-16D;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url("./noto-serif-sc-900-cjk.woff2") format("woff2");
+  unicode-range: U+3001, U+4E1C, U+4EAC, U+4ED3, U+4F59, U+5168, U+5176, U+51B2, U+5377, U+53F0, U+54C8, U+57CE, U+5899, U+5927, U+59EC, U+5B81, U+5C14, U+5DDE, U+5E02, U+5E86, U+5F55, U+5FD7, U+6237, U+626C, U+63D0, U+660E, U+66FC, U+6A2A, U+6CE2, U+6D17, U+6E05, U+6E2F, U+6E7E, U+6EE8, U+6FB3, U+7167, U+7247, U+795E, U+80E1, U+80F6, U+82AD, U+82CF, U+8BB0, U+8C37, U+8DEF, U+8FC8, U+90E8, U+90FD, U+91CD, U+9570, U+95E8, U+962A, U+96C5, U+9999;
+}

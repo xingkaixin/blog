@@ -76,14 +76,18 @@ bun run build
   会改变光栅化；保留只影响 Windows 的 `prep`、`gasp`，共约 30 B。
 - 得意黑（保留字体名 Smiley、得意黑）与 Dancing Script（保留字体名 Dancing Script）的子集按 OFL
   改了字体内部名称，CSS 中的 family 名不变。
+- 照片墙的衬线标题在 macOS 用系统宋体，iOS 与多数 Android 没有中文衬线字体，回退到 Noto Serif SC 子集。
+  标题由 React 按 Catalog 渲染，脚本从 `src/lib/messages/photos.ts` 和线上 Catalog 取字，
+  只有照片墙页面引入 `noto-serif.css`。
 
 以下情况需要重跑：
 
 - 新文章标题、标签或其他得意黑文字出现子集外的汉字，否则这些字会用回退字体显示。新文章最常触发。
 - 页面用到某字体尚未包含的符号，例如 Outfit 正文里的 ™ € −；ASCII 与 Latin-1 已全部保留。
+- 新相册名出现子集外的汉字，否则照片墙标题里这些字会用回退字体显示。
 - 新增字重、`font-variant-*`、`font-feature-settings`、竖排或 `hyphens: auto`，或修改签名 `siteConfig.author`。
-- 升级 `@fontsource/outfit`、`@fontsource/jetbrains-mono`、`cn-fontsource-smiley-sans-oblique-regular`，
-  或替换 `scripts/assets/fonts/dancing-script.ttf`。
+- 升级 `@fontsource/outfit`、`@fontsource/jetbrains-mono`、`@fontsource/noto-serif-sc`、
+  `cn-fontsource-smiley-sans-oblique-regular`，或替换 `scripts/assets/fonts/dancing-script.ttf`。
 
 中文字体 CSS 使用 `media="print"` 下载，加载完成后切换为 `all`，保留
 `font-display: swap` 与系统回退字体。它不再阻塞首次屏幕渲染。
