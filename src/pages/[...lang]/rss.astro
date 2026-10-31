@@ -59,7 +59,7 @@ const meta = {
   rss-subscription { display: block; margin-top: 36px; }
   label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--ink-600); }
   .address-row { display: flex; gap: 10px; }
-  input { min-width: 0; flex: 1; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); color: var(--ink-700); font: 13px var(--font-mono); }
+  input { min-width: 0; flex: 1; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); color: var(--ink-700); font: 13px var(--font-mono); text-overflow: ellipsis; }
   button { flex-shrink: 0; min-width: 128px; border-radius: 6px; padding: 12px 16px; background: var(--ink-800); color: var(--bg); font-size: 13px; cursor: pointer; transition: transform 150ms var(--ease-smooth-out); }
   button:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
   button:active:not(:focus-visible) { transform: scale(.97); }
@@ -87,7 +87,9 @@ const meta = {
     .intro { font-size: 18px; }
     .address-row { flex-direction: column; }
     button { min-height: 44px; }
-    input { font-size: 12px; }
+  }
+  @media (pointer: coarse) {
+    input { font-size: 16px; }
   }
 </style>
 

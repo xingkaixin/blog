@@ -150,6 +150,14 @@ body {
   background: var(--bg);
   color: var(--ink-800);
 }
+/* iOS 聚焦字号小于 16px 的输入框时会放大页面，失焦后也不恢复 */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
 
 .project-logo {
   position: relative;
