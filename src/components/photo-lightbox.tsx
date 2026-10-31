@@ -107,6 +107,7 @@ export function PhotoLightbox({
     onClose();
   };
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [zoomed, setZoomed] = useState(false);
   const { previous, next } = navigation;
   const albumTitleById = useMemo(
     () => new Map(albums.map((album) => [album.id, album.title])),
@@ -144,6 +145,16 @@ export function PhotoLightbox({
     return () => globalThis.clearTimeout(timeoutId);
   }, [baseUrl, next, open, previous]);
 
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!open || !viewport) {
+      return undefined;
+    }
+    const syncZoom = () => setZoomed(viewport.scale > 1);
+    viewport.addEventListener("resize", syncZoom);
+    return () => viewport.removeEventListener("resize", syncZoom);
+  }, [open]);
+
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "mouse" || event.button === 0) {
       pointerStartRef.current = { x: event.clientX, y: event.clientY };
@@ -153,7 +164,7 @@ export function PhotoLightbox({
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     const start = pointerStartRef.current;
     pointerStartRef.current = null;
-    if (!start) {
+    if (!start || zoomed) {
       return;
     }
 
@@ -215,7 +226,10 @@ export function PhotoLightbox({
         </div>
 
         <div
-          className="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 pb-2 [container-type:size] sm:px-16"
+          className={cn(
+            "relative flex min-h-0 flex-1 items-center justify-center px-2 pb-2 [container-type:size] sm:px-16",
+            zoomed ? "touch-auto" : "touch-pan-y touch-pinch-zoom",
+          )}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerCancel={() => {
