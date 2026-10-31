@@ -189,7 +189,7 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
         aria-valuenow={ariaValue}
         aria-valuetext={formatCaptureMonth(periods[activeIndex].month, locale)}
         data-revealed={scrolling ? "true" : undefined}
-        className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 data-[dragging=true]:opacity-100 data-[revealed=true]:opacity-100 md:w-9"
+        className="group pointer-events-auto relative h-full w-7 cursor-ns-resize touch-none rounded-full opacity-0 transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out) hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 data-[dragging=true]:opacity-100 data-[revealed=true]:opacity-100 pointer-coarse:pointer-events-none pointer-coarse:data-[dragging=true]:pointer-events-auto pointer-coarse:data-[revealed=true]:pointer-events-auto md:w-9"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
