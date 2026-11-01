@@ -3,6 +3,12 @@ import type { Locale } from "@/lib/i18n";
 const zh = {
   skipToContent: "跳到正文",
   backHome: "返回首页",
+  dayGreetings: {
+    morning: "早",
+    noon: "吃了吗",
+    evening: "下班了",
+    night: "还没睡？",
+  },
   mainNav: "主导航",
   chineseOnly: "中文",
   switchLanguage: { label: "EN", aria: "Switch to English" },
@@ -65,6 +71,12 @@ export type ChromeMessages = typeof zh;
 const en: ChromeMessages = {
   skipToContent: "Skip to content",
   backHome: "Back to home",
+  dayGreetings: {
+    morning: "Morning",
+    noon: "Eaten yet?",
+    evening: "Clocked out",
+    night: "Still up?",
+  },
   mainNav: "Main navigation",
   chineseOnly: "zh",
   switchLanguage: { label: "中文", aria: "切换到中文" },
