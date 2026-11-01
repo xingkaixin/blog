@@ -5,6 +5,7 @@ import smileyFontUrl from "@/assets/fonts/smiley-sans.css?url";
 import { ClientRouter } from "astro:transitions";
 import SceneFooter from "@/components/astro/SceneFooter.astro";
 import ReadingProgress from "@/components/astro/ReadingProgress.astro";
+import Screensaver from "@/components/astro/Screensaver.astro";
 import SearchLauncher from "@/components/astro/SearchLauncher.astro";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import {
@@ -304,6 +305,7 @@ const pageTransition = {
 
       <SceneFooter currentPath={currentPath} stage={footerStage} />
     </div>
+    {meta.type !== "article" && <Screensaver />}
 
     <script>
       import { LOCALE_COOKIE } from "@/lib/i18n";

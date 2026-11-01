@@ -1,0 +1,173 @@
+---
+/**
+ * 屏保：桌面端访客无操作时淡入全屏锦鲤池。
+ * 渲染代码在触发时才动态载入，退出后释放 WebGL 上下文。
+ */
+---
+
+<template data-screensaver>
+  <div class="screensaver" aria-hidden="true">
+    <canvas class="screensaver-water"></canvas>
+    <canvas class="screensaver-overlay"></canvas>
+  </div>
+</template>
+
+<style>
+  .screensaver {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    overflow: hidden;
+    background: #0d2b2b;
+    cursor: none;
+    transition: opacity 1.5s var(--ease-smooth-out);
+  }
+
+  @starting-style {
+    .screensaver {
+      opacity: 0;
+    }
+  }
+
+  .screensaver[data-leaving] {
+    opacity: 0;
+    transition-duration: var(--duration-fast);
+  }
+
+  .screensaver canvas {
+    pointer-events: none;
+  }
+
+  /* 与 KoiPond 相同：宽度由高度和 aspect-ratio 推出，比 3:1 高的视口横向裁切。 */
+  .screensaver-water {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    translate: -50% -50%;
+    aspect-ratio: 3 / 1;
+    height: 100%;
+    width: auto;
+  }
+
+  .screensaver-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import type { PondHandle } from "@/lib/koi-pond/pond";
+
+  const IDLE_MS = 2 * 60 * 1000;
+
+  let timer = 0;
+  let root: HTMLElement | null = null;
+  let pond: PondHandle | null = null;
+  // 每次退出都作废在途的启动，避免动态 import 落地时访客已经回来
+  let generation = 0;
+
+  function isBusy(): boolean {
+    return (
+      matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      document.querySelector('[role="dialog"]') !== null ||
+      [...document.querySelectorAll("audio")].some((audio) => !audio.paused) ||
+      document.activeElement?.matches("input, textarea, select, [contenteditable]") === true ||
+      document.getSelection()?.isCollapsed === false
+    );
+  }
+
+  function arm() {
+    clearTimeout(timer);
+    if (!root && document.visibilityState === "visible") {
+      timer = window.setTimeout(() => void show(), IDLE_MS);
+    }
+  }
+
+  async function show() {
+    const template = document.querySelector<HTMLTemplateElement>("template[data-screensaver]");
+    if (!template || isBusy()) {
+      arm();
+      return;
+    }
+
+    const mine = ++generation;
+    const { createPond } = await import("@/lib/koi-pond/pond");
+    if (mine !== generation) {
+      return;
+    }
+
+    const fragment = template.content.cloneNode(true) as DocumentFragment;
+    const element = fragment.querySelector<HTMLElement>(".screensaver");
+    const water = fragment.querySelector<HTMLCanvasElement>(".screensaver-water");
+    const overlay = fragment.querySelector<HTMLCanvasElement>(".screensaver-overlay");
+    if (!element || !water || !overlay) {
+      return;
+    }
+
+    // 池子的尺寸取自实际布局，必须先挂到页面上
+    document.body.append(element);
+    const result = createPond(water, {
+      animated: true,
+      overlay,
+      onFishingChange: () => {},
+      onContextRestored: hide,
+    });
+    if (!result.ok) {
+      element.remove();
+      return;
+    }
+    root = element;
+    pond = result.pond;
+  }
+
+  function hide() {
+    generation++;
+    if (!root) {
+      return;
+    }
+    const element = root;
+    const leaving = pond;
+    root = null;
+    pond = null;
+    // 淡出期间遮罩仍在，访客回来时的第一次点击落在遮罩上，不会误触下面的链接
+    element.dataset.leaving = "";
+    void Promise.allSettled(element.getAnimations().map((animation) => animation.finished)).then(() => {
+      leaving?.destroy(true);
+      element.remove();
+    });
+  }
+
+  function wake() {
+    hide();
+    arm();
+  }
+
+  // 遮罩出现时浏览器会在静止的光标下补发 pointermove，这种事件没有位移，不算操作
+  function onPointerMove(event: PointerEvent) {
+    if (event.movementX !== 0 || event.movementY !== 0) {
+      wake();
+    }
+  }
+
+  function onKeyDown(event: KeyboardEvent) {
+    if (root) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    wake();
+  }
+
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    const passive = { capture: true, passive: true };
+    window.addEventListener("pointermove", onPointerMove, passive);
+    window.addEventListener("pointerdown", wake, passive);
+    window.addEventListener("wheel", wake, passive);
+    window.addEventListener("scroll", wake, { passive: true });
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    document.addEventListener("visibilitychange", arm);
+    arm();
+  }
+</script>
