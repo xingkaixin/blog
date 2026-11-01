@@ -7,6 +7,7 @@ import SceneFooter from "@/components/astro/SceneFooter.astro";
 import ReadingProgress from "@/components/astro/ReadingProgress.astro";
 import Screensaver from "@/components/astro/Screensaver.astro";
 import SearchLauncher from "@/components/astro/SearchLauncher.astro";
+import SiteBrand from "@/components/astro/SiteBrand.astro";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import {
   buildJsonLd,
@@ -238,18 +239,7 @@ const pageTransition = {
         data-smart-header={smartHeader ? "" : undefined}
       >
         <div class="mx-auto flex h-[60px] max-w-320 items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
-          <a href={localizedHref("/", locale)} class="flex shrink-0 items-center gap-2.5" aria-label={t.backHome}>
-            <img
-              src="/logo.svg"
-              alt=""
-              width="28"
-              height="28"
-              class="site-logo h-7 w-7 object-contain"
-            />
-            <span class="hidden font-mono text-xs tracking-[0.05em] text-ink-800 sm:inline">
-              xingkaixin.me
-            </span>
-          </a>
+          <SiteBrand locale={locale} />
 
           {currentPath !== "/" && currentPath !== "/en" && (
             <span class="hidden max-w-52 shrink-0 truncate font-mono text-xs text-ink-400 xl:inline">
