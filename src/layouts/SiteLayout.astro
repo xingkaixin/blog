@@ -220,6 +220,7 @@ const pageTransition = {
       transition:persist="smiley-font"
     />
     <noscript><link rel="stylesheet" href={smileyFontUrl} /></noscript>
+    <slot name="head" />
     <ClientRouter />
     <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta, locale))}></script>
   </head>
