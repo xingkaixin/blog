@@ -19,6 +19,10 @@ export async function openSearch(): Promise<void> {
   if (errorMessage) {
     errorMessage.hidden = true;
   }
+  // 索引不依赖面板代码，提前请求；面板挂载后复用同一个请求。
+  void import("@/lib/search")
+    .then(({ loadSearchIndex }) => loadSearchIndex())
+    .catch(() => undefined);
   try {
     const { openSearchDialog } = await import("@/components/search-dialog-entry");
     if (container.isConnected && !inactiveContainers.has(container)) {
