@@ -234,7 +234,7 @@ export function ProjectStickers() {
             alt=""
             draggable={false}
             style={{ filter: `${WHITE_STROKE} ${RESTING_SHADOW}` }}
-            className="h-full w-full select-none object-contain"
+            className="h-full w-full select-none rounded-[22%] object-contain"
           />
         </div>
       ))}

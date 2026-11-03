@@ -2,6 +2,8 @@ import { blurSource, compositeSource, crtSource, outlineSource, vertexSource } f
 
 export const LOGO_SIZE = 112;
 export const SWEEP_DURATION = 2400;
+// Keep in step with the 22% border-radius on the fallback <img> in index.css.
+const LOGO_CORNER = 0.22;
 
 export function createProjectLogoRenderer() {
   const canvas = document.createElement("canvas");
@@ -162,14 +164,15 @@ export function createProjectLogoRenderer() {
         const scale = 96 / Math.max(image.naturalWidth, image.naturalHeight);
         const width = image.naturalWidth * scale;
         const height = image.naturalHeight * scale;
+        const x = (LOGO_SIZE - width) / 2;
+        const y = (LOGO_SIZE - height) / 2;
         sourceContext.clearRect(0, 0, LOGO_SIZE, LOGO_SIZE);
-        sourceContext.drawImage(
-          image,
-          (LOGO_SIZE - width) / 2,
-          (LOGO_SIZE - height) / 2,
-          width,
-          height,
-        );
+        sourceContext.save();
+        sourceContext.beginPath();
+        sourceContext.roundRect(x, y, width, height, Math.min(width, height) * LOGO_CORNER);
+        sourceContext.clip();
+        sourceContext.drawImage(image, x, y, width, height);
+        sourceContext.restore();
         context.texImage2D(
           context.TEXTURE_2D,
           0,
