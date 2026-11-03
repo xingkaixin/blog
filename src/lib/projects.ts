@@ -236,7 +236,7 @@ export const projects: Project[] = [
     summary: "用表单生成多种数据库的建表语句。",
     description:
       "多数据库建表语句生成器。通过表单实时生成 MySQL、PostgreSQL、Oracle 等九种数据库的 DDL，支持分区表、索引、权限配置与 SQL 导入解析。",
-    logo: "/projects/ddlbuilder.svg",
+    logo: "/projects/ddlbuilder.png",
     background: "/projects/backgrounds/ddlbuilder.webp",
     url: "https://ddl.xingkaixin.me",
     tags: ["工具", "数据库"],
