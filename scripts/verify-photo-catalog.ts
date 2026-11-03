@@ -78,9 +78,8 @@ async function loadJson(url: string): Promise<unknown> {
 if (import.meta.main) {
   const photoBaseUrl = process.env.PUBLIC_PHOTO_BASE_URL?.trim() || siteConfig.photoUrl;
   console.log(`正在验证照片 Catalog: ${catalogIndexUrl(photoBaseUrl)}`);
-  verifyPhotoControlPrivacy(photoBaseUrl)
-    .then(() => verifyPublishedPhotoCatalog(photoBaseUrl))
-    .then((catalog) => {
+  Promise.all([verifyPhotoControlPrivacy(photoBaseUrl), verifyPublishedPhotoCatalog(photoBaseUrl)])
+    .then(([, catalog]) => {
       const photoCount = Object.keys(catalog.photoMonths).length;
       const compactBytes = compactCatalogBytes(catalog);
       console.log(
