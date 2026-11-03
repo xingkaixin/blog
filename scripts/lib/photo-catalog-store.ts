@@ -92,10 +92,15 @@ export class PhotoCatalogEditor {
     await this.store.put(key, body, { ...options, expectedVersion: null });
   }
 
-  async addPhotoToAlbum(photoId: string, albumId: string): Promise<boolean> {
-    const month = this.state.photoMonth(photoId);
-    await loadPhotoCatalogMonths(this.store, this.state, month ? [month] : []);
-    return this.state.addPhotoToAlbum(photoId, albumId);
+  async addPhotosToAlbum(photoIds: string[], albumId: string): Promise<void> {
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      photoIds.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
+    );
+    for (const photoId of photoIds) {
+      this.state.addPhotoToAlbum(photoId, albumId);
+    }
   }
 
   async addPhotos(photos: PhotoRecord[]): Promise<void> {

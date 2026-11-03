@@ -104,12 +104,11 @@ async function publishPhotosOnce(
   applyAlbum(catalog, options.album);
   const pending: PhotoRecord[] = [];
   const completed: PublishProgress[] = [];
+  const reusedIds: string[] = [];
   for (const identified of uniqueFiles) {
     if (catalog.hasPhoto(identified.id)) {
       completed.push({ type: "reused", file: identified.file });
-      if (options.album) {
-        await catalog.addPhotoToAlbum(identified.id, options.album.id);
-      }
+      reusedIds.push(identified.id);
     } else {
       const photo = preparedPhotos.get(identified.id);
       if (!photo) {
@@ -118,6 +117,9 @@ async function publishPhotosOnce(
       pending.push(photo);
       completed.push({ type: "published", file: identified.file, photoId: photo.id });
     }
+  }
+  if (options.album) {
+    await catalog.addPhotosToAlbum(reusedIds, options.album.id);
   }
   await catalog.addPhotos(pending);
   const { catalogChanged, updatedPeriods } = await catalog.commit(options.now?.() ?? new Date());

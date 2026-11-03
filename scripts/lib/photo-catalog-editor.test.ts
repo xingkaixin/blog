@@ -39,7 +39,7 @@ describe("photo catalog editor", () => {
         placeholderColor: "#abcdef",
       },
     ]);
-    await catalog.addPhotoToAlbum(photoId, "trip");
+    await catalog.addPhotosToAlbum([photoId], "trip");
     await catalog.commit(new Date(generatedAt));
   });
 
@@ -139,8 +139,8 @@ describe("photo catalog editor", () => {
     const store = await catalogStore();
     const catalog = await PhotoCatalogEditor.load(store);
 
-    await expect(catalog.addPhotoToAlbum(photoId, "trip")).resolves.toBe(true);
-    await expect(catalog.addPhotoToAlbum(photoId, "trip")).resolves.toBe(false);
+    await catalog.addPhotosToAlbum([photoId], "trip");
+    await catalog.addPhotosToAlbum([photoId], "trip");
     await expect(catalog.commit(new Date("2026-08-23T09:00:00.000Z"))).resolves.toEqual({
       catalogChanged: true,
       updatedPeriods: 1,
