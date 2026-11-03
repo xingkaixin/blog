@@ -22,8 +22,12 @@ afterEach(async () => {
 
 describe("search launcher recovery", () => {
   it("reports a failed script load and can open after a retry", async () => {
-    vi.doMock("@/components/search-dialog-entry", () => {
-      throw new Error("simulated script download failure");
+    let downloadFails = true;
+    vi.doMock("@/components/search-dialog-entry", async (importOriginal) => {
+      if (downloadFails) {
+        throw new Error("simulated script download failure");
+      }
+      return importOriginal();
     });
     const { openSearch } = await import("./search-launcher");
     const error = document.querySelector<HTMLElement>("[data-search-error]")!;
@@ -32,7 +36,7 @@ describe("search launcher recovery", () => {
     });
     expect(error.hidden).toBe(false);
 
-    vi.doUnmock("@/components/search-dialog-entry");
+    downloadFails = false;
     await act(async () => openSearch());
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
     expect(document.querySelector("[data-search-error]")).toBeNull();
