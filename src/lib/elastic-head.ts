@@ -126,7 +126,18 @@ export async function createElasticHead(
 
     const sheet = new Image();
     sheet.src = art.querySelector("image")!.href.baseVal;
-    await sheet.decode();
+    const face = art.querySelector<SVGGElement>("[data-face]")!.cloneNode(true) as SVGGElement;
+    face.removeAttribute("style");
+    face.querySelector("[data-pupils]")!.removeAttribute("style");
+    const faces = (["smile", "surprised", "ouch"] as const).map((expression) => {
+      face.querySelectorAll<SVGGElement>("[data-face-expression]").forEach((part) => {
+        part.style.display = part.dataset.faceExpression === expression ? "inline" : "none";
+      });
+      const image = new Image();
+      image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${new XMLSerializer().serializeToString(face)}</svg>`)}`;
+      return { expression, image };
+    });
+    await Promise.all([sheet, ...faces.map(({ image }) => image)].map((image) => image.decode()));
     const source = document.createElement("canvas");
     source.width = width;
     source.height = height;
@@ -139,16 +150,7 @@ export async function createElasticHead(
     paint.clip(new Path2D(outline.querySelector("path")!.getAttribute("d")!));
     paint.setTransform(1, 0, 0, 1, -sourceX, -sourceY);
     paint.drawImage(sheet, 0, 0);
-    const face = art.querySelector<SVGGElement>("[data-face]")!.cloneNode(true) as SVGGElement;
-    face.removeAttribute("style");
-    face.querySelector("[data-pupils]")!.removeAttribute("style");
-    for (const expression of ["smile", "surprised", "ouch"] as const) {
-      face.querySelectorAll<SVGGElement>("[data-face-expression]").forEach((part) => {
-        part.style.display = part.dataset.faceExpression === expression ? "inline" : "none";
-      });
-      const image = new Image();
-      image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${new XMLSerializer().serializeToString(face)}</svg>`)}`;
-      await image.decode();
+    for (const { expression, image } of faces) {
       const composite = document.createElement("canvas");
       composite.width = width;
       composite.height = height;
