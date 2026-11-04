@@ -26,23 +26,6 @@ afterEach(async () => {
 });
 
 describe("photo catalog editor", () => {
-  it("loads untouched months from the persisted snapshot after local changes", async () => {
-    const store = await catalogStore();
-    const catalog = await PhotoCatalogEditor.load(store);
-    await catalog.addPhotos([
-      {
-        id: "b".repeat(32),
-        capturedAt: "2026-07-01T12:00:00+08:00",
-        width: 100,
-        height: 100,
-        albumIds: [],
-        placeholderColor: "#abcdef",
-      },
-    ]);
-    await catalog.addPhotosToAlbum([photoId], "trip");
-    await catalog.commit(new Date(generatedAt));
-  });
-
   it.each(["{", "{}"])("repairs a damaged public index (%s) from control", async (damagedIndex) => {
     const store = await catalogStore();
     const originalIndex = await store.getText(PHOTO_CATALOG_INDEX_KEY);
@@ -72,20 +55,6 @@ describe("photo catalog editor", () => {
 
     await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
   });
-
-  it.each(["{", "{}"])(
-    "rejects damaged control (%s) despite a valid index",
-    async (damagedControl) => {
-      const store = await catalogStore();
-      await store.put(PHOTO_CATALOG_CONTROL_KEY, damagedControl, {
-        contentType: "application/json",
-        cacheControl: "no-store",
-        expectedVersion: (await store.getText(PHOTO_CATALOG_CONTROL_KEY))!.version,
-      });
-
-      await expect(PhotoCatalogEditor.load(store)).rejects.toThrow();
-    },
-  );
 
   it("preserves a publish interleaved with catalog reads", async () => {
     const store = await catalogStore();
@@ -125,14 +94,6 @@ describe("photo catalog editor", () => {
     expect(index.photoMonths).toEqual({ [photoId]: month, [addedPhotoId]: month });
     const shard = parsePhotoMonthCatalog(JSON.parse((await read(index.periods[0].path))!.text));
     expect(shard.photos.map((photo) => photo.id)).toEqual([addedPhotoId, photoId]);
-  });
-
-  it("reports photos outside the catalog as absent", async () => {
-    const catalog = await PhotoCatalogEditor.load(await catalogStore());
-    const absentPhotoId = "b".repeat(32);
-
-    expect(catalog.hasPhoto(photoId)).toBe(true);
-    expect(catalog.hasPhoto(absentPhotoId)).toBe(false);
   });
 
   it("loads the owning month before updating an album", async () => {

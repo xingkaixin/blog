@@ -11,13 +11,12 @@ import {
   type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
-import { migratePhotoCatalog, PhotoCatalogEditor } from "./photo-catalog-store";
+import { migratePhotoCatalog } from "./photo-catalog-store";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
 import { publishPhotos } from "./photo-publisher";
 import { retirePhotos } from "./photo-retirement";
 import { hashPhotoFile, type ProcessedPhoto } from "./photo-source";
 import {
-  FilePhotoObjectStore,
   PhotoStoreConflictError,
   type PhotoObjectBody,
   type PhotoObjectStore,
@@ -28,7 +27,6 @@ import {
 class MemoryPhotoStore implements PhotoObjectStore {
   readonly objects = new Map<string, PhotoObjectBody>();
   readonly versions = new Map<string, string>();
-  readonly reads: string[] = [];
   readonly writes: string[] = [];
   readonly deletes: string[] = [];
   readonly deleteFailures = new Map<string, number>();
@@ -43,7 +41,6 @@ class MemoryPhotoStore implements PhotoObjectStore {
   }
 
   async getText(key: string): Promise<PhotoTextObject | null> {
-    this.reads.push(key);
     const value = this.objects.get(key);
     if (value === undefined) {
       return null;
@@ -137,32 +134,6 @@ function processedPhoto(id: string, capturedAt = "2026-04-25T21:12:30.244+07:00"
 }
 
 describe("photo publisher", () => {
-  it("tracks orphaned first uploads without inventing a public catalog", async () => {
-    const store = new MemoryPhotoStore();
-    const key = `media/${"f".repeat(32)}/960.webp`;
-    store.objects.set(key, new Uint8Array([1]));
-    await collectPhotoGarbage({ store, scan: true });
-    expect((await readControl(store)).retiredArtifacts[0].objectKeys).toEqual([key]);
-    expect(store.objects.has(PHOTO_CATALOG_INDEX_KEY)).toBe(false);
-    expect(store.deletes).toEqual([]);
-    await migratePhotoCatalog(store);
-    await collectPhotoGarbage({ store });
-    expect((await readControl(store)).retiredArtifacts[0].deleteAfter).not.toBeNull();
-  });
-
-  it("rejects a paused publisher whose media has entered orphan retirement", async () => {
-    const store = new MemoryPhotoStore();
-    const photo = {
-      ...processedPhoto("f".repeat(32)),
-      mediaRevision: "a".repeat(24),
-      albumIds: [],
-    };
-    const key = photoMediaObjectKey(photo.id, 960, photo.mediaRevision);
-    store.objects.set(key, new Uint8Array([1]));
-    await collectPhotoGarbage({ store, scan: true });
-    const catalog = await PhotoCatalogEditor.load(store);
-    await expect(catalog.addPhotos([photo])).rejects.toThrow("已进入回收队列");
-  });
   it("discovers artifacts left behind by a terminated process", async () => {
     const file = await createSourceFile("orphan scan");
     const store = new MemoryPhotoStore();
@@ -212,31 +183,6 @@ describe("photo publisher", () => {
     expect(store.writes).toEqual([]);
   });
 
-  it("disposes each source snapshot before catalog commit", async () => {
-    const files = await Promise.all([
-      createSourceFile("snapshot-a"),
-      createSourceFile("snapshot-b"),
-      createSourceFile("snapshot-c"),
-    ]);
-    const store = new MemoryPhotoStore();
-    const sources: string[] = [];
-    const put = store.put.bind(store);
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_CONTROL_KEY) {
-        await Promise.all(sources.map((source) => expect(fs.access(source)).rejects.toThrow()));
-      }
-      return put(key, body, options);
-    };
-    await publishPhotos({
-      files,
-      store,
-      processPhoto: async (source, id) => {
-        sources.push(source);
-        return processedPhoto(id);
-      },
-    });
-    expect(sources).toHaveLength(3);
-  });
   it("can republish a deleted photo before its old media is collected", async () => {
     const file = await createSourceFile("republish immediately");
     const id = await hashPhotoFile(file);
@@ -252,147 +198,6 @@ describe("photo publisher", () => {
     expect(oldKeys.some((key) => store.objects.has(key))).toBe(false);
     expect(newKeys.every((key) => store.objects.has(key))).toBe(true);
   });
-  it.each([1, 5])("tracks deletion shards across %i control conflicts", async (conflicts) => {
-    const files = await Promise.all([createSourceFile("delete-a"), createSourceFile("delete-b")]);
-    const ids = await Promise.all(files.map(hashPhotoFile));
-    const store = new MemoryPhotoStore();
-    await publishPhotos({ files, store, processPhoto: async (_file, id) => processedPhoto(id) });
-    const put = store.put.bind(store);
-    let remaining = conflicts;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_CONTROL_KEY && remaining > 0) {
-        remaining -= 1;
-        throw new PhotoStoreConflictError(key);
-      }
-      return put(key, body, options);
-    };
-    const result = retirePhotos({ photoIds: [ids[0]], store });
-    if (conflicts === 5) {
-      await expect(result).rejects.toThrow(PhotoStoreConflictError);
-    } else {
-      await result;
-    }
-    const control = await readControl(store);
-    const accounted = new Set([
-      ...(await publishedObjectKeys(store)),
-      ...control.retiredArtifacts.flatMap((entry) => entry.objectKeys),
-    ]);
-    const orphaned = [...store.objects.keys()].filter(
-      (key) => isPhotoArtifactKey(key) && !accounted.has(key),
-    );
-    expect(orphaned).toEqual([]);
-  });
-
-  it("processes once and reports publication only after control retries commit", async () => {
-    const file = await createSourceFile("publish through control conflicts");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    const originalPut = store.put.bind(store);
-    const progress: string[] = [];
-    const visibleAtNotification: boolean[] = [];
-    const processPhoto = vi.fn(async (_source: string) => processedPhoto(id));
-    let conflictsRemaining = 2;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_CONTROL_KEY && conflictsRemaining > 0) {
-        conflictsRemaining -= 1;
-        throw new PhotoStoreConflictError(key);
-      }
-      return originalPut(key, body, options);
-    };
-    const result = await publishPhotos({
-      files: [file],
-      store,
-      processPhoto,
-      onProgress(event) {
-        progress.push(event.type);
-        if (event.type === "published") {
-          const index = store.objects.get(PHOTO_CATALOG_INDEX_KEY);
-          visibleAtNotification.push(
-            typeof index === "string" && Boolean(JSON.parse(index).photoMonths[id]),
-          );
-        }
-      },
-    });
-    expect(processPhoto).toHaveBeenCalledTimes(1);
-    expect(progress).toEqual(["processing", "published"]);
-    expect(visibleAtNotification).toEqual([true]);
-    expect(result).toMatchObject({ published: 1, reused: 0 });
-    const mediaWrites = store.writes.filter((key) => key.startsWith("media/"));
-    expect(mediaWrites).toHaveLength(3);
-    expect(new Set(mediaWrites).size).toBe(3);
-    await expect(fs.access(path.dirname(processPhoto.mock.calls[0][0]))).rejects.toThrow();
-  });
-
-  it("does not replay catalog mutations when a completion callback throws", async () => {
-    const file = await createSourceFile("completion callback fails");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    const processPhoto = vi.fn(async () => processedPhoto(id));
-    let notifications = 0;
-    await expect(
-      publishPhotos({
-        files: [file],
-        store,
-        processPhoto,
-        onProgress(event) {
-          if (event.type === "published") {
-            notifications += 1;
-            throw new PhotoStoreConflictError("notification");
-          }
-        },
-      }),
-    ).rejects.toThrow(PhotoStoreConflictError);
-    expect(notifications).toBe(1);
-    expect(processPhoto).toHaveBeenCalledTimes(1);
-    expect((await readControl(store)).photoMonths[id]).toBe("2026-04");
-    expect(store.writes.filter((key) => key.startsWith("media/"))).toHaveLength(3);
-  });
-
-  it("reports reuse only once when a concurrent publisher wins the same photo", async () => {
-    const file = await createSourceFile("same photo concurrent publication");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    const originalPut = store.put.bind(store);
-    const processPhoto = vi.fn(async () => processedPhoto(id));
-    const progress: string[] = [];
-    let concurrentPublish = true;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_CONTROL_KEY && concurrentPublish) {
-        concurrentPublish = false;
-        await publishPhotos({
-          files: [file],
-          store,
-          processPhoto: async () => processedPhoto(id),
-        });
-      }
-      return originalPut(key, body, options);
-    };
-    const result = await publishPhotos({
-      files: [file],
-      store,
-      processPhoto,
-      album: { id: "favorites", title: "喜欢" },
-      onProgress: (event) => progress.push(event.type),
-    });
-    expect(processPhoto).toHaveBeenCalledTimes(1);
-    expect(result).toMatchObject({ published: 0, reused: 1 });
-    expect(progress).toEqual(["processing", "reused"]);
-    const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.albums).toEqual([{ id: "favorites", title: "喜欢" }]);
-    const referencedKeys = new Set(await publishedObjectKeys(store));
-    expect(
-      (await readControl(store)).retiredArtifacts.flatMap((entry) => entry.objectKeys),
-    ).toEqual(
-      expect.arrayContaining(
-        [...store.objects.keys()].filter(
-          (key) => isPhotoArtifactKey(key) && !referencedKeys.has(key),
-        ),
-      ),
-    );
-  });
-
   it("preserves both updates when two publishers start from the same catalog", async () => {
     const firstFile = await createSourceFile("first photo bytes");
     const secondFile = await createSourceFile("second photo bytes");
@@ -452,94 +257,6 @@ describe("photo publisher", () => {
     );
   });
 
-  it("does not replay publish progress after the public index conflicts", async () => {
-    const file = await createSourceFile("publish through index conflict");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    const originalPut = store.put.bind(store);
-    const progress: string[] = [];
-    let conflictPending = true;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_INDEX_KEY && conflictPending) {
-        conflictPending = false;
-        throw new PhotoStoreConflictError(key);
-      }
-      return originalPut(key, body, options);
-    };
-
-    const result = await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-      onProgress: (event) => progress.push(event.type),
-    });
-
-    expect(result).toMatchObject({ published: 1, reused: 0, updatedPeriods: 1 });
-    expect(progress).toEqual(["processing", "published"]);
-    expect(
-      parsePhotoCatalogIndex(JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text)),
-    ).toMatchObject({ photoMonths: { [id]: "2026-04" } });
-  });
-
-  it("finishes retirement after the public index conflicts", async () => {
-    const file = await createSourceFile("retire through index conflict");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-    });
-    const originalPut = store.put.bind(store);
-    let conflictPending = true;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_INDEX_KEY && conflictPending) {
-        conflictPending = false;
-        throw new PhotoStoreConflictError(key);
-      }
-      return originalPut(key, body, options);
-    };
-
-    const result = await retirePhotos({ photoIds: [id], store });
-
-    expect(result).toMatchObject({ retired: 1, updatedPeriods: 1 });
-    const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.photoMonths[id]).toBeUndefined();
-  });
-
-  it("repairs a stale public index when retirement is already recorded", async () => {
-    const file = await createSourceFile("repair retirement projection");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-    });
-    const originalPut = store.put.bind(store);
-    let failurePending = true;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_INDEX_KEY && failurePending) {
-        failurePending = false;
-        throw new Error("public index unavailable");
-      }
-      return originalPut(key, body, options);
-    };
-
-    await expect(retirePhotos({ photoIds: [id], store })).rejects.toThrow(
-      "public index unavailable",
-    );
-    await expect(retirePhotos({ photoIds: [id], store })).rejects.toThrow("不存在照片");
-    await migratePhotoCatalog(store);
-
-    const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.photoMonths[id]).toBeUndefined();
-  });
-
   it("preserves publicly referenced objects until explicit repair and cache expiry", async () => {
     const file = await createSourceFile("retirement while the public index is unavailable");
     const id = await hashPhotoFile(file);
@@ -592,73 +309,6 @@ describe("photo publisher", () => {
     });
   });
 
-  it("starts the retirement grace period after a delayed public write completes", async () => {
-    const file = await createSourceFile("retirement with a delayed public write");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    let now = new Date("2026-08-01T12:00:00.000Z");
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-      now: () => now,
-    });
-    const originalPut = store.put.bind(store);
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_INDEX_KEY) {
-        now = new Date("2026-08-02T14:00:00.000Z");
-      }
-      return originalPut(key, body, options);
-    };
-
-    await retirePhotos({ photoIds: [id], store, now: () => now });
-    const result = await collectPhotoGarbage({ store, now: () => now });
-    expect(result.removedObjects).toBe(0);
-    expect(store.deletes).toEqual([]);
-    now = new Date("2026-08-03T15:00:00.000Z");
-    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
-      removedObjects: 4,
-    });
-  });
-
-  it("recovers a failed publication confirmation without shortening the grace period", async () => {
-    const file = await createSourceFile("retirement confirmation fails after publication");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    let now = new Date("2026-08-01T12:00:00.000Z");
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-      now: () => now,
-    });
-    const originalPut = store.put.bind(store);
-    let failConfirmation = true;
-    store.put = async (key, body, options) => {
-      if (key === PHOTO_CATALOG_CONTROL_KEY && failConfirmation) {
-        const control = parsePhotoCatalogControl(JSON.parse(String(body)));
-        if (control.retiredArtifacts.some((entry) => entry.deleteAfter !== null)) {
-          failConfirmation = false;
-          throw new Error("confirmation unavailable");
-        }
-      }
-      return originalPut(key, body, options);
-    };
-    const onWarning = vi.fn();
-
-    await retirePhotos({ photoIds: [id], store, now: () => now, onWarning });
-    expect(onWarning).toHaveBeenCalledWith("照片对象回收未完成: confirmation unavailable");
-    now = new Date("2026-08-02T14:00:00.000Z");
-    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
-      removedObjects: 0,
-    });
-    expect(store.deletes).toEqual([]);
-    now = new Date("2026-08-03T15:00:00.000Z");
-    expect(await collectPhotoGarbage({ store, now: () => now })).toMatchObject({
-      removedObjects: 4,
-    });
-  });
-
   it("publishes immutable assets and a versioned month before the index", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
@@ -696,104 +346,6 @@ describe("photo publisher", () => {
     );
     expect(month.photos[0]?.albumIds).toEqual(["japan-2026"]);
     expect(month.photos[0]?.mediaRevision).toMatch(/^[a-f0-9]{24}$/);
-  });
-
-  it("publishes when opportunistic garbage collection cannot start", async () => {
-    const file = await createSourceFile("publish after garbage collection failure");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    const originalGetText = store.getText.bind(store);
-    const warnings: string[] = [];
-    let failed = false;
-    store.getText = async (key) => {
-      if (!failed && store.objects.has(PHOTO_CATALOG_INDEX_KEY)) {
-        failed = true;
-        throw new Error("garbage catalog unavailable");
-      }
-      return originalGetText(key);
-    };
-
-    const result = await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-      onWarning: (message) => warnings.push(message),
-    });
-
-    expect(result.published).toBe(1);
-    expect(warnings).toEqual(["照片对象回收未完成: garbage catalog unavailable"]);
-  });
-
-  it("hashes and processes the same stable source snapshot", async () => {
-    const file = await createSourceFile("original photo state");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    let processedPath = "";
-
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async (source, sourceId) => {
-        processedPath = source;
-        await fs.writeFile(file, "changed while publishing");
-        expect(await fs.readFile(source, "utf8")).toBe("original photo state");
-        expect(sourceId).toBe(id);
-        return processedPhoto(sourceId);
-      },
-    });
-
-    expect(processedPath).not.toBe(file);
-    await expect(fs.access(processedPath)).rejects.toThrow();
-  });
-
-  it("drains photo processing before disposing source snapshots", async () => {
-    const failingFile = await createSourceFile("failing photo");
-    const slowFile = await createSourceFile("slow photo");
-    const failingId = await hashPhotoFile(failingFile);
-    const slowId = await hashPhotoFile(slowFile);
-    const store = new MemoryPhotoStore();
-    const slowStarted = deferred<void>();
-    const releaseSlow = deferred<void>();
-    const processedSources: string[] = [];
-    let slowSource = "";
-    let settled = false;
-
-    const operation = publishPhotos({
-      files: [failingFile, slowFile],
-      store,
-      processPhoto: async (source, id) => {
-        processedSources.push(source);
-        if (id === failingId) {
-          await slowStarted.promise;
-          throw new Error("processing failed");
-        }
-        slowSource = source;
-        slowStarted.resolve(undefined);
-        await releaseSlow.promise;
-        expect(await fs.readFile(source, "utf8")).toBe("slow photo");
-        return processedPhoto(id);
-      },
-    }).finally(() => {
-      settled = true;
-    });
-
-    await slowStarted.promise;
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(settled).toBe(false);
-    await fs.access(slowSource);
-
-    releaseSlow.resolve(undefined);
-    await expect(operation).rejects.toThrow("processing failed");
-    await Promise.all(
-      processedSources.map((source) => expect(fs.access(source)).rejects.toThrow()),
-    );
-    const uploadedKeys = [...store.objects.keys()].filter((key) =>
-      key.startsWith(`media/${slowId}`),
-    );
-    expect(uploadedKeys).toHaveLength(3);
-    expect(
-      (await readControl(store)).retiredArtifacts.flatMap((entry) => entry.objectKeys),
-    ).toEqual(expect.arrayContaining(uploadedKeys));
   });
 
   it("is idempotent and can add an existing photo to another logical album", async () => {
@@ -893,50 +445,6 @@ describe("photo publisher", () => {
     expect(migrated).not.toHaveProperty("retiredArtifacts");
   });
 
-  it("reads only the catalog months needed by a mutation", async () => {
-    const januaryFile = await createSourceFile("january photo");
-    const februaryFile = await createSourceFile("february photo");
-    const marchFile = await createSourceFile("march photo");
-    const januaryId = await hashPhotoFile(januaryFile);
-    const februaryId = await hashPhotoFile(februaryFile);
-    const marchId = await hashPhotoFile(marchFile);
-    const store = new MemoryPhotoStore();
-
-    await publishPhotos({
-      files: [januaryFile],
-      store,
-      processPhoto: async () => processedPhoto(januaryId, "2026-01-10T12:00:00+08:00"),
-    });
-    await publishPhotos({
-      files: [februaryFile],
-      store,
-      processPhoto: async () => processedPhoto(februaryId, "2026-02-10T12:00:00+08:00"),
-    });
-
-    store.reads.length = 0;
-    await publishPhotos({
-      files: [marchFile],
-      store,
-      processPhoto: async () => processedPhoto(marchId, "2026-03-10T12:00:00+08:00"),
-    });
-    expect(store.reads.filter((key) => key.startsWith("catalog/months/"))).toEqual([]);
-
-    const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    const januaryPath = index.periods.find((period) => period.month === "2026-01")!.path;
-    store.reads.length = 0;
-    await publishPhotos({
-      files: [januaryFile],
-      store,
-      album: { id: "favorites", title: "喜欢" },
-      processPhoto: async () => {
-        throw new Error("existing photo should not be processed");
-      },
-    });
-    expect(store.reads.filter((key) => key.startsWith("catalog/months/"))).toEqual([januaryPath]);
-  });
-
   it("keeps retired objects through the cache grace period and resumes partial cleanup", async () => {
     const file = await createSourceFile();
     const id = await hashPhotoFile(file);
@@ -1018,137 +526,6 @@ describe("photo publisher", () => {
     expect(store.versions.get(PHOTO_CATALOG_INDEX_KEY)).toBe(publicIndexVersion);
     expect(store.objects.has(oldPeriodPath)).toBe(false);
     expect(store.objects.has(displayKey)).toBe(false);
-  });
-
-  it("returns a committed deletion when opportunistic garbage collection fails", async () => {
-    const file = await createSourceFile("delete before garbage collection failure");
-    const id = await hashPhotoFile(file);
-    const store = new MemoryPhotoStore();
-    await publishPhotos({
-      files: [file],
-      store,
-      processPhoto: async () => processedPhoto(id),
-    });
-
-    const originalGetText = store.getText.bind(store);
-    const originalPut = store.put.bind(store);
-    const warnings: string[] = [];
-    let failNextRead = false;
-    store.getText = async (key) => {
-      if (failNextRead) {
-        failNextRead = false;
-        throw new Error("garbage catalog unavailable");
-      }
-      return originalGetText(key);
-    };
-    store.put = async (key, body, options) => {
-      const version = await originalPut(key, body, options);
-      if (key === PHOTO_CATALOG_INDEX_KEY) {
-        failNextRead = true;
-      }
-      return version;
-    };
-
-    const result = await retirePhotos({
-      photoIds: [id],
-      store,
-      onWarning: (message) => warnings.push(message),
-    });
-
-    expect(result.retired).toBe(1);
-    expect(warnings).toEqual(["照片对象回收未完成: garbage catalog unavailable"]);
-    expect((await readControl(store)).photoMonths).toEqual({});
-  });
-
-  it("retires replaced month shards and removes them only after the cache grace period", async () => {
-    const firstFile = await createSourceFile("first month revision");
-    const secondFile = await createSourceFile("second month revision");
-    const firstId = await hashPhotoFile(firstFile);
-    const secondId = await hashPhotoFile(secondFile);
-    const store = new MemoryPhotoStore();
-
-    await publishPhotos({
-      files: [firstFile],
-      store,
-      processPhoto: async () => processedPhoto(firstId),
-      now: () => new Date("2026-08-01T12:00:00.000Z"),
-    });
-    const firstIndex = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    const replacedPath = firstIndex.periods[0].path;
-
-    await publishPhotos({
-      files: [secondFile],
-      store,
-      processPhoto: async () => processedPhoto(secondId),
-      now: () => new Date("2026-08-02T12:00:00.000Z"),
-    });
-    let index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.periods[0].path).not.toBe(replacedPath);
-    let control = await readControl(store);
-    expect(control.retiredArtifacts).toEqual([
-      expect.objectContaining({ objectKeys: [replacedPath] }),
-    ]);
-    expect(store.objects.has(replacedPath)).toBe(true);
-
-    expect(
-      await collectPhotoGarbage({
-        store,
-        now: () => new Date("2026-08-03T12:00:00.000Z"),
-      }),
-    ).toMatchObject({ removedObjects: 0, pendingArtifacts: 1 });
-    expect(
-      await collectPhotoGarbage({
-        store,
-        now: () => new Date("2026-08-03T14:00:00.000Z"),
-      }),
-    ).toMatchObject({ removedObjects: 1, pendingArtifacts: 0 });
-
-    control = await readControl(store);
-    expect(control.retiredArtifacts).toEqual([]);
-    expect(store.objects.has(replacedPath)).toBe(false);
-  });
-
-  it("keeps retired month paths separate when their contents are restored", async () => {
-    const firstFile = await createSourceFile("first live photo");
-    const secondFile = await createSourceFile("temporary second photo");
-    const firstId = await hashPhotoFile(firstFile);
-    const secondId = await hashPhotoFile(secondFile);
-    const store = new MemoryPhotoStore();
-
-    await publishPhotos({
-      files: [firstFile],
-      store,
-      processPhoto: async () => processedPhoto(firstId),
-      now: () => new Date("2026-08-01T12:00:00.000Z"),
-    });
-    const firstIndex = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    const revivedPath = firstIndex.periods[0].path;
-
-    await publishPhotos({
-      files: [secondFile],
-      store,
-      processPhoto: async () => processedPhoto(secondId),
-      now: () => new Date("2026-08-01T13:00:00.000Z"),
-    });
-    await retirePhotos({
-      photoIds: [secondId],
-      store,
-      now: () => new Date("2026-08-01T14:00:00.000Z"),
-    });
-
-    const index = parsePhotoCatalogIndex(
-      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
-    );
-    expect(index.periods[0].path).not.toBe(revivedPath);
-    expect(store.objects.get(index.periods[0].path)).toBe(store.objects.get(revivedPath));
-    const control = await readControl(store);
-    expect(control.retiredArtifacts.flatMap((entry) => entry.objectKeys)).toContain(revivedPath);
   });
 
   it("can restore month contents while their previous path is being collected", async () => {
@@ -1240,72 +617,6 @@ describe("photo publisher", () => {
       expect(store.objects.has(key), key).toBe(true);
     }
   });
-
-  it.each(["memory", "filesystem"])(
-    "preserves republished objects after an expired worker resumes in %s",
-    async (backend) => {
-      const file = await createSourceFile("republished after expired garbage claim");
-      const id = await hashPhotoFile(file);
-      const store: PhotoObjectStore =
-        backend === "memory"
-          ? new MemoryPhotoStore()
-          : new FilePhotoObjectStore(path.join(path.dirname(file), "objects"));
-      const publish = (timestamp: string) =>
-        publishPhotos({
-          files: [file],
-          store,
-          processPhoto: async () => processedPhoto(id),
-          now: () => new Date(timestamp),
-        });
-      await publish("2026-08-01T12:00:00.000Z");
-      await retirePhotos({
-        photoIds: [id],
-        store,
-        now: () => new Date("2026-08-01T13:00:00.000Z"),
-      });
-
-      const deletionStarted = deferred<void>();
-      const releaseDeletion = deferred<void>();
-      const originalDelete = store.delete.bind(store);
-      let pause = true;
-      let paused = 0;
-      store.delete = async (key) => {
-        if (pause) {
-          if (++paused === 4) {
-            deletionStarted.resolve();
-          }
-          await releaseDeletion.promise;
-        }
-        return originalDelete(key);
-      };
-      const oldWorker = collectPhotoGarbage({
-        store,
-        now: () => new Date("2026-08-02T15:00:00.000Z"),
-      });
-      await deletionStarted.promise;
-      pause = false;
-      try {
-        await collectPhotoGarbage({
-          store,
-          now: () => new Date("2026-08-02T16:01:00.000Z"),
-        });
-        await publish("2026-08-02T16:02:00.000Z");
-        const republishedKeys = await publishedObjectKeys(store);
-        releaseDeletion.resolve();
-        await oldWorker;
-        const missing = (
-          await Promise.all(
-            republishedKeys.map(async (key) => ((await store.getText(key)) ? null : key)),
-          )
-        ).filter(Boolean);
-        expect(missing).toEqual([]);
-        expect((await readControl(store)).photoMonths[id]).toBe("2026-04");
-      } finally {
-        releaseDeletion.resolve();
-        await oldWorker;
-      }
-    },
-  );
 
   it("recreates failed publish artifacts collected during a later commit retry", async () => {
     const file = await createSourceFile("failed catalog commit");

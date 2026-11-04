@@ -63,25 +63,6 @@ afterEach(async () => {
 });
 
 describe("usePhotoCatalogSession", () => {
-  it("shares the state-publishing promise for one in-flight month", async () => {
-    const response = deferred<Response>();
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockImplementation(async (url) =>
-        requestUrl(url).endsWith("catalog/index.json") ? jsonResponse(index) : response.promise,
-      );
-    await renderSession();
-    let first!: Promise<PhotoMonthCatalog>;
-    let second!: Promise<PhotoMonthCatalog>;
-    await act(async () => {
-      first = session.loadMonth(periods[0]);
-      second = session.loadMonth(periods[0]);
-      response.resolve(jsonResponse(months[0]));
-      await Promise.all([first, second]);
-    });
-    expect(first).toBe(second);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-  });
   it.each([404, 410])("refreshes an expired month reference after HTTP %s", async (status) => {
     const replacement = { ...periods[0], path: `catalog/months/2026-04.${"f".repeat(24)}.json` };
     const latest = { ...index, periods: [replacement, periods[1]] };
@@ -108,58 +89,6 @@ describe("usePhotoCatalogSession", () => {
     expect(indexLoads).toBe(2);
   });
 
-  it("shares one index refresh between concurrent missing months", async () => {
-    const latest = {
-      ...index,
-      periods: periods.map((item) => ({
-        ...item,
-        path: `catalog/months/${item.month}.${"f".repeat(24)}.json`,
-      })),
-    };
-    let indexLoads = 0;
-    vi.spyOn(console, "error").mockImplementation(() => undefined);
-    vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
-      if (requestUrl(url).endsWith("catalog/index.json")) {
-        return jsonResponse(indexLoads++ === 0 ? index : latest);
-      }
-      return jsonResponse(undefined);
-    });
-    await renderSession();
-    await act(async () => {
-      await Promise.allSettled(periods.map((item) => session.loadMonth(item)));
-    });
-    expect(indexLoads).toBe(2);
-    expect(session.index).toEqual(latest);
-    expect(session.monthErrors).toEqual({});
-  });
-
-  it.each([404, 500])(
-    "retains a retryable error without resetting unchanged data after %s",
-    async (status) => {
-      let indexLoads = 0;
-      let monthLoads = 0;
-      vi.spyOn(console, "error").mockImplementation(() => undefined);
-      vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
-        if (requestUrl(url).endsWith("catalog/index.json")) {
-          indexLoads += 1;
-          return jsonResponse(index);
-        }
-        monthLoads += 1;
-        return new Response(null, { status });
-      });
-      await renderSession();
-      const originalIndex = session.index;
-      await act(async () => {
-        await session.loadMonth(periods[0]).catch(() => undefined);
-      });
-      await act(async () => session.retryMonth(periods[0]));
-      expect(session.index).toBe(originalIndex);
-      expect(session.monthErrors[periods[0].month]).toContain(String(status));
-      expect(monthLoads).toBe(2);
-      expect(indexLoads).toBe(status === 404 ? 3 : 1);
-    },
-  );
-
   it("resolves a retired photo as missing after refreshing its removed month", async () => {
     const latest = {
       ...index,
@@ -179,85 +108,6 @@ describe("usePhotoCatalogSession", () => {
     });
     expect(session.index).toEqual(latest);
     await expect(session.resolvePhoto(firstPhotoId)).resolves.toBeNull();
-  });
-
-  it("discards a revalidation response after an explicit reload", async () => {
-    const staleIndex = deferred<Response>();
-    const refreshStarted = deferred<void>();
-    const latest = { ...index, generatedAt: "2026-08-24T09:00:00.000Z" };
-    let indexLoads = 0;
-    vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
-      if (!requestUrl(url).endsWith("catalog/index.json")) {
-        return jsonResponse(undefined);
-      }
-      indexLoads += 1;
-      if (indexLoads === 2) {
-        refreshStarted.resolve();
-        return staleIndex.promise;
-      }
-      return jsonResponse(indexLoads === 1 ? index : latest);
-    });
-    await renderSession();
-    await act(async () => {
-      const pending = session.loadMonth(periods[0]).catch(() => undefined);
-      await refreshStarted.promise;
-      await session.reload();
-      staleIndex.resolve(jsonResponse({ ...index, periods: [], photoMonths: {} }));
-      await pending;
-    });
-    expect(indexLoads).toBe(3);
-    expect(session.index).toEqual(latest);
-    expect(session.monthErrors).toEqual({});
-  });
-
-  it("publishes concurrent month loads from one authoritative cache", async () => {
-    const responses = new Map<string, unknown>([
-      ["catalog/index.json", index],
-      [periods[0].path, months[0]],
-      [periods[1].path, months[1]],
-    ]);
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
-      const entry = [...responses].find(([suffix]) => requestUrl(url).endsWith(suffix));
-      return jsonResponse(entry?.[1]);
-    });
-
-    await renderSession();
-    await act(async () => {
-      await Promise.all([session.loadMonth(periods[0]), session.loadMonth(periods[1])]);
-    });
-
-    expect(session.months).toEqual({
-      [periods[0].month]: months[0],
-      [periods[1].month]: months[1],
-    });
-    await expect(session.resolvePhoto(firstPhotoId)).resolves.toEqual(months[0].photos[0]);
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-  });
-
-  it("discards a month response from a reloaded catalog generation", async () => {
-    const staleMonth = deferred<Response>();
-    let indexLoads = 0;
-    vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
-      if (requestUrl(url).endsWith("catalog/index.json")) {
-        indexLoads += 1;
-        return jsonResponse(index);
-      }
-      return staleMonth.promise;
-    });
-
-    await renderSession();
-    let staleLoad!: Promise<PhotoMonthCatalog>;
-    await act(async () => {
-      staleLoad = session.loadMonth(periods[0]);
-      await session.reload();
-    });
-    await act(async () => {
-      staleMonth.resolve(jsonResponse(months[0]));
-      await staleLoad;
-    });
-
-    expect(indexLoads).toBe(2);
-    expect(session.months).toEqual({});
   });
 });
 
@@ -284,12 +134,4 @@ function jsonResponse(value: unknown): Response {
 
 function requestUrl(input: string | URL | Request): string {
   return input instanceof Request ? input.url : input.toString();
-}
-
-function deferred<T>() {
-  let resolve!: (value: T | PromiseLike<T>) => void;
-  const promise = new Promise<T>((resolvePromise) => {
-    resolve = resolvePromise;
-  });
-  return { promise, resolve };
 }

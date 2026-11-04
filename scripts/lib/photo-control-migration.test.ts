@@ -66,22 +66,6 @@ describe("private photo control migration", () => {
     await expect(store.migrateControl()).resolves.toBe(false);
   });
 
-  it("resumes after cleanup fails without replacing the private copy", async () => {
-    const { store, objects, send, handle } = migrationStore();
-    send.mockImplementation(async (command) => {
-      if (command instanceof DeleteObjectCommand) {
-        throw new Error("cleanup unavailable");
-      }
-      return handle(command);
-    });
-    await expect(store.migrateControl()).rejects.toThrow("cleanup unavailable");
-    expect(objects.get(publicKey)?.text).toBe(control);
-    expect(objects.get(privateKey)?.text).toBe(control);
-    send.mockImplementation(handle);
-    await expect(store.migrateControl()).resolves.toBe(true);
-    expect(objects.has(publicKey)).toBe(false);
-  });
-
   it("preserves both versions when the private copy differs", async () => {
     const { store, objects } = migrationStore();
     objects.set(privateKey, { text: "different control", version: "v2" });

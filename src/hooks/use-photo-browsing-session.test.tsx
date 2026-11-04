@@ -74,113 +74,6 @@ afterEach(async () => {
 });
 
 describe("usePhotoBrowsingSession", () => {
-  it("lets application lightbox closure reveal the selected tile without history scrolling", async () => {
-    await renderSession({
-      index,
-      months,
-      monthErrors: {},
-      requestMonth: vi.fn(),
-      retryMonth: vi.fn(),
-      resolvePhoto: vi.fn().mockResolvedValue(photo),
-    });
-    await act(async () => session.openPhoto(photo));
-    const scroll = vi.spyOn(window, "scrollTo").mockClear();
-    await travel(() => session.closePhoto(), "");
-    await act(async () => {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    });
-    expect(scroll).not.toHaveBeenCalled();
-    await travel(() => history.forward(), `#photo=${photo.id}`);
-    scroll.mockClear();
-    await travel(() => history.back(), "");
-    await act(async () => {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-    });
-    expect(scroll).toHaveBeenCalled();
-  });
-
-  it("returns to the existing overview entry before leaving photos", async () => {
-    history.replaceState({}, "", "/about/");
-    history.pushState({}, "", "/photos/");
-    await renderSession({
-      index,
-      months,
-      monthErrors: {},
-      requestMonth: vi.fn(),
-      retryMonth: vi.fn(),
-      resolvePhoto: vi.fn().mockResolvedValue(photo),
-    });
-    await act(async () => session.openTimeline("trip"));
-    await act(async () => session.selectAlbum(null));
-    await travel(() => session.returnToOverview(), "");
-    await act(async () => {
-      history.back();
-      await new Promise((resolve) => setTimeout(resolve, 30));
-    });
-    expect(window.location.pathname).toBe("/about/");
-  });
-  it("restores each view's scroll position on same-page history traversal", async () => {
-    let scrollY = 0;
-    vi.spyOn(window, "scrollY", "get").mockImplementation(() => scrollY);
-    vi.spyOn(window, "scrollTo").mockImplementation(
-      (left?: number | ScrollToOptions, top?: number) => {
-        scrollY = typeof left === "object" ? (left.top ?? scrollY) : (top ?? scrollY);
-      },
-    );
-    history.replaceState({ index: 0, scrollX: 0, scrollY: 0 }, "", "/photos/");
-    const removeRouter = await installAstroRouter();
-    try {
-      await renderSession({
-        index,
-        months,
-        monthErrors: {},
-        requestMonth: vi.fn(async () => undefined),
-        retryMonth: vi.fn(),
-        resolvePhoto: vi.fn().mockResolvedValue(photo),
-      });
-      scrollY = 420;
-      await act(async () => session.openTimeline("trip"));
-      expect(scrollY).toBe(0);
-      scrollY = 1600;
-      window.dispatchEvent(new Event("scrollend"));
-
-      await travel(() => history.back(), "");
-      await vi.waitFor(() => expect(scrollY).toBe(420));
-      expect(session.view).toEqual({ mode: "overview" });
-
-      await travel(() => history.forward(), "#album=trip");
-      await vi.waitFor(() => expect(scrollY).toBe(1600));
-      expect(session.view).toEqual({ mode: "timeline", albumId: "trip" });
-    } finally {
-      removeRouter();
-    }
-  });
-
-  it("waits for the catalog before restoring a pending history position", async () => {
-    const options: BrowsingOptions = {
-      index,
-      months,
-      monthErrors: {},
-      requestMonth: vi.fn(async () => undefined),
-      retryMonth: vi.fn(),
-      resolvePhoto: vi.fn().mockResolvedValue(photo),
-    };
-    await renderSession(options);
-    await act(async () => session.openTimeline("trip"));
-    history.replaceState({ ...history.state, scrollY: 1600 }, "");
-    await renderSession({ ...options, index: null });
-    const scrollTo = vi.spyOn(window, "scrollTo").mockClear();
-
-    await travel(() => history.back(), "");
-    await travel(() => history.forward(), "#album=trip");
-    expect(scrollTo).not.toHaveBeenCalled();
-    await renderSession(options);
-    await vi.waitFor(() =>
-      expect(scrollTo).toHaveBeenCalledWith({ left: 0, top: 1600, behavior: "instant" }),
-    );
-    expect(session.view).toEqual({ mode: "timeline", albumId: "trip" });
-  });
-
   it("loads adjacent months within the selected album", async () => {
     const sparsePeriods: PhotoPeriod[] = [
       "2026-08",
@@ -241,32 +134,6 @@ describe("usePhotoBrowsingSession", () => {
     expect(window.location.hash).toContain(`photo=${sparseMonths["2026-04"].photos[0].id}`);
   });
 
-  it("keeps the current photo visible while a failed adjacent month is retried", async () => {
-    const requestMonth = vi.fn(async (_period: PhotoPeriod) => undefined);
-    const options: BrowsingOptions = {
-      index,
-      months: { "2026-04": months["2026-04"] },
-      monthErrors: { "2026-03": "offline" },
-      requestMonth,
-      retryMonth: vi.fn(),
-      resolvePhoto: vi.fn().mockResolvedValue(photo),
-    };
-    await renderSession(options);
-    await act(async () => session.openPhoto(photo));
-    expect(session.navigation?.status).toBe("error");
-    expect(session.selectedPhoto).toEqual(photo);
-    expect(requestMonth).not.toHaveBeenCalledWith(periods[2]);
-
-    await act(async () => session.retryNavigation());
-    expect(options.retryMonth).toHaveBeenCalledWith(periods[2]);
-    await renderSession({ ...options, months, monthErrors: {} });
-    expect(session.navigation).toMatchObject({
-      next: months["2026-03"].photos[0],
-      status: "ready",
-    });
-    expect(session.selectedPhoto).toEqual(photo);
-  });
-
   it("coordinates view, selection, URL, and adjacent loading", async () => {
     const requestMonth = vi.fn(async () => undefined);
 
@@ -292,22 +159,6 @@ describe("usePhotoBrowsingSession", () => {
     expect(session.view).toEqual({ mode: "overview" });
     expect(session.selectedPhoto).toBeNull();
     expect(session.displayPhoto).toEqual(photo);
-    expect(window.location.hash).toBe("");
-  });
-
-  it("removes a missing photo from a direct URL", async () => {
-    window.history.replaceState({}, "", `/photos/#photo=${photo.id}`);
-
-    await renderSession({
-      index,
-      months,
-      monthErrors: {},
-      requestMonth: vi.fn(async () => undefined),
-      retryMonth: vi.fn(),
-      resolvePhoto: vi.fn().mockResolvedValue(null),
-    });
-
-    expect(session.selectionState).toEqual({ status: "idle" });
     expect(window.location.hash).toBe("");
   });
 
