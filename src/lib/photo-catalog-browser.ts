@@ -11,11 +11,6 @@ import {
   type PhotoRecord,
 } from "./photo-catalog";
 
-export type PhotoCatalogRequest = (
-  url: string,
-  options: { cache: RequestCache; signal?: AbortSignal },
-) => Promise<unknown>;
-
 export type PhotoResolution =
   | { status: "ready"; photo: PhotoRecord }
   | { status: "missing" }
@@ -36,14 +31,12 @@ export class PhotoCatalogNotFoundError extends Error {}
 
 export class PhotoCatalogBrowser {
   readonly baseUrl: string;
-  readonly request: PhotoCatalogRequest;
   private pendingIndex:
     | { signal: AbortSignal | undefined; request: Promise<PhotoCatalogIndex> }
     | undefined;
 
-  constructor(baseUrl: string, request: PhotoCatalogRequest = requestJson) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
-    this.request = request;
   }
 
   async loadIndex(signal?: AbortSignal): Promise<PhotoCatalogIndex> {
@@ -53,7 +46,7 @@ export class PhotoCatalogBrowser {
     if (this.pendingIndex && this.pendingIndex.signal === signal) {
       return this.pendingIndex.request;
     }
-    const request = this.request(catalogIndexUrl(this.baseUrl), {
+    const request = requestJson(catalogIndexUrl(this.baseUrl), {
       cache: "no-cache",
       signal,
     })
@@ -72,7 +65,7 @@ export class PhotoCatalogBrowser {
     period: PhotoPeriod,
     signal?: AbortSignal,
   ): Promise<PhotoMonthCatalog> {
-    return this.request(photoObjectUrl(this.baseUrl, period.path), {
+    return requestJson(photoObjectUrl(this.baseUrl, period.path), {
       cache: "force-cache",
       signal,
     }).then((value) => validatePhotoMonth(index, period, parsePhotoMonthCatalog(value)));

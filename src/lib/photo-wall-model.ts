@@ -199,7 +199,7 @@ function previewPeriods(periods: PhotoPeriod[], albumId: string, limit: number):
   return result;
 }
 
-export function formatPeriodRange(periods: PhotoPeriod[], locale: Locale = "zh"): string {
+function formatPeriodRange(periods: PhotoPeriod[], locale: Locale = "zh"): string {
   const newest = periods[0]?.month;
   const oldest = periods.at(-1)?.month;
   if (!newest || !oldest) {

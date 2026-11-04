@@ -1,21 +1,22 @@
-export type SmartHeaderState = "pinned" | "hidden" | "revealed";
+type SmartHeaderState = "pinned" | "hidden" | "revealed";
 
-export type ComputeStateOptions = {
+const DEFAULT_THRESHOLD = 240;
+const TOLERANCE = 8;
+
+type ComputeStateOptions = {
   currentY: number;
   lastY: number;
   threshold: number;
-  tolerance?: number;
   currentState: SmartHeaderState;
-  forceVisible?: boolean;
+  forceVisible: boolean;
 };
 
-export function computeSmartHeaderState({
+function computeSmartHeaderState({
   currentY,
   lastY,
   threshold,
-  tolerance = 8,
   currentState,
-  forceVisible = false,
+  forceVisible,
 }: ComputeStateOptions): SmartHeaderState {
   if (forceVisible || currentY <= threshold) {
     return "pinned";
@@ -23,35 +24,30 @@ export function computeSmartHeaderState({
 
   const diff = currentY - lastY;
 
-  if (diff > tolerance) {
+  if (diff > TOLERANCE) {
     return "hidden";
   }
 
-  if (diff < -tolerance) {
+  if (diff < -TOLERANCE) {
     return "revealed";
   }
 
   return currentState;
 }
 
-export type AttachSmartHeaderOptions = {
+type AttachSmartHeaderOptions = {
   header: HTMLElement;
   thresholdTarget?: HTMLElement | null;
-  defaultThreshold?: number;
-  tolerance?: number;
   isLocked?: () => boolean;
 };
 
 export type SmartHeaderController = {
-  update: () => void;
   destroy: () => void;
 };
 
 export function attachSmartHeader({
   header,
   thresholdTarget,
-  defaultThreshold = 240,
-  tolerance = 8,
   isLocked,
 }: AttachSmartHeaderOptions): SmartHeaderController {
   let state: SmartHeaderState = "pinned";
@@ -65,7 +61,7 @@ export function attachSmartHeader({
       const absoluteBottom = rect.bottom + window.scrollY;
       return Math.max(0, absoluteBottom);
     }
-    return defaultThreshold;
+    return DEFAULT_THRESHOLD;
   }
 
   function applyState(nextState: SmartHeaderState) {
@@ -84,7 +80,6 @@ export function attachSmartHeader({
       currentY,
       lastY,
       threshold,
-      tolerance,
       currentState: state,
       forceVisible: locked,
     });
@@ -108,14 +103,6 @@ export function attachSmartHeader({
   window.addEventListener("scroll", onScroll, { passive: true });
 
   return {
-    update() {
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      scheduled = false;
-      tick();
-    },
     destroy() {
       if (rafId !== null) {
         window.cancelAnimationFrame(rafId);

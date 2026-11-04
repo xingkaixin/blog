@@ -36,23 +36,6 @@ const FONT_FILES = [
 
 type Post = PublishedPost;
 
-export type GenerateOgImagesOptions = {
-  outputDirectory: string;
-  cacheFile: string;
-  posts: Post[];
-  rendererFingerprint: string;
-  coverSource: (post: Post) => Buffer;
-  renderPost: (post: Post, output: string) => Promise<void>;
-  renderSite: (output: string, locale: Locale) => Promise<void>;
-  concurrency?: number;
-};
-
-export type GenerateOgImagesResult = {
-  rendered: number;
-  skipped: number;
-  removed: number;
-};
-
 const colors = {
   paper: "#f8f7f2",
   ink: "#232820",
@@ -311,46 +294,7 @@ async function renderSite(output: string, locale: Locale) {
   await renderToFile(siteLayout(`data:image/png;base64,${art.toString("base64")}`, locale), output);
 }
 
-export async function generateOgImages(
-  options: GenerateOgImagesOptions = defaultOptions(),
-): Promise<GenerateOgImagesResult> {
-  const sitePlans = (["zh", "en"] as const).map((locale): ArtifactPlan => {
-    const key = locale === "zh" ? "site" : "site-en";
-    const output = path.join(options.outputDirectory, `${key}.png`);
-    return {
-      key,
-      fingerprint: () => fingerprint(siteFingerprintParts(options.rendererFingerprint, locale)),
-      outputs: [output],
-      generate: () => options.renderSite(output, locale),
-    };
-  });
-  const plans: ArtifactPlan[] = [
-    ...sitePlans,
-    ...options.posts.map((post): ArtifactPlan => {
-      const output = path.join(options.outputDirectory, `${post.slug}.png`);
-      return {
-        key: `post:${post.slug}`,
-        fingerprint: () =>
-          fingerprint(
-            postFingerprintParts(post, options.rendererFingerprint, options.coverSource(post)),
-          ),
-        outputs: [output],
-        generate: () => options.renderPost(post, output),
-      };
-    }),
-  ];
-  const result = await reconcileArtifacts({
-    outputDirectory: options.outputDirectory,
-    manifestFile: options.cacheFile,
-    artifactExtension: ".png",
-    plans,
-    concurrency: options.concurrency ?? RENDER_CONCURRENCY,
-  });
-
-  return { rendered: result.generated, skipped: result.reused, removed: result.removed };
-}
-
-function defaultOptions(): GenerateOgImagesOptions {
+async function generateOgImages() {
   const rendererFingerprint = fingerprint([
     fs.readFileSync(fileURLToPath(import.meta.url)),
     fs.readFileSync(fileURLToPath(new URL("../src/lib/calendar-date.ts", import.meta.url))),
@@ -362,20 +306,45 @@ function defaultOptions(): GenerateOgImagesOptions {
     ...FONT_FILES.map(({ file }) => fs.readFileSync(path.join(FONT_DIR, file))),
     JSON.stringify(sharp.versions),
   ]);
-  return {
+  const sitePlans = (["zh", "en"] as const).map((locale): ArtifactPlan => {
+    const key = locale === "zh" ? "site" : "site-en";
+    const output = path.join(OUTPUT_DIR, `${key}.png`);
+    return {
+      key,
+      fingerprint: () => fingerprint(siteFingerprintParts(rendererFingerprint, locale)),
+      outputs: [output],
+      generate: () => renderSite(output, locale),
+    };
+  });
+  const plans: ArtifactPlan[] = [
+    ...sitePlans,
+    ...readPublishedPosts(POSTS_DIR).map((post): ArtifactPlan => {
+      const output = path.join(OUTPUT_DIR, `${post.slug}.png`);
+      return {
+        key: `post:${post.slug}`,
+        fingerprint: () =>
+          fingerprint(
+            postFingerprintParts(
+              post,
+              rendererFingerprint,
+              fs.readFileSync(path.join(COVER_DIR, path.basename(post.cover))),
+            ),
+          ),
+        outputs: [output],
+        generate: () => renderPost(post, output),
+      };
+    }),
+  ];
+  return reconcileArtifacts({
     outputDirectory: OUTPUT_DIR,
-    cacheFile: CACHE_FILE,
-    posts: readPublishedPosts(POSTS_DIR),
-    rendererFingerprint,
-    coverSource: (post) => fs.readFileSync(path.join(COVER_DIR, path.basename(post.cover))),
-    renderPost,
-    renderSite,
-  };
+    manifestFile: CACHE_FILE,
+    artifactExtension: ".png",
+    plans,
+    concurrency: RENDER_CONCURRENCY,
+  });
 }
 
-if (import.meta.main) {
-  const result = await generateOgImages();
-  console.log(
-    `✅ OG 图片：生成 ${result.rendered}，跳过 ${result.skipped}，清理 ${result.removed}: ${OUTPUT_DIR}`,
-  );
-}
+const result = await generateOgImages();
+console.log(
+  `✅ OG 图片：生成 ${result.generated}，跳过 ${result.reused}，清理 ${result.removed}: ${OUTPUT_DIR}`,
+);

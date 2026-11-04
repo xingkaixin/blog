@@ -62,7 +62,7 @@ async function collectDirectoryPhotos(directory: string, output: string[]): Prom
   }
 }
 
-export function isSupportedPhoto(file: string): boolean {
+function isSupportedPhoto(file: string): boolean {
   return SUPPORTED_EXTENSIONS.has(path.extname(file).toLowerCase());
 }
 
@@ -99,7 +99,7 @@ export async function snapshotPhotoFile(file: string): Promise<PhotoSourceSnapsh
   }
 }
 
-export function resolveCapturedAt(
+function resolveCapturedAt(
   tags: Pick<Tags, "SubSecDateTimeOriginal" | "DateTimeOriginal">,
   fallbackTimezone?: string,
 ): string {

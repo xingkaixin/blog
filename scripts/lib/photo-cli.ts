@@ -55,7 +55,7 @@ export type PhotoCliProcessor = {
   close(): Promise<void>;
 };
 
-export type PhotoCliIo = {
+type PhotoCliIo = {
   log(message: string): void;
   error(message: string): void;
   write(message: string): void;
@@ -126,12 +126,11 @@ export async function runPhotoCli(
   command: PhotoCommandName,
   args: string[],
   processor?: PhotoCliProcessor,
-  io: PhotoCliIo = defaultIo,
 ): Promise<void> {
   try {
-    await runCommand(command, args, processor, io);
+    await runCommand(command, args, processor, defaultIo);
   } catch (error) {
-    io.error(formatCliError(error));
+    defaultIo.error(formatCliError(error));
     process.exitCode = 1;
   }
 }
@@ -180,15 +179,12 @@ async function runCommand(
   await runMigrateCommand(parsePhotoCliArguments(command, args), io);
 }
 
-export function parsePhotoCliArguments(command: "publish", args: string[]): PublishPhotoCliOptions;
-export function parsePhotoCliArguments(command: "delete", args: string[]): DeletePhotoCliOptions;
-export function parsePhotoCliArguments(
-  command: "gc",
-  args: string[],
-): GarbageCollectPhotoCliOptions;
-export function parsePhotoCliArguments(command: "migrate", args: string[]): MigratePhotoCliOptions;
-export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions;
-export function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions {
+function parsePhotoCliArguments(command: "publish", args: string[]): PublishPhotoCliOptions;
+function parsePhotoCliArguments(command: "delete", args: string[]): DeletePhotoCliOptions;
+function parsePhotoCliArguments(command: "gc", args: string[]): GarbageCollectPhotoCliOptions;
+function parsePhotoCliArguments(command: "migrate", args: string[]): MigratePhotoCliOptions;
+function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions;
+function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions {
   const specification = COMMAND_ARGUMENTS[command];
   const parsed = parseArguments(args, {
     valueOptions: [...COMMON_VALUE_OPTIONS, ...specification.valueOptions],

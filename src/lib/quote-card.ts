@@ -39,11 +39,7 @@ const QUOTE_SIZES = [34, 32, 30, 28, 26, 24, 22];
 const QUOTE_LINE_HEIGHT = 1.42;
 const BREAK_BEFORE_FORBIDDEN = new Set("，。、；：？！”’）》」』…—,.;:?!)%".split(""));
 
-export function wrapText(
-  text: string,
-  maxWidth: number,
-  measure: (value: string) => number,
-): string[] {
+function wrapText(text: string, maxWidth: number, measure: (value: string) => number): string[] {
   const tokens = text.match(/[A-Za-z0-9][A-Za-z0-9'’._-]*|\s+|./gsu) ?? [];
   const lines: string[] = [];
   let line = "";

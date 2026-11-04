@@ -14,7 +14,7 @@ export function signatureCharacters(text: string) {
   return [...new Set(characters.filter((character) => !/\s/u.test(character)))];
 }
 
-export function selectSignatureGlyphs(glyphs: Record<string, unknown>, text: string) {
+function selectSignatureGlyphs(glyphs: Record<string, unknown>, text: string) {
   const characters = signatureCharacters(text);
   const missingCharacters = characters.filter((character) => !(character in glyphs));
 
