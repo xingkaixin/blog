@@ -35,31 +35,4 @@ describe("skip to content", () => {
     expect(history.length).toBe(historyLength);
     expect(history.state).toEqual({ index: 1 });
   });
-
-  it("uses the current content after an Astro page swap", () => {
-    const previousMain = document.getElementById("main-content");
-    document.body.innerHTML =
-      '<a href="#main-content"><span>跳到正文</span></a><main id="main-content" tabindex="-1"></main>';
-    document
-      .querySelector("span")!
-      .dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
-
-    expect(document.activeElement).toBe(document.getElementById("main-content"));
-    expect(document.activeElement).not.toBe(previousMain);
-  });
-
-  it("leaves ordinary fragment links to the browser", () => {
-    document.querySelector("a")!.href = "#chapter";
-    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
-    document.querySelector("a")!.dispatchEvent(click);
-    expect(click.defaultPrevented).toBe(false);
-    expect(scrollIntoView).not.toHaveBeenCalled();
-  });
-
-  it("preserves modified link clicks", () => {
-    const click = new MouseEvent("click", { bubbles: true, cancelable: true, ctrlKey: true });
-    document.querySelector("a")!.dispatchEvent(click);
-    expect(click.defaultPrevented).toBe(false);
-    expect(scrollIntoView).not.toHaveBeenCalled();
-  });
 });

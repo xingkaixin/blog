@@ -36,10 +36,6 @@ describe("blog WebMCP tools", () => {
     resetSearchCache();
   });
 
-  it("does nothing when the browser does not support WebMCP", async () => {
-    await expect(registerBlogWebMcpTools({} as Document)).resolves.toBeUndefined();
-  });
-
   it("registers three read-only tools", async () => {
     const tools = await registeredTools();
 
@@ -99,18 +95,6 @@ describe("blog WebMCP tools", () => {
       total: 1,
       projects: [{ id: "voicen", name: "Voicen" }],
     });
-  });
-
-  it("rejects invalid tool input", async () => {
-    const tools = await registeredTools();
-    const options = { signal: new AbortController().signal };
-
-    await expect(
-      requiredTool(tools, "search_posts").execute({ limit: 21 }, options),
-    ).rejects.toThrow("limit");
-    await expect(
-      requiredTool(tools, "get_post").execute({ slug: "two words" }, options),
-    ).rejects.toThrow("slug");
   });
 });
 

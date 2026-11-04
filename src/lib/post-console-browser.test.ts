@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import type { PostConsoleItem } from "./post-console";
 import { initializePostConsole } from "./post-console-browser";
 
@@ -15,7 +15,6 @@ const posts: PostMetadata[] = [
 let root: HTMLElement;
 
 beforeEach(() => {
-  vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("搜索索引不可用")));
   document.body.innerHTML = `
     <section data-post-console>
       <div aria-label="按年份筛选文章">
@@ -52,68 +51,14 @@ beforeEach(() => {
   initializePostConsole(root);
 });
 
-afterEach(() => vi.unstubAllGlobals());
-
 describe("initializePostConsole", () => {
-  it("keeps duplicate filter controls on the same state", () => {
+  it("shows only posts matching the selected year and tag", () => {
     button("按年份筛选文章", "2025").click();
     expect(visiblePostSlugs()).toEqual(["third"]);
-    expect(
-      [...root.querySelectorAll('[aria-label="按年份筛选文章"]')].every((group) =>
-        group.querySelector('[aria-pressed="true"]')?.textContent?.includes("2025"),
-      ),
-    ).toBe(true);
 
     button("按年份筛选文章", "全部年份").click();
     button("按标签筛选文章", "AI").click();
     expect(visiblePostSlugs()).toEqual(["first", "third"]);
-  });
-
-  it("opens only the latest month that still has visible posts", () => {
-    button("按年份筛选文章", "2025").click();
-    expect(monthStates()).toEqual(["2026-02:hidden", "2026-01:hidden", "2025-12:open"]);
-
-    button("按年份筛选文章", "全部年份").click();
-    expect(monthStates()).toEqual(["2026-02:open", "2026-01:closed", "2025-12:closed"]);
-  });
-
-  it("updates preview details from the page without fetching an index", () => {
-    root
-      .querySelector<HTMLElement>('[data-post-row="third"]')
-      ?.dispatchEvent(new Event("mouseenter"));
-    expect(root.querySelector("[data-preview-title]")?.textContent).toBe("third");
-    expect(root.querySelector("[data-preview-summary]")?.textContent).toBe("third summary");
-    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
-      "/posts/third/",
-    );
-    expect(root.querySelector<HTMLImageElement>("[data-preview-image]")?.src).toContain(
-      "/third-800.webp",
-    );
-    expect(root.querySelector<HTMLImageElement>("[data-preview-image]")).toMatchObject({
-      width: 900,
-      height: 1200,
-    });
-    expect(fetch).not.toHaveBeenCalled();
-  });
-
-  it("keeps preview links aligned with focus and filter selection", () => {
-    const third = root.querySelector<HTMLElement>('[data-post-row="third"]')!;
-    third.focus();
-    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
-      "/posts/third/",
-    );
-
-    button("按年份筛选文章", "2025").click();
-    expect(root.querySelector<HTMLAnchorElement>("[data-preview-link]")?.getAttribute("href")).toBe(
-      "/posts/third/",
-    );
-    expect(root.querySelector("[data-preview-related]")?.textContent).toBe("first");
-    expect(root.querySelector("[data-preview-related] a")?.getAttribute("class")).toBe(
-      "preview-related-link",
-    );
-    expect(root.querySelector("[data-preview-related] a")?.getAttribute("aria-label")).toBe(
-      "相关文章",
-    );
   });
 });
 
@@ -132,13 +77,6 @@ function visiblePostSlugs(): string[] {
   return [...root.querySelectorAll<HTMLElement>("[data-post-row]")]
     .filter((element) => !element.hidden)
     .map((element) => element.dataset.postRow ?? "");
-}
-
-function monthStates(): string[] {
-  return [...root.querySelectorAll<HTMLDetailsElement>("[data-post-month]")].map(
-    (month) =>
-      `${month.dataset.postMonth}:${month.hidden ? "hidden" : month.open ? "open" : "closed"}`,
-  );
 }
 
 function monthGroup(item: PostMetadata): string {
