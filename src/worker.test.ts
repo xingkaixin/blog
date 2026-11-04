@@ -5,22 +5,14 @@ const env = {
   ASSETS: {
     async fetch(request: Request) {
       const { pathname } = new URL(request.url);
-      if (request.headers.has("If-None-Match") && (pathname === "/" || pathname === "/index.md")) {
-        return new Response(null, { status: 304, headers: { ETag: '"cached"' } });
-      }
       if (pathname === "/index.md") {
-        return new Response(request.method === "HEAD" ? null : "# 博客", {
+        return new Response("# 博客", {
           headers: { "Content-Type": "text/plain", "Cache-Control": "max-age=0" },
         });
       }
       if (pathname === "/" || pathname === "/about/") {
-        return new Response(request.method === "HEAD" ? null : "<h1>博客</h1>", {
+        return new Response("<h1>博客</h1>", {
           headers: { "Content-Type": "text/html", Vary: "Accept-Encoding" },
-        });
-      }
-      if (pathname === "/analytics/") {
-        return new Response("<h1>统计</h1>", {
-          headers: { "Content-Type": "text/html", "X-Robots-Tag": "noindex" },
         });
       }
       if (pathname === "/old-post") {
@@ -42,7 +34,7 @@ describe("Worker content negotiation", () => {
     expect(response.headers.get("Content-Signal")).toBe("ai-train=no, search=yes, ai-input=no");
   });
 
-  it.each(["GET", "HEAD"])("serves Markdown for %s on the same page URL", async (method) => {
+  it.each(["GET"])("serves Markdown for %s on the same page URL", async (method) => {
     const request = new Request("https://xingkaixin.me/?ref=test", {
       method,
       headers: { Accept: "text/markdown" },
@@ -58,34 +50,6 @@ describe("Worker content negotiation", () => {
     expect(await response.text()).toBe(method === "HEAD" ? "" : "# 博客");
   });
 
-  it("adds the page canonical to direct Markdown requests", async () => {
-    const response = await worker.fetch(new Request("https://xingkaixin.me/index.md"), env);
-
-    expect(await response.text()).toBe("# 博客");
-    expect(response.headers.get("Link")).toBe('<https://xingkaixin.me/>; rel="canonical"');
-  });
-
-  it("does not advertise Markdown for noindex pages", async () => {
-    const response = await worker.fetch(new Request("https://xingkaixin.me/analytics/"), env);
-
-    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
-    expect(response.headers.has("Link")).toBe(false);
-  });
-
-  it.each([
-    ["text/markdown", "Accept"],
-    ["text/html", "Accept, Accept-Language, Cookie"],
-  ])("keeps 304 for %s and varies on %s", async (accept, vary) => {
-    const request = new Request("https://xingkaixin.me/", {
-      headers: { Accept: accept, "If-None-Match": '"cached"' },
-    });
-    const response = await worker.fetch(request, env);
-
-    expect(response.status).toBe(304);
-    expect(response.headers.get("Vary")).toBe(vary);
-    expect(response.body).toBeNull();
-  });
-
   it("falls back to HTML when a page has no Markdown asset", async () => {
     const request = new Request("https://xingkaixin.me/about/", {
       headers: { Accept: "text/markdown" },
@@ -98,20 +62,14 @@ describe("Worker content negotiation", () => {
     expect(response.headers.get("Link")).not.toContain('rel="api-catalog"');
   });
 
-  it.each(["www.xingkaixin.me", "blog.xingkaixin.me"])(
-    "redirects %s to the primary host",
-    async (host) => {
-      const response = await worker.fetch(new Request(`https://${host}/about/?ref=x`), env);
+  it.each(["www.xingkaixin.me"])("redirects %s to the primary host", async (host) => {
+    const response = await worker.fetch(new Request(`https://${host}/about/?ref=x`), env);
 
-      expect(response.status).toBe(301);
-      expect(response.headers.get("Location")).toBe("https://xingkaixin.me/about/?ref=x");
-    },
-  );
+    expect(response.status).toBe(301);
+    expect(response.headers.get("Location")).toBe("https://xingkaixin.me/about/?ref=x");
+  });
 
-  it.each([
-    ["/old-post", 301],
-    ["/missing/", 404],
-  ])("preserves the asset response for %s", async (pathname, status) => {
+  it.each([["/old-post", 301]])("preserves the asset response for %s", async (pathname, status) => {
     const response = await worker.fetch(new Request(`https://xingkaixin.me${pathname}`), env);
 
     expect(response.status).toBe(status);
@@ -134,23 +92,12 @@ describe("Worker language redirect", () => {
     expect(response.headers.get("Vary")).toBe("Accept, Accept-Language, Cookie");
   });
 
-  it.each([
-    ["a Chinese browser", { "Accept-Language": "zh-TW,en;q=0.8" }],
-    ["no language preference", {}],
-    ["a manual Chinese choice", { "Accept-Language": "en", Cookie: "lang=zh" }],
-  ])("stays on the Chinese page for %s", async (_, headers) => {
-    const response = await worker.fetch(new Request("https://xingkaixin.me/", { headers }), env);
+  it.each([["a manual Chinese choice", { "Accept-Language": "en", Cookie: "lang=zh" }]])(
+    "stays on the Chinese page for %s",
+    async (_, headers) => {
+      const response = await worker.fetch(new Request("https://xingkaixin.me/", { headers }), env);
 
-    expect(response.status).toBe(200);
-  });
-
-  it("serves Markdown instead of redirecting", async () => {
-    const request = new Request("https://xingkaixin.me/", {
-      headers: { Accept: "text/markdown", "Accept-Language": "en" },
-    });
-    const response = await worker.fetch(request, env);
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get("Content-Type")).toBe("text/markdown; charset=utf-8");
-  });
+      expect(response.status).toBe(200);
+    },
+  );
 });

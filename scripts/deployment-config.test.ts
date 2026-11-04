@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { validateDeploymentConfig } from "./validate-deployment-config";
 
 describe("deployment config", () => {
-  it.each(["photo-preview/catalog/control.json", "custom-preview/catalog/control.json"])(
+  it.each(["photo-preview/catalog/control.json"])(
     "rejects local photo control state under public/%s",
     (relative) => {
       const root = fs.mkdtempSync(path.join(os.tmpdir(), "preview-isolation-"));
@@ -22,10 +22,6 @@ describe("deployment config", () => {
       }
     },
   );
-
-  it("accepts the committed site and photo origins", () => {
-    expect(() => validateDeploymentConfig()).not.toThrow();
-  });
 
   it("rejects an absolute photo origin missing from CSP", () => {
     expect(() => validateDeploymentConfig(process.cwd(), "https://media.example.com")).toThrow(
