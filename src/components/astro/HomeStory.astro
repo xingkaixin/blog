@@ -4,13 +4,13 @@ import hello from "@/assets/footer/hello.png";
 import building from "@/assets/footer/building.png";
 import photography from "@/assets/footer/photography.png";
 import feifei from "@/assets/about/feifei-angel.png";
-import wallArt from "@/assets/page-backgrounds/photography.png";
 import AboutCharacter from "./AboutCharacter.astro";
 import AboutIntro from "./AboutIntro.astro";
 import ContactCard from "./ContactCard.astro";
 import KoiPond from "./KoiPond.astro";
 import RecordPlayer from "./RecordPlayer.astro";
 import SiteCredits from "./SiteCredits.astro";
+import TravelWindow from "./TravelWindow.astro";
 import { SignatureAnimation } from "@/components/signature-animation";
 import { localeFromPath } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
@@ -50,17 +50,7 @@ const deferredSprites = await Promise.all(
 <home-story>
   <div class="backdrop" aria-hidden="true">
     <div class="floor"></div>
-    <Image
-      src={wallArt}
-      alt=""
-      class="wall-art"
-      data-story-art
-      widths={[480, 960]}
-      sizes="30vw"
-      width={460}
-      format="webp"
-      loading="eager"
-    />
+    <TravelWindow />
     <div class="masthead" data-story-masthead>
       <SignatureAnimation client:load className="mt-0 justify-start text-ink-800" fontSize="inherit" />
     </div>
@@ -196,8 +186,6 @@ const deferredSprites = await Promise.all(
   }
   .floor { position: absolute; inset: auto 0 0; height: 15cqh; border-top: 1px solid var(--line); background: var(--ink-50); }
   :global([data-theme="dark"]) .floor { background: #101412; }
-  .wall-art { position: absolute; top: 9cqh; right: 2vw; width: min(30vw, 460px); height: auto; opacity: calc(.16 * var(--art-fade, 1)); }
-  :global([data-theme="dark"]) .wall-art { opacity: calc(.22 * var(--art-fade, 1)); }
   .masthead {
     position: absolute;
     top: var(--masthead-top);
@@ -316,7 +304,7 @@ const deferredSprites = await Promise.all(
     .sprite { left: var(--xn); bottom: calc(var(--bn) + var(--toolbar-h)); height: var(--hn); }
     .scene { padding: 48px 20px 34svh; }
     .hello-copy, .credits-copy { width: 100%; margin-left: 0; }
-    .wall-art, .rail, .cue, .intro-extra, .bubble::before { display: none; }
+    .rail, .cue, .intro-extra, .bubble::before { display: none; }
     .season-chip { top: 12px; right: 12px; }
     .pond-water { height: calc(var(--stage-h) * .42); }
   }

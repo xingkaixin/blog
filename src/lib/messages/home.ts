@@ -23,6 +23,14 @@ const zh = {
     winter: "冬 · 初雪",
   },
   pauseSeason: "暂停季节动画",
+  places: {
+    kyoto: "京都",
+    "hong-kong": "香港",
+    bangkok: "曼谷",
+    chongqing: "重庆",
+    suzhou: "苏州",
+    harbin: "哈尔滨",
+  },
   room: {
     status: "上海 · 工程师 · 摄影爱好者",
     extra: "这里是我的颠倒世界：写 AI 编程和 Agent 工程，做些小而顺手的工具，也记录生活。",
@@ -123,6 +131,14 @@ const en: HomeMessages = {
     winter: "Winter · First snow",
   },
   pauseSeason: "Pause the seasonal animation",
+  places: {
+    kyoto: "KYOTO",
+    "hong-kong": "HONG KONG",
+    bangkok: "BANGKOK",
+    chongqing: "CHONGQING",
+    suzhou: "SUZHOU",
+    harbin: "HARBIN",
+  },
   room: {
     status: "Shanghai · Engineer · Photography enthusiast",
     extra:
