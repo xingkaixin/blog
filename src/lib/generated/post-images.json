@@ -335,6 +335,13 @@
     "width": 1208,
     "height": 938
   },
+  "/posts/images/agent-scale-git/agent-scale-git-01.png": {
+    "webp": "/posts/images/agent-scale-git/agent-scale-git-01.webp",
+    "mobile": "/posts/images/agent-scale-git/agent-scale-git-01-800w.webp",
+    "desktop": "/posts/images/agent-scale-git/agent-scale-git-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-status-bar/agent-status-bar-01.png": {
     "webp": "/posts/images/agent-status-bar/agent-status-bar-01.webp",
     "mobile": "/posts/images/agent-status-bar/agent-status-bar-01-800w.webp",
@@ -635,6 +642,13 @@
     "desktop": "/posts/images/ai-review-ai/ai-review-ai-04-1200w.webp",
     "width": 1672,
     "height": 941
+  },
+  "/posts/images/ai-review-find-bug-prompt/ai-review-find-bug-prompt-01.png": {
+    "webp": "/posts/images/ai-review-find-bug-prompt/ai-review-find-bug-prompt-01.webp",
+    "mobile": "/posts/images/ai-review-find-bug-prompt/ai-review-find-bug-prompt-01-800w.webp",
+    "desktop": "/posts/images/ai-review-find-bug-prompt/ai-review-find-bug-prompt-01-1200w.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/ai-slop-battle/ai-slop-battle-01.png": {
     "webp": "/posts/images/ai-slop-battle/ai-slop-battle-01.webp",

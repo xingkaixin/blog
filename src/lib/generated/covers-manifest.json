@@ -193,6 +193,14 @@
         "838001c45641fa05f2cd735acfceea853bd27837f0f7505f939e27d866e36eb0"
       ]
     },
+    "agent-scale-git.png": {
+      "fingerprint": "a668848fbe6f9a8b9f72395daa2152c44940323b9a624b482a81d536f2e5896b",
+      "outputFingerprints": [
+        "73c74c84f0caf6a4eff6919b4c6874f106cf2fd857e822999b5a244f5efa8a3f",
+        "c4233e39682268dd040317c85c0ed90c4b5c9f513ee4e2c245841c4489ebfe8c",
+        "6268a2ec419443af67bb91759c52c9bd2abfed5d218aea468c35a872600c5958"
+      ]
+    },
     "agent-status-bar.png": {
       "fingerprint": "06a6d2ed4f3144c148b1e073be06ef5483717a5b4ba71856cbf2b673d3f01371",
       "outputFingerprints": [
@@ -327,6 +335,14 @@
         "d2274888fc9421ad9496aa9e10af8c60c07eebf06d425b58864ec11d39c7948f",
         "1f8a5e1e248ed3955c2be872fafc7b1deb3c216aaa39ae1a98819d9eb76ca109",
         "d8b6a7055c1f11b58cd3b28285b632d479f7cbf99191294911d292297d667a46"
+      ]
+    },
+    "ai-review-find-bug-prompt.png": {
+      "fingerprint": "a30cf4db357a9d234a2e73fdc5536a4008594cff6c5326bce783498189e1f423",
+      "outputFingerprints": [
+        "e350ed4cc4b6e69f3648fab510934a6ac20db10c3bd3d902572aa737376a0b3a",
+        "ca61c97d646c476b9303310556fc8d8671de5405fd8eea2c486a2923f806bffa",
+        "b7c34b42ff41318e22fe94a4f55f5b711a3f89e44d269aca4fb59f2803d9b4b4"
       ]
     },
     "ai-slop-battle.png": {

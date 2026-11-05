@@ -385,6 +385,14 @@
         "e513cd901ffe6b43a7fd19198947a72253c6c01179112affca83888a43849472"
       ]
     },
+    "/posts/images/agent-scale-git/agent-scale-git-01.png": {
+      "fingerprint": "ed9014eae3d996b10ff594c57f295f74bf72811a99a7718715b1796b2fe1d6c7",
+      "outputFingerprints": [
+        "ca10779b8b788622d561609152816a99fa91e4aa8a6062e5832135fd0edb298b",
+        "2441cbdfe9ce337cbb021ab932fd12f1fafff862b3df3ada18aa7ecea89c30a9",
+        "4934f68ab47cbdaac79975ff4dd3c7dadeb3e28318f80b87dfafa8ea6a9210eb"
+      ]
+    },
     "/posts/images/agent-status-bar/agent-status-bar-01.png": {
       "fingerprint": "7826d968fa0c357baf06d4fd7024fee53d2ab1ef0a48b5938c8702ee4e215fad",
       "outputFingerprints": [
@@ -727,6 +735,14 @@
         "e9a0946bf5cd5982ec4cf7fac61878c61b91027269ccb9e46db2151342add47a",
         "cbe5224451a3ce981b34ad72d7a9c95ce68a5cea8a249dceea1542a21b0e21b1",
         "760bcdcdc0d1d8f6c80d6fdb37b3b6638ea7fa6b04f6c7717cd7c9c4b290435d"
+      ]
+    },
+    "/posts/images/ai-review-find-bug-prompt/ai-review-find-bug-prompt-01.png": {
+      "fingerprint": "1c9b11d6950ea748e863db3e9ba9a38e4abeed1fa0455c353ac24ce415c6ed53",
+      "outputFingerprints": [
+        "f6d6617dc115bd24a5749397bf503a8f9282672918d0a795b41556a5712a0ae7",
+        "d0410d7c590c0b7546ce960db04036fcf918e654ed004ef6ea6333d0ae37c9fa",
+        "3552396d6da3571f66faed38b40bf3028ca54e125e5a2013b9d9f90876d12fa8"
       ]
     },
     "/posts/images/ai-slop-battle/ai-slop-battle-01.png": {

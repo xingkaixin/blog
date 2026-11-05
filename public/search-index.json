@@ -1,5 +1,29 @@
 [
   {
+    "slug": "ai-review-find-bug-prompt",
+    "title": "AI 代码审查停不下来，先改掉那句“帮我找 bug”",
+    "date": "2026-11-04",
+    "summary": "AI 代码审查、Claude Code、Codex：一个 PR 一夜审了五十多轮，反复标出的问题约 59% 在第一轮就已存在。问题常出在“帮我找 bug”这句话本身。可以把提问改中性，要求先报问题数量，再给审查轮数设上限。",
+    "tags": [
+      "代码审查",
+      "AI编程",
+      "Claude Code",
+      "Codex"
+    ]
+  },
+  {
+    "slug": "agent-scale-git",
+    "title": "Anthropic 一天合并 3 万次代码，先撑不住的是 Git",
+    "date": "2026-11-02",
+    "summary": "Git、CI 和合并队列：Anthropic 日均合并从 2,500 涨到 3 万次，最后把 monorepo 迁出了 Git；GitHub 9 月的 commit 是一年前的五倍多。普通团队不必迁出 Git，但有三处可以先改。",
+    "tags": [
+      "Git",
+      "CI",
+      "Agent",
+      "工程效率"
+    ]
+  },
+  {
     "slug": "personal-agent-after-subsidies",
     "title": "Personal Agent：补贴之后，用户为什么付钱",
     "date": "2026-10-28",

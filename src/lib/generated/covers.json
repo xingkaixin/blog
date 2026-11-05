@@ -167,6 +167,13 @@
     "width": 1923,
     "height": 818
   },
+  "agent-scale-git.png": {
+    "mobile": "/cover/agent-scale-git-400.webp",
+    "desktop": "/cover/agent-scale-git-800.webp",
+    "full": "/cover/agent-scale-git.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-status-bar.png": {
     "mobile": "/cover/agent-status-bar-400.webp",
     "desktop": "/cover/agent-status-bar-800.webp",
@@ -285,6 +292,13 @@
     "full": "/cover/ai-review-ai.webp",
     "width": 1536,
     "height": 864
+  },
+  "ai-review-find-bug-prompt.png": {
+    "mobile": "/cover/ai-review-find-bug-prompt-400.webp",
+    "desktop": "/cover/ai-review-find-bug-prompt-800.webp",
+    "full": "/cover/ai-review-find-bug-prompt.webp",
+    "width": 1880,
+    "height": 800
   },
   "ai-slop-battle.png": {
     "mobile": "/cover/ai-slop-battle-400.webp",
