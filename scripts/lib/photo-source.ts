@@ -5,11 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { ExifDateTime, type ExifTool, type Tags } from "exiftool-vendored";
 import sharp from "sharp";
-import {
-  PHOTO_VARIANT_WIDTHS,
-  type PhotoRecord,
-  type PhotoVariantWidth,
-} from "../../src/lib/photo-catalog";
+import { PHOTO_VARIANT_WIDTHS, type PhotoVariantWidth } from "../../src/lib/photo-artifact";
+import type { PhotoRecord } from "../../src/lib/photo-catalog";
 import { decodeHeicPhoto, requiresPhotoDecode } from "./photo-decoder";
 
 const SUPPORTED_EXTENSIONS = new Set([".dng", ".heic", ".heif", ".jpg", ".jpeg", ".png", ".webp"]);

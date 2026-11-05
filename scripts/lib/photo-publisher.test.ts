@@ -2,13 +2,16 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isPhotoArtifactKey, photoMediaObjectKey } from "../../src/lib/photo-artifact";
+import {
+  PHOTO_VARIANT_WIDTHS,
+  isPhotoArtifactKey,
+  photoMediaObjectKey,
+  type PhotoVariantWidth,
+} from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
-  PHOTO_VARIANT_WIDTHS,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
-  type PhotoVariantWidth,
 } from "../../src/lib/photo-catalog";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
 import { migratePhotoCatalog } from "./photo-catalog-store";

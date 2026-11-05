@@ -1,12 +1,7 @@
 import { randomBytes } from "node:crypto";
 import path from "node:path";
-import { photoMediaObjectKey } from "../../src/lib/photo-artifact";
-import {
-  PHOTO_VARIANT_WIDTHS,
-  isPhotoAlbumId,
-  parsePhotoRecord,
-  type PhotoRecord,
-} from "../../src/lib/photo-catalog";
+import { PHOTO_VARIANT_WIDTHS, photoMediaObjectKey } from "../../src/lib/photo-artifact";
+import { isPhotoAlbumId, parsePhotoRecord, type PhotoRecord } from "../../src/lib/photo-catalog";
 import { mapWithConcurrency } from "./concurrency";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";

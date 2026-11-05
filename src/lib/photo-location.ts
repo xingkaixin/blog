@@ -1,4 +1,5 @@
-import { isPhotoId, type PhotoCatalogIndex } from "./photo-catalog";
+import { isPhotoId } from "./photo-artifact";
+import type { PhotoCatalogIndex } from "./photo-catalog";
 
 export type PhotoView = { mode: "overview" } | { mode: "timeline"; albumId: string | null };
 

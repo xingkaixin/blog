@@ -1,11 +1,11 @@
 import {
+  PHOTO_VARIANT_WIDTHS,
   isPhotoArtifactKey,
   photoIdFromMediaObjectKey,
   photoMediaObjectKey,
 } from "../../src/lib/photo-artifact";
 import {
   PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
-  PHOTO_VARIANT_WIDTHS,
   monthFromCapturedAt,
   type PhotoAlbum,
   type PhotoCatalogIndex,

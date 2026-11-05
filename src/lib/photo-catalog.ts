@@ -9,9 +9,6 @@ import {
 } from "./photo-artifact";
 import { isPhotoTimestamp } from "./photo-timestamp";
 
-export { PHOTO_VARIANT_WIDTHS, isPhotoId } from "./photo-artifact";
-export type { PhotoVariantWidth } from "./photo-artifact";
-
 export const PHOTO_CATALOG_INDEX_SCHEMA_VERSION = 3 as const;
 export const PHOTO_MONTH_CATALOG_SCHEMA_VERSION = 2 as const;
 export const PHOTO_THUMBNAIL_WIDTH = PHOTO_VARIANT_WIDTHS[0];

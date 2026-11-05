@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import {
   isPhotoArtifactKey,
+  isPhotoId,
   monthFromPhotoMonthCatalogObjectKey,
   photoIdFromMediaObjectKey,
 } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
-  isPhotoId,
   parsePhotoCatalogContents,
   type PhotoAlbum,
   type PhotoCatalogContents,

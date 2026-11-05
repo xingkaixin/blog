@@ -1,4 +1,4 @@
-import { isPhotoId } from "../../src/lib/photo-catalog";
+import { isPhotoId } from "../../src/lib/photo-artifact";
 import { editPhotoCatalog, type PhotoCatalogEditor } from "./photo-catalog-store";
 import { collectPhotoGarbageBestEffort } from "./photo-garbage-collector";
 import type { PhotoObjectStore } from "./photo-store";
