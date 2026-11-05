@@ -26,17 +26,18 @@ const zh = {
     photography: {
       title: "再拍一张。",
       text: "把路过的风景，留在这里。",
-      alt: "开心举起相机，拍摄眼前的风景",
     },
     building: {
       title: "有个想法，正在做。",
       text: "把日常的小问题，做成顺手的小工具。",
-      alt: "开心坐在电脑前制作工具",
     },
     writing: {
       title: "写下来，慢慢想。",
       text: "关于技术，也关于一路上的发现。",
-      alt: "开心坐在桌前，用笔记录想法",
+    },
+    rss: {
+      title: "新文章，会自己找来。",
+      text: "不用常回来看，阅读器会替你留意。",
     },
   },
   search: {
@@ -94,17 +95,18 @@ const en: ChromeMessages = {
     photography: {
       title: "One more shot.",
       text: "Keeping the views I pass by, right here.",
-      alt: "Kaixin raising a camera to photograph the view",
     },
     building: {
       title: "Got an idea. Building it.",
       text: "Turning small everyday problems into handy little tools.",
-      alt: "Kaixin at a computer building a tool",
     },
     writing: {
       title: "Write it down, think it through.",
       text: "About technology, and about what I find along the way.",
-      alt: "Kaixin at a desk writing down ideas",
+    },
+    rss: {
+      title: "New posts will find you.",
+      text: "No need to keep checking back. Your reader keeps watch.",
     },
   },
   search: {
