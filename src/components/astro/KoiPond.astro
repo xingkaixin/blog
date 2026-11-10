@@ -35,6 +35,15 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
       <span data-pond-count>{t.caught(0)}</span>
     </span>
   </div>
+  <aside class="pond-bottle" data-pond-bottle hidden aria-label={t.bottle.label}>
+    <p class="pond-bottle-date" data-pond-bottle-date></p>
+    <p class="pond-bottle-title" data-pond-bottle-title></p>
+    <p class="pond-bottle-summary" data-pond-bottle-summary></p>
+    <div class="pond-bottle-actions">
+      <a class="pond-bottle-open" data-pond-bottle-open href="/posts/">{t.bottle.open}</a>
+      <button type="button" class="pond-bottle-release" data-pond-bottle-release>{t.bottle.release}</button>
+    </div>
+  </aside>
   <p id="pond-instructions" class="sr-only">{t.instructions}</p>
 </div>
 
@@ -164,6 +173,121 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
     font-variant-numeric: tabular-nums;
   }
 
+  .pond-bottle {
+    /* 池子左侧站着人物和菲菲，卡片放在右上角的提示条下方 */
+    position: absolute;
+    top: 52px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(340px, calc(100% - 24px));
+    padding: 18px 20px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink-800);
+    cursor: default;
+    user-select: text;
+    -webkit-user-select: text;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      translate var(--duration-fast) var(--ease-smooth-out);
+  }
+
+  .pond-bottle[hidden] {
+    display: none;
+  }
+
+  @starting-style {
+    .pond-bottle {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+  .pond-bottle p {
+    margin: 0;
+  }
+
+  .pond-bottle-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--film);
+  }
+
+  .pond-bottle-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.3;
+    text-wrap: balance;
+  }
+
+  .pond-bottle-summary {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 22px;
+    color: var(--ink-600);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .pond-bottle-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .pond-bottle-open,
+  .pond-bottle-release {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .pond-bottle-open {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .pond-bottle-release {
+    border: 1px solid var(--ink-200);
+    color: var(--ink-800);
+  }
+
+  .pond-bottle-open:active,
+  .pond-bottle-release:active {
+    transform: scale(0.97);
+  }
+
+  .pond-bottle-open:focus-visible,
+  .pond-bottle-release:focus-visible {
+    outline: 2px solid #b2e8d5;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 639px) {
+    /* 窄屏的池子矮，摘要省掉 */
+    .pond-bottle-summary {
+      display: none;
+    }
+  }
+
+  @media (min-width: 640px) {
+    /* 让开右缘的场景导航 */
+    .pond-bottle {
+      right: 56px;
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .pond-rod:hover {
       background: rgba(235, 245, 240, 0.08);
@@ -201,6 +325,9 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
   import type { FishingStatus } from "@/lib/koi-pond/fishing";
   import { localeFromLang } from "@/lib/i18n";
   import { homeMessages } from "@/lib/messages/home";
+  import { postHref } from "@/lib/published-post";
+  import { pickRandom } from "@/lib/record-shuffle";
+  import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 
   let pond: PondHandle | null = null;
   let pending: IntersectionObserver | null = null;
@@ -226,7 +353,10 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
     const button = stage.querySelector<HTMLButtonElement>("[data-pond-rod]");
     const label = stage.querySelector<HTMLElement>("[data-pond-rod-label]");
     const count = stage.querySelector<HTMLElement>("[data-pond-count]");
-    if (!hint || !overlay || !dock || !button || !label || !count) {return;}
+    const bottle = stage.querySelector<HTMLElement>("[data-pond-bottle]");
+    const bottleOpen = stage.querySelector<HTMLAnchorElement>("[data-pond-bottle-open]");
+    const bottleRelease = stage.querySelector<HTMLButtonElement>("[data-pond-bottle-release]");
+    if (!hint || !overlay || !dock || !button || !label || !count || !bottle || !bottleOpen || !bottleRelease) {return;}
     const mine = generation;
     const t = homeMessages[localeFromLang(document.documentElement.lang)].koi;
     const [{ createPond }, { FishingPhase }] = await Promise.all([
@@ -235,15 +365,45 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
     ]);
     if (mine !== generation) {return;}
 
+    let bottledPost: Promise<SearchIndexItem | undefined> | null = null;
+    const showBottle = async (post: Promise<SearchIndexItem | undefined>) => {
+      const item = await post.catch(() => undefined);
+      if (mine !== generation || !item) {return;}
+      pond?.setFishing(false);
+      const text = (name: string, value: string) => {
+        bottle.querySelector<HTMLElement>(`[data-pond-bottle-${name}]`)!.textContent = value;
+      };
+      text("date", item.date);
+      text("title", item.title);
+      text("summary", item.summary);
+      bottleOpen.href = postHref(item.slug);
+      bottle.hidden = false;
+    };
+
     const updateFishing = (status: FishingStatus) => {
       stage.dataset.fishing = status.phase;
       button.setAttribute("aria-pressed", String(status.phase !== "idle"));
       label.textContent = status.phase === "idle" ? t.rod : t.dropRod;
       count.textContent = t.caught(status.caught);
       hint.classList.remove("is-hidden");
-      hint.textContent = status.catch
-        ? t.landed(t.species[status.catch.palette], status.catch.length)
-        : status.missed ? t.missed : t.phases[status.phase];
+      hint.textContent =
+        status.catch?.kind === "koi"
+          ? t.landed(t.species[status.catch.palette], status.catch.length)
+          : status.catch
+            ? t.bottle.hooked
+            : status.missed ? t.missed : t.phases[status.phase];
+      if (status.catch?.kind === "bottle") {
+        bottle.hidden = true;
+        // 提竿的同时取一篇往年的文章，瓶子落进鱼篓时卡片正好能展开
+        bottledPost = loadSearchIndex().then((posts) => {
+          const thisYear = new Date().getFullYear();
+          const earlier = posts.filter((post) => Number(post.date.slice(0, 4)) < thisYear);
+          return pickRandom(earlier.length > 0 ? earlier : posts);
+        });
+      } else if (bottledPost) {
+        void showBottle(bottledPost);
+        bottledPost = null;
+      }
     };
     updateFishing({ phase: FishingPhase.Idle, caught: 0 });
     canvas.tabIndex = motion.matches ? -1 : 0;
@@ -279,7 +439,14 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
     button.addEventListener("click", () => {
       const active = button.getAttribute("aria-pressed") !== "true";
       pond?.setFishing(active);
-      if (active) {canvas.focus({ preventScroll: true });}
+      if (active) {
+        bottle.hidden = true;
+        canvas.focus({ preventScroll: true });
+      }
+    }, { signal: controls.signal });
+    bottleRelease.addEventListener("click", () => {
+      bottle.hidden = true;
+      button.focus({ preventScroll: true });
     }, { signal: controls.signal });
   }
 

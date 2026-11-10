@@ -45,7 +45,7 @@ export function createKoiRenderer(
 
   function drawCatch(fishing: Fishing, width: number, height: number): void {
     const state = fishing.state;
-    if (state.phase !== FishingPhase.Reeling) {
+    if (state.phase !== FishingPhase.Reeling || state.catch.kind !== "koi") {
       return;
     }
     const { pose } = state;

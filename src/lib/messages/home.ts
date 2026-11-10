@@ -93,6 +93,12 @@ const zh = {
     } satisfies Record<FishingStatus["phase"], string>,
     landed: (species: string, length: number) => `钓获 ${species} · ${length} cm`,
     missed: "鱼儿脱钩了 · 稍等片刻再试试",
+    bottle: {
+      hooked: "钓到了！不是鱼，是一只漂流瓶",
+      label: "漂流瓶里的旧文",
+      open: "拆开读",
+      release: "放回池塘",
+    },
     species: ["红白锦鲤", "秋翠锦鲤", "黄金锦鲤", "白别甲", "丹顶锦鲤", "乌鲤"],
     failures: {
       webgl2: "当前浏览器不支持 WebGL2，无法运行这片水面。",
@@ -204,6 +210,12 @@ const en: HomeMessages = {
     },
     landed: (species, length) => `Caught a ${species} · ${length} cm`,
     missed: "It got away · give it a moment and try again",
+    bottle: {
+      hooked: "Got something! Not a koi, a message in a bottle",
+      label: "An old post from the bottle",
+      open: "Read it",
+      release: "Put it back",
+    },
     species: ["Kohaku", "Shusui", "Ogon", "Shiro Bekko", "Tancho", "Karasu"],
     failures: {
       webgl2: "This browser doesn't support WebGL2, so the pond can't run.",

@@ -23,10 +23,9 @@ export const KOI_SPECIES = [
   { min: 39, max: 56 },
 ] as const;
 
-export interface Catch {
-  palette: number;
-  length: number;
-}
+export type Catch = { kind: "koi"; palette: number; length: number } | { kind: "bottle" };
+
+const BOTTLE_CHANCE = 0.25;
 
 type FishingState =
   | { phase: FishingPhase.Idle }
@@ -107,6 +106,23 @@ export class Fishing {
       return;
     }
     const fish = this.current.fish;
+    // 第一竿总是鱼；之后偶尔提上来的是漂流瓶，咬钩的鱼松口游走
+    if (this.caught > 0 && Math.random() < BOTTLE_CHANCE) {
+      this.transition({
+        phase: FishingPhase.Reeling,
+        fish: -1,
+        catch: { kind: "bottle" },
+        pose: {
+          vertices: new Float32Array(0),
+          mouth: { ...this.bobber },
+          angle: 0,
+          phase: 0,
+          length: 0,
+        },
+      });
+      this.ripple(0.04);
+      return;
+    }
     const palette = this.koi.b[fish * 4 + 3];
     const species = KOI_SPECIES[palette];
     const mesh = this.koi.meshes[fish];
@@ -114,6 +130,7 @@ export class Fishing {
       phase: FishingPhase.Reeling,
       fish,
       catch: {
+        kind: "koi",
         palette,
         length: Math.round(species.min + Math.random() * (species.max - species.min)),
       },
@@ -210,7 +227,9 @@ export class Fishing {
         break;
       case FishingPhase.Reeling:
         if (this.age >= REEL_DURATION) {
-          this.caught++;
+          if (state.catch.kind === "koi") {
+            this.caught++;
+          }
           this.transition({ phase: FishingPhase.Waiting, delay: 3 });
           this.ripple(0.025);
         }

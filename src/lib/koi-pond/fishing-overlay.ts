@@ -119,6 +119,35 @@ function drawBobber(
   ctx.restore();
 }
 
+function drawBottle(
+  ctx: CanvasRenderingContext2D,
+  hook: Point,
+  angle: number,
+  opacity: number,
+): void {
+  ctx.save();
+  ctx.translate(hook.x, hook.y);
+  ctx.rotate(-angle);
+  ctx.globalAlpha = opacity;
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(235, 245, 240, 0.9)";
+  ctx.fillStyle = "rgba(214, 240, 232, 0.28)";
+  ctx.beginPath();
+  ctx.roundRect(-37, -8, 27, 16, 7);
+  ctx.rect(-10, -4, 7, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#c98a3a";
+  ctx.fillRect(-3, -3.5, 4, 7);
+  ctx.fillStyle = "#ece7dd";
+  ctx.beginPath();
+  ctx.roundRect(-32, -3.5, 16, 7, 3.5);
+  ctx.fill();
+  ctx.fillStyle = "#ee532f";
+  ctx.fillRect(-25, -3.5, 2, 7);
+  ctx.restore();
+}
+
 export function drawFishingOverlay(
   ctx: CanvasRenderingContext2D,
   fishing: Fishing,
@@ -141,6 +170,9 @@ export function drawFishingOverlay(
     const reel = getReelPose(state.pose, fishing.stateTime, width, height);
     end.x = reel.end.x;
     end.y = reel.end.y;
+    if (state.catch.kind === "bottle") {
+      drawBottle(ctx, end, reel.angle, reel.opacity);
+    }
     ctx.fillStyle = `rgba(230, 248, 255, ${Math.max(0, 1 - fishing.stateTime / 0.65) * 0.8})`;
     for (let i = 0; i < 18; i++) {
       const age = fishing.stateTime;
