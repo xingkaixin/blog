@@ -24,7 +24,7 @@ it("builds tag archives whose paths and canonical URLs match encoded links", () 
         recursive: true,
       });
     }
-    for (const directory of ["footer", "fonts"]) {
+    for (const directory of ["about", "footer", "fonts"]) {
       fs.cpSync(
         path.join(project, "src/assets", directory),
         path.join(root, "src/assets", directory),
