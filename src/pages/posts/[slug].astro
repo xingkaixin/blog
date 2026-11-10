@@ -1,5 +1,6 @@
 ---
 import { render } from "astro:content";
+import AgentView from "@/components/astro/AgentView.astro";
 import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import PostTag from "@/components/astro/PostTag.astro";
@@ -67,6 +68,7 @@ const meta = {
   <style is:inline set:html={printPageStyle}></style>
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <div
+      data-post-grid
       class:list={[
         "grid min-w-0 gap-x-8 gap-y-6 lg:items-start",
         postMeta.toc.length && "lg:grid-cols-[minmax(0,860px)_260px] lg:justify-center",
@@ -91,6 +93,8 @@ const meta = {
             <span>{readingMetrics.wordCount.toLocaleString("zh-CN")} 字</span>
             <span class="text-ink-200">·</span>
             <span>{readingMetrics.readingMinutes} 分钟</span>
+            <span class="text-ink-200 print:hidden" aria-hidden="true">·</span>
+            <AgentView path={postHref(postMeta.slug)} />
           </div>
           <div class="flex flex-wrap gap-1.5 sm:justify-end">
             {
@@ -215,7 +219,7 @@ const meta = {
 
       {
         postMeta.toc.length > 0 && (
-          <aside class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
+          <aside data-post-toc class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
             <TocNav items={postMeta.toc} />
           </aside>
         )

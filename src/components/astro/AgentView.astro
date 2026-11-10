@@ -1,0 +1,332 @@
+---
+/**
+ * Agent 视角：把这一页经内容协商返回的 Markdown 摆在正文旁边。
+ * 宽屏下正文收到左半边、Markdown 占右半边；窄屏下 Markdown 盖住整页。
+ */
+import { markdownPathForPage } from "@/lib/markdown-negotiation";
+import { siteConfig } from "@/lib/site";
+import { siteShortcuts } from "@/lib/site-shortcuts";
+
+type Props = { path: string };
+
+const { path } = Astro.props;
+const host = new URL(siteConfig.url).host;
+---
+
+<agent-view data-source={markdownPathForPage(path)} data-agent-markdown="exclude" class="contents print:hidden">
+  <button
+    type="button"
+    data-agent-toggle
+    aria-pressed="false"
+    aria-controls="agent-pane"
+    class="relative inline-flex items-center gap-1.5 rounded-[3px] text-ink-500 transition-colors duration-(--duration-quick) before:absolute before:-inset-x-2 before:-inset-y-3.5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:text-accent"
+  >
+    Agent 视角
+    <kbd class="hidden rounded-[3px] border border-line px-1 font-mono text-[10px] lg:inline">{siteShortcuts.agentView.hint}</kbd>
+  </button>
+
+  <section id="agent-pane" data-agent-pane data-theme="dark" aria-label="Agent 视角：这一页的 Markdown" hidden class="agent-pane">
+    <div class="agent-head">
+      <p class="agent-command"><span aria-hidden="true">$</span> curl -H "Accept: text/markdown" {host}{path}</p>
+      <button type="button" data-agent-close aria-label="关闭 Agent 视角" class="agent-close">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+    <pre class="agent-body" data-agent-body tabindex="0">正在取这一页的 Markdown…</pre>
+    <div class="agent-foot">
+      <span data-agent-meta>text/markdown</span>
+      <button type="button" data-agent-copy disabled class="agent-copy">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+        </svg>
+        <span data-agent-copy-label>复制 Markdown</span>
+      </button>
+    </div>
+  </section>
+</agent-view>
+
+<style is:global>
+  .agent-pane {
+    position: fixed;
+    /* main 自成层叠上下文，面板压不过页眉，所以顶在 60px 页眉和它的 1px 底边下方 */
+    inset: 61px 0 0;
+    z-index: 30;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    background: var(--bg);
+    font-family: var(--font-mono);
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      translate var(--duration-fast) var(--ease-smooth-out);
+  }
+
+  .agent-pane[hidden] {
+    display: none;
+  }
+
+  @starting-style {
+    .agent-pane {
+      opacity: 0;
+      translate: 8px 0;
+    }
+  }
+
+  .agent-head,
+  .agent-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 8px 0 20px;
+    color: var(--ink-500);
+  }
+
+  .agent-head {
+    min-height: 48px;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+  }
+
+  .agent-command {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .agent-command span {
+    color: var(--accent);
+  }
+
+  .agent-foot {
+    min-height: 48px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .agent-close,
+  .agent-copy {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--ink-800);
+    cursor: pointer;
+    transition: background-color var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .agent-copy:disabled {
+    color: var(--ink-400);
+    cursor: default;
+  }
+
+  .agent-close:focus-visible,
+  .agent-copy:focus-visible,
+  .agent-body:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    outline-offset: -2px;
+  }
+
+  @media (hover: hover) {
+    .agent-close:hover,
+    .agent-copy:enabled:hover {
+      background: var(--ink-100);
+    }
+  }
+
+  .agent-body {
+    margin: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px 20px 48px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 22px;
+    color: var(--ink-600);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    tab-size: 2;
+  }
+
+  .agent-body [data-line="heading"] {
+    color: var(--accent);
+  }
+
+  .agent-body [data-line="frontmatter"] {
+    color: var(--ink-400);
+  }
+
+  /* 面板贴着页眉，打开时页眉不随滚动收起 */
+  :root[data-agent-view] [data-smart-header][data-header-state="hidden"] {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .agent-pane {
+      left: 50%;
+      border-left: 1px solid var(--line);
+    }
+
+    .agent-head,
+    .agent-foot {
+      padding-left: 32px;
+    }
+
+    .agent-body {
+      padding: 28px 32px 56px;
+    }
+
+    :root[data-agent-view] main {
+      padding-right: 50%;
+    }
+
+    :root[data-agent-view] [data-post-grid] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    :root[data-agent-view] [data-post-toc] {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { estimateMarkdownTokens } from "@/lib/markdown-negotiation";
+  import { AGENT_VIEW_TOGGLE_EVENT } from "@/lib/site-events";
+
+  function renderMarkdown(target: HTMLElement, markdown: string) {
+    const lines = markdown.split("\n");
+    let frontmatter = lines[0] === "---";
+    let fenced = false;
+    target.replaceChildren(
+      ...lines.map((line, index) => {
+        const span = document.createElement("span");
+        span.textContent = `${line}\n`;
+        if (frontmatter) {
+          span.dataset.line = "frontmatter";
+          frontmatter = index === 0 || line !== "---";
+        } else if (line.startsWith("```")) {
+          fenced = !fenced;
+        } else if (!fenced && /^#{1,6} /u.test(line)) {
+          span.dataset.line = "heading";
+        }
+        return span;
+      }),
+    );
+  }
+
+  class AgentView extends HTMLElement {
+    private controller: AbortController | null = null;
+    private markdown: Promise<string> | null = null;
+
+    connectedCallback() {
+      const toggle = this.querySelector<HTMLButtonElement>("[data-agent-toggle]");
+      const pane = this.querySelector<HTMLElement>("[data-agent-pane]");
+      const body = this.querySelector<HTMLElement>("[data-agent-body]");
+      const meta = this.querySelector<HTMLElement>("[data-agent-meta]");
+      const copy = this.querySelector<HTMLButtonElement>("[data-agent-copy]");
+      const copyLabel = this.querySelector<HTMLElement>("[data-agent-copy-label]");
+      const source = this.dataset.source;
+      if (!toggle || !pane || !body || !meta || !copy || !copyLabel || !source) {
+        return;
+      }
+
+      this.controller = new AbortController();
+      const { signal } = this.controller;
+      const root = document.documentElement;
+
+      const load = () => {
+        this.markdown ??= fetch(source, { signal }).then((response) => {
+          if (!response.ok) {
+            throw new Error(`${source} responded with ${response.status}`);
+          }
+          return response.text();
+        });
+        this.markdown.then(
+          (markdown) => {
+            renderMarkdown(body, markdown);
+            const bytes = new TextEncoder().encode(markdown).byteLength;
+            meta.textContent = `text/markdown · ${(bytes / 1024).toFixed(1)} KB · ≈ ${estimateMarkdownTokens(bytes).toLocaleString("zh-CN")} tokens`;
+            copy.disabled = false;
+          },
+          () => {
+            if (!signal.aborted) {
+              this.markdown = null;
+              body.textContent = "这一页的 Markdown 暂时取不到，稍后再试。";
+            }
+          },
+        );
+      };
+
+      let open = false;
+      const setOpen = (next: boolean) => {
+        open = next;
+        pane.hidden = !open;
+        toggle.setAttribute("aria-pressed", String(open));
+        if (open) {
+          root.dataset.agentView = "";
+          load();
+        } else {
+          delete root.dataset.agentView;
+        }
+      };
+
+      toggle.addEventListener("click", () => setOpen(!open), { signal });
+      this.querySelector("[data-agent-close]")?.addEventListener(
+        "click",
+        () => {
+          setOpen(false);
+          toggle.focus({ preventScroll: true });
+        },
+        { signal },
+      );
+      window.addEventListener(AGENT_VIEW_TOGGLE_EVENT, () => setOpen(!open), { signal });
+      window.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key === "Escape" && open && !event.defaultPrevented) {
+            setOpen(false);
+          }
+        },
+        { signal },
+      );
+      copy.addEventListener(
+        "click",
+        () => {
+          void this.markdown
+            ?.then((markdown) => navigator.clipboard.writeText(markdown))
+            .then(() => {
+              copyLabel.textContent = "已复制";
+              setTimeout(() => {
+                copyLabel.textContent = "复制 Markdown";
+              }, 1500);
+            });
+        },
+        { signal },
+      );
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort();
+      this.controller = null;
+      delete document.documentElement.dataset.agentView;
+    }
+  }
+
+  if (!customElements.get("agent-view")) {
+    customElements.define("agent-view", AgentView);
+  }
+</script>

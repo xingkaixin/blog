@@ -1,8 +1,9 @@
-import { THEME_TOGGLE_EVENT } from "./site-events";
+import { AGENT_VIEW_TOGGLE_EVENT, THEME_TOGGLE_EVENT } from "./site-events";
 
 export const siteShortcuts = {
   search: { key: "k", hint: "⌘K" },
   theme: { key: "j", hint: "⌘J" },
+  agentView: { key: ".", hint: "⌘." },
 } as const;
 
 export function installSiteShortcuts(target: Window): () => void {
@@ -26,6 +27,8 @@ export function installSiteShortcuts(target: Window): () => void {
     } else if (command && key === siteShortcuts.theme.key) {
       event.preventDefault();
       target.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
+    } else if (command && key === siteShortcuts.agentView.key) {
+      target.dispatchEvent(new Event(AGENT_VIEW_TOGGLE_EVENT));
     }
   };
 
