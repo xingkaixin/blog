@@ -1,5 +1,6 @@
 import { cookieLocale, localeFromPath, preferredLocale, translatedPath } from "./lib/i18n";
 import {
+  estimateMarkdownTokens,
   markdownPathForPage,
   pageForMarkdownPath,
   prefersMarkdown,
@@ -113,7 +114,7 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
       headers.set("Content-Signal", contentSignal);
       if (markdown !== null) {
         const byteLength = new TextEncoder().encode(markdown).byteLength;
-        headers.set("X-Markdown-Tokens", String(Math.ceil(byteLength / 4)));
+        headers.set("X-Markdown-Tokens", String(estimateMarkdownTokens(byteLength)));
       }
       headers.append("Link", canonicalLink(requestUrl.pathname));
       addVary(headers, "Accept");

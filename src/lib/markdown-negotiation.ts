@@ -86,3 +86,8 @@ export function pageForMarkdownPath(pathname: string) {
     ? pathname.slice(0, -"index.md".length)
     : pathname.slice(0, -".md".length);
 }
+
+/** 粗略估算：按 4 字节一个 token，响应头 X-Markdown-Tokens 与文章页的 Agent 视角共用。 */
+export function estimateMarkdownTokens(byteLength: number) {
+  return Math.ceil(byteLength / 4);
+}
