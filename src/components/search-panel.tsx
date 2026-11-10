@@ -17,6 +17,7 @@ import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { siteShortcuts } from "@/lib/site-shortcuts";
+import { OPEN_STAMPS_EVENT } from "@/lib/stamps";
 import { cn } from "@/lib/utils";
 
 type SearchPanelProps = {
@@ -96,9 +97,11 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     if (!item) {
       return;
     }
-    if (item.kind === "theme") {
-      window.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
+    if (item.kind !== "link") {
       onOpenChange(false);
+      window.dispatchEvent(
+        new Event(item.kind === "theme" ? THEME_TOGGLE_EVENT : OPEN_STAMPS_EVENT),
+      );
       return;
     }
     itemRefs.current.get(item.id)?.click();

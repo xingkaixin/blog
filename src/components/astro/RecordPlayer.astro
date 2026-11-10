@@ -74,6 +74,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
   import { localeFromLang } from "@/lib/i18n";
   import { homeMessages } from "@/lib/messages/home";
   import type { Piano, createPiano as CreatePiano } from "@/lib/piano-synth";
+  import { collectStamp } from "@/lib/stamps";
 
   const melody = homeSong.notes.filter((note) => note.hand === "melody");
 
@@ -204,6 +205,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         announce("record-note", { midi, velocity: 0.52, duration: 0.5, jam: true } satisfies RecordNote);
       }, options);
       audio.addEventListener("ended", stop, options);
+      audio.addEventListener("ended", () => collectStamp("record"), options);
       audio.addEventListener("error", fail, options);
       audio.addEventListener("pause", () => {
         if (requested && audio.paused) {

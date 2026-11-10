@@ -22,6 +22,23 @@ const zh = {
   searchLoadFailed: "搜索暂时无法加载，请检查网络后重试。",
   retry: "重试",
   reloadPage: "刷新页面",
+  stamps: {
+    title: "集章册",
+    close: "关闭集章册",
+    collected: "盖章",
+    note: "印章只记在这台设备的浏览器里",
+    hints: {
+      arrival: "第一次来访",
+      flip: "把世界翻转一次",
+      reader: "读完一篇文章",
+      catch: "在池塘里钓上点什么",
+      record: "把那张唱片听完",
+      pinch: "捏一捏开心的脸",
+      darkroom: "去暗房看看照片",
+      lost: "找到一个不存在的页面",
+      night: "深夜来一次",
+    },
+  },
   footer: {
     photography: {
       title: "再拍一张。",
@@ -91,6 +108,23 @@ const en: ChromeMessages = {
   searchLoadFailed: "Search couldn't load. Check your connection and try again.",
   retry: "Retry",
   reloadPage: "Reload page",
+  stamps: {
+    title: "Stamp book",
+    close: "Close the stamp book",
+    collected: "Stamped",
+    note: "Stamps are kept only in this browser",
+    hints: {
+      arrival: "Visit for the first time",
+      flip: "Flip the world once",
+      reader: "Read a post to the end",
+      catch: "Fish something out of the pond",
+      record: "Play the record to the end",
+      pinch: "Pinch Kaixin's cheek",
+      darkroom: "See the photos in the darkroom",
+      lost: "Find a page that doesn't exist",
+      night: "Drop by late at night",
+    },
+  },
   footer: {
     photography: {
       title: "One more shot.",

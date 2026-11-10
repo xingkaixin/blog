@@ -8,6 +8,7 @@ import ReadingProgress from "@/components/astro/ReadingProgress.astro";
 import Screensaver from "@/components/astro/Screensaver.astro";
 import SearchLauncher from "@/components/astro/SearchLauncher.astro";
 import SiteBrand from "@/components/astro/SiteBrand.astro";
+import StampBook from "@/components/astro/StampBook.astro";
 import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import {
   buildJsonLd,
@@ -297,6 +298,7 @@ const pageTransition = {
       <SceneFooter currentPath={currentPath} stage={footerStage} />
     </div>
     {meta.type !== "article" && <Screensaver />}
+    <StampBook />
 
     <script>
       import { LOCALE_COOKIE } from "@/lib/i18n";

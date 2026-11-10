@@ -328,6 +328,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
   import { postHref } from "@/lib/published-post";
   import { pickRandom } from "@/lib/record-shuffle";
   import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
+  import { collectStamp } from "@/lib/stamps";
 
   let pond: PondHandle | null = null;
   let pending: IntersectionObserver | null = null;
@@ -392,6 +393,9 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
           : status.catch
             ? t.bottle.hooked
             : status.missed ? t.missed : t.phases[status.phase];
+      if (status.catch) {
+        collectStamp("catch");
+      }
       if (status.catch?.kind === "bottle") {
         bottle.hidden = true;
         // 提竿的同时取一篇往年的文章，瓶子落进鱼篓时卡片正好能展开

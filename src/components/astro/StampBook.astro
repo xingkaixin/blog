@@ -1,0 +1,373 @@
+---
+/**
+ * 集章册：在站里做到某件事就盖一枚章，记在本地浏览器里。
+ * 这里负责判定跟页面有关的几枚章、盖章时的角落提示和集章册对话框；
+ * 钓鱼、听唱片、捏脸这几枚由各自的组件调用 collectStamp。
+ */
+import { localeFromPath } from "@/lib/i18n";
+import { chromeMessages } from "@/lib/messages/chrome";
+import { stamps } from "@/lib/stamps";
+
+const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
+---
+
+<stamp-book class="print:hidden">
+  <div role="status" class="stamp-toast-region">
+    <button type="button" class="stamp-toast" data-stamp-toast data-open-stamps hidden>
+      <span class="stamp-seal" data-collected><span data-stamp-toast-seal></span></span>
+      <span class="stamp-toast-text">
+        <span class="stamp-toast-label">{t.collected}</span>
+        <span data-stamp-toast-name></span>
+      </span>
+    </button>
+  </div>
+
+  <dialog class="stamp-dialog" aria-labelledby="stamp-book-title" data-stamp-dialog>
+    <div class="stamp-sheet">
+      <header class="stamp-head">
+        <h2 id="stamp-book-title">{t.title}</h2>
+        <span class="stamp-count"><span data-stamp-count>0</span> / {stamps.length}</span>
+        <button type="button" class="stamp-close" aria-label={t.close} data-stamp-close>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+      </header>
+      <ul class="stamp-grid">
+        {
+          stamps.map((stamp, index) => (
+            <li data-stamp={stamp.id}>
+              <span class="stamp-seal" style={`--tilt: ${[-7, 4, -3, 6, -5, 3, -4, 7, -2][index]}deg`}>
+                <span lang="zh-CN">{stamp.seal}</span>
+              </span>
+              <span class="stamp-hint" data-stamp-hint>{t.hints[stamp.id]}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="stamp-note">{t.note}</p>
+    </div>
+  </dialog>
+</stamp-book>
+
+<style is:global>
+  .stamp-seal {
+    --tilt: -6deg;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 72px;
+    aspect-ratio: 1;
+    border: 1.5px dashed var(--ink-300);
+    border-radius: 50%;
+    color: transparent;
+    user-select: none;
+  }
+
+  .stamp-seal > span {
+    height: 2em;
+    font-family: var(--font-serif);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.08;
+    /* 印文按传统读法排成两列：右列在先，自上而下 */
+    writing-mode: vertical-rl;
+  }
+
+  [data-collected] > .stamp-seal,
+  .stamp-seal[data-collected] {
+    border: 2px solid var(--accent);
+    outline: 1px solid var(--accent);
+    outline-offset: -6px;
+    color: var(--accent);
+    rotate: var(--tilt);
+  }
+
+  [data-stamp="flip"][data-collected] > .stamp-seal {
+    rotate: calc(180deg + var(--tilt));
+  }
+
+  .stamp-toast-region {
+    position: fixed;
+    top: 72px;
+    right: 16px;
+    z-index: 45;
+  }
+
+  .stamp-toast {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px 8px 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink-800);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      translate var(--duration-fast) var(--ease-smooth-out);
+  }
+
+  .stamp-toast[hidden] {
+    display: none;
+  }
+
+  @starting-style {
+    .stamp-toast {
+      opacity: 0;
+      translate: 0 -8px;
+    }
+  }
+
+  .stamp-toast .stamp-seal {
+    width: 48px;
+  }
+
+  .stamp-toast .stamp-seal > span {
+    font-size: 12px;
+  }
+
+  .stamp-toast-text {
+    display: grid;
+    gap: 2px;
+  }
+
+  .stamp-toast-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-500);
+  }
+
+  .stamp-dialog {
+    width: min(440px, 100vw - 32px);
+    max-height: calc(100dvh - 32px);
+    /* preflight 清掉了 dialog 默认的 margin: auto，这里补回居中 */
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+    color: var(--ink-800);
+    overflow-y: auto;
+  }
+
+  .stamp-dialog::backdrop {
+    background: rgb(0 0 0 / 0.4);
+  }
+
+  .stamp-sheet {
+    padding: 20px 24px 24px;
+  }
+
+  .stamp-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .stamp-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+  }
+
+  .stamp-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-500);
+  }
+
+  .stamp-close {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px -12px -8px auto;
+    border-radius: 8px;
+    color: var(--ink-600);
+    cursor: pointer;
+  }
+
+  .stamp-toast:focus-visible,
+  .stamp-close:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .stamp-close:hover {
+      background: var(--ink-50);
+    }
+  }
+
+  .stamp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 12px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stamp-grid li {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 10px;
+  }
+
+  .stamp-hint {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-500);
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  [data-collected] > .stamp-hint {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stamp-note {
+    margin: 24px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--ink-400);
+    text-align: center;
+  }
+</style>
+
+<script>
+  import { observeArticleEngagement } from "@/lib/article-engagement";
+  import { dayPartAt } from "@/lib/day-part";
+  import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+  import {
+    collectStamp,
+    OPEN_STAMPS_EVENT,
+    readStamps,
+    STAMP_COLLECTED_EVENT,
+    stamps,
+    type StampId,
+  } from "@/lib/stamps";
+
+  const TOAST_MS = 3600;
+
+  class StampBook extends HTMLElement {
+    private controller: AbortController | null = null;
+    private stopReading: (() => void) | undefined;
+    private timer = 0;
+
+    connectedCallback() {
+      const dialog = this.querySelector<HTMLDialogElement>("[data-stamp-dialog]");
+      const toast = this.querySelector<HTMLElement>("[data-stamp-toast]");
+      const toastSeal = this.querySelector<HTMLElement>("[data-stamp-toast-seal]");
+      const toastName = this.querySelector<HTMLElement>("[data-stamp-toast-name]");
+      if (!dialog || !toast || !toastSeal || !toastName) {
+        return;
+      }
+
+      this.controller = new AbortController();
+      const { signal } = this.controller;
+
+      const render = () => {
+        const collected = readStamps();
+        for (const item of this.querySelectorAll<HTMLElement>("[data-stamp]")) {
+          const date = collected[item.dataset.stamp as StampId];
+          const hint = item.querySelector<HTMLElement>("[data-stamp-hint]");
+          if (date && hint) {
+            item.toggleAttribute("data-collected", true);
+            hint.textContent = date;
+          }
+        }
+        const count = String(stamps.filter((stamp) => collected[stamp.id]).length);
+        for (const target of document.querySelectorAll("[data-stamp-count]")) {
+          target.textContent = count;
+        }
+      };
+
+      const queue: string[] = [];
+      const showNext = () => {
+        const seal = queue.shift();
+        toast.hidden = !seal;
+        if (seal) {
+          toastSeal.textContent = seal;
+          toastName.textContent = seal;
+          this.timer = window.setTimeout(showNext, TOAST_MS);
+        }
+      };
+
+      window.addEventListener(
+        STAMP_COLLECTED_EVENT,
+        (event) => {
+          render();
+          const id = (event as CustomEvent<StampId>).detail;
+          queue.push(stamps.find((stamp) => stamp.id === id)!.seal);
+          if (toast.hidden) {
+            showNext();
+          }
+        },
+        { signal },
+      );
+      window.addEventListener(THEME_TOGGLE_EVENT, () => collectStamp("flip"), { signal });
+      window.addEventListener(OPEN_STAMPS_EVENT, () => dialog.showModal(), { signal });
+      document.addEventListener(
+        "click",
+        (event) => {
+          if (event.target instanceof Element && event.target.closest("[data-open-stamps]")) {
+            dialog.showModal();
+          }
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "click",
+        (event) => {
+          const target = event.target as Element;
+          if (target === dialog || target.closest("[data-stamp-close]")) {
+            dialog.close();
+          }
+        },
+        { signal },
+      );
+
+      render();
+      collectStamp("arrival");
+      if (dayPartAt(new Date()) === "night") {
+        collectStamp("night");
+      }
+      if (document.documentElement.hasAttribute("data-darkroom")) {
+        collectStamp("darkroom");
+      }
+      if (document.querySelector("[data-flip-back]")) {
+        collectStamp("lost");
+      }
+      const article = document.querySelector<HTMLElement>(".article-prose");
+      if (article && !readStamps().reader) {
+        this.stopReading = observeArticleEngagement(article, () => collectStamp("reader"));
+      }
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort();
+      this.controller = null;
+      this.stopReading?.();
+      this.stopReading = undefined;
+      clearTimeout(this.timer);
+    }
+  }
+
+  if (!customElements.get("stamp-book")) {
+    customElements.define("stamp-book", StampBook);
+  }
+</script>

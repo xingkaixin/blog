@@ -26,7 +26,18 @@ export type SearchPaletteThemeCommand = {
   hint: string;
 };
 
-export type SearchPaletteItem = SearchPaletteLink | SearchPaletteThemeCommand;
+export type SearchPaletteStampsCommand = {
+  id: string;
+  kind: "stamps";
+  glyph: string;
+  title: string;
+  hint: string;
+};
+
+export type SearchPaletteItem =
+  | SearchPaletteLink
+  | SearchPaletteThemeCommand
+  | SearchPaletteStampsCommand;
 
 export type SearchPaletteGroup = {
   label: string;
@@ -51,7 +62,15 @@ function routeItemsFor(locale: Locale): SearchablePaletteItem[] {
     hint: siteShortcuts.theme.hint,
     keywords: "主题 亮色 暗色 翻转世界 theme dark light flip",
   };
-  return [...routeLinks, themeItem];
+  const stampsItem: SearchPaletteStampsCommand & { keywords: string } = {
+    id: "action-stamps",
+    kind: "stamps",
+    glyph: "›",
+    title: chromeMessages[locale].stamps.title,
+    hint: "",
+    keywords: "集章册 印章 盖章 成就 stamp book seal",
+  };
+  return [...routeLinks, themeItem, stampsItem];
 }
 
 export function buildSearchPalette(

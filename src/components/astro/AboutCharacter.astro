@@ -102,6 +102,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
 
 <script>
   import { createElasticHead, type ElasticHead, type HeadExpression } from "@/lib/elastic-head";
+  import { collectStamp } from "@/lib/stamps";
 
   class AboutCharacter extends HTMLElement {
     private cleanup?: () => void;
@@ -179,6 +180,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       }
 
       function react() {
+        collectStamp("pinch");
         clearTimeout(reactionTimer);
         setExpression("surprised");
         reactionTimer = window.setTimeout(() => {

@@ -3,6 +3,7 @@ import type { FooterScene } from "@/lib/footer-scene";
 import { localeFromPath, translatedPath } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
+import { stamps } from "@/lib/stamps";
 
 type Props = { currentPath: string; stage?: boolean };
 const { currentPath, stage = true } = Astro.props;
@@ -31,6 +32,9 @@ const content = t.footer[scene];
     )
   }
   <div class="footer-bottom">
+    <button type="button" class="stamps-entry" data-open-stamps>
+      {t.stamps.title} <span data-stamp-count>0</span>/{stamps.length}
+    </button>
     <span class="shortcuts">{siteShortcuts.search.hint} {t.commandPalette} · {siteShortcuts.theme.hint} {t.flipWorld}</span>
   </div>
 </footer>
@@ -45,6 +49,10 @@ const content = t.footer[scene];
   .footer-art { display: block; width: 100%; height: clamp(248px, 27.78vw, 460px); }
   .footer-bottom { display: flex; max-width: 1280px; margin: auto; padding: 12px 32px; font-family: var(--font-mono); font-size: 10px; color: var(--ink-500); }
   .shortcuts { margin-left: auto; }
+  .stamps-entry { position: relative; border-radius: 3px; font: inherit; color: inherit; cursor: pointer; transition: color var(--duration-quick) var(--ease-smooth-out); }
+  .stamps-entry::before { content: ""; position: absolute; inset: -14px -8px; }
+  .stamps-entry:hover { color: var(--accent); }
+  .stamps-entry:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset: 2px; }
   [data-stage] .footer-bottom {
     position: absolute;
     left: 50%;
