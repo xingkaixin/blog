@@ -16,6 +16,7 @@ export default {
         "!/_astro/*",
         "!/cover/*",
         "!/fonts/*",
+        "!/holiday-logos/*.svg",
         "!/og/*",
         "!/openapi.json",
         "!/posts/images/*",

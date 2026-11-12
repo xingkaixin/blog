@@ -1,0 +1,56 @@
+{
+  "timeZone": "Asia/Shanghai",
+  "fixedDates": {
+    "newyear": "01-01",
+    "earth": "04-22",
+    "labor": "05-01",
+    "father-birthday": "05-04",
+    "children": "06-01",
+    "mother-birthday": "07-12",
+    "national": "10-01",
+    "programmer": "10-24",
+    "halloween": "10-31",
+    "birthday": "12-05",
+    "christmas": "12-25"
+  },
+  "annualDates": {
+    "2026": {
+      "eve": "02-16",
+      "spring": "02-17",
+      "lantern": "03-03",
+      "spring-equinox": "03-20",
+      "qingming": "04-05",
+      "duanwu": "06-19",
+      "summer-solstice": "06-21",
+      "qixi": "08-19",
+      "autumn-equinox": "09-23",
+      "midautumn": "09-25",
+      "chongyang": "10-18",
+      "winter": "12-22"
+    },
+    "2027": {
+      "eve": "02-05",
+      "spring": "02-06",
+      "lantern": "02-20",
+      "spring-equinox": "03-21",
+      "qingming": "04-05",
+      "duanwu": "06-09",
+      "summer-solstice": "06-21",
+      "qixi": "08-08",
+      "autumn-equinox": "09-23",
+      "midautumn": "09-15",
+      "chongyang": "10-08",
+      "winter": "12-22"
+    }
+  },
+  "priorities": {
+    "birthday": 100,
+    "father-birthday": 100,
+    "mother-birthday": 100
+  },
+  "disabled": [],
+  "sources": {
+    "2026": "https://www.hko.gov.hk/tc/gts/time/calendar/text/files/T2026c.txt",
+    "2027": "https://www.hko.gov.hk/tc/gts/time/calendar/text/files/T2027c.txt"
+  }
+}
