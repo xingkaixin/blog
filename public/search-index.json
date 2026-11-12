@@ -1,5 +1,40 @@
 [
   {
+    "slug": "agent-horizontal-plans",
+    "title": "Agent 的开发计划从数据库写起，你要等到最后一层才能试",
+    "date": "2026-11-13",
+    "summary": "Agent 开发计划、vertical slices：模型偏爱按数据库、服务、API、前端排计划，做完最后一层才试得到。改成竖切，每片做完就能用 curl 或浏览器试一下，CLI 和库也有对应切法。",
+    "tags": [
+      "Agent",
+      "AI编程",
+      "软件工程",
+      "开发流程"
+    ]
+  },
+  {
+    "slug": "agent-fix-only-adds-code",
+    "title": "Agent 修 bug 几乎不删代码，防御一层层叠上去",
+    "date": "2026-11-11",
+    "summary": "Agent 修 bug、代码审查、AGENTS.md：修复 diff 只有判空和 try-catch，或把 A、B 两套方案都留着，往往是把非法状态合法化、把决定推给后人。派活前写三行默认规则，收代码先看删除行数。",
+    "tags": [
+      "Agent",
+      "AI编程",
+      "代码审查",
+      "代码质量"
+    ]
+  },
+  {
+    "slug": "ai-products-revenue-odds",
+    "title": "一万个独立产品的收入数据：AI 产品赚到钱的比例，和非 AI 几乎一样",
+    "date": "2026-11-09",
+    "summary": "独立开发和 AI 产品收入：TrustMRR 上 10,150 个产品里，AI 产品有收入的比例 49.3%，非 AI 49.0%，年入 10 万美元的只有 2.41%。AI 降低了做出来的成本，没有提高有人付钱的概率。",
+    "tags": [
+      "AI",
+      "独立开发",
+      "商业化"
+    ]
+  },
+  {
     "slug": "ai-review-find-bug-prompt",
     "title": "AI 代码审查停不下来，先改掉那句“帮我找 bug”",
     "date": "2026-11-04",

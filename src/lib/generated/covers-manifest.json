@@ -145,6 +145,14 @@
         "78dcb7b6860d8b4015ea3a1819b2efb63374e5a63665146adcfc49318d2130ba"
       ]
     },
+    "agent-fix-only-adds-code.png": {
+      "fingerprint": "426d546b37778684a3663c18df52a860482de1912249306f2cfb0b763ac06bb6",
+      "outputFingerprints": [
+        "96b3a61fec19a6edcaaa1fd54777798bea04bbd8c3ee250f6f1d32678cf62315",
+        "afb9ed0ae2df47671866a54314404a670b333bbaf051b20eaed5077cc71a0fa3",
+        "984f4ab1696dbaaa7a43624f7371171f44aa9bcd7ff01af338afcb630b9b5d9f"
+      ]
+    },
     "agent-friendly-tool.png": {
       "fingerprint": "6a9600e9eed93e56c0555eb5ac280d086c587325ab5ee70e178f731d6ddce9f7",
       "outputFingerprints": [
@@ -167,6 +175,14 @@
         "3ed1c532d2a1797e21b6f5594c84b00433ae45d7499f4dab9fcc5d3b8a694808",
         "a22073ec6c04929e21c110180aef71290a75cc34c38aea2475f2e6c2ff2f2c01",
         "a6aee1f8a3d115309c5f2485594797046911a9291c49bc75a8061b1e45a056a7"
+      ]
+    },
+    "agent-horizontal-plans.png": {
+      "fingerprint": "fbf029550dcde6380a2bb025c8723df43d315f48b6e5201a5a2dc537d3b7337e",
+      "outputFingerprints": [
+        "ac29aa761356330c78cf9f47000761840f7be1ed18fac4244c0cd1a3f2fccfb3",
+        "cb32f68347a3ea2d70604d94fab1f6ffda787fa3ac3d96cf0485be066a808279",
+        "ac84155d9d4050f6fdf5ec6a1e84489b0589e76b76a0b502266c843e73ca97eb"
       ]
     },
     "agent-needs-git.png": {
@@ -319,6 +335,14 @@
         "6b383eb09b989029ddb106f8e59b62e0f05de022e9cd005830ccaf750d677e56",
         "d785fc15a40a83e850c9dab888490cf8a4a246eaacf53825cbc2202ef93ca50e",
         "7e75523b4d2e1fb5732ab5f07ba569041f41085266c1f67bd60e5d9125150af2"
+      ]
+    },
+    "ai-products-revenue-odds.png": {
+      "fingerprint": "fe9559eb8f25a60e0b1aa07a1cfe8a68c5061b8cdc0daa1c3b17b176ccee699d",
+      "outputFingerprints": [
+        "849fa61f319c86382b19d9708ca0a8d6d179f7b6879e92d0ac0128586d8fbcfa",
+        "d6bc745bb2ebc2c0711ed3133b37daa45f4839f4a22f1c56d58d41a0c1f72809",
+        "1acfa84651be76124945b786ad4a187adca1f2e745d5463c8c83dcfffaaf51e0"
       ]
     },
     "ai-provider-research-competitor.png": {

@@ -125,6 +125,13 @@
     "width": 1880,
     "height": 800
   },
+  "agent-fix-only-adds-code.png": {
+    "mobile": "/cover/agent-fix-only-adds-code-400.webp",
+    "desktop": "/cover/agent-fix-only-adds-code-800.webp",
+    "full": "/cover/agent-fix-only-adds-code.webp",
+    "width": 1880,
+    "height": 800
+  },
   "agent-friendly-tool.png": {
     "mobile": "/cover/agent-friendly-tool-400.webp",
     "desktop": "/cover/agent-friendly-tool-800.webp",
@@ -145,6 +152,13 @@
     "full": "/cover/agent-harness-not-model.webp",
     "width": 1921,
     "height": 819
+  },
+  "agent-horizontal-plans.png": {
+    "mobile": "/cover/agent-horizontal-plans-400.webp",
+    "desktop": "/cover/agent-horizontal-plans-800.webp",
+    "full": "/cover/agent-horizontal-plans.webp",
+    "width": 1880,
+    "height": 800
   },
   "agent-needs-git.png": {
     "mobile": "/cover/agent-needs-git-400.webp",
@@ -276,6 +290,13 @@
     "mobile": "/cover/ai-native-organization-400.webp",
     "desktop": "/cover/ai-native-organization-800.webp",
     "full": "/cover/ai-native-organization.webp",
+    "width": 1880,
+    "height": 800
+  },
+  "ai-products-revenue-odds.png": {
+    "mobile": "/cover/ai-products-revenue-odds-400.webp",
+    "desktop": "/cover/ai-products-revenue-odds-800.webp",
+    "full": "/cover/ai-products-revenue-odds.webp",
     "width": 1880,
     "height": 800
   },

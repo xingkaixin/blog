@@ -257,6 +257,14 @@
         "5e5119626419fec6bfe2b6c6547e7f7fed04ce6c022ef92ceaed4d9679e903b8"
       ]
     },
+    "/posts/images/agent-fix-only-adds-code/agent-fix-only-adds-code-01.png": {
+      "fingerprint": "10745e09c38667c882cb9df9a71a68fa23cc187575e40eaf1cc8f9ed29b28c52",
+      "outputFingerprints": [
+        "d24b98432250c8fa4fb5ef8d6a410eb3d0b3e9ad8ff95676b091aee9dc296de4",
+        "184a6355192fb62a56bb0da8ca76f240487d6f0fac6144e0d8579358fdd1b685",
+        "aa3a9d97d6d51871f2cc58738786e5718a85fa0c0efa2eb0835b0592203b3ced"
+      ]
+    },
     "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png": {
       "fingerprint": "94860ac475b7c211244ddd778018e5b33d5c2019ed827e093e3fedf77c9033a0",
       "outputFingerprints": [
@@ -327,6 +335,14 @@
         "b6508938cfeb5059d8d2e9e43035b56b8d15eb307ab3280616d955227524f577",
         "4926c9b9f5ed0d5aba76b0f3d6d8a216377b5c9d2bf1e45671858d386034becd",
         "c91586b717ce5cafe9fd667e12a5cc76a5f5759e13f491db4c316864c468f43e"
+      ]
+    },
+    "/posts/images/agent-horizontal-plans/agent-horizontal-plans-01.png": {
+      "fingerprint": "7d8fef95e44d29022438882ba485845015676f64e39e1b42d620c5f7aba3a99d",
+      "outputFingerprints": [
+        "097f2c75effa9c76c76dbd1a59da4bbb88fd423e9582d837f21c9b3c9185e361",
+        "41990069c6c6aa6b03a890373fad732471d920e997fae2db2a7ef91e9cd39581",
+        "2f2191984b69f9ae38e92803d4df37b930db2195fc5306748b08ce5249c4850b"
       ]
     },
     "/posts/images/agent-needs-git/agent-needs-git-01.png": {
@@ -687,6 +703,14 @@
         "a6cff7a3d3900a5c7068b04d2a1bbb2bf2f1cdc5c17543e57c3eeaf72c3c986e",
         "75ef133aa9baa228ea6a8d6e24873047007089f8b2c916b4af681a0d83530ae9",
         "70a5987839edbc834d3da3202ce15f1faffa0bbf6b64a8155cd50f80889d317b"
+      ]
+    },
+    "/posts/images/ai-products-revenue-odds/ai-products-revenue-odds-01.png": {
+      "fingerprint": "730bc8576a1fb9c9ce7f1eb573d52912e6b1e470c20e349488e81f7318e4239c",
+      "outputFingerprints": [
+        "60477575ff1b15e8768593e93361f9072bbf418b0664eb5717be35505bf7ff4f",
+        "683f05318928e04c363a7ccd376927f69d0a78c4b52402359e1bb19aa9124818",
+        "ed53549d79a0c4ad07b0f2fef07686704414193b8050f0df3c7480556344b82f"
       ]
     },
     "/posts/images/ai-provider-research-competitor/ai-provider-research-competitor-01.png": {

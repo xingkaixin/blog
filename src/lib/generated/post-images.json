@@ -223,6 +223,13 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/agent-fix-only-adds-code/agent-fix-only-adds-code-01.png": {
+    "webp": "/posts/images/agent-fix-only-adds-code/agent-fix-only-adds-code-01.webp",
+    "mobile": "/posts/images/agent-fix-only-adds-code/agent-fix-only-adds-code-01-800w.webp",
+    "desktop": "/posts/images/agent-fix-only-adds-code/agent-fix-only-adds-code-01-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-friendly-tool/agent-friendly-tool-01.png": {
     "webp": "/posts/images/agent-friendly-tool/agent-friendly-tool-01.webp",
     "mobile": "/posts/images/agent-friendly-tool/agent-friendly-tool-01-800w.webp",
@@ -285,6 +292,13 @@
     "desktop": "/posts/images/agent-harness-not-model/agent-harness-not-model-03-1200w.webp",
     "width": 1672,
     "height": 941
+  },
+  "/posts/images/agent-horizontal-plans/agent-horizontal-plans-01.png": {
+    "webp": "/posts/images/agent-horizontal-plans/agent-horizontal-plans-01.webp",
+    "mobile": "/posts/images/agent-horizontal-plans/agent-horizontal-plans-01-800w.webp",
+    "desktop": "/posts/images/agent-horizontal-plans/agent-horizontal-plans-01-1200w.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/agent-needs-git/agent-needs-git-01.png": {
     "webp": "/posts/images/agent-needs-git/agent-needs-git-01.webp",
@@ -598,6 +612,13 @@
     "webp": "/posts/images/ai-native-organization/ai-native-organization-02.webp",
     "mobile": "/posts/images/ai-native-organization/ai-native-organization-02-800w.webp",
     "desktop": "/posts/images/ai-native-organization/ai-native-organization-02-1200w.webp",
+    "width": 1600,
+    "height": 900
+  },
+  "/posts/images/ai-products-revenue-odds/ai-products-revenue-odds-01.png": {
+    "webp": "/posts/images/ai-products-revenue-odds/ai-products-revenue-odds-01.webp",
+    "mobile": "/posts/images/ai-products-revenue-odds/ai-products-revenue-odds-01-800w.webp",
+    "desktop": "/posts/images/ai-products-revenue-odds/ai-products-revenue-odds-01-1200w.webp",
     "width": 1600,
     "height": 900
   },
