@@ -5,7 +5,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "烟花彩带",
     rule: "每年 1 月 1 日",
-    idea: "红金彩带折出字形，外框四角展开为跨年的烟花。",
+    description: "公历新年的第一天。人们在跨年倒数中告别旧岁，互道祝福，迎接新的一年。",
   },
   {
     id: "eve",
@@ -13,7 +13,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "剪纸窗花",
     rule: "农历除夕",
-    idea: "外框展开为菱形红纸，字形与角花一起形成镂空剪纸。",
+    description: "农历一年的最后一天。家人围坐吃年夜饭，守岁迎新，盼着团圆和新一年的平安。",
   },
   {
     id: "spring",
@@ -21,7 +21,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "灯笼成形",
     rule: "农历正月初一",
-    idea: "方框展开成灯体，原有字形与短线变成金色灯纹。",
+    description: "农历新年的开始。拜年、团聚、贴春联，把对新一年的祝愿送给家人和朋友。",
   },
   {
     id: "lantern",
@@ -29,7 +29,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "六角花灯",
     rule: "农历正月十五",
-    idea: "方框展开成六角宫灯，原有字形成为灯纸上的红色剪纹。",
+    description: "赏花灯、猜灯谜、吃元宵或汤圆，是元宵节熟悉的习俗，也寄托着团圆的心愿。",
   },
   {
     id: "spring-equinox",
@@ -37,7 +37,7 @@ export const holidayLogos = [
     group: "season",
     theme: "春樱新芽",
     rule: "春分节气",
-    idea: "五瓣春樱展开成外框，绿色笔画像新长出的枝芽。",
+    description: "春季的中点，昼夜长短相近。北半球的白天继续变长，天气也逐渐转暖。",
   },
   {
     id: "qingming",
@@ -45,7 +45,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "柳色新芽",
     rule: "清明节气",
-    idea: "柳枝围出外框，笔画换成透亮的青绿色。",
+    description: "清明既是节气，也是传统节日。人们在这时祭扫、追思故人，也踏青出游。",
   },
   {
     id: "earth",
@@ -53,7 +53,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "蓝绿星球",
     rule: "每年 4 月 22 日",
-    idea: "圆形地球替换方框，原有笔画成为浅绿色陆块。",
+    description: "关注环境与生态保护的纪念日，提醒人们珍惜资源、减少浪费，关心共同生活的地球。",
   },
   {
     id: "labor",
@@ -61,7 +61,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "工装缝线",
     rule: "每年 5 月 1 日",
-    idea: "工装的肩带与缝线构成外形，米色字形像一枚织标。",
+    description: "向劳动者致意的节日。感谢各行各业的付出，也提醒我们尊重劳动和劳动者的权益。",
   },
   {
     id: "father-birthday",
@@ -69,7 +69,7 @@ export const holidayLogos = [
     group: "personal",
     theme: "可可蛋糕",
     rule: "每年 5 月 4 日",
-    idea: "深色可可蛋糕、奶油夹层与金色糖霜字形。",
+    description: "父亲的生日，也是家里值得好好庆祝的一天。愿他健康平安，日子过得自在、开心。",
   },
   {
     id: "children",
@@ -77,7 +77,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "积木拼字",
     rule: "每年 6 月 1 日",
-    idea: "外框由积木拼起，笔画使用红、黄、蓝、绿四色。",
+    description: "庆祝童年，也关注儿童的健康、教育和权益。愿每个孩子都能安全、快乐地长大。",
   },
   {
     id: "duanwu",
@@ -85,7 +85,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "粽叶折印",
     rule: "农历五月初五",
-    idea: "四片粽叶编成外框，叶脉贯穿字形，印角由粽绳收束。",
+    description: "吃粽子、赛龙舟、挂艾草，是端午常见的习俗，也寄托着人们祈求平安的心愿。",
   },
   {
     id: "summer-solstice",
@@ -93,7 +93,7 @@ export const holidayLogos = [
     group: "season",
     theme: "日光海浪",
     rule: "夏至节气",
-    idea: "日光围出外框，蓝绿色笔画和海浪形成清亮的夏日配色。",
+    description: "北半球白昼最长、黑夜最短的时节。从这以后，白天会慢慢缩短。",
   },
   {
     id: "mother-birthday",
@@ -101,7 +101,7 @@ export const holidayLogos = [
     group: "personal",
     theme: "莓果蛋糕",
     rule: "每年 7 月 12 日",
-    idea: "莓果色蛋糕配奶油花边，顶部放上草莓，字形使用浅色糖霜。",
+    description: "母亲的生日。把祝福留给她，愿她健康平安，生活里多一些轻松和开心。",
   },
   {
     id: "qixi",
@@ -109,7 +109,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "双鹊相会",
     rule: "农历七月初七",
-    idea: "左右笔画变成相向的双鹊，羽翼与尾羽接入弧形鹊桥。",
+    description: "七夕有乞巧的传统，也流传着牛郎织女相会的故事，如今常被人们用来表达爱意。",
   },
   {
     id: "autumn-equinox",
@@ -117,7 +117,7 @@ export const holidayLogos = [
     group: "season",
     theme: "枫叶成印",
     rule: "秋分节气",
-    idea: "枫叶替换方框，原有字形与叶脉一起使用温暖的棕色。",
+    description: "秋季的中点，昼夜长短再次相近。北半球的白天逐渐缩短，许多地方也进入秋收时节。",
   },
   {
     id: "midautumn",
@@ -125,7 +125,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "月兔桂影",
     rule: "农历八月十五",
-    idea: "圆月替换方框，右侧笔画重画为玉兔，桂枝沿着月缘生长。",
+    description: "以月圆寄托团圆的传统节日。人们赏月、吃月饼，也把思念和祝福送给远方的家人。",
   },
   {
     id: "national",
@@ -133,7 +133,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "红绸金印",
     rule: "每年 10 月 1 日",
-    idea: "红绸改变方框的边缘，金色笔画保留印章的结构。",
+    description: "纪念中华人民共和国成立的日子。人们在这一天庆祝国庆，也常与家人朋友相聚出游。",
   },
   {
     id: "chongyang",
@@ -141,7 +141,7 @@ export const holidayLogos = [
     group: "traditional",
     theme: "菊花印记",
     rule: "农历九月初九",
-    idea: "菊花花瓣替换外框，深绿色字形落在金黄花心。",
+    description: "登高、赏菊是重阳的传统习俗。这个日子也承载着敬老、陪伴长辈的心意。",
   },
   {
     id: "programmer",
@@ -149,7 +149,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "像素终端",
     rule: "每年 10 月 24 日",
-    idea: "外框、笔画、笑脸与短线一起变成终端里的像素。",
+    description: "中文技术社区用来庆祝程序员的日子。1024 是 2 的十次方，也是计算机里常见的数字。",
   },
   {
     id: "halloween",
@@ -157,7 +157,7 @@ export const holidayLogos = [
     group: "holiday",
     theme: "南瓜刻字",
     rule: "每年 10 月 31 日",
-    idea: "南瓜的分瓣替换外框，原有字形成为深色刻纹。",
+    description: "西方文化中的万圣节前夜，以南瓜灯、化装和孩子们讨糖的习俗为人熟知。",
   },
   {
     id: "birthday",
@@ -165,7 +165,7 @@ export const holidayLogos = [
     group: "personal",
     theme: "奶油蛋糕",
     rule: "每年 12 月 5 日",
-    idea: "奶油与蛋糕构成整个轮廓，字形像画在蛋糕上的糖霜。",
+    description: "我的生日。记下新的一岁，也谢谢这一年遇见的人和经历的事。",
   },
   {
     id: "winter",
@@ -173,7 +173,7 @@ export const holidayLogos = [
     group: "season",
     theme: "冬日冰印",
     rule: "冬至节气",
-    idea: "六角冰晶构成外框，笔画换成冰蓝色与细小霜纹。",
+    description: "北半球白昼最短、黑夜最长的时节。吃饺子或汤圆，是不少地方庆祝冬至的习俗。",
   },
   {
     id: "christmas",
@@ -181,7 +181,8 @@ export const holidayLogos = [
     group: "holiday",
     theme: "糖果花环",
     rule: "每年 12 月 25 日",
-    idea: "松枝组成环形外框，原有笔画变成红白条纹糖果。",
+    description:
+      "纪念耶稣诞生的基督教节日。装饰圣诞树、交换礼物、与亲友相聚，是许多地方的圣诞习俗。",
   },
 ] as const;
 

@@ -423,7 +423,7 @@ body:has([data-logo-detail][data-instant="true"]) .dialog-backdrop {
   color: var(--ink-500);
   font-size: 11px;
 }
-[data-logo-idea] {
+[data-logo-description] {
   margin: 22px 0;
   color: var(--ink-600);
   font-size: 13px;
@@ -552,9 +552,6 @@ body:has([data-logo-detail][data-instant="true"]) .dialog-backdrop {
   [data-logo-copy] > p {
     font-size: 13px;
   }
-  [data-logo-copy] > p br {
-    display: none;
-  }
   [data-logo-gallery] h1 {
     font-size: 37px;
     letter-spacing: -0.8px;
@@ -649,7 +646,7 @@ body:has([data-logo-detail][data-instant="true"]) .dialog-backdrop {
   [data-logo-detail-copy] h2 {
     font-size: 26px;
   }
-  [data-logo-idea] {
+  [data-logo-description] {
     margin: 18px 0 20px;
   }
   [data-logo-sample] {

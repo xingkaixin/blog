@@ -263,9 +263,8 @@ export function HolidayLogoGallery({
           </button>
           <h1>节日 Logo</h1>
           <p>
-            把节日、四季和家人的日子，
-            <br />
-            画进同一枚 Logo。
+            网站会在节日、节气和家人的生日换上对应的
+            Logo。这里收集了这些变体，也介绍每个日子的意义。
           </p>
           <div data-logo-actions>
             <Button variant="secondary" onClick={shuffle}>
@@ -389,7 +388,7 @@ export function HolidayLogoGallery({
       >
         <DialogContent
           title={`${selected.name} Logo`}
-          description={selected.idea}
+          description={selected.description}
           data-logo-detail
           data-instant={!animate}
           className="w-[min(740px,calc(100vw-2rem))] p-0"
@@ -440,7 +439,7 @@ export function HolidayLogoGallery({
               <time dateTime={selected.date}>{selected.date.replaceAll("-", ".")}</time>
               <h2>{selected.name}</h2>
               <p data-logo-rule>{selected.rule}</p>
-              <p data-logo-idea>{selected.idea}</p>
+              <p data-logo-description>{selected.description}</p>
               <div data-logo-sample>
                 <img
                   src={holidayLogoUrl(selected.id, dark)}

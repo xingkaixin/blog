@@ -27,6 +27,7 @@
 构建时校验 Logo ID、日期和优先级。页面加载、返回浏览器标签页及上海午夜会重新匹配日期；普通日期使用日常 Logo。
 
 图形与说明分别维护在 `public/holiday-logos/` 和 `src/lib/holiday-logos.ts`。
+`description` 介绍日子本身的习俗或意义，`theme` 是对应 Logo 的款式名称。
 每款包含白天和颠倒世界两个 SVG，暗色图形已包含字形翻转，不能再整体旋转图片。
 
 展示页为 `/lab/logos/`，从命令面板的「实验 → 节日 Logo」进入。
