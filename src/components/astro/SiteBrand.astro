@@ -46,6 +46,10 @@ const t = chromeMessages[locale];
       </g>
     </svg>
     <span class="site-logo-sleep font-mono text-accent" aria-hidden="true">Z</span>
+    <span data-holiday-mark aria-hidden="true">
+      <img data-holiday-art="light" alt="" width="28" height="28" />
+      <img data-holiday-art="dark" alt="" width="28" height="28" />
+    </span>
   </span>
   <span class="site-brand-label hidden font-mono text-xs tracking-[0.05em] text-ink-800 sm:inline-grid">
     <span class="site-brand-domain">xingkaixin.me</span>
@@ -61,6 +65,27 @@ const t = chromeMessages[locale];
 
 <script>
   import { dayPartAt } from "@/lib/day-part";
+  import { refreshHolidayLogo } from "@/lib/holiday-logo-browser";
+  import { holidayDateAt } from "@/lib/holiday-logo-calendar";
+
+  let midnightTimer: ReturnType<typeof setTimeout>;
+
+  function updateHolidayLogo() {
+    clearTimeout(midnightTimer);
+    refreshHolidayLogo();
+    const now = new Date();
+    // 在日期表指定的上海午夜刷新，避免全天轮询。
+    const nextMidnight = Date.parse(`${holidayDateAt(now)}T00:00:00+08:00`) + 86_400_000;
+    midnightTimer = setTimeout(updateHolidayLogo, nextMidnight - now.getTime());
+  }
+
+  updateHolidayLogo();
+  document.addEventListener("astro:page-load", updateHolidayLogo);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      updateHolidayLogo();
+    }
+  });
 
   function refreshDayPart(event: Event) {
     const brand =

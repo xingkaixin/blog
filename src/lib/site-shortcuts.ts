@@ -26,7 +26,7 @@ export function installSiteShortcuts(target: Window): () => void {
         });
     } else if (command && key === siteShortcuts.theme.key) {
       event.preventDefault();
-      target.dispatchEvent(new Event(THEME_TOGGLE_EVENT));
+      target.dispatchEvent(new CustomEvent(THEME_TOGGLE_EVENT, { detail: { animate: false } }));
     } else if (command && key === siteShortcuts.agentView.key) {
       target.dispatchEvent(new Event(AGENT_VIEW_TOGGLE_EVENT));
     }

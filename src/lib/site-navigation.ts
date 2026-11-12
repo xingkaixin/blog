@@ -1,3 +1,4 @@
+import { experiments } from "./experiments";
 import { hasEnglishVersion, localizedHref, type Locale } from "./i18n";
 
 export type SiteRouteId = "home" | "posts" | "projects" | "photos" | "tags" | "feed";
@@ -137,15 +138,18 @@ export function searchNavigation(locale: Locale = "zh") {
 }
 
 export function sitemapNavigation() {
-  return routes.flatMap((route) =>
-    route.sitemap
-      ? [
-          {
-            href: route.href,
-            changefreq: route.sitemap.changefreq,
-            priority: route.sitemap.priority,
-          },
-        ]
-      : [],
-  );
+  return [
+    ...routes.flatMap((route) =>
+      route.sitemap
+        ? [
+            {
+              href: route.href,
+              changefreq: route.sitemap.changefreq,
+              priority: route.sitemap.priority,
+            },
+          ]
+        : [],
+    ),
+    ...experiments.map(({ href }) => ({ href, changefreq: "yearly", priority: "0.3" })),
+  ];
 }

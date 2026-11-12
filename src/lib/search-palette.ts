@@ -1,6 +1,7 @@
 import type { Locale } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
+import { experiments } from "./experiments";
 import { buildPostTaxonomy } from "./post-tags";
 import { localizedProjects, primaryProjectUrl, rankProjects, type Project } from "./projects";
 import { postHref } from "./published-post";
@@ -80,10 +81,21 @@ export function buildSearchPalette(
 ): SearchPaletteGroup[] {
   const t = chromeMessages[locale].search;
   const routeItems = routeItemsFor(locale);
+  const experimentItems: SearchablePaletteItem[] = experiments.map((item) => ({
+    id: `experiment-${item.id}`,
+    kind: "link",
+    glyph: "◇",
+    title: locale === "en" ? item.englishTitle : item.title,
+    hint: item.href,
+    href: item.href,
+    keywords: item.keywords,
+    reload: false,
+  }));
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) {
     return [
       ...(posts ? [{ label: t.latest, items: posts.slice(0, 4).map(postItem) }] : []),
+      { label: t.experiments, items: experimentItems },
       { label: t.jump, items: routeItems },
     ];
   }
@@ -109,11 +121,15 @@ export function buildSearchPalette(
   const matchedRoutes = routeItems.filter((item) =>
     matchesSearchQuery(`${item.title} ${item.hint} ${item.keywords}`, normalizedQuery),
   );
+  const matchedExperiments = experimentItems.filter((item) =>
+    matchesSearchQuery(`${item.title} ${item.hint} ${item.keywords}`, normalizedQuery),
+  );
 
   return [
     { label: t.posts(matchedPosts.length), items: matchedPosts },
     { label: t.tags, items: matchedTags },
     { label: t.projects, items: matchedProjects },
+    { label: t.experiments, items: matchedExperiments },
     { label: t.commands, items: matchedRoutes },
   ].filter((group) => group.items.length > 0);
 }

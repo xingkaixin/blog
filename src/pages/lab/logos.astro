@@ -1,0 +1,18 @@
+---
+import { HolidayLogoGallery } from "@/components/holiday-logo-gallery";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { holidayDateAt } from "@/lib/holiday-logo-calendar";
+import { validatedHolidayCalendar } from "@/lib/holiday-logo-config";
+import { siteConfig } from "@/lib/site";
+
+const meta = {
+  title: "节日 Logo",
+  description: "把节日、四季和家人的日子画进同一枚 Logo。浏览、翻转和预览行开心的节日 Logo。",
+  url: `${siteConfig.url}/lab/logos/`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta} footerStage={false}>
+  <HolidayLogoGallery initialToday={holidayDateAt()} configuredYears={Object.keys(validatedHolidayCalendar.annualDates)} client:load />
+</SiteLayout>

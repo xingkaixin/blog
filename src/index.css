@@ -338,6 +338,10 @@ body {
   transform: rotate(180deg);
 }
 
+[data-theme-instant] .site-logo {
+  transition: none;
+}
+
 /* 主题即时切换：全局颜色过渡在 Chrome 上逐帧重绘整页（叠加 header 毛玻璃重算）会掉帧，
    仪式感由 .site-logo 的颠倒动画与 Morphicons 图标形变承担 */
 
@@ -348,6 +352,21 @@ body {
 
 .site-logo {
   overflow: visible;
+}
+
+[data-holiday-mark],
+[data-holiday-art="dark"],
+[data-holiday-active] :is(.site-logo, .site-logo-sleep) {
+  display: none;
+}
+
+[data-holiday-active] [data-holiday-mark],
+[data-theme="dark"] [data-holiday-art="dark"] {
+  display: block;
+}
+
+[data-theme="dark"] [data-holiday-art="light"] {
+  display: none;
 }
 
 .site-logo-body,
@@ -842,6 +861,11 @@ details .toc-link[aria-current="location"] {
 
 .dialog-popup[data-ending-style] {
   transition-duration: var(--duration-quick);
+}
+
+.dialog-popup[data-command-palette],
+body:has([data-command-palette]) .dialog-backdrop {
+  transition: none;
 }
 
 @starting-style {

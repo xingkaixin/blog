@@ -93,14 +93,16 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
     }
   }, [activeItem, open]);
 
-  const activate = (item: SearchPaletteItem | undefined) => {
+  const activate = (item: SearchPaletteItem | undefined, animate = false) => {
     if (!item) {
       return;
     }
     if (item.kind !== "link") {
       onOpenChange(false);
       window.dispatchEvent(
-        new Event(item.kind === "theme" ? THEME_TOGGLE_EVENT : OPEN_STAMPS_EVENT),
+        item.kind === "theme"
+          ? new CustomEvent(THEME_TOGGLE_EVENT, { detail: { animate } })
+          : new Event(OPEN_STAMPS_EVENT),
       );
       return;
     }
@@ -127,6 +129,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        data-command-palette
         title={t.commandPalette}
         description={t.search.description}
         style={{ "--keyboard-inset": `${keyboardInset}px` } as CSSProperties}
@@ -248,7 +251,7 @@ export function SearchPanel({ open, onOpenChange }: SearchPanelProps) {
                         className={itemClassName}
                         onPointerMove={selectOnPointerMove}
                         onFocus={() => setActiveIndex(itemIndex)}
-                        onClick={() => activate(item)}
+                        onClick={(event) => activate(item, event.detail > 0)}
                       >
                         {content}
                       </button>
