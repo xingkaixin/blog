@@ -1,139 +1,161 @@
-import { useRef, type PointerEvent } from "react";
-import type { HolidayLogoEvent } from "@/lib/holiday-logo-calendar";
-import type { HolidayLogoId } from "@/lib/holiday-logos";
+import type { KeyboardEvent, PointerEvent, Ref } from "react";
+import type { LogoNode, LogoNodeId } from "@/lib/logo-orrery";
 
-const seasons = [
-  { id: "spring-equinox", name: "春生", season: "spring" },
-  { id: "summer-solstice", name: "夏长", season: "summer" },
-  { id: "autumn-equinox", name: "秋收", season: "autumn" },
-  { id: "winter", name: "冬藏", season: "winter" },
-] as const;
+const DAY_TICKS = Array.from({ length: 365 }, (_, day) => {
+  const deg = (day / 365) * 360;
+  const kind = day % 30 === 0 ? "major" : day % 5 === 0 ? "mid" : "minor";
+  const r1 = kind === "major" ? 246 : kind === "mid" ? 252 : 256;
+  return { day, deg, kind, r1 };
+});
+
+const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
+
+const MONTH_MARKS = (() => {
+  let startDay = 0;
+  return MONTH_DAYS.map((days, index) => {
+    const deg = (startDay / 365) * 360;
+    startDay += days;
+    return {
+      label: String(index + 1).padStart(2, "0"),
+      deg,
+    };
+  });
+})();
 
 export function HolidayLogoDial({
-  events,
-  selectedIndex,
+  nodes,
+  selectedId,
+  initialAngle,
+  interactive,
+  wheelRef,
+  onDialPointerDown,
+  onDialPointerMove,
+  onDialPointerEnd,
+  onStep,
   onSelect,
 }: {
-  events: HolidayLogoEvent[];
-  selectedIndex: number;
-  onSelect: (id: HolidayLogoId, animated: boolean) => void;
+  nodes: LogoNode[];
+  selectedId: LogoNodeId;
+  initialAngle: number;
+  interactive: boolean;
+  wheelRef: Ref<HTMLDivElement>;
+  onDialPointerDown: (event: PointerEvent<HTMLDivElement>) => void;
+  onDialPointerMove: (event: PointerEvent<HTMLDivElement>) => void;
+  onDialPointerEnd: (event: PointerEvent<HTMLDivElement>) => void;
+  onStep: (delta: number) => void;
+  onSelect: (id: LogoNodeId) => void;
 }) {
-  const dragPointer = useRef<number | null>(null);
-  const year = Number(events[0].date.slice(0, 4));
-  const start = Date.parse(`${year}-01-01T00:00:00Z`);
-  const length = Date.parse(`${year + 1}-01-01T00:00:00Z`) - start;
-  const positions = events.map(({ date }) => (Date.parse(`${date}T00:00:00Z`) - start) / length);
+  const selectedIndex = Math.max(
+    0,
+    nodes.findIndex((node) => node.id === selectedId),
+  );
+  const current = nodes[selectedIndex] ?? nodes[0];
 
-  function scrub(event: PointerEvent<HTMLDivElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const angle = Math.atan2(
-      event.clientX - bounds.x - bounds.width / 2,
-      bounds.y + bounds.height / 2 - event.clientY,
-    );
-    const position = (angle / (Math.PI * 2) + 1) % 1;
-    const distances = positions.map((value) => {
-      const distance = Math.abs(value - position);
-      return Math.min(distance, 1 - distance);
-    });
-    onSelect(events[distances.indexOf(Math.min(...distances))].id, false);
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!interactive) {
+      return;
+    }
+    const offsets: Record<string, number> = {
+      ArrowRight: 1,
+      ArrowUp: 1,
+      ArrowLeft: -1,
+      ArrowDown: -1,
+    };
+    if (event.key in offsets) {
+      event.preventDefault();
+      onStep(offsets[event.key]);
+      return;
+    }
+    if (event.key === "Home") {
+      event.preventDefault();
+      onSelect(nodes[0].id);
+      return;
+    }
+    if (event.key === "End") {
+      event.preventDefault();
+      onSelect(nodes[nodes.length - 1].id);
+    }
   }
 
   return (
-    <div data-logo-compass>
+    <>
+      <svg data-logo-reticle viewBox="0 0 590 590" fill="none" aria-hidden="true">
+        <circle data-reticle-ring cx="295" cy="295" r="290" />
+        <line data-reticle-axis x1="295" y1="6" x2="295" y2="584" />
+        <line data-reticle-axis x1="6" y1="295" x2="584" y2="295" />
+        <polygon data-reticle-pointer points="295,12 289,0 301,0" />
+        <circle data-reticle-pointer cx="295" cy="22" r="3" />
+      </svg>
+
       <div
-        data-logo-dial
-        role="slider"
-        tabIndex={0}
-        aria-label="全年 Logo 时光罗盘"
-        aria-valuemin={1}
-        aria-valuemax={events.length}
-        aria-valuenow={selectedIndex + 1}
-        aria-valuetext={`${events[selectedIndex].name}，${events[selectedIndex].date}`}
-        onPointerDown={(event) => {
-          if (!event.isPrimary || event.button !== 0 || dragPointer.current !== null) {
-            return;
-          }
-          dragPointer.current = event.pointerId;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          scrub(event);
-        }}
-        onPointerMove={(event) => {
-          if (dragPointer.current === event.pointerId) {
-            scrub(event);
-          }
-        }}
-        onLostPointerCapture={() => {
-          dragPointer.current = null;
-        }}
-        onPointerUp={(event) => event.currentTarget.releasePointerCapture(event.pointerId)}
-        onPointerCancel={() => {
-          dragPointer.current = null;
-        }}
-        onKeyDown={(event) => {
-          const offsets: Record<string, number> = {
-            ArrowRight: 1,
-            ArrowUp: 1,
-            ArrowLeft: -1,
-            ArrowDown: -1,
-          };
-          let index = selectedIndex;
-          if (event.key in offsets) {
-            index = (selectedIndex + offsets[event.key] + events.length) % events.length;
-          } else if (event.key === "Home") {
-            index = 0;
-          } else if (event.key === "End") {
-            index = events.length - 1;
-          } else {
-            return;
-          }
-          event.preventDefault();
-          onSelect(events[index].id, false);
-        }}
+        ref={wheelRef}
+        data-logo-wheel
+        style={{ transform: `rotate(${initialAngle.toFixed(3)}deg)` }}
+        role={interactive ? "slider" : undefined}
+        tabIndex={interactive ? 0 : -1}
+        aria-label={interactive ? "365 日岁时星盘" : undefined}
+        aria-valuemin={interactive ? 1 : undefined}
+        aria-valuemax={interactive ? nodes.length : undefined}
+        aria-valuenow={interactive ? selectedIndex + 1 : undefined}
+        aria-valuetext={interactive ? `${current.name}，${current.date}` : undefined}
+        onPointerDown={onDialPointerDown}
+        onPointerMove={onDialPointerMove}
+        onPointerUp={onDialPointerEnd}
+        onPointerCancel={onDialPointerEnd}
+        onLostPointerCapture={onDialPointerEnd}
+        onKeyDown={handleKeyDown}
       >
-        <svg viewBox="0 0 400 400" fill="none" aria-hidden="true">
-          <circle data-logo-orbit cx="200" cy="200" r="165" />
-          {Array.from({ length: 72 }, (_, index) => (
+        <svg viewBox="0 0 562 562" fill="none" aria-hidden="true">
+          <circle data-wheel-track="outer" cx="281" cy="281" r="262" />
+          <circle data-wheel-track="inner" cx="281" cy="281" r="218" />
+          {DAY_TICKS.map(({ day, deg, kind, r1 }) => (
             <line
-              key={index}
-              data-logo-tick
-              x1="200"
-              y1={index % 6 === 0 ? 12 : 17}
-              x2="200"
-              y2="24"
-              transform={`rotate(${index * 5} 200 200)`}
+              key={day}
+              data-wheel-tick={kind}
+              x1="281"
+              y1={281 - r1}
+              x2="281"
+              y2="19"
+              transform={`rotate(${deg.toFixed(2)} 281 281)`}
             />
           ))}
-          {positions.map((position, index) => (
-            <g key={events[index].id} transform={`rotate(${position * 360} 200 200)`}>
-              <circle
-                data-logo-date-dot
-                data-selected={index === selectedIndex}
-                cx="200"
-                cy="35"
-                r={index === selectedIndex ? 5 : 2.5}
-              />
-            </g>
+          {MONTH_MARKS.map(({ label, deg }) => (
+            <text
+              key={label}
+              data-wheel-month
+              x="281"
+              y="45"
+              textAnchor="middle"
+              transform={`rotate(${deg.toFixed(2)} 281 281)`}
+            >
+              {label}
+            </text>
           ))}
-          <g data-logo-needle style={{ transform: `rotate(${positions[selectedIndex] * 360}deg)` }}>
-            <path d="m195 3 5 8 5-8" />
-          </g>
+          {nodes.map((node) => {
+            const deg = node.fraction * 360;
+            const active = node.id === selectedId;
+            return (
+              <g
+                key={node.id}
+                data-wheel-star
+                data-logo-group={node.group}
+                data-active={active ? "true" : undefined}
+                transform={`rotate(${deg.toFixed(2)} 281 281)`}
+              >
+                {(node.group === "personal" || node.group === "seal" || active) && (
+                  <circle data-star-halo cx="281" cy="64" r={active ? 9.5 : 8} />
+                )}
+                <circle
+                  data-star-dot
+                  cx="281"
+                  cy="64"
+                  r={active ? 5.8 : node.group === "personal" ? 4.8 : 4}
+                />
+              </g>
+            );
+          })}
         </svg>
       </div>
-      {seasons.map(({ id, name, season }) => {
-        const event = events.find((item) => item.id === id);
-        return (
-          <button
-            type="button"
-            key={id}
-            data-logo-season={season}
-            disabled={!event}
-            aria-label={`查看${event?.name ?? name} Logo`}
-            onClick={(click) => event && onSelect(event.id, click.detail > 0)}
-          >
-            {name}
-          </button>
-        );
-      })}
-    </div>
+    </>
   );
 }
