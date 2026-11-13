@@ -72,6 +72,11 @@ def photo_title_text() -> str:
     return "、".join(labels + [album["title"] for album in albums])
 
 
+def holiday_logo_title_text() -> str:
+    source = (ROOT / "src/lib/holiday-logos.ts").read_text(encoding="utf-8")
+    return "".join(re.findall(r'^\s*name:\s*"([^"]+)"', source, re.M))
+
+
 @dataclass
 class Face:
     family: str
@@ -117,6 +122,7 @@ FACES = [
         sheet="smiley-sans.css",
         rename="XKX Display",
         local="Smiley Sans Oblique",
+        static_text=holiday_logo_title_text,
     ),
     *(
         Face(

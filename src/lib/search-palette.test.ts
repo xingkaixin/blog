@@ -22,6 +22,6 @@ describe("search palette", () => {
     const group = buildSearchPalette("experiments", null, "en").find(
       ({ label }) => label === "Experiments",
     );
-    expect(group?.items[0].title).toBe("Holiday Logos (Chinese)");
+    expect(group?.items[0].title).toBe("Holiday Logo Workshop (Chinese)");
   });
 });

@@ -83,6 +83,7 @@ bun run build
 以下情况需要重跑：
 
 - 新文章标题、标签或其他得意黑文字出现子集外的汉字，否则这些字会用回退字体显示。新文章最常触发。
+- 新增节日 Logo 名称。工坊会动态切换标题，脚本从 `src/lib/holiday-logos.ts` 补齐这些名称。
 - 页面用到某字体尚未包含的符号，例如 Outfit 正文里的 ™ € −；ASCII 与 Latin-1 已全部保留。
 - 新相册名出现子集外的汉字，否则照片墙标题里这些字会用回退字体显示。
 - 新增字重、`font-variant-*`、`font-feature-settings`、竖排或 `hyphens: auto`，或修改签名 `siteConfig.author`。
