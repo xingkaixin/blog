@@ -17,7 +17,7 @@ const t = chromeMessages[locale];
   data-day-part="day"
   data-site-brand
 >
-  <span class="relative h-7 w-7 shrink-0">
+  <span class="relative h-7 w-7 shrink-0" data-brand-mark>
     <svg class="site-logo h-7 w-7" viewBox="0 0 200 200" fill="#A52222" aria-hidden="true">
       <g class="site-logo-body">
         <path d="m182.4 5.67h-164.8c-7.59 0-12.25 7.02-12.25 12.75v163.2c0 7.53 5.56 13.42 12.25 13.42h164.8c7.4 0 12.25-7.17 12.25-13.42v-163.2c0-7.04-5.61-12.75-12.25-12.75zm1.25 175c0 2.1-1.21 2.95-2.8 2.95h-162.4c-2.1 0-2.85-1.27-2.85-2.95v-161.8c0-2.1 0.95-2.8 2.85-2.8h162.4c1.74 0 2.8 1.1 2.8 2.8v161.8z"></path>
@@ -64,15 +64,24 @@ const t = chromeMessages[locale];
 </a>
 
 <script>
-  import { dayPartAt } from "@/lib/day-part";
-  import { refreshHolidayLogo } from "@/lib/holiday-logo-browser";
+  import { nextDayPartDelayMs } from "@/lib/day-part";
+  import { refreshHolidayLogo, refreshSiteBrandDayPart } from "@/lib/holiday-logo-browser";
   import { holidayDateAt } from "@/lib/holiday-logo-calendar";
 
   let midnightTimer: ReturnType<typeof setTimeout>;
+  let dayPartTimer: ReturnType<typeof setTimeout>;
+
+  function scheduleDayPart() {
+    clearTimeout(dayPartTimer);
+    const now = new Date();
+    refreshSiteBrandDayPart(now);
+    dayPartTimer = setTimeout(scheduleDayPart, nextDayPartDelayMs(now));
+  }
 
   function updateHolidayLogo() {
     clearTimeout(midnightTimer);
     refreshHolidayLogo();
+    scheduleDayPart();
     const now = new Date();
     // 在日期表指定的上海午夜刷新，避免全天轮询。
     const nextMidnight = Date.parse(`${holidayDateAt(now)}T00:00:00+08:00`) + 86_400_000;
@@ -91,7 +100,7 @@ const t = chromeMessages[locale];
     const brand =
       event.target instanceof Element ? event.target.closest<HTMLElement>("[data-site-brand]") : null;
     if (brand) {
-      brand.dataset.dayPart = dayPartAt(new Date());
+      refreshSiteBrandDayPart();
     }
   }
 

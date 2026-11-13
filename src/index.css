@@ -381,6 +381,7 @@ body {
   transform-origin: center;
 }
 
+.site-logo-body,
 .site-logo-eye,
 .site-logo-mouth {
   transition: transform var(--duration-fast) var(--ease-smooth-out);
@@ -401,6 +402,77 @@ body {
   line-height: 1;
   opacity: 0;
   pointer-events: none;
+  transition: opacity var(--duration-fast) var(--ease-smooth-out);
+}
+
+[data-brand-mark] {
+  border-radius: 6px;
+  transition:
+    transform var(--duration-fast) var(--ease-smooth-out),
+    outline-color var(--duration-quick) var(--ease-smooth-out);
+}
+
+.site-brand[data-slingshot-target="armed"] [data-brand-mark] {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  transform: scale(1.08);
+}
+
+.site-brand[data-day-part="morning"] .site-logo-body {
+  transform: translateY(-2px) scale(0.98, 1.03);
+}
+
+.site-brand[data-day-part="morning"] .site-logo-eye {
+  transform: scaleY(0.8);
+}
+
+.site-brand[data-day-part="morning"] .site-logo-mouth {
+  transform: scale(0.9);
+}
+
+.site-brand[data-day-part="morning"] .site-logo-rays {
+  fill: color-mix(in oklab, var(--accent) 58%, var(--film));
+  opacity: 0.78;
+  transform: translate(calc(var(--ray-x) * -1.5px), calc(var(--ray-y) * -1.5px));
+}
+
+.site-brand[data-day-part="noon"] .site-logo-eye {
+  transform: translateY(-1.5px) scaleY(1.08);
+}
+
+.site-brand[data-day-part="noon"] .site-logo-mouth {
+  transform: scale(1.22);
+}
+
+.site-brand[data-day-part="noon"] .site-logo-rays {
+  fill: color-mix(in oklab, var(--accent) 72%, var(--film));
+  transform: translate(calc(var(--ray-x) * 4.5px), calc(var(--ray-y) * 4.5px));
+}
+
+.site-brand[data-day-part="evening"] .site-logo-eye {
+  transform: scaleY(0.82);
+}
+
+.site-brand[data-day-part="evening"] .site-logo-rays {
+  fill: var(--film);
+  opacity: 0.92;
+  transform: translate(calc(var(--ray-x) * 2px), calc(var(--ray-y) * 2px));
+}
+
+.site-brand[data-day-part="night"] .site-logo-eye {
+  transform: scaleY(0.22);
+}
+
+.site-brand[data-day-part="night"] .site-logo-mouth {
+  transform: scale(0.55);
+}
+
+.site-brand[data-day-part="night"] .site-logo-rays {
+  opacity: 0.16;
+}
+
+.site-brand[data-day-part="night"] .site-logo-sleep {
+  opacity: 0.7;
 }
 
 .site-brand-label {
@@ -430,6 +502,8 @@ body {
 
   .site-brand:is(:hover, :focus-visible)[data-day-part="evening"] .site-logo-rays {
     fill: var(--film);
+    opacity: 1;
+    transform: translate(calc(var(--ray-x) * 3px), calc(var(--ray-y) * 3px));
   }
 
   .site-brand:is(:hover, :focus-visible)[data-day-part="night"] .site-logo-rays {
