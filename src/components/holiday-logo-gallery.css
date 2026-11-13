@@ -430,23 +430,8 @@
   padding: 36px 40px 28px 18px;
 }
 [data-logo-stage-heading] {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-}
-[data-logo-stage-heading] > time {
   font: 12px var(--font-mono);
   color: var(--ink-500);
-}
-[data-logo-gallery] select {
-  min-height: 36px;
-  padding: 4px 8px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--ink-600);
-  font: 13px var(--font-sans);
 }
 [data-logo-caption] {
   display: flex;
@@ -776,7 +761,7 @@
   color: var(--ink-500);
   border-radius: 6px;
 }
-[data-logo-gallery] :is(button, select, [role="slider"]):focus-visible,
+[data-logo-gallery] :is(button, [role="slider"]):focus-visible,
 [data-logo-detail] button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
@@ -943,9 +928,6 @@ body:has([data-logo-detail][data-instant="true"]) .dialog-backdrop {
     width: min(100%, 130px);
     height: auto;
     aspect-ratio: 1;
-  }
-  [data-logo-gallery] select {
-    font-size: 16px;
   }
 }
 @media (max-width: 520px) {

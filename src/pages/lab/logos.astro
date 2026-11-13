@@ -2,7 +2,8 @@
 import { HolidayLogoGallery } from "@/components/holiday-logo-gallery";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { holidayDateAt } from "@/lib/holiday-logo-calendar";
-import { validatedHolidayCalendar } from "@/lib/holiday-logo-config";
+// 保留构建期校验，避免错误日期进入发布产物。
+import "@/lib/holiday-logo-config";
 import { siteConfig } from "@/lib/site";
 
 const meta = {
@@ -14,5 +15,5 @@ const meta = {
 ---
 
 <SiteLayout meta={meta} footerStage={false}>
-  <HolidayLogoGallery initialToday={holidayDateAt()} configuredYears={Object.keys(validatedHolidayCalendar.annualDates)} client:load />
+  <HolidayLogoGallery initialToday={holidayDateAt()} client:load />
 </SiteLayout>

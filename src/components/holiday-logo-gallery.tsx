@@ -64,15 +64,9 @@ function IconButton({
   );
 }
 
-export function HolidayLogoGallery({
-  initialToday,
-  configuredYears,
-}: {
-  initialToday: string;
-  configuredYears: string[];
-}) {
+export function HolidayLogoGallery({ initialToday }: { initialToday: string }) {
   const [today, setToday] = useState(initialToday);
-  const [year, setYear] = useState(initialToday.slice(0, 4));
+  const year = today.slice(0, 4);
   const [selectedId, setSelectedId] = useState<HolidayLogoId>(
     () => nextEvent(holidayEvents(year), today)?.id ?? holidayLogos[0].id,
   );
@@ -94,7 +88,6 @@ export function HolidayLogoGallery({
   const selected = events.find(({ id }) => id === selectedId) ?? events[0];
   const selectedIndex = events.findIndex(({ id }) => id === selected?.id);
   const upcoming = nextEvent(events, today);
-  const years = Array.from(new Set([...configuredYears, today.slice(0, 4)])).toSorted();
   const visible = events.filter((item) => filter === "all" || item.group === filter);
   const counter = `${String(selectedIndex + 1).padStart(2, "0")} / ${events.length}`;
   const motion = !paused && !reducedMotion;
@@ -117,7 +110,6 @@ export function HolidayLogoGallery({
   useEffect(() => {
     const current = holidayDateAt();
     setToday(current);
-    setYear(current.slice(0, 4));
     setSelectedId(nextEvent(holidayEvents(current.slice(0, 4)), current)?.id ?? holidayLogos[0].id);
     const syncTheme = () => setDark(document.documentElement.dataset.theme === "dark");
     syncTheme();
@@ -233,37 +225,11 @@ export function HolidayLogoGallery({
     );
   }
 
-  const yearSelect = (
-    <label>
-      <span className="sr-only">展示年份</span>
-      <select
-        aria-label="展示年份"
-        value={year}
-        onChange={(event) => {
-          const nextYear = event.currentTarget.value;
-          const next = holidayEvents(nextYear);
-          setYear(nextYear);
-          select(
-            next.find(({ id }) => id === selectedId)?.id ?? next[0]?.id ?? holidayLogos[0].id,
-            false,
-          );
-        }}
-      >
-        {years.map((value) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-
   if (!selected || !upcoming) {
     return (
       <div data-logo-gallery>
         <h1>节日 Logo 工坊</h1>
-        {yearSelect}
-        <p>这一年还没有节日日期。</p>
+        <p>今年还没有节日日期。</p>
       </div>
     );
   }
@@ -379,10 +345,9 @@ export function HolidayLogoGallery({
           <p data-logo-gesture-hint>点击徽章敲一下 · 拖动外圈换个日子</p>
         </div>
         <div data-logo-console>
-          <div data-logo-stage-heading>
-            <time dateTime={selected.date}>{selected.date.replaceAll("-", ".")}</time>
-            {yearSelect}
-          </div>
+          <time data-logo-stage-heading dateTime={selected.date}>
+            {selected.date.replaceAll("-", ".")}
+          </time>
           <div data-logo-caption>
             <h2 aria-live="polite">{selected.name}</h2>
             <IconButton label="放大查看当前 Logo" onClick={() => setOpen(true)}>
