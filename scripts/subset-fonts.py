@@ -74,7 +74,8 @@ def photo_title_text() -> str:
 
 def holiday_logo_title_text() -> str:
     source = (ROOT / "src/lib/holiday-logos.ts").read_text(encoding="utf-8")
-    return "".join(re.findall(r'^\s*name:\s*"([^"]+)"', source, re.M))
+    names = "".join(re.findall(r'^\s*name:\s*"([^"]+)"', source, re.M))
+    return f"{names}方印本尊"
 
 
 @dataclass
