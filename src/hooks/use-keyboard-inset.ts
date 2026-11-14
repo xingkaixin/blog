@@ -7,6 +7,7 @@ export function useKeyboardInset(active: boolean): number {
   useEffect(() => {
     const viewport = window.visualViewport;
     if (!active || !viewport) {
+      setInset(0);
       return undefined;
     }
 
@@ -19,6 +20,7 @@ export function useKeyboardInset(active: boolean): number {
     return () => {
       viewport.removeEventListener("resize", update);
       viewport.removeEventListener("scroll", update);
+      setInset(0);
     };
   }, [active]);
 

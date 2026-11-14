@@ -20,7 +20,7 @@ export function installSiteShortcuts(target: Window): () => void {
     if ((command && key === siteShortcuts.search.key) || (!command && key === "/")) {
       event.preventDefault();
       void import("./search-launcher")
-        .then(({ openSearch }) => openSearch())
+        .then(({ openSearch }) => openSearch({ source: "keyboard" }))
         .catch((error) => {
           console.error("加载搜索快捷键失败", error);
         });

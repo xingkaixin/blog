@@ -41,6 +41,7 @@ export type SearchPaletteItem =
   | SearchPaletteStampsCommand;
 
 export type SearchPaletteGroup = {
+  id: string;
   label: string;
   items: SearchPaletteItem[];
 };
@@ -94,9 +95,9 @@ export function buildSearchPalette(
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) {
     return [
-      ...(posts ? [{ label: t.latest, items: posts.slice(0, 4).map(postItem) }] : []),
-      { label: t.experiments, items: experimentItems },
-      { label: t.jump, items: routeItems },
+      ...(posts ? [{ id: "latest", label: t.latest, items: posts.slice(0, 4).map(postItem) }] : []),
+      { id: "experiments", label: t.experiments, items: experimentItems },
+      { id: "commands", label: t.jump, items: routeItems },
     ];
   }
 
@@ -126,11 +127,11 @@ export function buildSearchPalette(
   );
 
   return [
-    { label: t.posts(matchedPosts.length), items: matchedPosts },
-    { label: t.tags, items: matchedTags },
-    { label: t.projects, items: matchedProjects },
-    { label: t.experiments, items: matchedExperiments },
-    { label: t.commands, items: matchedRoutes },
+    { id: "posts", label: t.posts(matchedPosts.length), items: matchedPosts },
+    { id: "tags", label: t.tags, items: matchedTags },
+    { id: "projects", label: t.projects, items: matchedProjects },
+    { id: "experiments", label: t.experiments, items: matchedExperiments },
+    { id: "commands", label: t.commands, items: matchedRoutes },
   ].filter((group) => group.items.length > 0);
 }
 

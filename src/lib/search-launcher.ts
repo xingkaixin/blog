@@ -1,3 +1,7 @@
+import type { OpenSearchOptions } from "@/components/search-dialog-entry";
+
+export type { OpenSearchOptions };
+
 const inactiveContainers = new WeakSet<HTMLElement>();
 const pendingContainers = new WeakSet<HTMLElement>();
 
@@ -9,7 +13,7 @@ document.addEventListener("astro:before-swap", () => {
   }
 });
 
-export async function openSearch(): Promise<void> {
+export async function openSearch(options?: OpenSearchOptions): Promise<void> {
   const container = document.querySelector<HTMLElement>("[data-search-root]");
   if (!container || inactiveContainers.has(container) || pendingContainers.has(container)) {
     return;
@@ -26,7 +30,7 @@ export async function openSearch(): Promise<void> {
   try {
     const { openSearchDialog } = await import("@/components/search-dialog-entry");
     if (container.isConnected && !inactiveContainers.has(container)) {
-      openSearchDialog(container);
+      openSearchDialog(container, options);
     }
   } catch (error) {
     console.error("加载搜索面板失败", error);
