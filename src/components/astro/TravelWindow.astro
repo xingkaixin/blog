@@ -28,7 +28,7 @@ const scenes = await Promise.all(
   }),
 );
 const frameImage = await getImage({ src: frame, widths: [420, 840], format: "webp" });
-const curtainImage = await getImage({ src: curtain, width: 360, format: "webp" });
+const curtainImage = await getImage({ src: curtain, width: 400, format: "webp" });
 const [first] = scenes;
 ---
 
@@ -102,7 +102,7 @@ const [first] = scenes;
 </style>
 
 <script>
-  import { createCurtains } from "@/lib/travel-curtains";
+  import { createCurtains, type TravelCurtains } from "@/lib/travel-curtains";
   import { createTravelScenery, type TravelScenery } from "@/lib/travel-scenery";
   import { HOLD_DURATION_MS, RIDE_DURATION_MS, sampleTravelRide } from "@/lib/travel-window-motion";
 
@@ -131,9 +131,80 @@ const [first] = scenes;
       let index = 0;
       let scenery: TravelScenery | null = null;
       let sceneryInitialized = false;
-      let curtains: ReturnType<typeof createCurtains> = null;
-      let rideFrame = 0;
-      let finishRide: (() => void) | null = null;
+      let curtains: TravelCurtains | null = null;
+
+      let frame = 0;
+      let lastTime = 0;
+      let rideStart = 0;
+      let rideActive = false;
+      let curtainsMoving = false;
+      let rideResolve: (() => void) | null = null;
+
+      const stampArrival = () => {
+        view.srcset = scenes[index].srcset;
+        view.src = scenes[index].src;
+        names.forEach((name, stop) => {
+          name.hidden = stop !== index;
+        });
+        this.toggleAttribute("data-stamped", true);
+      };
+
+      const finishActiveRide = (snapCurtains: boolean) => {
+        if (rideActive) {
+          rideActive = false;
+          scenery?.commitRide();
+          if (!stopped) {
+            stampArrival();
+          }
+        }
+        if (snapCurtains) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+          curtainsMoving = false;
+          curtains?.reset();
+        }
+        const resolve = rideResolve;
+        rideResolve = null;
+        resolve?.();
+      };
+
+      const tick = (now: number) => {
+        frame = 0;
+        if (stopped) {
+          return;
+        }
+        if (reducedMotion.matches || document.hidden) {
+          finishActiveRide(true);
+          return;
+        }
+        const dt = Math.min(0.05, Math.max(0, (now - lastTime) / 1000));
+        lastTime = now;
+
+        let speed = 0;
+        let acceleration = 0;
+        if (rideActive) {
+          const tau = (now - rideStart) / RIDE_DURATION_MS;
+          const ride = sampleTravelRide(tau);
+          if (tau >= 1 || !scenery || !scenery.renderRide(ride.track, ride.blur)) {
+            finishActiveRide(false);
+          } else {
+            speed = ride.speed;
+            acceleration = ride.acceleration;
+          }
+        }
+
+        curtainsMoving = curtains?.step(dt, speed, acceleration) ?? false;
+        if (rideActive || curtainsMoving) {
+          frame = requestAnimationFrame(tick);
+        }
+      };
+
+      const wake = () => {
+        if (!frame && !stopped) {
+          lastTime = performance.now();
+          frame = requestAnimationFrame(tick);
+        }
+      };
 
       const load = () => {
         if (!wide.matches) {
@@ -161,13 +232,22 @@ const [first] = scenes;
         }
       };
 
+      const handleInterruption = () => {
+        if ((reducedMotion.matches || document.hidden) && (rideActive || curtainsMoving)) {
+          finishActiveRide(true);
+        }
+      };
+
       load();
       wide.addEventListener("change", load, { signal: events.signal });
+      reducedMotion.addEventListener("change", handleInterruption, { signal: events.signal });
+      document.addEventListener("visibilitychange", handleInterruption, { signal: events.signal });
       sceneryCanvas.addEventListener(
         "webglcontextlost",
         () => {
           this.removeAttribute("data-scenery-ready");
           scenery = null;
+          finishActiveRide(true);
         },
         { signal: events.signal },
       );
@@ -175,33 +255,6 @@ const [first] = scenes;
       // 页面隐藏、窄屏不显示、窗户随滚动淡出或要求减少动态时停在当前城市
       const idle = () =>
         document.hidden || reducedMotion.matches || !wide.matches || Number(getComputedStyle(this).opacity) < 0.05;
-
-      const runSceneryRide = () =>
-        new Promise<void>((resolve) => {
-          const start = performance.now();
-          const complete = () => {
-            cancelAnimationFrame(rideFrame);
-            rideFrame = 0;
-            finishRide = null;
-            scenery?.commitRide();
-            resolve();
-          };
-          finishRide = complete;
-          const step = (now: number) => {
-            if (stopped || reducedMotion.matches || document.hidden || !scenery) {
-              complete();
-              return;
-            }
-            const tau = (now - start) / RIDE_DURATION_MS;
-            const ride = sampleTravelRide(tau);
-            if (tau >= 1 || !scenery.renderRide(ride.track, ride.blur)) {
-              complete();
-              return;
-            }
-            rideFrame = requestAnimationFrame(step);
-          };
-          rideFrame = requestAnimationFrame(step);
-        });
 
       const travel = async () => {
         while (!stopped) {
@@ -217,15 +270,16 @@ const [first] = scenes;
             continue;
           }
           this.removeAttribute("data-stamped");
-          const readyForScenery = scenery !== null && scenery.prepareRide(loader);
-          if (readyForScenery) {
-            curtains?.ride(RIDE_DURATION_MS);
-            await runSceneryRide();
+          if (scenery !== null && scenery.prepareRide(loader)) {
+            await new Promise<void>((resolve) => {
+              rideStart = performance.now();
+              rideActive = true;
+              rideResolve = resolve;
+              wake();
+            });
             if (stopped) {
               return;
             }
-            view.srcset = scenes[index].srcset;
-            view.src = scenes[index].src;
           } else {
             view.srcset = scenes[index].srcset;
             view.src = scenes[index].src;
@@ -233,11 +287,8 @@ const [first] = scenes;
             if (stopped) {
               return;
             }
+            stampArrival();
           }
-          names.forEach((name, stop) => {
-            name.hidden = stop !== index;
-          });
-          this.toggleAttribute("data-stamped", true);
         }
       };
 
@@ -245,10 +296,11 @@ const [first] = scenes;
       this.cleanup = () => {
         stopped = true;
         events.abort();
-        finishRide?.();
+        finishActiveRide(true);
         scenery?.destroy();
         scenery = null;
         curtains?.destroy();
+        curtains = null;
       };
     }
 
