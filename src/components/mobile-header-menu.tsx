@@ -6,7 +6,7 @@ import { MoonStarsIcon } from "@phosphor-icons/react/dist/csr/MoonStars";
 import { RocketLaunchIcon } from "@phosphor-icons/react/dist/csr/RocketLaunch";
 import { RssIcon } from "@phosphor-icons/react/dist/csr/Rss";
 import { TagIcon } from "@phosphor-icons/react/dist/csr/Tag";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import type { Locale } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
@@ -20,7 +20,7 @@ type MobileHeaderMenuProps = {
 };
 
 const menuItem =
-  "flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
+  "t-dropdown-item flex w-full items-center gap-3 rounded-[6px] px-3 py-2.5 text-left text-sm text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-[current=page]:bg-ink-50 aria-[current=page]:text-ink-800";
 const routeIcons: Record<SiteRouteId, typeof FileTextIcon> = {
   home: HouseIcon,
   posts: FileTextIcon,
@@ -39,7 +39,7 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
   const firstItemRef = useRef<HTMLAnchorElement>(null);
   const closeMenu = useCallback(() => {
     if (menuRef.current?.contains(document.activeElement)) {
-      triggerRef.current?.focus();
+      triggerRef.current?.focus({ preventScroll: true });
     }
     setOpen(false);
   }, []);
@@ -70,7 +70,7 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
 
   useEffect(() => {
     if (open) {
-      firstItemRef.current?.focus();
+      firstItemRef.current?.focus({ preventScroll: true });
     }
   }, [open]);
 
@@ -115,6 +115,7 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
                 data-astro-reload={route.reload ? "" : undefined}
                 aria-current={active ? "page" : undefined}
                 onClick={() => closeMenu()}
+                style={{ "--item-index": index } as CSSProperties}
                 className={menuItem}
               >
                 <Icon aria-hidden="true" className="h-4 w-4" />
@@ -123,7 +124,12 @@ export function MobileHeaderMenu({ currentPath, locale }: MobileHeaderMenuProps)
             );
           })}
           <div className="my-1 h-px bg-line" />
-          <button type="button" onClick={toggleTheme} className={menuItem}>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{ "--item-index": routes.length } as CSSProperties}
+            className={menuItem}
+          >
             <MoonStarsIcon aria-hidden="true" className="h-4 w-4" />
             {t.flipWorld}
             <span className="ml-auto font-mono text-[10px] text-ink-400 pointer-coarse:hidden">
