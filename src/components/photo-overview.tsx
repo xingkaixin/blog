@@ -1,5 +1,6 @@
 import { ShuffleIcon } from "@phosphor-icons/react/dist/csr/Shuffle";
 import type { CSSProperties, ReactNode } from "react";
+import { useRegisterPhotoThumbnail } from "@/components/photo-lightbox";
 import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatCaptureMonth } from "@/lib/photo-captured-at";
 import {
@@ -9,6 +10,7 @@ import {
   type PhotoRecord,
 } from "@/lib/photo-catalog";
 import type { AlbumOverviewItem, PhotoYearActivity } from "@/lib/photo-wall-model";
+import { useSlidingPill } from "@/lib/sliding-pill";
 import { cn } from "@/lib/utils";
 
 type PhotoOverviewProps = {
@@ -18,10 +20,12 @@ type PhotoOverviewProps = {
   items: AlbumOverviewItem[];
   yearActivity: PhotoYearActivity[];
   failedPeriods: PhotoPeriod[];
+  previousView?: "overview" | "timeline" | null;
+  pillAnimationsEnabled?: boolean;
   onRetryMonth: (period: PhotoPeriod) => void;
   onOpenAlbum: (albumId: string | null) => void;
   onOpenMonth: (month: string) => void;
-  onRandomPhoto: () => void;
+  onRandomPhoto: (trigger?: HTMLElement | null) => void;
 };
 
 const PAGE_CLASS_NAME = "mx-auto max-w-340 px-4 pt-8 sm:px-6 lg:px-10 lg:pt-16";
@@ -37,6 +41,8 @@ export function PhotoOverview({
   items,
   yearActivity,
   failedPeriods,
+  previousView = null,
+  pillAnimationsEnabled = true,
   onRetryMonth,
   onOpenAlbum,
   onOpenMonth,
@@ -92,7 +98,7 @@ export function PhotoOverview({
             </button>
             <button
               type="button"
-              onClick={onRandomPhoto}
+              onClick={(event) => onRandomPhoto(event.currentTarget)}
               className={cn(
                 "inline-flex min-h-12 items-center gap-2 rounded-full border border-ink-300 px-6 text-[15px] text-ink-800 transition-[transform,border-color] hover:border-ink-500 active:scale-[0.97]",
                 FOCUS_RING_CLASS_NAME,
@@ -109,7 +115,12 @@ export function PhotoOverview({
       </section>
 
       <div className="sticky top-[60px] z-10 -mx-4 mt-16 border-y border-line bg-paper/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-10 lg:mt-24 lg:px-10">
-        <ViewSwitch view="overview" onSwitchView={() => onOpenAlbum(null)} />
+        <ViewSwitch
+          view="overview"
+          previousView={previousView}
+          pillAnimationsEnabled={pillAnimationsEnabled}
+          onSwitchView={() => onOpenAlbum(null)}
+        />
       </div>
 
       {rollCards.length > 0 && (
@@ -229,11 +240,15 @@ export function PhotoArchiveHeader({
   title,
   detail,
   view,
+  previousView = null,
+  pillAnimationsEnabled = true,
   onSwitchView,
 }: {
   title?: string;
   detail?: string;
   view?: "overview" | "timeline";
+  previousView?: "overview" | "timeline" | null;
+  pillAnimationsEnabled?: boolean;
   onSwitchView?: () => void;
 }) {
   const t = usePhotoMessages();
@@ -247,32 +262,60 @@ export function PhotoArchiveHeader({
           {title ?? t.title}
         </h1>
       </div>
-      {view && <ViewSwitch view={view} onSwitchView={onSwitchView} />}
+      {view && (
+        <ViewSwitch
+          view={view}
+          previousView={previousView}
+          pillAnimationsEnabled={pillAnimationsEnabled}
+          onSwitchView={onSwitchView}
+        />
+      )}
     </header>
   );
 }
 
 function ViewSwitch({
   view,
+  previousView = null,
+  pillAnimationsEnabled = true,
   onSwitchView,
 }: {
   view: "overview" | "timeline";
+  previousView?: "overview" | "timeline" | null;
+  pillAnimationsEnabled?: boolean;
   onSwitchView?: () => void;
 }) {
   const t = usePhotoMessages();
+  const { trackRef, pillRef, registerButton, ready } = useSlidingPill<"overview" | "timeline">(
+    view,
+    {
+      initialKey: previousView,
+      enabled: pillAnimationsEnabled,
+    },
+  );
   return (
     <div
+      ref={trackRef}
       role="group"
       aria-label={t.viewSwitch}
-      className="flex self-start rounded-full border border-line bg-surface p-1 sm:self-auto"
+      className="relative isolate flex self-start rounded-full border border-line bg-surface p-1 sm:self-auto"
     >
+      <span
+        ref={pillRef}
+        aria-hidden="true"
+        className="sliding-pill absolute left-0 top-0 z-10 origin-center rounded-full bg-ink-800 opacity-0"
+      />
       <ViewSwitchButton
+        buttonRef={registerButton("overview")}
         pressed={view === "overview"}
+        pillReady={ready}
         label={t.byCity}
         onClick={view === "overview" ? undefined : onSwitchView}
       />
       <ViewSwitchButton
+        buttonRef={registerButton("timeline")}
         pressed={view === "timeline"}
+        pillReady={ready}
         label={t.byDate}
         onClick={view === "timeline" ? undefined : onSwitchView}
       />
@@ -281,25 +324,31 @@ function ViewSwitch({
 }
 
 function ViewSwitchButton({
+  buttonRef,
   pressed,
+  pillReady,
   label,
   onClick,
 }: {
+  buttonRef: (node: HTMLButtonElement | null) => void;
   pressed: boolean;
+  pillReady: boolean;
   label: string;
   onClick?: () => void;
 }) {
   return (
     <button
+      ref={buttonRef}
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
       className={cn(
-        "min-h-10 rounded-full px-4 text-sm text-ink-500 transition-colors hover:text-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
+        "min-h-10 rounded-full px-4 text-sm text-ink-500 transition-colors hover:text-ink-800 aria-pressed:text-paper",
+        pillReady ? "aria-pressed:bg-transparent" : "aria-pressed:bg-ink-800",
         FOCUS_RING_CLASS_NAME,
       )}
     >
-      {label}
+      <span className="relative z-20">{label}</span>
     </button>
   );
 }
@@ -356,6 +405,7 @@ function FeaturedRoll({
                   photo={photo}
                   loading={item.status === "loading"}
                   eager
+                  registerThumbnail
                 />
                 {index === 1 && (
                   <span
@@ -418,6 +468,7 @@ function RollCard({
                 photo={photo}
                 loading={item.status === "loading"}
                 eager={eager}
+                registerThumbnail
               />
             </span>
           ))}
@@ -453,12 +504,15 @@ function FilmFrame({
   photo,
   loading,
   eager,
+  registerThumbnail = false,
 }: {
   baseUrl: string;
   photo: PhotoRecord | undefined;
   loading: boolean;
   eager: boolean;
+  registerThumbnail?: boolean;
 }) {
+  const thumbnailRef = useRegisterPhotoThumbnail(registerThumbnail ? photo?.id : undefined);
   if (!photo) {
     return (
       <span
@@ -472,6 +526,7 @@ function FilmFrame({
   }
   return (
     <img
+      ref={thumbnailRef}
       src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
       alt=""
       width={photo.width}
@@ -479,6 +534,7 @@ function FilmFrame({
       loading={eager ? "eager" : "lazy"}
       fetchPriority={eager ? "high" : "auto"}
       decoding="async"
+      data-photo-id={registerThumbnail ? photo.id : undefined}
       className="block h-full w-full object-cover"
       style={{ backgroundColor: photo.placeholderColor }}
     />

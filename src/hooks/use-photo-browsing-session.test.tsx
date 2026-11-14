@@ -211,6 +211,73 @@ describe("usePhotoBrowsingSession", () => {
       removeRouter();
     }
   });
+
+  it("resolves hash view on first ready render and blocks same-page popstate via early guard", async () => {
+    const controller = new AbortController();
+    const samePageController: { consume: ((event: PopStateEvent) => boolean) | null } = {
+      consume: null,
+    };
+    const popStateWindow = window as Window & {
+      siteSamePagePopState?: typeof samePageController;
+    };
+    popStateWindow.siteSamePagePopState = samePageController;
+    window.addEventListener(
+      "popstate",
+      (event) => {
+        if (samePageController.consume?.(event) === true) {
+          event.stopImmediatePropagation();
+        }
+      },
+      { capture: true, signal: controller.signal },
+    );
+
+    window.history.replaceState({ index: 0, scrollX: 0, scrollY: 0 }, "", "/about/");
+    window.history.pushState({ index: 1, scrollX: 0, scrollY: 0 }, "", "/photos/#album=trip");
+    const removeRouter = await installAstroRouter();
+    const fetchPage = vi.spyOn(window, "fetch").mockImplementation(() => new Promise(() => {}));
+    const observedViews: BrowsingSession["view"][] = [];
+
+    function ObservedHarness(options: BrowsingOptions) {
+      session = usePhotoBrowsingSession(options);
+      if (options.index) {
+        observedViews.push(session.view);
+      }
+      return null;
+    }
+
+    try {
+      const options: BrowsingOptions = {
+        index,
+        months,
+        monthErrors: {},
+        requestMonth: vi.fn(async () => undefined),
+        retryMonth: vi.fn(),
+        resolvePhoto: vi.fn().mockResolvedValue(photo),
+      };
+      await act(async () => root.render(<ObservedHarness {...options} index={null} />));
+      await act(async () => root.render(<ObservedHarness {...options} />));
+      expect(observedViews[0]).toEqual({ mode: "timeline", albumId: "trip" });
+
+      await act(async () => session.openPhoto(photo));
+      await travel(() => session.closePhoto(), "#album=trip");
+      expect(fetchPage).not.toHaveBeenCalled();
+      expect(session.selectedPhoto).toBeNull();
+
+      await act(async () => {
+        history.back();
+        await vi.waitFor(() => expect(window.location.pathname).toBe("/about/"));
+      });
+      expect(fetchPage).toHaveBeenCalledTimes(1);
+      expect(fetchPage.mock.calls[0][0]).toBe(`${window.location.origin}/about/`);
+
+      await act(async () => root.render(null));
+      expect(samePageController.consume).toBeNull();
+    } finally {
+      removeRouter();
+      controller.abort();
+      popStateWindow.siteSamePagePopState = undefined;
+    }
+  });
 });
 
 async function travel(action: () => void, hash: string) {

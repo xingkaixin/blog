@@ -1,4 +1,5 @@
 import { memo, useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
+import { useRegisterPhotoThumbnail } from "@/components/photo-lightbox";
 import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
@@ -22,7 +23,7 @@ type PhotoPeriodSectionProps = {
   containerWidth: number;
   onVisible: (period: PhotoPeriod) => void;
   onRetry: (period: PhotoPeriod) => void;
-  onOpenPhoto: (photo: PhotoRecord) => void;
+  onOpenPhoto: (photo: PhotoRecord, trigger?: HTMLElement | null) => void;
 };
 
 type PhotoGridProps = {
@@ -30,7 +31,7 @@ type PhotoGridProps = {
   photos: PhotoRecord[];
   eager: boolean;
   containerWidth: number;
-  onOpenPhoto: (photo: PhotoRecord) => void;
+  onOpenPhoto: (photo: PhotoRecord, trigger?: HTMLElement | null) => void;
 };
 
 type PhotoFrameStyle = CSSProperties & {
@@ -205,45 +206,80 @@ function PhotoGrid({ baseUrl, photos, eager, containerWidth, onOpenPhoto }: Phot
               const loadEagerly = eager && rowIndex === 0 && itemIndex < 4;
 
               return (
-                <figure key={photo.id} className="photo-frame" style={style}>
-                  <button
-                    type="button"
-                    className="photo-tile group relative block overflow-hidden focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent active:opacity-90"
-                    style={{ backgroundColor: photo.placeholderColor }}
-                    data-photo-id={photo.id}
-                    aria-label={t.viewPhoto(formatPhotoCapturedAt(photo.capturedAt, locale))}
-                    onClick={() => onOpenPhoto(photo)}
-                  >
-                    <img
-                      src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
-                      srcSet={photoVariantSrcSet(baseUrl, photo)}
-                      sizes={`(max-width: 767px) 33vw, ${item.width}px`}
-                      alt=""
-                      width={photo.width}
-                      height={photo.height}
-                      loading={loadEagerly ? "eager" : "lazy"}
-                      fetchPriority={loadEagerly ? "high" : "auto"}
-                      decoding="async"
-                      draggable={false}
-                      onLoad={(event) => event.currentTarget.setAttribute("data-loaded", "")}
-                      className="h-full w-full select-none object-cover"
-                    />
-                  </button>
-                  <figcaption
-                    aria-hidden="true"
-                    className="hidden gap-2 overflow-hidden whitespace-nowrap font-mono text-[10px] tracking-[0.06em] md:flex"
-                  >
-                    <span className="text-film">
-                      {String(frameNumbers.get(photo.id)).padStart(2, "0")}
-                    </span>
-                    <span className="text-ink-500">{formatFrameTime(photo.capturedAt)}</span>
-                  </figcaption>
-                </figure>
+                <PhotoTile
+                  key={photo.id}
+                  baseUrl={baseUrl}
+                  photo={photo}
+                  style={style}
+                  displayWidth={item.width}
+                  eager={loadEagerly}
+                  label={t.viewPhoto(formatPhotoCapturedAt(photo.capturedAt, locale))}
+                  frameNumber={frameNumbers.get(photo.id)}
+                  onOpenPhoto={onOpenPhoto}
+                />
               );
             })}
           </div>
         ))
       )}
     </div>
+  );
+}
+
+function PhotoTile({
+  baseUrl,
+  photo,
+  style,
+  displayWidth,
+  eager,
+  label,
+  frameNumber,
+  onOpenPhoto,
+}: {
+  baseUrl: string;
+  photo: PhotoRecord;
+  style: PhotoFrameStyle;
+  displayWidth: number;
+  eager: boolean;
+  label: string;
+  frameNumber: number | undefined;
+  onOpenPhoto: (photo: PhotoRecord, trigger?: HTMLElement | null) => void;
+}) {
+  const thumbnailRef = useRegisterPhotoThumbnail(photo.id);
+
+  return (
+    <figure className="photo-frame" style={style}>
+      <button
+        ref={thumbnailRef}
+        type="button"
+        className="photo-tile group relative block overflow-hidden focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent active:opacity-90"
+        style={{ backgroundColor: photo.placeholderColor }}
+        data-photo-id={photo.id}
+        aria-label={label}
+        onClick={(event) => onOpenPhoto(photo, event.currentTarget)}
+      >
+        <img
+          src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
+          srcSet={photoVariantSrcSet(baseUrl, photo)}
+          sizes={`(max-width: 767px) 33vw, ${displayWidth}px`}
+          alt=""
+          width={photo.width}
+          height={photo.height}
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
+          decoding="async"
+          draggable={false}
+          onLoad={(event) => event.currentTarget.setAttribute("data-loaded", "")}
+          className="h-full w-full select-none object-cover"
+        />
+      </button>
+      <figcaption
+        aria-hidden="true"
+        className="hidden gap-2 overflow-hidden whitespace-nowrap font-mono text-[10px] tracking-[0.06em] md:flex"
+      >
+        <span className="text-film">{String(frameNumber).padStart(2, "0")}</span>
+        <span className="text-ink-500">{formatFrameTime(photo.capturedAt)}</span>
+      </figcaption>
+    </figure>
   );
 }

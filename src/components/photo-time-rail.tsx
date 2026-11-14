@@ -16,14 +16,37 @@ type PhotoTimeRailProps = {
   onSelect: (month: string) => void;
 };
 
+function pointerRatioFromElement(element: HTMLElement, clientY: number): number {
+  const rect = element.getBoundingClientRect();
+  if (rect.height <= 0) {
+    return 0;
+  }
+  return Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+}
+
 function periodIndexFromPointer(
   element: HTMLElement,
   clientY: number,
   periodCount: number,
 ): number {
-  const rect = element.getBoundingClientRect();
-  const ratio = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
-  return Math.round(ratio * (periodCount - 1));
+  if (periodCount <= 1) {
+    return 0;
+  }
+  return Math.round(pointerRatioFromElement(element, clientY) * (periodCount - 1));
+}
+
+function releasePointerCaptureSafely(element: HTMLElement, pointerId: number): void {
+  if (
+    typeof element.hasPointerCapture === "function" &&
+    typeof element.releasePointerCapture === "function" &&
+    element.hasPointerCapture(pointerId)
+  ) {
+    try {
+      element.releasePointerCapture(pointerId);
+    } catch {
+      // Ignore synthetic or already-ended pointer captures
+    }
+  }
 }
 
 export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailProps) {
@@ -34,6 +57,7 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
   const labelPositionRef = useRef<HTMLSpanElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const previewIndexRef = useRef(0);
+  const activePointerIdRef = useRef<number | null>(null);
   const [scrolling, setScrolling] = useState(false);
   const activeIndex = Math.max(
     0,
@@ -54,8 +78,8 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
     };
   }, []);
 
-  const updateVisual = useCallback(
-    (index: number) => {
+  const positionIndicators = useCallback(
+    (ratio: number, targetIndex: number) => {
       const rail = railRef.current;
       const marker = markerRef.current;
       const labelPosition = labelPositionRef.current;
@@ -64,11 +88,11 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
         return;
       }
 
-      const boundedIndex = Math.min(periods.length - 1, Math.max(0, index));
-      const ratio = periods.length === 1 ? 0 : boundedIndex / (periods.length - 1);
+      const boundedIndex = Math.min(periods.length - 1, Math.max(0, targetIndex));
+      const boundedRatio = Math.min(1, Math.max(0, ratio));
       const travel = Math.max(0, rail.clientHeight - marker.offsetHeight);
-      const markerY = ratio * travel;
-      const labelY = ratio * rail.clientHeight;
+      const markerY = boundedRatio * travel;
+      const labelY = boundedRatio * rail.clientHeight;
 
       marker.style.transform = `translate3d(0, ${markerY}px, 0)`;
       labelPosition.style.transform = `translate3d(0, ${labelY}px, 0)`;
@@ -78,16 +102,34 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
     [locale, periods],
   );
 
+  const updateVisual = useCallback(
+    (index: number) => {
+      if (periods.length === 0) {
+        return;
+      }
+      const boundedIndex = Math.min(periods.length - 1, Math.max(0, index));
+      const ratio = periods.length === 1 ? 0 : boundedIndex / (periods.length - 1);
+      positionIndicators(ratio, boundedIndex);
+    },
+    [periods.length, positionIndicators],
+  );
+
   useEffect(() => {
-    updateVisual(activeIndex);
+    if (activePointerIdRef.current === null) {
+      updateVisual(activeIndex);
+    }
   }, [activeIndex, updateVisual]);
 
   useEffect(() => {
     const rail = railRef.current;
-    if (!rail) {
+    if (!rail || typeof ResizeObserver !== "function") {
       return undefined;
     }
-    const observer = new ResizeObserver(() => updateVisual(previewIndexRef.current));
+    const observer = new ResizeObserver(() => {
+      if (activePointerIdRef.current === null) {
+        updateVisual(previewIndexRef.current);
+      }
+    });
     observer.observe(rail);
     return () => observer.disconnect();
   }, [updateVisual]);
@@ -95,6 +137,16 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
   if (periods.length < 2) {
     return null;
   }
+
+  const isPointerCaptured = (element: HTMLElement, pointerId: number): boolean =>
+    activePointerIdRef.current === pointerId ||
+    (typeof element.hasPointerCapture === "function" && element.hasPointerCapture(pointerId));
+
+  const updateContinuouslyFromPointer = (event: PointerEvent<HTMLDivElement>) => {
+    const ratio = pointerRatioFromElement(event.currentTarget, event.clientY);
+    const targetIndex = Math.round(ratio * (periods.length - 1));
+    positionIndicators(ratio, targetIndex);
+  };
 
   const updateFromPointer = (event: PointerEvent<HTMLDivElement>) => {
     updateVisual(periodIndexFromPointer(event.currentTarget, event.clientY, periods.length));
@@ -105,40 +157,53 @@ export function PhotoTimeRail({ periods, activeMonth, onSelect }: PhotoTimeRailP
       return;
     }
     event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
+    activePointerIdRef.current = event.pointerId;
+    if (typeof event.currentTarget.setPointerCapture === "function") {
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // Synthetic pointer events in tests may not map to an active OS pointer
+      }
+    }
     event.currentTarget.dataset.dragging = "true";
-    updateFromPointer(event);
+    updateContinuouslyFromPointer(event);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      updateFromPointer(event);
+    if (isPointerCaptured(event.currentTarget, event.pointerId)) {
+      updateContinuouslyFromPointer(event);
     } else if (event.pointerType === "mouse") {
       updateFromPointer(event);
     }
   };
 
   const handlePointerLeave = (event: PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+    if (!isPointerCaptured(event.currentTarget, event.pointerId)) {
       updateVisual(activeIndex);
     }
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+    if (!isPointerCaptured(event.currentTarget, event.pointerId)) {
       return;
     }
-    updateFromPointer(event);
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    activePointerIdRef.current = null;
+    const targetIndex = periodIndexFromPointer(event.currentTarget, event.clientY, periods.length);
+    releasePointerCaptureSafely(event.currentTarget, event.pointerId);
     delete event.currentTarget.dataset.dragging;
-    onSelect(periods[previewIndexRef.current].month);
+    // Flush style so `transition-none` clears before snapping the thumb to the target tick.
+    void event.currentTarget.offsetWidth;
+    updateVisual(targetIndex);
+    onSelect(periods[targetIndex].month);
   };
 
   const handlePointerCancel = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    if (activePointerIdRef.current === event.pointerId) {
+      activePointerIdRef.current = null;
     }
+    releasePointerCaptureSafely(event.currentTarget, event.pointerId);
     delete event.currentTarget.dataset.dragging;
+    void event.currentTarget.offsetWidth;
     updateVisual(activeIndex);
   };
 

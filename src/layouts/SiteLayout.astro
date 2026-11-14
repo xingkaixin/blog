@@ -240,6 +240,25 @@ const pageTransition = {
     />
     <noscript><link rel="stylesheet" href={smileyFontUrl} /></noscript>
     <slot name="head" />
+    {/* 在 ClientRouter 之前抢先注册，使同页历史 popstate（如照片墙）能先于 Astro 消费并阻断整页交换 */}
+    <script is:inline>
+      (function () {
+        if (window.siteSamePagePopState) {
+          return;
+        }
+        var controller = { consume: null };
+        window.siteSamePagePopState = controller;
+        window.addEventListener(
+          "popstate",
+          function (event) {
+            if (typeof controller.consume === "function" && controller.consume(event) === true) {
+              event.stopImmediatePropagation();
+            }
+          },
+          true,
+        );
+      })();
+    </script>
     <ClientRouter />
     <script type="application/ld+json" set:html={serializeJsonLd(buildJsonLd(meta, locale))}></script>
   </head>

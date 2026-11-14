@@ -6,10 +6,12 @@ import { usePhotoMessages } from "@/hooks/use-photo-messages";
 import { photoBackgroundStyle } from "@/lib/photo-background";
 import type { PhotoMonthCatalog, PhotoPeriod, PhotoRecord } from "@/lib/photo-catalog";
 import type { PhotoTimelineModel } from "@/lib/photo-wall-model";
+import { useSlidingPill } from "@/lib/sliding-pill";
 import { cn } from "@/lib/utils";
 
+const ALL_ALBUMS_KEY = "__all__";
 const ALBUM_CHIP_CLASS_NAME =
-  "flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-ink-200 px-3.5 text-sm text-ink-800 transition-colors hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper [&>span]:font-mono [&>span]:text-[11px] [&>span]:text-ink-500 aria-pressed:[&>span]:text-ink-300";
+  "flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-ink-200 px-3.5 text-sm text-ink-800 transition-colors hover:border-ink-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 aria-pressed:text-paper";
 
 type PhotoTimelineProps = {
   baseUrl: string;
@@ -18,11 +20,14 @@ type PhotoTimelineProps = {
   monthErrors: Record<string, string>;
   activeMonth: string;
   wallRef: RefObject<HTMLDivElement | null>;
+  previousView?: "overview" | "timeline" | null;
+  showRail?: boolean;
+  isLeaving?: boolean;
   onReturn: () => void;
   onSelectAlbum: (albumId: string | null) => void;
   onLoadMonth: (period: PhotoPeriod) => void;
   onRetryMonth: (period: PhotoPeriod) => void;
-  onOpenPhoto: (photo: PhotoRecord) => void;
+  onOpenPhoto: (photo: PhotoRecord, trigger?: HTMLElement | null) => void;
   onJumpMonth: (month: string) => void;
 };
 
@@ -33,6 +38,9 @@ export function PhotoTimeline({
   monthErrors,
   activeMonth,
   wallRef,
+  previousView = null,
+  showRail = true,
+  isLeaving = false,
   onReturn,
   onSelectAlbum,
   onLoadMonth,
@@ -53,6 +61,14 @@ export function PhotoTimeline({
   } = model;
   const albumTitles = new Map(albums.map((album) => [album.id, album.title]));
   const selectedRoll = albums.findIndex((album) => album.id === selectedAlbumId) + 1;
+  const {
+    trackRef: albumTrackRef,
+    pillRef: albumPillRef,
+    registerButton: registerAlbumChip,
+    ready: albumPillReady,
+  } = useSlidingPill<string>(selectedAlbumId ?? ALL_ALBUMS_KEY, {
+    enabled: !isLeaving,
+  });
 
   useLayoutEffect(() => {
     const wall = wallRef.current;
@@ -130,6 +146,8 @@ export function PhotoTimeline({
             title={t.allPhotos}
             detail={`${t.photos(totalPhotoCount)}${timelineRange ? ` · ${timelineRange}` : ""}`}
             view="timeline"
+            previousView={previousView}
+            pillAnimationsEnabled={!isLeaving}
             onSwitchView={onReturn}
           />
         )}
@@ -137,31 +155,66 @@ export function PhotoTimeline({
         {albums.length > 0 && (
           <div className="sticky top-[60px] z-10 -mx-4 mt-8 flex items-center gap-4 border-y border-line bg-paper/95 py-3 pl-4 backdrop-blur sm:-mx-6 sm:pl-6 lg:-mx-10 lg:pl-10">
             <div
+              ref={albumTrackRef}
               role="group"
               aria-label={t.filterCitiesLabel}
-              className="flex min-w-0 gap-2 overflow-x-auto pr-4 [scrollbar-width:none] sm:pr-6 lg:pr-10 [&::-webkit-scrollbar]:hidden"
+              className="relative isolate flex min-w-0 gap-2 overflow-x-auto pr-4 [scrollbar-width:none] sm:pr-6 lg:pr-10 [&::-webkit-scrollbar]:hidden"
             >
+              <span
+                ref={albumPillRef}
+                aria-hidden="true"
+                className="sliding-pill absolute left-0 top-0 z-10 origin-center rounded-full bg-ink-800 opacity-0"
+              />
               <button
+                ref={registerAlbumChip(ALL_ALBUMS_KEY)}
                 type="button"
                 aria-pressed={selectedAlbumId === null}
                 onClick={() => onSelectAlbum(null)}
-                className={ALBUM_CHIP_CLASS_NAME}
+                className={cn(
+                  ALBUM_CHIP_CLASS_NAME,
+                  albumPillReady
+                    ? "aria-pressed:border-transparent aria-pressed:bg-transparent"
+                    : "aria-pressed:border-ink-800 aria-pressed:bg-ink-800",
+                )}
               >
-                {t.all}
-                <span>{allPhotoCount}</span>
-              </button>
-              {albums.map((album) => (
-                <button
-                  key={album.id}
-                  type="button"
-                  aria-pressed={selectedAlbumId === album.id}
-                  onClick={() => onSelectAlbum(album.id)}
-                  className={ALBUM_CHIP_CLASS_NAME}
+                <span className="relative z-20">{t.all}</span>
+                <span
+                  className={cn(
+                    "relative z-20 font-mono text-[11px] transition-colors",
+                    selectedAlbumId === null ? "text-ink-300" : "text-ink-500",
+                  )}
                 >
-                  {album.title}
-                  <span>{album.count}</span>
-                </button>
-              ))}
+                  {allPhotoCount}
+                </span>
+              </button>
+              {albums.map((album) => {
+                const pressed = selectedAlbumId === album.id;
+                return (
+                  <button
+                    key={album.id}
+                    ref={registerAlbumChip(album.id)}
+                    type="button"
+                    aria-pressed={pressed}
+                    onClick={() => onSelectAlbum(album.id)}
+                    className={cn(
+                      ALBUM_CHIP_CLASS_NAME,
+                      albumPillReady
+                        ? "aria-pressed:border-transparent aria-pressed:bg-transparent"
+                        : "aria-pressed:border-ink-800 aria-pressed:bg-ink-800",
+                    )}
+                  >
+                    <span className="relative z-20">{album.title}</span>
+                    <span
+                      className={cn(
+                        "relative z-20 font-mono text-[11px] transition-colors",
+                        pressed ? "text-ink-300" : "text-ink-500",
+                      )}
+                    >
+                      {album.count}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -190,7 +243,7 @@ export function PhotoTimeline({
             <div className="space-y-12 md:space-y-16">
               {visiblePeriods.map((period, indexInList) => (
                 <PhotoPeriodSection
-                  key={`${selectedAlbumId ?? "all"}-${period.month}`}
+                  key={period.month}
                   baseUrl={baseUrl}
                   period={period}
                   cities={periodCities(period, albumTitles)}
@@ -209,7 +262,7 @@ export function PhotoTimeline({
         </div>
       </div>
 
-      {visiblePeriods.length > 1 && (
+      {showRail && visiblePeriods.length > 1 && (
         <PhotoTimeRail periods={visiblePeriods} activeMonth={activeMonth} onSelect={onJumpMonth} />
       )}
     </>

@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { PhotoCatalogIndex } from "@/lib/photo-catalog";
 import {
   applyPhotoNavigation,
@@ -7,10 +15,24 @@ import {
   type PhotoNavigationPlan,
 } from "@/lib/photo-location";
 
+type SamePagePopStateWindow = Window & {
+  siteSamePagePopState?: {
+    consume: ((event: PopStateEvent) => boolean) | null;
+  };
+};
+
 export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   const [location, setLocation] = useState<PhotoLocation | null>(null);
   const pendingScroll = useRef<ScrollToOptions | null>(null);
   const suppressNextRestore = useRef(false);
+  const resolvedLocation = useMemo(
+    () =>
+      index
+        ? (location ??
+          (typeof window !== "undefined" ? readPhotoLocation(window.location.href, index) : null))
+        : null,
+    [index, location],
+  );
 
   const syncFromUrl = useEffectEvent(() => {
     if (!index) {
@@ -26,15 +48,13 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
 
   useEffect(() => {
     const pathname = window.location.pathname;
-    const syncHistory = (event: PopStateEvent) => {
+    const syncHistory = (event: PopStateEvent): boolean => {
       pendingScroll.current = null;
       const suppressRestore = suppressNextRestore.current;
       suppressNextRestore.current = false;
       if (window.location.pathname !== pathname) {
-        return;
+        return false;
       }
-      // 同页历史由照片浏览会话消费，跨页历史继续交给 Astro。
-      event.stopImmediatePropagation();
       if (!suppressRestore) {
         pendingScroll.current = {
           left: event.state?.scrollX ?? 0,
@@ -43,6 +63,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
         };
       }
       syncFromUrl();
+      return true;
     };
     const syncHash = () => {
       if (window.location.pathname === pathname) {
@@ -50,10 +71,28 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
       }
     };
 
-    window.addEventListener("popstate", syncHistory, true);
+    const popStateController = (window as SamePagePopStateWindow).siteSamePagePopState;
+    if (popStateController) {
+      popStateController.consume = syncHistory;
+      window.addEventListener("hashchange", syncHash);
+      return () => {
+        if (popStateController.consume === syncHistory) {
+          popStateController.consume = null;
+        }
+        window.removeEventListener("hashchange", syncHash);
+      };
+    }
+
+    const handlePopState = (event: PopStateEvent) => {
+      if (syncHistory(event)) {
+        // 同页历史由照片浏览会话消费，跨页历史继续交给 Astro。
+        event.stopImmediatePropagation();
+      }
+    };
+    window.addEventListener("popstate", handlePopState, true);
     window.addEventListener("hashchange", syncHash);
     return () => {
-      window.removeEventListener("popstate", syncHistory, true);
+      window.removeEventListener("popstate", handlePopState, true);
       window.removeEventListener("hashchange", syncHash);
     };
   }, []);
@@ -63,19 +102,19 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
   }, [index]);
 
   useLayoutEffect(() => {
-    if (!location || !pendingScroll.current) {
+    if (!resolvedLocation || !pendingScroll.current) {
       return undefined;
     }
     // 等新视图完成布局，避免旧总览的高度截断相册的滚动位置。
     const frame = window.requestAnimationFrame(() => {
       const position = pendingScroll.current;
       pendingScroll.current = null;
-      if (position && window.location.href === location.href) {
+      if (position && window.location.href === resolvedLocation.href) {
         window.scrollTo(position);
       }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [location]);
+  }, [resolvedLocation]);
 
   const navigate = useCallback(
     (plan: PhotoNavigationPlan, scroll: "top" | "preserve" | "manual" = "preserve") => {
@@ -108,7 +147,7 @@ export function usePhotoLocation(index: PhotoCatalogIndex | null) {
     [index],
   );
 
-  return { location, navigate };
+  return { location: resolvedLocation, navigate };
 }
 
 function keepUnchanged(next: PhotoLocation) {
