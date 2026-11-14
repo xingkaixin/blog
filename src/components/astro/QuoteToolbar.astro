@@ -60,6 +60,92 @@ const dialogButton =
   </dialog>
 </quote-toolbar>
 
+<style>
+  [data-quote-toolbar] {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--duration-quick) var(--ease-smooth-out),
+      scale var(--duration-quick) var(--ease-smooth-out),
+      translate var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  [data-quote-toolbar][hidden] {
+    display: none;
+  }
+
+  [data-quote-toolbar][data-closing] {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 6px;
+    pointer-events: none;
+  }
+
+  @starting-style {
+    [data-quote-toolbar] {
+      opacity: 0;
+      scale: 0.96;
+      translate: 0 6px;
+    }
+  }
+
+  [data-quote-dialog] {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      scale var(--duration-fast) var(--ease-smooth-out),
+      translate var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  [data-quote-dialog][data-closing] {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 6px;
+    transition-duration: var(--duration-quick);
+    pointer-events: none;
+  }
+
+  @starting-style {
+    [data-quote-dialog][open] {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 6px;
+    }
+  }
+
+  [data-quote-dialog]::backdrop {
+    opacity: 1;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  [data-quote-dialog][data-closing]::backdrop {
+    opacity: 0;
+    transition-duration: var(--duration-quick);
+  }
+
+  @starting-style {
+    [data-quote-dialog][open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-quote-toolbar],
+    [data-quote-dialog],
+    [data-quote-dialog]::backdrop {
+      transition: none;
+    }
+  }
+</style>
+
 <script>
   import { quoteCitation, renderQuoteCard, textFragmentUrl, type SelectedText } from "@/lib/quote-card";
 
@@ -116,11 +202,62 @@ const dialogButton =
       let quote = "";
       let range: Range | null = null;
       let card: Blob | null = null;
+      let toolbarCloseTimer = 0;
+      let toolbarCloseToken = 0;
+      let dialogCloseTimer = 0;
+      let dialogCloseToken = 0;
+      let returnFocusTo: HTMLElement | null = null;
       copyImage.hidden = typeof ClipboardItem === "undefined";
 
+      const prefersReducedMotion = () =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const clearToolbarClose = () => {
+        toolbarCloseToken += 1;
+        clearTimeout(toolbarCloseTimer);
+        toolbarCloseTimer = 0;
+        delete toolbar.dataset.closing;
+      };
+
       const hide = () => {
-        toolbar.hidden = true;
-        range = null;
+        if (toolbar.hidden) {
+          clearToolbarClose();
+          range = null;
+          return;
+        }
+        if (prefersReducedMotion()) {
+          clearToolbarClose();
+          toolbar.hidden = true;
+          range = null;
+          return;
+        }
+        if (toolbar.hasAttribute("data-closing")) {
+          return;
+        }
+        clearToolbarClose();
+        const token = toolbarCloseToken;
+        toolbar.dataset.closing = "";
+        const finish = () => {
+          if (token !== toolbarCloseToken || signal.aborted) {
+            return;
+          }
+          delete toolbar.dataset.closing;
+          toolbar.hidden = true;
+          range = null;
+        };
+        toolbar.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === toolbar) {
+              clearTimeout(toolbarCloseTimer);
+              toolbarCloseTimer = 0;
+              finish();
+            }
+          },
+          { once: true, signal },
+        );
+        toolbarCloseTimer = window.setTimeout(finish, 200);
       };
       const place = () => {
         if (!range) {
@@ -147,11 +284,92 @@ const dialogButton =
           hide();
           return;
         }
+        clearToolbarClose();
         quote = text;
         range = current;
+        const wasHidden = toolbar.hidden;
         toolbar.hidden = false;
         place();
+        if (wasHidden) {
+          void toolbar.offsetWidth;
+        }
       };
+
+      const clearDialogClose = () => {
+        dialogCloseToken += 1;
+        clearTimeout(dialogCloseTimer);
+        dialogCloseTimer = 0;
+        delete dialog.dataset.closing;
+      };
+
+      const restoreFocus = () => {
+        const target = returnFocusTo;
+        returnFocusTo = null;
+        if (target && target.isConnected && target.getClientRects().length > 0) {
+          target.focus({ preventScroll: true });
+        }
+      };
+
+      const openDialog = () => {
+        clearDialogClose();
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && !dialog.contains(active)) {
+          returnFocusTo = active;
+        }
+        if (!dialog.open) {
+          dialog.showModal();
+        }
+      };
+
+      const closeDialog = () => {
+        if (!dialog.open) {
+          clearDialogClose();
+          return;
+        }
+        if (prefersReducedMotion()) {
+          clearDialogClose();
+          dialog.close();
+          restoreFocus();
+          return;
+        }
+        if (dialog.hasAttribute("data-closing")) {
+          return;
+        }
+        clearDialogClose();
+        const token = dialogCloseToken;
+        dialog.dataset.closing = "";
+        const finish = () => {
+          if (token !== dialogCloseToken || signal.aborted) {
+            return;
+          }
+          delete dialog.dataset.closing;
+          if (dialog.open) {
+            dialog.close();
+          }
+          restoreFocus();
+        };
+        dialog.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === dialog) {
+              clearTimeout(dialogCloseTimer);
+              dialogCloseTimer = 0;
+              finish();
+            }
+          },
+          { once: true, signal },
+        );
+        dialogCloseTimer = window.setTimeout(finish, 200);
+      };
+
+      signal.addEventListener(
+        "abort",
+        () => {
+          clearToolbarClose();
+          clearDialogClose();
+        },
+        { once: true },
+      );
       const copyText = async (button: HTMLButtonElement, text: string, done: string) => {
         try {
           await navigator.clipboard.writeText(text);
@@ -198,7 +416,7 @@ const dialogButton =
               preview.src = canvas.toDataURL("image/png");
               card = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
               preview.alt = `金句卡：${quote}`;
-              dialog.showModal();
+              openDialog();
             } catch {
               flash(button, "生成失败");
             } finally {
@@ -209,7 +427,32 @@ const dialogButton =
         { signal },
       );
 
-      this.querySelector("[data-quote-close]")!.addEventListener("click", () => dialog.close(), { signal });
+      dialog.addEventListener(
+        "cancel",
+        (event) => {
+          event.preventDefault();
+          closeDialog();
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "close",
+        () => {
+          clearDialogClose();
+          restoreFocus();
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "click",
+        (event) => {
+          if (event.target === dialog) {
+            closeDialog();
+          }
+        },
+        { signal },
+      );
+      this.querySelector("[data-quote-close]")!.addEventListener("click", closeDialog, { signal });
       this.querySelector("[data-quote-save]")!.addEventListener(
         "click",
         () => {

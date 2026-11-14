@@ -116,6 +116,13 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
     display: none;
   }
 
+  .stamp-toast[data-closing] {
+    opacity: 0;
+    translate: 0 -8px;
+    transition-duration: var(--duration-quick);
+    pointer-events: none;
+  }
+
   @starting-style {
     .stamp-toast {
       opacity: 0;
@@ -154,10 +161,59 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
     box-shadow: var(--shadow-card);
     color: var(--ink-800);
     overflow-y: auto;
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      scale var(--duration-fast) var(--ease-smooth-out),
+      translate var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  .stamp-dialog[data-closing] {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 6px;
+    transition-duration: var(--duration-quick);
+    pointer-events: none;
+  }
+
+  @starting-style {
+    .stamp-dialog[open] {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 6px;
+    }
   }
 
   .stamp-dialog::backdrop {
     background: rgb(0 0 0 / 0.4);
+    opacity: 1;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  .stamp-dialog[data-closing]::backdrop {
+    opacity: 0;
+    transition-duration: var(--duration-quick);
+  }
+
+  @starting-style {
+    .stamp-dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stamp-toast,
+    .stamp-dialog,
+    .stamp-dialog::backdrop {
+      transition: none;
+    }
   }
 
   .stamp-sheet {
@@ -297,15 +353,154 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
       };
 
       const queue: string[] = [];
+      let toastActive = false;
+      let toastCloseTimer = 0;
+      let toastCloseToken = 0;
+      let dialogCloseTimer = 0;
+      let dialogCloseToken = 0;
+      let returnFocusTo: HTMLElement | null = null;
+
+      const prefersReducedMotion = () =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const clearToastClose = () => {
+        toastCloseToken += 1;
+        clearTimeout(toastCloseTimer);
+        toastCloseTimer = 0;
+        delete toast.dataset.closing;
+      };
+
+      const hideToast = (onHidden: () => void) => {
+        clearToastClose();
+        if (toast.hidden || prefersReducedMotion()) {
+          toast.hidden = true;
+          onHidden();
+          return;
+        }
+        const token = toastCloseToken;
+        toast.dataset.closing = "";
+        const finish = () => {
+          if (token !== toastCloseToken || signal.aborted) {
+            return;
+          }
+          delete toast.dataset.closing;
+          toast.hidden = true;
+          onHidden();
+        };
+        toast.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === toast) {
+              clearTimeout(toastCloseTimer);
+              toastCloseTimer = 0;
+              finish();
+            }
+          },
+          { once: true, signal },
+        );
+        toastCloseTimer = window.setTimeout(finish, 200);
+      };
+
       const showNext = () => {
+        clearToastClose();
         const seal = queue.shift();
-        toast.hidden = !seal;
-        if (seal) {
-          toastSeal.textContent = seal;
-          toastName.textContent = seal;
-          this.timer = window.setTimeout(showNext, TOAST_MS);
+        if (!seal) {
+          toastActive = false;
+          toast.hidden = true;
+          return;
+        }
+        toastActive = true;
+        toastSeal.textContent = seal;
+        toastName.textContent = seal;
+        toast.hidden = false;
+        void toast.offsetWidth;
+        this.timer = window.setTimeout(() => {
+          hideToast(() => {
+            if (queue.length > 0) {
+              showNext();
+            } else {
+              toastActive = false;
+            }
+          });
+        }, TOAST_MS);
+      };
+
+      const restoreFocus = () => {
+        const target = returnFocusTo;
+        returnFocusTo = null;
+        if (target && target.isConnected && target.getClientRects().length > 0) {
+          target.focus({ preventScroll: true });
         }
       };
+
+      const clearDialogClose = () => {
+        dialogCloseToken += 1;
+        clearTimeout(dialogCloseTimer);
+        dialogCloseTimer = 0;
+        delete dialog.dataset.closing;
+      };
+
+      const openDialog = () => {
+        clearDialogClose();
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && !dialog.contains(active)) {
+          returnFocusTo = active;
+        }
+        if (!dialog.open) {
+          dialog.showModal();
+        }
+      };
+
+      const closeDialog = () => {
+        if (!dialog.open) {
+          clearDialogClose();
+          return;
+        }
+        if (prefersReducedMotion()) {
+          clearDialogClose();
+          dialog.close();
+          restoreFocus();
+          return;
+        }
+        if (dialog.hasAttribute("data-closing")) {
+          return;
+        }
+        clearDialogClose();
+        const token = dialogCloseToken;
+        dialog.dataset.closing = "";
+        const finish = () => {
+          if (token !== dialogCloseToken || signal.aborted) {
+            return;
+          }
+          delete dialog.dataset.closing;
+          if (dialog.open) {
+            dialog.close();
+          }
+          restoreFocus();
+        };
+        dialog.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === dialog) {
+              clearTimeout(dialogCloseTimer);
+              dialogCloseTimer = 0;
+              finish();
+            }
+          },
+          { once: true, signal },
+        );
+        dialogCloseTimer = window.setTimeout(finish, 200);
+      };
+
+      signal.addEventListener(
+        "abort",
+        () => {
+          clearToastClose();
+          clearDialogClose();
+        },
+        { once: true },
+      );
 
       window.addEventListener(
         STAMP_COLLECTED_EVENT,
@@ -313,20 +508,36 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
           render();
           const id = (event as CustomEvent<StampId>).detail;
           queue.push(stamps.find((stamp) => stamp.id === id)!.seal);
-          if (toast.hidden) {
+          if (!toastActive) {
             showNext();
           }
         },
         { signal },
       );
       window.addEventListener(THEME_TOGGLE_EVENT, () => collectStamp("flip"), { signal });
-      window.addEventListener(OPEN_STAMPS_EVENT, () => dialog.showModal(), { signal });
+      window.addEventListener(OPEN_STAMPS_EVENT, openDialog, { signal });
       document.addEventListener(
         "click",
         (event) => {
           if (event.target instanceof Element && event.target.closest("[data-open-stamps]")) {
-            dialog.showModal();
+            openDialog();
           }
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "cancel",
+        (event) => {
+          event.preventDefault();
+          closeDialog();
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "close",
+        () => {
+          clearDialogClose();
+          restoreFocus();
         },
         { signal },
       );
@@ -335,7 +546,7 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
         (event) => {
           const target = event.target as Element;
           if (target === dialog || target.closest("[data-stamp-close]")) {
-            dialog.close();
+            closeDialog();
           }
         },
         { signal },

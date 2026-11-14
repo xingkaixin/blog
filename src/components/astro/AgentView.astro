@@ -66,10 +66,23 @@ const host = new URL(siteConfig.url).host;
     display: none;
   }
 
+  .agent-pane[data-closing] {
+    opacity: 0;
+    translate: 8px 0;
+    transition-duration: var(--duration-quick);
+    pointer-events: none;
+  }
+
   @starting-style {
     .agent-pane {
       opacity: 0;
       translate: 8px 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .agent-pane {
+      transition: none;
     }
   }
 
@@ -168,10 +181,17 @@ const host = new URL(siteConfig.url).host;
   }
 
   /* 面板贴着页眉，打开时页眉不随滚动收起 */
-  :root[data-agent-view] [data-smart-header][data-header-state="hidden"] {
-    transform: none;
+  :root[data-agent-view] [data-smart-header][data-header-state="compact"] .header-bar-main {
     opacity: 1;
+    visibility: visible;
+    transform: none;
     pointer-events: auto;
+  }
+
+  :root[data-agent-view] [data-smart-header][data-header-state="compact"] .header-bar-compact {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   @media (min-width: 1024px) {
@@ -272,17 +292,71 @@ const host = new URL(siteConfig.url).host;
       };
 
       let open = false;
+      let closeTimer = 0;
+      let closeToken = 0;
+
+      const clearPendingClose = () => {
+        closeToken += 1;
+        clearTimeout(closeTimer);
+        closeTimer = 0;
+        delete pane.dataset.closing;
+      };
+
       const setOpen = (next: boolean) => {
         open = next;
-        pane.hidden = !open;
         toggle.setAttribute("aria-pressed", String(open));
         if (open) {
+          clearPendingClose();
+          const wasHidden = pane.hidden;
+          pane.hidden = false;
+          if (wasHidden) {
+            void pane.offsetWidth;
+          }
           root.dataset.agentView = "";
           load();
-        } else {
-          delete root.dataset.agentView;
+          return;
         }
+
+        delete root.dataset.agentView;
+        if (pane.hidden) {
+          clearPendingClose();
+          return;
+        }
+
+        const reduced =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (reduced) {
+          clearPendingClose();
+          pane.hidden = true;
+          return;
+        }
+
+        clearPendingClose();
+        const token = closeToken;
+        pane.dataset.closing = "";
+        const finishClose = () => {
+          if (token !== closeToken || open) {
+            return;
+          }
+          delete pane.dataset.closing;
+          pane.hidden = true;
+        };
+        pane.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === pane) {
+              clearTimeout(closeTimer);
+              closeTimer = 0;
+              finishClose();
+            }
+          },
+          { once: true, signal },
+        );
+        closeTimer = window.setTimeout(finishClose, 200);
       };
+
+      signal.addEventListener("abort", clearPendingClose, { once: true });
 
       toggle.addEventListener("click", () => setOpen(!open), { signal });
       this.querySelector("[data-agent-close]")?.addEventListener(
@@ -298,7 +372,11 @@ const host = new URL(siteConfig.url).host;
         "keydown",
         (event) => {
           if (event.key === "Escape" && open && !event.defaultPrevented) {
+            const returnFocus = document.activeElement instanceof Node && pane.contains(document.activeElement);
             setOpen(false);
+            if (returnFocus) {
+              toggle.focus({ preventScroll: true });
+            }
           }
         },
         { signal },
