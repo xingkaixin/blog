@@ -35,7 +35,9 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
   <div
     role="group"
     aria-label={`按${label}筛选文章`}
+    data-pill-track={kind === "tag" ? "" : undefined}
     class:list={[
+      kind === "tag" && "relative isolate",
       layout === "mobile"
         ? "flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         : showCounts
@@ -44,6 +46,18 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
       layout === "mobile" && showCounts && "mb-2",
     ]}
   >
+    {
+      kind === "tag" && (
+        <span
+          aria-hidden="true"
+          data-filter-pill
+          class:list={[
+            "sliding-pill pointer-events-none absolute left-0 top-0 z-10 bg-accent opacity-0",
+            layout === "mobile" ? "rounded-[6px]" : "rounded-[5px]",
+          ]}
+        />
+      )
+    }
     {
       buttons.map(({ value, label: optionLabel, count }) => (
         <button
@@ -63,7 +77,7 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
               "aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper",
           )}
         >
-          <span>{optionLabel}</span>
+          <span class={kind === "tag" ? "relative z-20" : undefined}>{optionLabel}</span>
           {layout === "desktop" && showCounts && (
             <span class="font-mono text-[11px] text-ink-500">{count}</span>
           )}
@@ -72,3 +86,262 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
     }
   </div>
 </div>
+
+<style>
+  [data-pill-track][data-pill-ready] [data-post-filter][aria-pressed="true"] {
+    background-color: transparent;
+    border-color: transparent;
+  }
+</style>
+
+<script>
+  type PillBox = { x: number; y: number; width: number; height: number };
+
+  const activePillCleanups = new Set<() => void>();
+
+  function prefersReducedMotion(): boolean {
+    return (
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }
+
+  function pillTiming(): { duration: number; easing: string } {
+    const isDesktop =
+      typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1024px)").matches;
+    const easing =
+      getComputedStyle(document.documentElement).getPropertyValue("--ease-in-out").trim() ||
+      "cubic-bezier(0.77, 0, 0.175, 1)";
+    return {
+      duration: isDesktop ? 170 : 250,
+      easing,
+    };
+  }
+
+  function measureBox(element: HTMLElement, track: HTMLElement): PillBox | null {
+    const rect = element.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return null;
+    }
+    const trackRect = track.getBoundingClientRect();
+    return {
+      x: rect.left - trackRect.left + track.scrollLeft,
+      y: rect.top - trackRect.top + track.scrollTop,
+      width: rect.width,
+      height: rect.height,
+    };
+  }
+
+  function lerp(start: number, end: number, t: number): number {
+    return start + (end - start) * t;
+  }
+
+  function mountPillTrack(track: HTMLElement): () => void {
+    const pill = track.querySelector<HTMLElement>("[data-filter-pill]");
+    if (!pill) {
+      return () => {};
+    }
+
+    track.setAttribute("data-pill-ready", "");
+    let currentAnim: Animation | null = null;
+    let currentBox: PillBox | null = null;
+    let mounted = true;
+
+    const applyBox = (box: PillBox | null) => {
+      currentBox = box;
+      if (!box) {
+        pill.style.opacity = "0";
+        return;
+      }
+      pill.style.width = `${box.width}px`;
+      pill.style.height = `${box.height}px`;
+      pill.style.transform = `translate3d(${box.x}px, ${box.y}px, 0)`;
+      pill.style.opacity = "1";
+    };
+
+    const sync = (animate: boolean) => {
+      if (!mounted) {
+        return;
+      }
+      const pressed = track.querySelector<HTMLElement>('[data-post-filter][aria-pressed="true"]');
+      const nextBox = pressed ? measureBox(pressed, track) : null;
+
+      let startBox = currentBox;
+      if (currentAnim) {
+        const liveBox = measureBox(pill, track);
+        if (liveBox) {
+          startBox = liveBox;
+        }
+        currentAnim.cancel();
+        currentAnim = null;
+      }
+
+      if (!nextBox) {
+        const fadeStart = startBox;
+        applyBox(fadeStart);
+        pill.style.opacity = "0";
+        currentBox = null;
+        if (animate && fadeStart && typeof pill.animate === "function" && !prefersReducedMotion()) {
+          const { duration, easing } = pillTiming();
+          const anim = pill.animate(
+            [
+              {
+                opacity: 1,
+                transform: `translate3d(${fadeStart.x}px, ${fadeStart.y}px, 0) scale(1)`,
+              },
+              {
+                opacity: 0,
+                transform: `translate3d(${fadeStart.x}px, ${fadeStart.y}px, 0) scale(0.92)`,
+              },
+            ],
+            { duration, easing },
+          );
+          currentAnim = anim;
+          void anim.finished
+            .catch(() => {})
+            .finally(() => {
+              if (currentAnim === anim) {
+                currentAnim = null;
+              }
+            });
+        }
+        return;
+      }
+
+      applyBox(nextBox);
+
+      if (!animate || typeof pill.animate !== "function" || prefersReducedMotion()) {
+        return;
+      }
+
+      const { duration, easing } = pillTiming();
+      if (!startBox) {
+        const anim = pill.animate(
+          [
+            {
+              opacity: 0,
+              transform: `translate3d(${nextBox.x}px, ${nextBox.y}px, 0) scale(0.92)`,
+            },
+            {
+              opacity: 1,
+              transform: `translate3d(${nextBox.x}px, ${nextBox.y}px, 0) scale(1)`,
+            },
+          ],
+          { duration, easing },
+        );
+        currentAnim = anim;
+        void anim.finished
+          .catch(() => {})
+          .finally(() => {
+            if (currentAnim === anim) {
+              currentAnim = null;
+            }
+          });
+        return;
+      }
+
+      if (
+        Math.abs(startBox.x - nextBox.x) < 0.5 &&
+        Math.abs(startBox.y - nextBox.y) < 0.5 &&
+        Math.abs(startBox.width - nextBox.width) < 0.5
+      ) {
+        return;
+      }
+
+      const sameRow = Math.abs(nextBox.y - startBox.y) <= Math.max(startBox.height, nextBox.height) * 0.5;
+      let midLeft: number;
+      let midWidth: number;
+      if (sameRow) {
+        const movingRight = nextBox.x >= startBox.x;
+        const startRight = startBox.x + startBox.width;
+        const nextRight = nextBox.x + nextBox.width;
+        const midRight = movingRight ? lerp(startRight, nextRight, 0.82) : lerp(startRight, nextRight, 0.22);
+        midLeft = movingRight ? lerp(startBox.x, nextBox.x, 0.22) : lerp(startBox.x, nextBox.x, 0.82);
+        midWidth = Math.max(8, midRight - midLeft);
+      } else {
+        midLeft = lerp(startBox.x, nextBox.x, 0.5);
+        midWidth = lerp(startBox.width, nextBox.width, 0.5);
+      }
+      const midY = lerp(startBox.y, nextBox.y, 0.5);
+      const midHeight = lerp(startBox.height, nextBox.height, 0.5);
+
+      const anim = pill.animate(
+        [
+          {
+            width: `${startBox.width}px`,
+            height: `${startBox.height}px`,
+            transform: `translate3d(${startBox.x}px, ${startBox.y}px, 0) scaleY(1)`,
+          },
+          {
+            offset: 0.42,
+            width: `${midWidth}px`,
+            height: `${midHeight}px`,
+            transform: `translate3d(${midLeft}px, ${midY}px, 0) scaleY(0.85)`,
+          },
+          {
+            width: `${nextBox.width}px`,
+            height: `${nextBox.height}px`,
+            transform: `translate3d(${nextBox.x}px, ${nextBox.y}px, 0) scaleY(1)`,
+          },
+        ],
+        { duration, easing },
+      );
+      currentAnim = anim;
+      void anim.finished
+        .catch(() => {})
+        .finally(() => {
+          if (currentAnim === anim) {
+            currentAnim = null;
+          }
+        });
+    };
+
+    const observer = new MutationObserver(() => {
+      sync(true);
+    });
+    observer.observe(track, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-pressed"],
+    });
+
+    const resizeObserver =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(() => {
+            sync(false);
+          })
+        : null;
+    resizeObserver?.observe(track);
+
+    sync(false);
+
+    return () => {
+      mounted = false;
+      currentAnim?.cancel();
+      currentAnim = null;
+      observer.disconnect();
+      resizeObserver?.disconnect();
+    };
+  }
+
+  function setupPostFilterPills() {
+    for (const cleanup of activePillCleanups) {
+      cleanup();
+    }
+    activePillCleanups.clear();
+
+    for (const track of document.querySelectorAll<HTMLElement>("[data-pill-track]")) {
+      activePillCleanups.add(mountPillTrack(track));
+    }
+  }
+
+  document.addEventListener("astro:page-load", setupPostFilterPills);
+  document.addEventListener("astro:before-swap", () => {
+    for (const cleanup of activePillCleanups) {
+      cleanup();
+    }
+    activePillCleanups.clear();
+  });
+
+  setupPostFilterPills();
+</script>

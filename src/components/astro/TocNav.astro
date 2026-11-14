@@ -32,7 +32,7 @@ const { items } = Astro.props;
           ))}
         </nav>
       </div>
-      <details class="rounded-[8px] border border-line bg-surface px-4 py-3 lg:hidden">
+      <details data-toc-mobile-details class="rounded-[8px] border border-line bg-surface px-4 py-3 lg:hidden">
         <summary class="cursor-pointer list-none font-mono text-[11px] text-ink-600">
           展开导览
         </summary>
@@ -234,6 +234,128 @@ const { items } = Astro.props;
         window.addEventListener("keydown", finishNavigation);
         reducedMotion.addEventListener("change", alignDot);
         document.addEventListener("astro:page-load", initialize);
+        type TocDetailsAnimation = {
+          anim: Animation;
+          closing: boolean;
+        };
+
+        const tocDetailsAnimations = new WeakMap<HTMLDetailsElement, TocDetailsAnimation>();
+        let activeTocDetails: HTMLDetailsElement | null = null;
+
+        function clearTocDetailsAnimation(details: HTMLDetailsElement | null) {
+          if (!details) {
+            return;
+          }
+          const entry = tocDetailsAnimations.get(details);
+          if (!entry) {
+            return;
+          }
+          tocDetailsAnimations.delete(details);
+          entry.anim.cancel();
+          if (entry.closing) {
+            details.open = false;
+          }
+          details.style.height = "";
+          details.style.overflow = "";
+        }
+
+        function setTocDetailsOpen(details: HTMLDetailsElement, targetOpen: boolean) {
+          const entry = tocDetailsAnimations.get(details);
+          if (entry) {
+            if (entry.closing !== targetOpen) {
+              return;
+            }
+          } else if (details.open === targetOpen) {
+            return;
+          }
+
+          const startHeight = details.getBoundingClientRect().height || details.offsetHeight;
+          if (entry) {
+            tocDetailsAnimations.delete(details);
+            entry.anim.cancel();
+          }
+
+          if (reducedMotion.matches || typeof details.animate !== "function") {
+            details.style.height = "";
+            details.style.overflow = "";
+            details.open = targetOpen;
+            return;
+          }
+
+          activeTocDetails = details;
+          const easing =
+            getComputedStyle(document.documentElement).getPropertyValue("--ease-smooth-out").trim() ||
+            "cubic-bezier(0.22, 1, 0.36, 1)";
+          const duration = 160;
+
+          if (targetOpen) {
+            details.style.height = "";
+            details.open = true;
+            const endHeight = details.getBoundingClientRect().height || details.offsetHeight;
+            if (Math.abs(endHeight - startHeight) < 1) {
+              details.style.overflow = "";
+              return;
+            }
+            details.style.overflow = "hidden";
+            const anim = details.animate(
+              [{ height: `${startHeight}px` }, { height: `${endHeight}px` }],
+              { duration, easing },
+            );
+            tocDetailsAnimations.set(details, { anim, closing: false });
+            void anim.finished
+              .catch(() => {})
+              .finally(() => {
+                if (tocDetailsAnimations.get(details)?.anim !== anim) {
+                  return;
+                }
+                tocDetailsAnimations.delete(details);
+                details.style.height = "";
+                details.style.overflow = "";
+              });
+            return;
+          }
+
+          const summary = details.querySelector("summary");
+          if (!(summary instanceof HTMLElement)) {
+            details.style.height = "";
+            details.style.overflow = "";
+            details.open = false;
+            return;
+          }
+          const cs = getComputedStyle(details);
+          const closedHeight =
+            summary.getBoundingClientRect().height +
+            parseFloat(cs.paddingTop) +
+            parseFloat(cs.paddingBottom) +
+            parseFloat(cs.borderTopWidth) +
+            parseFloat(cs.borderBottomWidth);
+          if (startHeight <= closedHeight + 1) {
+            details.style.height = "";
+            details.style.overflow = "";
+            details.open = false;
+            return;
+          }
+
+          details.style.overflow = "hidden";
+          details.style.height = `${closedHeight}px`;
+          const anim = details.animate(
+            [{ height: `${startHeight}px` }, { height: `${closedHeight}px` }],
+            { duration, easing },
+          );
+          tocDetailsAnimations.set(details, { anim, closing: true });
+          void anim.finished
+            .catch(() => {})
+            .finally(() => {
+              if (tocDetailsAnimations.get(details)?.anim !== anim) {
+                return;
+              }
+              tocDetailsAnimations.delete(details);
+              details.open = false;
+              details.style.height = "";
+              details.style.overflow = "";
+            });
+        }
+
         document.addEventListener("astro:before-swap", () => {
           if (animationFrame) {
             cancelAnimationFrame(animationFrame);
@@ -244,8 +366,31 @@ const { items } = Astro.props;
           navigationTimer = 0;
           dotAnimation?.cancel();
           resizeObserver?.disconnect();
+          clearTocDetailsAnimation(activeTocDetails);
+          activeTocDetails = null;
+        });
+        document.addEventListener("site:open-toc", () => {
+          const details = document.querySelector<HTMLDetailsElement>("[data-toc-mobile-details]");
+          if (details) {
+            setTocDetailsOpen(details, true);
+          }
         });
         document.addEventListener("click", (event) => {
+          const summary =
+            event.target instanceof Element
+              ? event.target.closest("[data-toc-mobile-details] > summary")
+              : null;
+          if (summary) {
+            const details = summary.parentElement;
+            if (details instanceof HTMLDetailsElement) {
+              event.preventDefault();
+              const entry = tocDetailsAnimations.get(details);
+              const isOpen = entry ? !entry.closing : details.open;
+              setTocDetailsOpen(details, !isOpen);
+            }
+            return;
+          }
+
           const target = event.target instanceof Element ? event.target.closest("[data-toc-link]") : null;
           if (!(target instanceof HTMLAnchorElement) || event.defaultPrevented || event.button !== 0 ||
             event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
@@ -261,7 +406,10 @@ const { items } = Astro.props;
           navigationTimer = window.setTimeout(finishNavigation, 150);
           previousActiveId = id;
           setActive(Array.from(document.querySelectorAll("[data-toc-link]")), id, event.detail > 0);
-          target.closest("details")?.removeAttribute("open");
+          const details = target.closest("details");
+          if (details instanceof HTMLDetailsElement) {
+            setTocDetailsOpen(details, false);
+          }
         });
         initialize();
       </script>

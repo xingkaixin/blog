@@ -40,14 +40,28 @@ import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import "@/assets/fonts/fonts.css";
 import "../index.css";
 
+type CompactHeaderProps = {
+  title: string;
+  backHref?: string;
+  backLabel?: string;
+  hasToc?: boolean;
+};
+
 type Props = {
   meta: PageMeta;
   noindex?: boolean;
   smartHeader?: boolean;
   footerStage?: boolean;
+  compactHeader?: CompactHeaderProps;
 };
 
-const { meta, noindex = false, smartHeader = meta.type === "article", footerStage = true } = Astro.props;
+const {
+  meta,
+  noindex = false,
+  smartHeader = meta.type === "article",
+  footerStage = true,
+  compactHeader,
+} = Astro.props;
 const currentPath = normalizeSitePath(Astro.url.pathname);
 const locale = localeFromPath(Astro.url.pathname);
 const darkroom = isSiteRouteActive(currentPath, normalizeSitePath(localizedHref("/photos/", locale)));
@@ -243,9 +257,11 @@ const pageTransition = {
         class="sticky top-0 z-20 border-b border-line bg-surface print:hidden"
         data-site-header
         data-smart-header={smartHeader ? "" : undefined}
+        data-has-compact-bar={compactHeader ? "" : undefined}
       >
-        <div class="mx-auto flex h-[60px] max-w-320 items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
-          <SiteBrand locale={locale} />
+        <div class="relative mx-auto h-[60px] max-w-320">
+          <div class="header-bar-main flex h-full items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
+            <SiteBrand locale={locale} />
 
           {currentPath !== "/" && currentPath !== "/en" && (
             <span class="hidden max-w-52 shrink-0 truncate font-mono text-xs text-ink-400 xl:inline">
@@ -299,7 +315,38 @@ const pageTransition = {
             </a>
           )}
 
-          <MobileHeaderMenu currentPath={currentPath} locale={locale} client:media="(max-width: 1023px)" />
+            <MobileHeaderMenu currentPath={currentPath} locale={locale} client:media="(max-width: 1023px)" />
+          </div>
+          {
+            compactHeader && (
+              <div class="header-bar-compact absolute inset-0 flex items-center justify-between gap-3 px-3 sm:gap-4 sm:px-6 lg:px-8">
+                <a
+                  data-compact-back
+                  href={compactHeader.backHref ?? (locale === "en" ? "/en/posts/" : "/posts/")}
+                  class="inline-flex shrink-0 items-center gap-1 rounded-[6px] px-2 py-1 font-mono text-xs text-ink-600 transition-colors hover:bg-ink-50 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 pointer-coarse:min-h-9"
+                >
+                  ← {compactHeader.backLabel ?? (locale === "en" ? "Posts" : "文章")}
+                </a>
+                <span class="min-w-0 flex-1 truncate text-center font-sans text-sm font-medium text-ink-800">
+                  {compactHeader.title}
+                </span>
+                {compactHeader.hasToc ? (
+                  <button
+                    type="button"
+                    data-compact-toc
+                    class="inline-flex shrink-0 items-center gap-1 rounded-[6px] border border-line bg-paper px-2.5 py-1 font-mono text-[11px] text-ink-700 transition-colors hover:border-ink-300 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 lg:hidden pointer-coarse:min-h-9"
+                  >
+                    {locale === "en" ? "Contents" : "目录"}
+                  </button>
+                ) : (
+                  <span aria-hidden="true" class="w-12 shrink-0 lg:w-14" />
+                )}
+                {compactHeader.hasToc && (
+                  <span aria-hidden="true" class="hidden w-14 shrink-0 lg:block" />
+                )}
+              </div>
+            )
+          }
         </div>
       </header>
 
@@ -341,9 +388,42 @@ const pageTransition = {
 
       let headerController: SmartHeaderController | null = null;
 
+      function setupCompactToc() {
+        const button = document.querySelector<HTMLButtonElement>("[data-compact-toc]");
+        const toc = document.querySelector<HTMLElement>("[data-post-toc]");
+        if (!button) {
+          return;
+        }
+        button.hidden = !toc;
+        button.classList.toggle("hidden", !toc);
+      }
+
+      document.addEventListener("click", (event) => {
+        const button =
+          event.target instanceof Element
+            ? event.target.closest<HTMLButtonElement>("[data-compact-toc]")
+            : null;
+        if (!button) {
+          return;
+        }
+        const toc = document.querySelector<HTMLElement>("[data-post-toc]");
+        if (!toc) {
+          return;
+        }
+        document.dispatchEvent(new CustomEvent("site:open-toc"));
+        const reduced =
+          typeof window.matchMedia === "function" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        toc.scrollIntoView({
+          behavior: reduced ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+
       function setupSmartHeader() {
         headerController?.destroy();
         headerController = null;
+        setupCompactToc();
 
         const header = document.querySelector<HTMLElement>("header[data-smart-header]");
         if (!header) {
@@ -354,7 +434,9 @@ const pageTransition = {
         headerController = attachSmartHeader({
           header,
           thresholdTarget,
-          isLocked: () => Boolean(header.querySelector('button[aria-expanded="true"]')),
+          isLocked: () =>
+            document.documentElement.hasAttribute("data-agent-view") ||
+            Boolean(header.querySelector('.t-dropdown.is-open, button[aria-expanded="true"]')),
         });
       }
 

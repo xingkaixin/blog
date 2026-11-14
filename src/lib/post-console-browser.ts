@@ -21,7 +21,46 @@ type PostConsoleRow = {
   readingMinutes: number;
 };
 
+type DetailsAnimationEntry = {
+  anim: Animation;
+  closing: boolean;
+};
+
 const initializedRoots = new WeakSet<HTMLElement>();
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function getCssEasing(token: string, fallback: string): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  return value || fallback;
+}
+
+function rowFlipDuration(): number {
+  const isDesktop =
+    typeof window.matchMedia === "function" && window.matchMedia("(min-width: 1024px)").matches;
+  return isDesktop ? 120 : 160;
+}
+
+function measureClosedDetailsHeight(details: HTMLDetailsElement): number | null {
+  const summary = details.querySelector("summary");
+  if (!(summary instanceof HTMLElement)) {
+    return null;
+  }
+  const cs = getComputedStyle(details);
+  const summaryRect = summary.getBoundingClientRect();
+  return (
+    summaryRect.height +
+    parseFloat(cs.paddingTop) +
+    parseFloat(cs.paddingBottom) +
+    parseFloat(cs.borderTopWidth) +
+    parseFloat(cs.borderBottomWidth)
+  );
+}
 
 export function initializePostConsole(root: HTMLElement): void {
   if (initializedRoots.has(root)) {
@@ -38,7 +77,37 @@ export function initializePostConsole(root: HTMLElement): void {
     '[data-filter-kind="year"][aria-pressed="true"]',
   )?.dataset.filterValue;
   const filter: PostConsoleFilter = { year: initialYear || null, tag: null };
-  let previewSlug = posts[0]?.slug ?? "";
+  const initialActiveRow = rows.find((row) => row.hasAttribute("data-active")) ?? null;
+  let previewSlug = initialActiveRow?.dataset.postRow ?? posts[0]?.slug ?? "";
+
+  const monthAnimations = new WeakMap<HTMLDetailsElement, DetailsAnimationEntry>();
+  const rowAnimations = new Map<HTMLElement, Animation>();
+
+  const isMonthTargetOpen = (month: HTMLDetailsElement) => {
+    const entry = monthAnimations.get(month);
+    return entry ? !entry.closing : month.open;
+  };
+
+  const cancelMonthAnimation = (month: HTMLDetailsElement) => {
+    const entry = monthAnimations.get(month);
+    if (!entry) {
+      return;
+    }
+    monthAnimations.delete(month);
+    entry.anim.cancel();
+    if (entry.closing) {
+      month.open = false;
+    }
+    month.style.height = "";
+    month.style.overflow = "";
+  };
+
+  const cancelRowAnimations = () => {
+    for (const anim of rowAnimations.values()) {
+      anim.cancel();
+    }
+    rowAnimations.clear();
+  };
 
   const visibleMonths = () => months.filter((month) => !month.hidden);
   const syncMonthsToggle = () => {
@@ -46,9 +115,91 @@ export function initializePostConsole(root: HTMLElement): void {
       return;
     }
     const shown = visibleMonths();
-    const expanded = shown.length > 0 && shown.every((month) => month.open);
+    const expanded = shown.length > 0 && shown.every((month) => isMonthTargetOpen(month));
     monthsToggle.textContent = expanded ? "全部收起" : "全部展开";
     monthsToggle.setAttribute("aria-expanded", String(expanded));
+  };
+
+  const setMonthOpen = (month: HTMLDetailsElement, targetOpen: boolean, animate: boolean) => {
+    const entry = monthAnimations.get(month);
+    if (entry) {
+      if (entry.closing !== targetOpen) {
+        return;
+      }
+    } else if (month.open === targetOpen) {
+      return;
+    }
+
+    const startHeight = month.getBoundingClientRect().height || month.offsetHeight;
+    if (entry) {
+      monthAnimations.delete(month);
+      entry.anim.cancel();
+    }
+
+    if (!animate || prefersReducedMotion() || typeof month.animate !== "function") {
+      month.style.height = "";
+      month.style.overflow = "";
+      month.open = targetOpen;
+      return;
+    }
+
+    const easing = getCssEasing("--ease-smooth-out", "cubic-bezier(0.22, 1, 0.36, 1)");
+    const duration = 160;
+
+    if (targetOpen) {
+      month.style.height = "";
+      month.open = true;
+      const endHeight = month.getBoundingClientRect().height || month.offsetHeight;
+      if (Math.abs(endHeight - startHeight) < 1) {
+        month.style.overflow = "";
+        return;
+      }
+      month.style.overflow = "hidden";
+      const anim = month.animate([{ height: `${startHeight}px` }, { height: `${endHeight}px` }], {
+        duration,
+        easing,
+      });
+      monthAnimations.set(month, { anim, closing: false });
+      void anim.finished
+        .catch(() => {})
+        .finally(() => {
+          if (monthAnimations.get(month)?.anim !== anim) {
+            return;
+          }
+          monthAnimations.delete(month);
+          month.style.height = "";
+          month.style.overflow = "";
+        });
+      return;
+    }
+
+    const closedHeight = measureClosedDetailsHeight(month);
+    if (closedHeight === null || startHeight <= closedHeight + 1) {
+      month.style.height = "";
+      month.style.overflow = "";
+      month.open = false;
+      return;
+    }
+
+    month.style.overflow = "hidden";
+    month.style.height = `${closedHeight}px`;
+    const anim = month.animate([{ height: `${startHeight}px` }, { height: `${closedHeight}px` }], {
+      duration,
+      easing,
+    });
+    monthAnimations.set(month, { anim, closing: true });
+    void anim.finished
+      .catch(() => {})
+      .finally(() => {
+        if (monthAnimations.get(month)?.anim !== anim) {
+          return;
+        }
+        monthAnimations.delete(month);
+        month.open = false;
+        month.style.height = "";
+        month.style.overflow = "";
+        syncMonthsToggle();
+      });
   };
 
   const renderPreview = (post: PostConsoleRow) => {
@@ -118,7 +269,29 @@ export function initializePostConsole(root: HTMLElement): void {
     }
   };
 
-  const applyFilter = () => {
+  const applyFilter = (animate: boolean) => {
+    const canFlip = animate && !prefersReducedMotion() && typeof root.animate === "function";
+
+    const beforeTopByRow = new Map<HTMLElement, number>();
+    const wasHidden = new Set<HTMLElement>();
+    if (canFlip) {
+      for (const row of rows) {
+        if (row.hidden) {
+          wasHidden.add(row);
+          continue;
+        }
+        const rect = row.getBoundingClientRect();
+        if (rect.height > 0) {
+          beforeTopByRow.set(row, rect.top);
+        }
+      }
+    }
+
+    cancelRowAnimations();
+    for (const month of months) {
+      cancelMonthAnimation(month);
+    }
+
     const visibleRows = rows.filter((row) => {
       const post = postsBySlug.get(row.dataset.postRow ?? "");
       const visible = Boolean(post && matchesPostConsoleFilter(post, filter));
@@ -131,12 +304,13 @@ export function initializePostConsole(root: HTMLElement): void {
       const value = button.dataset.filterValue || null;
       button.setAttribute("aria-pressed", String(filter[kind] === value));
     }
+    const initialActiveMonth = !animate ? initialActiveRow?.closest("[data-post-month]") : null;
     // 只展开最近的月份；按标签筛选时结果不多，全部展开。
     let opened = false;
     for (const month of months) {
       const count = month.querySelectorAll("[data-post-row]:not([hidden])").length;
       month.hidden = count === 0;
-      month.open = count > 0 && (filter.tag !== null || !opened);
+      month.open = count > 0 && (filter.tag !== null || !opened || month === initialActiveMonth);
       opened ||= count > 0;
       setText(month, "[data-post-month-count]", `${count} 篇`);
     }
@@ -154,6 +328,50 @@ export function initializePostConsole(root: HTMLElement): void {
 
     const previewVisible = visibleRows.some((row) => row.dataset.postRow === previewSlug);
     selectPreview(previewVisible ? previewSlug : (visibleRows[0]?.dataset.postRow ?? ""));
+
+    if (!canFlip) {
+      return;
+    }
+
+    const duration = rowFlipDuration();
+    const easing = getCssEasing("--ease-smooth-out", "cubic-bezier(0.22, 1, 0.36, 1)");
+    for (const row of visibleRows) {
+      const rect = row.getBoundingClientRect();
+      if (rect.height === 0) {
+        continue;
+      }
+      const beforeTop = beforeTopByRow.get(row);
+      let anim: Animation | null = null;
+      if (beforeTop !== undefined) {
+        const dy = beforeTop - rect.top;
+        if (Math.abs(dy) >= 0.5) {
+          anim = row.animate(
+            [{ transform: `translate3d(0, ${dy}px, 0)` }, { transform: "translate3d(0, 0, 0)" }],
+            { duration, easing },
+          );
+        }
+      } else if (wasHidden.has(row)) {
+        anim = row.animate(
+          [
+            { opacity: 0, transform: "translate3d(0, 8px, 0)" },
+            { opacity: 1, transform: "translate3d(0, 0, 0)" },
+          ],
+          { duration, easing },
+        );
+      }
+
+      if (anim) {
+        rowAnimations.set(row, anim);
+        const currentAnim = anim;
+        void currentAnim.finished
+          .catch(() => {})
+          .finally(() => {
+            if (rowAnimations.get(row) === currentAnim) {
+              rowAnimations.delete(row);
+            }
+          });
+      }
+    }
   };
 
   for (const button of root.querySelectorAll<HTMLButtonElement>("[data-post-filter]")) {
@@ -161,25 +379,31 @@ export function initializePostConsole(root: HTMLElement): void {
       const kind = button.dataset.filterKind as keyof PostConsoleFilter;
       const value = button.dataset.filterValue || null;
       filter[kind] = kind === "tag" && filter.tag === value ? null : value;
-      applyFilter();
+      applyFilter(true);
     });
   }
 
   monthsToggle?.addEventListener("click", () => {
     const shown = visibleMonths();
-    const expand = !shown.every((month) => month.open);
+    const expand = !shown.every((month) => isMonthTargetOpen(month));
     for (const month of shown) {
-      month.open = expand;
+      setMonthOpen(month, expand, true);
     }
     syncMonthsToggle();
   });
   for (const month of months) {
     month.addEventListener("toggle", syncMonthsToggle);
+    const summary = month.querySelector("summary");
+    summary?.addEventListener("click", (event) => {
+      event.preventDefault();
+      setMonthOpen(month, !isMonthTargetOpen(month), true);
+      syncMonthsToggle();
+    });
   }
 
   root.querySelector<HTMLButtonElement>("[data-clear-tag]")?.addEventListener("click", () => {
     filter.tag = null;
-    applyFilter();
+    applyFilter(true);
   });
 
   for (const row of rows) {
@@ -188,7 +412,7 @@ export function initializePostConsole(root: HTMLElement): void {
     row.addEventListener("focus", selectRow);
   }
 
-  applyFilter();
+  applyFilter(false);
 }
 
 function setText(root: ParentNode, selector: string, value: string): void {

@@ -1,43 +1,9 @@
-type SmartHeaderState = "pinned" | "hidden" | "revealed";
+export type SmartHeaderState = "pinned" | "compact";
 
-const DEFAULT_THRESHOLD = 240;
-const TOLERANCE = 8;
-
-type ComputeStateOptions = {
-  currentY: number;
-  lastY: number;
-  threshold: number;
-  currentState: SmartHeaderState;
-  forceVisible: boolean;
-};
-
-function computeSmartHeaderState({
-  currentY,
-  lastY,
-  threshold,
-  currentState,
-  forceVisible,
-}: ComputeStateOptions): SmartHeaderState {
-  if (forceVisible || currentY <= threshold) {
-    return "pinned";
-  }
-
-  const diff = currentY - lastY;
-
-  if (diff > TOLERANCE) {
-    return "hidden";
-  }
-
-  if (diff < -TOLERANCE) {
-    return "revealed";
-  }
-
-  return currentState;
-}
-
-type AttachSmartHeaderOptions = {
+export type SmartHeaderOptions = {
   header: HTMLElement;
   thresholdTarget?: HTMLElement | null;
+  threshold?: number;
   isLocked?: () => boolean;
 };
 
@@ -45,71 +11,129 @@ export type SmartHeaderController = {
   destroy: () => void;
 };
 
+const DEFAULT_THRESHOLD = 240;
+const SCROLL_TOLERANCE = 8;
+
+function isDropdownOpen(header: HTMLElement): boolean {
+  return Boolean(header.querySelector('.t-dropdown.is-open, button[aria-expanded="true"]'));
+}
+
+function isMainBarFocused(header: HTMLElement): boolean {
+  const mainBar = header.querySelector(".header-bar-main");
+  if (!mainBar) {
+    return false;
+  }
+  const active = header.ownerDocument.activeElement;
+  return active instanceof Node && mainBar.contains(active);
+}
+
+function canEnterCompact(header: HTMLElement, thresholdTarget?: HTMLElement | null): boolean {
+  if (header.hasAttribute("data-has-compact-bar")) {
+    return true;
+  }
+  return Boolean(
+    header.querySelector(".header-bar-compact") &&
+    (thresholdTarget ?? header.ownerDocument.querySelector("[data-post-header]")),
+  );
+}
+
 export function attachSmartHeader({
   header,
   thresholdTarget,
+  threshold: explicitThreshold,
   isLocked,
-}: AttachSmartHeaderOptions): SmartHeaderController {
+}: SmartHeaderOptions): SmartHeaderController {
   let state: SmartHeaderState = "pinned";
-  let lastY = window.scrollY;
-  let rafId: number | null = null;
-  let scheduled = false;
+  let lastY = Math.max(0, window.scrollY);
+  let anchorY = lastY;
+  let rafId = 0;
+  let destroyed = false;
 
-  function resolveThreshold(): number {
-    if (thresholdTarget && thresholdTarget.isConnected) {
-      const rect = thresholdTarget.getBoundingClientRect();
-      const absoluteBottom = rect.bottom + window.scrollY;
-      return Math.max(0, absoluteBottom);
+  const setState = (next: SmartHeaderState) => {
+    state = next;
+    header.dataset.headerState = next;
+  };
+
+  const getThreshold = () => {
+    if (typeof explicitThreshold === "number") {
+      return explicitThreshold;
     }
-    return DEFAULT_THRESHOLD;
-  }
-
-  function applyState(nextState: SmartHeaderState) {
-    if (state !== nextState) {
-      state = nextState;
-      header.dataset.headerState = nextState;
+    if (!thresholdTarget) {
+      return DEFAULT_THRESHOLD;
     }
-  }
+    const rect = thresholdTarget.getBoundingClientRect();
+    if (rect.height > 0) {
+      return Math.max(0, Math.round(rect.bottom + window.scrollY));
+    }
+    const offsetBottom = thresholdTarget.offsetTop + thresholdTarget.offsetHeight;
+    return offsetBottom > 0 ? offsetBottom : DEFAULT_THRESHOLD;
+  };
 
-  function tick() {
+  const update = () => {
+    if (destroyed) {
+      return;
+    }
+
     const currentY = Math.max(0, window.scrollY);
-    const threshold = resolveThreshold();
-    const locked = isLocked ? isLocked() : false;
-
-    const nextState = computeSmartHeaderState({
-      currentY,
-      lastY,
-      threshold,
-      currentState: state,
-      forceVisible: locked,
-    });
-
-    applyState(nextState);
-    lastY = currentY;
-  }
-
-  function onScroll() {
-    if (!scheduled) {
-      scheduled = true;
-      rafId = window.requestAnimationFrame(() => {
-        scheduled = false;
-        rafId = null;
-        tick();
-      });
+    const step = currentY - lastY;
+    const prevDirection = lastY - anchorY;
+    if ((step > 0 && prevDirection < 0) || (step < 0 && prevDirection > 0)) {
+      anchorY = lastY;
     }
-  }
+    lastY = currentY;
 
-  header.dataset.headerState = "pinned";
+    const locked = Boolean(isLocked?.()) || isDropdownOpen(header) || isMainBarFocused(header);
+    if (!canEnterCompact(header, thresholdTarget) || currentY <= getThreshold() || locked) {
+      anchorY = currentY;
+      setState("pinned");
+      return;
+    }
+
+    const netDelta = currentY - anchorY;
+    if (netDelta < -SCROLL_TOLERANCE) {
+      anchorY = currentY;
+      setState("pinned");
+      return;
+    }
+
+    if (netDelta > SCROLL_TOLERANCE && state !== "compact") {
+      anchorY = currentY;
+      setState("compact");
+    }
+  };
+
+  const onScroll = () => {
+    if (rafId !== 0) {
+      return;
+    }
+    let pending = true;
+    const id = window.requestAnimationFrame(() => {
+      pending = false;
+      rafId = 0;
+      update();
+    });
+    if (pending) {
+      rafId = id;
+    }
+  };
+
+  const onFocusIn = () => {
+    update();
+  };
+
+  setState("pinned");
   window.addEventListener("scroll", onScroll, { passive: true });
+  header.addEventListener("focusin", onFocusIn);
 
   return {
     destroy() {
-      if (rafId !== null) {
+      destroyed = true;
+      if (rafId !== 0) {
         window.cancelAnimationFrame(rafId);
-        rafId = null;
+        rafId = 0;
       }
-      scheduled = false;
       window.removeEventListener("scroll", onScroll);
+      header.removeEventListener("focusin", onFocusIn);
       delete header.dataset.headerState;
     },
   };

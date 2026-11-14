@@ -64,7 +64,14 @@ const meta = {
 };
 ---
 
-<SiteLayout meta={meta}>
+<SiteLayout
+  meta={meta}
+  compactHeader={{
+    title: postMeta.title,
+    backHref: "/posts/",
+    hasToc: postMeta.toc.length > 0,
+  }}
+>
   <style is:inline set:html={printPageStyle}></style>
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <div
