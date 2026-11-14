@@ -56,13 +56,17 @@ const meta = {
         posts.map((post) => (
           <a
             href={postHref(post.slug)}
+            data-tag-post-row={post.slug}
             class="group -mx-1 block border-b border-ink-100 px-3 py-3.5 transition-[background-color,box-shadow] hover:bg-surface hover:shadow-[inset_3px_0_0_var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:flex lg:items-center lg:gap-5 lg:px-4 lg:py-3"
           >
             <span class="font-mono text-[10px] text-ink-400 lg:w-[76px] lg:shrink-0">
               {post.date}
             </span>
             <span class="mt-1 block min-w-0 flex-1 lg:mt-0">
-              <h2 class="text-[15px] leading-6 text-ink-800 transition-colors group-hover:text-accent">
+              <h2
+                data-post-title
+                class="text-[15px] leading-6 text-ink-800 transition-colors group-hover:text-accent"
+              >
                 {post.title}
               </h2>
               <span class="mt-0.5 line-clamp-2 text-[12px] leading-5 text-ink-500 lg:line-clamp-1">
@@ -71,7 +75,7 @@ const meta = {
             </span>
             <span
               class="hover-preview-reveal hidden w-24 shrink-0 overflow-hidden rounded-[6px] border border-line lg:block"
-              transition:name={`cover-${post.slug}`}
+              data-post-cover
             >
               <PostCover cover={post.cover} alt="" imageClass="aspect-video object-cover" />
             </span>

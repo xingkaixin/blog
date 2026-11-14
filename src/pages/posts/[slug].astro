@@ -82,7 +82,10 @@ const meta = {
         <Breadcrumb
           items={[{ name: "首页", url: "/" }, { name: "文章", url: "/posts/" }, { name: postMeta.title }]}
         />
-        <h1 class="mt-4 max-w-[30ch] text-balance font-display text-4xl leading-[1.15] text-ink-800 [overflow-wrap:anywhere] sm:text-5xl">
+        <h1
+          data-post-title
+          class="mt-4 max-w-[30ch] text-balance font-display text-4xl leading-[1.15] text-ink-800 [overflow-wrap:anywhere] sm:text-5xl"
+        >
           {postMeta.title}
         </h1>
         <p class="mt-4 max-w-[70ch] text-[15px] leading-7 text-ink-500">{postMeta.summary}</p>
@@ -109,7 +112,7 @@ const meta = {
       <article class="order-3 min-w-0 space-y-8 lg:col-start-1 lg:row-start-2">
         <figure
           class="w-full max-w-full overflow-hidden rounded-[10px] border border-line print:hidden"
-          transition:name={`cover-${postMeta.slug}`}
+          data-post-cover
         >
           <PostCover cover={postMeta.cover} alt={postMeta.coverAlt} priority />
         </figure>

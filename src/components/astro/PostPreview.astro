@@ -17,6 +17,7 @@ const content = postPreviewContent(post, cover);
 <aside data-post-preview class="hidden border-l border-line bg-surface p-[18px] xl:block">
   <a
     data-preview-link
+    data-post-cover
     href={postHref(post.slug)}
     class="block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
   >
@@ -36,6 +37,7 @@ const content = postPreviewContent(post, cover);
     <a
       data-preview-link
       data-preview-title
+      data-post-title
       href={postHref(post.slug)}
       class="transition-colors hover:text-accent"
     >

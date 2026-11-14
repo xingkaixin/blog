@@ -99,6 +99,52 @@ function routePath(href: string): string {
   return normalizeSitePath(href);
 }
 
+const siblingRoutes = new Set(
+  routes
+    .filter((route) => route.id !== "tags")
+    .flatMap((route) => {
+      const path = routePath(route.href);
+      return [path, path === "/" ? "/en" : `/en${path}`];
+    }),
+);
+
+export function isSiblingRoute(pathname: string): boolean {
+  return siblingRoutes.has(normalizeSitePath(pathname));
+}
+
+export function isSiblingNavigation(fromPathname: string, toPathname: string): boolean {
+  const from = normalizeSitePath(fromPathname);
+  const to = normalizeSitePath(toPathname);
+  return from !== to && siblingRoutes.has(from) && siblingRoutes.has(to);
+}
+
+export function isDarkroomRoute(pathname: string): boolean {
+  const path = normalizeSitePath(pathname);
+  return path === "/photos" || path === "/en/photos";
+}
+
+export function isDarkroomTransition(fromPathname: string, toPathname: string): boolean {
+  return isDarkroomRoute(fromPathname) !== isDarkroomRoute(toPathname);
+}
+
+export function parsePostDetailSlug(pathname: string): string | null {
+  const path = normalizeSitePath(pathname);
+  const match = /^\/posts\/([^/]+)$/.exec(path);
+  if (!match) {
+    return null;
+  }
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+export function isTagArchivePath(pathname: string): boolean {
+  const path = normalizeSitePath(pathname);
+  return path === "/tags" || path.startsWith("/tags/");
+}
+
 export function isSiteRouteActive(currentPath: string, routePath: string): boolean {
   return normalizeSitePath(currentPath) === routePath;
 }
