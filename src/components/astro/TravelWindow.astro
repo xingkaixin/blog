@@ -1,7 +1,7 @@
 ---
 import { getImage } from "astro:assets";
-import frame from "@/assets/travel-window/frame.webp";
 import curtain from "@/assets/travel-window/curtain.webp";
+import frame from "@/assets/travel-window/frame.webp";
 import bangkok from "@/assets/travel-window/scenes/bangkok.webp";
 import chongqing from "@/assets/travel-window/scenes/chongqing.webp";
 import harbin from "@/assets/travel-window/scenes/harbin.webp";
@@ -13,12 +13,19 @@ import { homeMessages } from "@/lib/messages/home";
 
 const places = homeMessages[localeFromPath(Astro.url.pathname)].places;
 const scenes = await Promise.all(
-  ([["kyoto", kyoto], ["hong-kong", hongKong], ["bangkok", bangkok], ["chongqing", chongqing], ["suzhou", suzhou], ["harbin", harbin]] as const).map(
-    async ([id, src]) => {
-      const image = await getImage({ src, widths: [360, 720], format: "webp" });
-      return { name: places[id], src: image.src, srcset: image.srcSet.attribute };
-    },
-  ),
+  (
+    [
+      ["kyoto", kyoto],
+      ["hong-kong", hongKong],
+      ["bangkok", bangkok],
+      ["chongqing", chongqing],
+      ["suzhou", suzhou],
+      ["harbin", harbin],
+    ] as const
+  ).map(async ([id, src]) => {
+    const image = await getImage({ src, widths: [360, 720], format: "webp" });
+    return { name: places[id], src: image.src, srcset: image.srcSet.attribute };
+  }),
 );
 const frameImage = await getImage({ src: frame, widths: [420, 840], format: "webp" });
 const curtainImage = await getImage({ src: curtain, width: 360, format: "webp" });
@@ -28,16 +35,16 @@ const [first] = scenes;
 <travel-window data-story-art data-stamped data-scenes={JSON.stringify(scenes.map(({ src, srcset }) => ({ src, srcset })))}>
   <!-- 窄屏不显示窗户，地址由脚本在宽屏时填入 -->
   <div class="glass">
-    <img class="view" data-current data-src={first.src} data-srcset={first.srcset} sizes="28vh" alt="" decoding="async" />
-    <img class="view" sizes="28vh" alt="" decoding="async" />
+    <img class="view" data-src={first.src} data-srcset={first.srcset} sizes="28vh" alt="" decoding="async" />
+    <canvas class="scenery" aria-hidden="true"></canvas>
   </div>
   <img class="frame" data-src={frameImage.src} data-srcset={frameImage.srcSet.attribute} sizes="44vh" alt="" decoding="async" />
-  <canvas class="curtains" data-src={curtainImage.src}></canvas>
   <span class="stamp">
     <svg viewBox="0 0 120 120" fill="none" stroke="currentColor"><circle cx="60" cy="60" r="56" stroke-width="3" /><circle cx="60" cy="60" r="48" stroke-width="1.2" stroke-dasharray="3 3" /></svg>
     <!-- 地名全部写进页面，字体裁剪脚本才收集得到这些字 -->
     {scenes.map((scene, index) => <span class="stamp-name" hidden={index > 0}>{scene.name}</span>)}
   </span>
+  <canvas class="curtains" data-src={curtainImage.src}></canvas>
 </travel-window>
 
 <style>
@@ -59,8 +66,10 @@ const [first] = scenes;
   }
   :global([data-theme="dark"]) travel-window { filter: brightness(.82) saturate(.9); }
   .glass { position: absolute; inset: var(--glass-top) var(--glass-right) var(--glass-bottom) var(--glass-left); overflow: hidden; background: var(--ink-50); }
-  .view { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: translateX(100%); }
-  .view[data-current] { transform: none; }
+  .view { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .scenery { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+  travel-window[data-scenery-ready] .scenery { opacity: 1; }
+  travel-window[data-scenery-ready] .view { visibility: hidden; }
   .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
   /* 左右外扩的 8% 与 travel-curtains.ts 的 curtainBleed 一致 */
   .curtains { position: absolute; top: 0; left: -8%; width: 116%; height: 100%; }
@@ -83,6 +92,10 @@ const [first] = scenes;
   .stamp svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .stamp-name { font-family: var(--font-display); font-size: 15cqi; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
   travel-window[data-stamped] .stamp { opacity: .9; scale: 1; transition: opacity 120ms ease-out, scale 320ms var(--ease-smooth-out); }
+  @media (prefers-reduced-motion: reduce) {
+    travel-window[data-scenery-ready] .scenery { opacity: 0; }
+    travel-window[data-scenery-ready] .view { visibility: visible; }
+  }
   @media (max-width: 47.999rem) {
     travel-window { display: none; }
   }
@@ -90,13 +103,12 @@ const [first] = scenes;
 
 <script>
   import { createCurtains } from "@/lib/travel-curtains";
+  import { createTravelScenery, type TravelScenery } from "@/lib/travel-scenery";
+  import { HOLD_DURATION_MS, RIDE_DURATION_MS, sampleTravelRide } from "@/lib/travel-window-motion";
 
   type Scene = { src: string; srcset: string };
 
-  const hold = 7000;
-  const ride = 2600;
-
-  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
   class TravelWindow extends HTMLElement {
     private cleanup?: () => void;
@@ -104,15 +116,24 @@ const [first] = scenes;
     connectedCallback() {
       this.cleanup?.();
       const scenes = JSON.parse(this.dataset.scenes!) as Scene[];
-      let [current, spare] = [...this.querySelectorAll<HTMLImageElement>(".view")];
-      const canvas = this.querySelector<HTMLCanvasElement>(".curtains")!;
+      const view = this.querySelector<HTMLImageElement>(".view")!;
+      const sceneryCanvas = this.querySelector<HTMLCanvasElement>(".scenery")!;
+      const curtainsCanvas = this.querySelector<HTMLCanvasElement>(".curtains")!;
       const names = [...this.querySelectorAll<HTMLElement>(".stamp-name")];
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const wide = matchMedia("(min-width: 48rem)");
       const events = new AbortController();
+      const loader = new Image();
+      loader.decoding = "async";
+      loader.sizes = "28vh";
+
       let stopped = false;
       let index = 0;
+      let scenery: TravelScenery | null = null;
+      let sceneryInitialized = false;
       let curtains: ReturnType<typeof createCurtains> = null;
+      let rideFrame = 0;
+      let finishRide: (() => void) | null = null;
 
       const load = () => {
         if (!wide.matches) {
@@ -123,39 +144,99 @@ const [first] = scenes;
           image.src = image.dataset.src!;
           image.removeAttribute("data-src");
         }
-        curtains ??= createCurtains(canvas, canvas.dataset.src!);
+        curtains ??= createCurtains(curtainsCanvas, curtainsCanvas.dataset.src!);
+        if (!sceneryInitialized) {
+          sceneryInitialized = true;
+          scenery = createTravelScenery(sceneryCanvas);
+          if (scenery) {
+            void view
+              .decode()
+              .catch(() => undefined)
+              .then(() => {
+                if (!stopped && scenery?.setInitial(view)) {
+                  this.setAttribute("data-scenery-ready", "");
+                }
+              });
+          }
+        }
       };
+
       load();
       wide.addEventListener("change", load, { signal: events.signal });
+      sceneryCanvas.addEventListener(
+        "webglcontextlost",
+        () => {
+          this.removeAttribute("data-scenery-ready");
+          scenery = null;
+        },
+        { signal: events.signal },
+      );
 
       // 页面隐藏、窄屏不显示、窗户随滚动淡出或要求减少动态时停在当前城市
       const idle = () =>
         document.hidden || reducedMotion.matches || !wide.matches || Number(getComputedStyle(this).opacity) < 0.05;
 
+      const runSceneryRide = () =>
+        new Promise<void>((resolve) => {
+          const start = performance.now();
+          const complete = () => {
+            cancelAnimationFrame(rideFrame);
+            rideFrame = 0;
+            finishRide = null;
+            scenery?.commitRide();
+            resolve();
+          };
+          finishRide = complete;
+          const step = (now: number) => {
+            if (stopped || reducedMotion.matches || document.hidden || !scenery) {
+              complete();
+              return;
+            }
+            const tau = (now - start) / RIDE_DURATION_MS;
+            const ride = sampleTravelRide(tau);
+            if (tau >= 1 || !scenery.renderRide(ride.track, ride.blur)) {
+              complete();
+              return;
+            }
+            rideFrame = requestAnimationFrame(step);
+          };
+          rideFrame = requestAnimationFrame(step);
+        });
+
       const travel = async () => {
         while (!stopped) {
-          await wait(hold);
+          await wait(HOLD_DURATION_MS);
           if (stopped || idle()) {
             continue;
           }
           index = (index + 1) % scenes.length;
-          spare.srcset = scenes[index].srcset;
-          spare.src = scenes[index].src;
-          await spare.decode().catch(() => undefined);
-          if (stopped) {
-            return;
+          loader.srcset = scenes[index].srcset;
+          loader.src = scenes[index].src;
+          await loader.decode().catch(() => undefined);
+          if (stopped || idle()) {
+            continue;
           }
           this.removeAttribute("data-stamped");
-          curtains?.ride(ride);
-          const timing = { duration: ride, easing: "cubic-bezier(.62, 0, .3, 1)" };
-          const blur = { offset: 0.5, filter: "blur(1.4px)" };
-          current.animate([{ transform: "none", filter: "none" }, blur, { transform: "translateX(-100%)", filter: "none" }], timing);
-          const arrival = spare.animate([{ transform: "translateX(100%)", filter: "none" }, blur, { transform: "none", filter: "none" }], timing);
-          current.removeAttribute("data-current");
-          spare.toggleAttribute("data-current", true);
-          [current, spare] = [spare, current];
-          await arrival.finished.catch(() => undefined);
-          names.forEach((name, stop) => (name.hidden = stop !== index));
+          const readyForScenery = scenery !== null && scenery.prepareRide(loader);
+          if (readyForScenery) {
+            curtains?.ride(RIDE_DURATION_MS);
+            await runSceneryRide();
+            if (stopped) {
+              return;
+            }
+            view.srcset = scenes[index].srcset;
+            view.src = scenes[index].src;
+          } else {
+            view.srcset = scenes[index].srcset;
+            view.src = scenes[index].src;
+            await view.decode().catch(() => undefined);
+            if (stopped) {
+              return;
+            }
+          }
+          names.forEach((name, stop) => {
+            name.hidden = stop !== index;
+          });
           this.toggleAttribute("data-stamped", true);
         }
       };
@@ -164,6 +245,9 @@ const [first] = scenes;
       this.cleanup = () => {
         stopped = true;
         events.abort();
+        finishRide?.();
+        scenery?.destroy();
+        scenery = null;
         curtains?.destroy();
       };
     }
