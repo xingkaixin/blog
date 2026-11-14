@@ -47,6 +47,7 @@
   --astro-code-token-link: var(--accent);
 
   /* motion tokens */
+  --duration-stagger-tight: 25ms;
   --duration-stagger: 40ms;
   --duration-quick: 150ms;
   --duration-fast: 250ms;
@@ -55,11 +56,8 @@
   --duration-very-slow: 500ms;
   --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --distance-base: 8px;
-  --resize-dur: 1200ms;
-  --resize-close-dur: 500ms;
-  --resize-delay: 80ms;
-  --resize-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 首页夜景（片尾、池塘）沿用暗色 token；滚到夜景时页眉、页脚、场景导航和季节标签一起变暗 */
@@ -241,14 +239,14 @@ body {
   opacity: 0;
   transform: scale(1.035);
   transition:
-    opacity var(--duration-fast) var(--ease-smooth-out),
-    transform var(--duration-slow) var(--ease-smooth-out);
+    opacity 170ms var(--ease-smooth-out),
+    transform 170ms var(--ease-smooth-out);
 }
 
 .project-card-scrim {
   opacity: 0;
   background: linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.96));
-  transition: opacity var(--duration-fast) var(--ease-smooth-out);
+  transition: opacity 170ms var(--ease-smooth-out);
 }
 
 .project-card:where(:hover, :focus-within) {
@@ -272,58 +270,18 @@ body {
   background: linear-gradient(180deg, rgb(19 23 21 / 0.58), rgb(19 23 21 / 0.94));
 }
 
-@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+@media (min-width: 1024px) {
+  /* project-console.tsx 仅在 sm: 设两列，此处维持桌面四列轨宽而不做 hover 挤压重排 */
   .project-row {
-    grid-template-columns:
-      minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
-      minmax(0, 1fr);
-    transition: grid-template-columns var(--resize-close-dur) var(--ease-smooth-out);
-    will-change: grid-template-columns;
-  }
-
-  .project-row:has(.project-card:where(:hover, :focus-within)) {
-    transition-duration: var(--resize-dur);
-    transition-delay: var(--resize-delay);
-    transition-timing-function: var(--resize-ease);
-  }
-
-  .project-row:has(.project-card[data-column="1"]:where(:hover, :focus-within)) {
-    grid-template-columns:
-      minmax(0, 1.24fr) minmax(0, 0.92fr) minmax(0, 0.92fr)
-      minmax(0, 0.92fr);
-  }
-
-  .project-row:has(.project-card[data-column="2"]:where(:hover, :focus-within)) {
-    grid-template-columns:
-      minmax(0, 0.92fr) minmax(0, 1.24fr) minmax(0, 0.92fr)
-      minmax(0, 0.92fr);
-  }
-
-  .project-row:has(.project-card[data-column="3"]:where(:hover, :focus-within)) {
-    grid-template-columns:
-      minmax(0, 0.92fr) minmax(0, 0.92fr) minmax(0, 1.24fr)
-      minmax(0, 0.92fr);
-  }
-
-  .project-row:has(.project-card[data-column="4"]:where(:hover, :focus-within)) {
-    grid-template-columns:
-      minmax(0, 0.92fr) minmax(0, 0.92fr) minmax(0, 0.92fr)
-      minmax(0, 1.24fr);
-  }
-
-  .project-card:where(:hover, :focus-within) .project-card-art {
-    transition-duration: var(--duration-very-slow), var(--resize-dur);
-    transition-delay: 160ms, 0ms;
-  }
-
-  .project-card:where(:hover, :focus-within) .project-card-scrim {
-    transition-duration: var(--duration-very-slow);
-    transition-delay: 160ms;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .project-row,
+  .project-card-art {
+    transform: none;
+  }
+
   .project-card-art,
   .project-card-scrim {
     transition: none !important;
@@ -789,7 +747,6 @@ body {
 
 .toc-link[aria-current="location"] {
   color: var(--ink-800);
-  font-weight: 500;
 }
 
 details .toc-link[aria-current="location"] {
@@ -907,6 +864,11 @@ details .toc-link[aria-current="location"] {
    通用动效
    ============================================================ */
 
+.sliding-pill {
+  pointer-events: none;
+  will-change: transform;
+}
+
 /* 退出（150ms）比进入（250ms）快：等待时要柔和，收起时要利落 */
 .dialog-backdrop {
   opacity: 1;
@@ -925,7 +887,7 @@ details .toc-link[aria-current="location"] {
 .dialog-popup {
   opacity: 1;
   scale: 1;
-  transform-origin: top center;
+  transform-origin: var(--dialog-origin, center);
   transition:
     opacity var(--duration-fast) var(--ease-smooth-out),
     scale var(--duration-fast) var(--ease-smooth-out);
@@ -934,16 +896,11 @@ details .toc-link[aria-current="location"] {
 .dialog-popup[data-starting-style],
 .dialog-popup[data-ending-style] {
   opacity: 0;
-  scale: 0.985;
+  scale: 0.95;
 }
 
 .dialog-popup[data-ending-style] {
   transition-duration: var(--duration-quick);
-}
-
-.dialog-popup[data-command-palette],
-body:has([data-command-palette]) .dialog-backdrop {
-  transition: none;
 }
 
 @starting-style {
@@ -953,7 +910,89 @@ body:has([data-command-palette]) .dialog-backdrop {
 
   .dialog-popup {
     opacity: 0;
-    scale: 0.985;
+    scale: 0.95;
+  }
+}
+
+/* 键盘快捷键触发搜索需保持 0ms 瞬时响应，仅指针点击触发播放连续展开 */
+.dialog-popup[data-command-palette]:not([data-search-source="pointer"]),
+body:has([data-command-palette]:not([data-search-source="pointer"])) .dialog-backdrop {
+  transition: none;
+}
+
+.dialog-popup[data-command-palette]:not([data-search-source="pointer"])[data-starting-style],
+body:has([data-command-palette]:not([data-search-source="pointer"]))
+  .dialog-backdrop[data-starting-style] {
+  opacity: 1;
+  scale: 1;
+}
+
+@media (max-width: 639px) {
+  .dialog-popup[data-command-palette][data-search-source="pointer"] {
+    transition:
+      opacity var(--duration-fast) var(--ease-drawer),
+      translate var(--duration-fast) var(--ease-drawer);
+  }
+
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-starting-style],
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-ending-style] {
+    opacity: 0;
+    scale: 1;
+    translate: 0 24px;
+  }
+
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-ending-style] {
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-smooth-out);
+  }
+
+  @starting-style {
+    .dialog-popup[data-command-palette][data-search-source="pointer"] {
+      opacity: 0;
+      scale: 1;
+      translate: 0 24px;
+    }
+  }
+}
+
+@media (min-width: 640px) {
+  .dialog-popup[data-command-palette][data-search-source="pointer"] {
+    transition:
+      opacity 180ms var(--ease-drawer),
+      transform 180ms var(--ease-drawer);
+  }
+
+  body:has([data-command-palette][data-search-source="pointer"]) .dialog-backdrop {
+    transition-duration: 180ms;
+    transition-timing-function: var(--ease-drawer);
+  }
+
+  body:has([data-command-palette][data-search-source="pointer"])
+    .dialog-backdrop[data-ending-style] {
+    transition-duration: 130ms;
+    transition-timing-function: var(--ease-smooth-out);
+  }
+
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-starting-style],
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-ending-style] {
+    opacity: 0;
+    scale: 1;
+    transform: translate(var(--search-origin-x, 0px), var(--search-origin-y, -16px))
+      scale(var(--search-origin-sx, 0.95), var(--search-origin-sy, 0.95));
+  }
+
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-ending-style] {
+    transition-duration: 130ms;
+    transition-timing-function: var(--ease-smooth-out);
+  }
+
+  @starting-style {
+    .dialog-popup[data-command-palette][data-search-source="pointer"] {
+      opacity: 0;
+      scale: 1;
+      transform: translate(var(--search-origin-x, 0px), var(--search-origin-y, -16px))
+        scale(var(--search-origin-sx, 0.95), var(--search-origin-sy, 0.95));
+    }
   }
 }
 
@@ -971,7 +1010,8 @@ body:has([data-command-palette]) .dialog-backdrop {
 }
 
 .t-dropdown[data-origin="top-right"] {
-  transform-origin: top right;
+  transform-origin: calc(100% - 17px) -10px;
+  transform: translateY(-6px) scale(0.92);
 }
 
 .t-dropdown.is-open {
@@ -980,6 +1020,43 @@ body:has([data-command-palette]) .dialog-backdrop {
   transform: translateY(0) scale(1);
   opacity: 1;
   pointer-events: auto;
+}
+
+.t-dropdown[data-origin="top-right"].is-open {
+  transition:
+    transform 240ms var(--ease-drawer),
+    opacity 240ms var(--ease-drawer),
+    visibility 0s 0s;
+}
+
+.t-dropdown .t-dropdown-item {
+  opacity: 0;
+  transform: translateY(-4px);
+  scale: 1;
+  transition:
+    opacity var(--duration-quick) var(--ease-smooth-out) 0ms,
+    transform 120ms var(--ease-smooth-out) 0ms,
+    scale 120ms var(--ease-smooth-out) 0ms,
+    background-color var(--duration-quick) var(--ease-smooth-out) 0ms,
+    color var(--duration-quick) var(--ease-smooth-out) 0ms;
+}
+
+.t-dropdown.is-open .t-dropdown-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duration-quick) var(--ease-smooth-out)
+      calc(var(--item-index, 0) * var(--duration-stagger-tight)),
+    transform var(--duration-quick) var(--ease-smooth-out)
+      calc(var(--item-index, 0) * var(--duration-stagger-tight)),
+    scale 120ms var(--ease-smooth-out) 0ms,
+    background-color var(--duration-quick) var(--ease-smooth-out) 0ms,
+    color var(--duration-quick) var(--ease-smooth-out) 0ms;
+}
+
+/* 微按压独立用 scale，避免松手时受入场 --item-index 延迟拖累 */
+.t-dropdown.is-open .t-dropdown-item:active {
+  scale: 0.98;
 }
 
 .project-stickers:not([data-ready]) .project-sticker {
@@ -999,28 +1076,57 @@ body:has([data-command-palette]) .dialog-backdrop {
 }
 
 [data-smart-header] {
+  --smart-header-duration: var(--duration-fast);
+}
+
+@media (min-width: 768px) {
+  [data-smart-header] {
+    --smart-header-duration: 170ms;
+  }
+}
+
+.header-bar-main,
+.header-bar-compact {
   transition:
-    transform var(--duration-fast) var(--ease-smooth-out),
-    opacity var(--duration-fast) var(--ease-smooth-out);
+    transform var(--smart-header-duration) var(--ease-smooth-out),
+    opacity var(--smart-header-duration) var(--ease-smooth-out),
+    visibility 0s 0s;
   will-change: transform, opacity;
 }
 
-[data-smart-header][data-header-state="hidden"] {
-  transform: translateY(-100%);
+.header-bar-compact,
+[data-smart-header][data-header-state="compact"] .header-bar-main {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
+  transition-delay: 0s, 0s, var(--smart-header-duration);
 }
 
-[data-smart-header][data-header-state="revealed"],
-[data-smart-header][data-header-state="pinned"] {
-  transform: translateY(0);
-  opacity: 1;
+.header-bar-compact {
+  transform: translateY(var(--distance-base));
 }
 
-[data-smart-header]:focus-within {
-  transform: translateY(0);
+[data-smart-header][data-header-state="compact"] .header-bar-main {
+  transform: translateY(calc(var(--distance-base) * -1));
+}
+
+[data-smart-header][data-header-state="compact"] .header-bar-compact,
+[data-smart-header][data-header-state="compact"]:has(.header-bar-main:focus-within)
+  .header-bar-main {
   opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
   pointer-events: auto;
+  transition-delay: 0s;
+}
+
+[data-smart-header][data-header-state="compact"]:has(.header-bar-main:focus-within)
+  .header-bar-compact {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--distance-base));
+  pointer-events: none;
+  transition-delay: 0s, 0s, var(--smart-header-duration);
 }
 
 .hover-preview-reveal {
@@ -1066,8 +1172,122 @@ body:has([data-command-palette]) .dialog-backdrop {
   }
 }
 
-/* 主题切换时收起 Astro 路由的独立快照，让整页共用 root 快照。 */
-.theme-wipe :is([data-astro-transition-scope], [data-astro-transition-persist]) {
+@keyframes page-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+html[data-nav-kind="sibling"]::view-transition-group(page-content) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--ease-smooth-out);
+}
+
+html[data-nav-kind="sibling"]::view-transition-old(page-content) {
+  animation: page-fade-out 180ms var(--ease-smooth-out) both;
+}
+
+html[data-nav-kind="sibling"]::view-transition-new(page-content) {
+  animation: page-fade-in 180ms var(--ease-smooth-out) both;
+}
+
+html[data-nav-kind="post-shared"]::view-transition-group(page-content),
+::view-transition-group(post-title),
+::view-transition-group(post-cover) {
+  animation-duration: 280ms;
+  animation-timing-function: var(--ease-smooth-out);
+}
+
+html[data-nav-kind="post-shared"]::view-transition-old(page-content) {
+  animation: page-fade-out 280ms var(--ease-smooth-out) both;
+}
+
+html[data-nav-kind="post-shared"]::view-transition-new(page-content) {
+  animation: page-fade-in 280ms var(--ease-smooth-out) both;
+}
+
+::view-transition-old(post-cover),
+::view-transition-new(post-cover) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+}
+
+[data-post-cover-reveal],
+html[data-nav-kind="post-shared"]::view-transition-new(post-cover):only-child {
+  animation: page-fade-in 280ms var(--ease-smooth-out) both;
+}
+
+::view-transition-group(nav-active-pill) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--ease-in-out);
+}
+
+html[data-darkroom-transition]::view-transition-group(root) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-smooth-out);
+}
+
+/* 暗房 #121211 与亮/暗主题根背景交叉时保持线性溶变，避免正常混合掉亮 */
+html[data-darkroom-transition]::view-transition-old(root) {
+  animation: page-fade-out 300ms var(--ease-smooth-out) both;
+  mix-blend-mode: plus-lighter;
+}
+
+html[data-darkroom-transition]::view-transition-new(root) {
+  animation: page-fade-in 300ms var(--ease-smooth-out) both;
+  mix-blend-mode: plus-lighter;
+}
+
+@media (min-width: 768px) {
+  html[data-nav-kind="sibling"]::view-transition-group(page-content),
+  html[data-nav-kind="sibling"]::view-transition-old(page-content),
+  html[data-nav-kind="sibling"]::view-transition-new(page-content) {
+    animation-duration: 120ms;
+  }
+
+  html[data-nav-kind="post-shared"]::view-transition-group(page-content),
+  html[data-nav-kind="post-shared"]::view-transition-old(page-content),
+  html[data-nav-kind="post-shared"]::view-transition-new(page-content),
+  ::view-transition-group(post-title),
+  ::view-transition-group(post-cover),
+  [data-post-cover-reveal],
+  html[data-nav-kind="post-shared"]::view-transition-new(post-cover):only-child {
+    animation-duration: 200ms;
+  }
+
+  html[data-darkroom-transition]::view-transition-group(root),
+  html[data-darkroom-transition]::view-transition-old(root),
+  html[data-darkroom-transition]::view-transition-new(root) {
+    animation-duration: 220ms;
+  }
+}
+
+/* 主题切换时收起路由与共享元素独立快照，让整页共用 root 快照。 */
+.theme-wipe
+  :is(
+    [data-astro-transition-scope],
+    [data-astro-transition-persist],
+    [data-nav-active-pill],
+    [data-post-title],
+    [data-post-cover],
+    .nav-active-pill,
+    .post-title,
+    .post-cover,
+    [style*="view-transition-name"]
+  ) {
   view-transition-name: none !important;
 }
 
@@ -1079,10 +1299,10 @@ body:has([data-command-palette]) .dialog-backdrop {
 }
 
 .theme-wipe::view-transition-new(root) {
-  animation: theme-wipe 1000ms linear both;
+  animation: theme-wipe 700ms linear both;
 }
 
-/* 四分之一椭圆的两轴各占 65%，覆盖约 1/3 视口；25%–55% 停留 300ms。 */
+/* 四分之一椭圆的两轴各占 65%，覆盖约 1/3 视口；25%–55% 停留 210ms。 */
 @keyframes theme-wipe {
   0% {
     clip-path: ellipse(0% 0% at 100% 0%);
@@ -1103,7 +1323,13 @@ body:has([data-command-palette]) .dialog-backdrop {
     scroll-behavior: auto;
   }
 
-  .t-dropdown {
+  .sliding-pill {
+    will-change: auto;
+    transition: opacity var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .t-dropdown,
+  .t-dropdown[data-origin="top-right"] {
     transform: none;
     transition:
       opacity var(--duration-quick) var(--ease-smooth-out),
@@ -1111,9 +1337,49 @@ body:has([data-command-palette]) .dialog-backdrop {
     will-change: opacity;
   }
 
-  .dialog-popup {
+  .t-dropdown.is-open,
+  .t-dropdown[data-origin="top-right"].is-open {
+    transform: none;
+    transition:
+      opacity var(--duration-quick) var(--ease-smooth-out) 0s,
+      visibility 0s 0s;
+  }
+
+  .t-dropdown .t-dropdown-item,
+  .t-dropdown.is-open .t-dropdown-item,
+  .t-dropdown.is-open .t-dropdown-item:active {
+    transform: none;
     scale: 1;
+    transition:
+      opacity var(--duration-quick) var(--ease-smooth-out) 0ms,
+      background-color var(--duration-quick) var(--ease-smooth-out) 0ms,
+      color var(--duration-quick) var(--ease-smooth-out) 0ms;
+  }
+
+  .dialog-backdrop,
+  .dialog-popup,
+  .dialog-popup[data-command-palette][data-search-source="pointer"],
+  body:has([data-command-palette][data-search-source="pointer"]) .dialog-backdrop {
     transition: opacity var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  body:has([data-command-palette][data-search-source="pointer"])
+    .dialog-backdrop[data-ending-style],
+  .dialog-popup[data-command-palette][data-search-source="pointer"][data-ending-style] {
+    transition-duration: var(--duration-quick);
+    transition-timing-function: var(--ease-smooth-out);
+  }
+
+  .dialog-popup,
+  .dialog-popup[data-starting-style],
+  .dialog-popup[data-ending-style] {
+    scale: 1;
+  }
+
+  @starting-style {
+    .dialog-popup {
+      scale: 1;
+    }
   }
 
   .site-logo {
@@ -1133,20 +1399,74 @@ body:has([data-command-palette]) .dialog-backdrop {
   }
 
   [data-smart-header] {
+    --smart-header-duration: var(--duration-quick);
+  }
+
+  .header-bar-main,
+  .header-bar-compact {
     transform: none !important;
-    transition: opacity var(--duration-quick) var(--ease-smooth-out);
     will-change: opacity;
   }
 
-  [data-smart-header][data-header-state="hidden"] {
-    transform: none !important;
-    opacity: 0;
+  html[data-nav-kind="sibling"]::view-transition-group(page-content),
+  html[data-nav-kind="post-shared"]::view-transition-group(page-content),
+  ::view-transition-group(post-title),
+  ::view-transition-group(post-cover),
+  ::view-transition-group(nav-active-pill) {
+    animation: none;
   }
 
-  [data-smart-header][data-header-state="revealed"],
-  [data-smart-header][data-header-state="pinned"],
-  [data-smart-header]:focus-within {
-    transform: none !important;
-    opacity: 1;
+  html[data-nav-kind="sibling"]::view-transition-old(page-content),
+  html[data-nav-kind="post-shared"]::view-transition-old(page-content),
+  ::view-transition-old(post-title),
+  ::view-transition-old(post-cover),
+  ::view-transition-old(nav-active-pill),
+  html[data-darkroom-transition]::view-transition-old(root) {
+    animation: page-fade-out var(--duration-quick) var(--ease-smooth-out) both;
+  }
+
+  html[data-nav-kind="sibling"]::view-transition-new(page-content),
+  html[data-nav-kind="post-shared"]::view-transition-new(page-content),
+  ::view-transition-new(post-title),
+  ::view-transition-new(post-cover),
+  ::view-transition-new(nav-active-pill),
+  html[data-darkroom-transition]::view-transition-new(root),
+  [data-post-cover-reveal],
+  html[data-nav-kind="post-shared"]::view-transition-new(post-cover):only-child {
+    animation: page-fade-in var(--duration-quick) var(--ease-smooth-out) both;
+  }
+
+  html[data-darkroom-transition]::view-transition-group(root) {
+    animation-duration: var(--duration-quick);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 639px) {
+  .dialog-popup[data-command-palette][data-search-source="pointer"]:is(
+      [data-starting-style],
+      [data-ending-style]
+    ) {
+    translate: 0 0;
+  }
+
+  @starting-style {
+    .dialog-popup[data-command-palette][data-search-source="pointer"] {
+      translate: 0 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 640px) {
+  .dialog-popup[data-command-palette][data-search-source="pointer"]:is(
+      [data-starting-style],
+      [data-ending-style]
+    ) {
+    transform: none;
+  }
+
+  @starting-style {
+    .dialog-popup[data-command-palette][data-search-source="pointer"] {
+      transform: none;
+    }
   }
 }
