@@ -267,25 +267,6 @@ export const projects: Project[] = [
       tags: ["Tools", "Web", "Video"],
     },
   },
-  {
-    id: "db-ferry",
-    name: "DB Ferry",
-    kind: "CLI",
-    summary: "在多种数据库之间稳定迁移数据。",
-    description:
-      "多数据库迁移 CLI 工具。通过声明式 task.toml 配置，在 Oracle、MySQL、PostgreSQL、SQLite 等数据库间流式传输数据，支持断点续传与批量校验。",
-    logo: "/projects/db-ferry.svg",
-    background: "/projects/backgrounds/db-ferry.webp",
-    url: "https://db-ferry.xingkaixin.me",
-    tags: ["CLI", "数据库"],
-    en: {
-      kind: "CLI",
-      summary: "Move data reliably between databases.",
-      description:
-        "A multi-database migration CLI. A declarative task.toml config streams data between Oracle, MySQL, PostgreSQL, SQLite and other databases, with resumable transfers and batch verification.",
-      tags: ["CLI", "Database"],
-    },
-  },
 ];
 
 const englishLinkLabels: Record<string, string> = { 网站: "Website" };
