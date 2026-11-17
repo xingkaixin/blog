@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.12"
-# dependencies = ["fonttools[woff]==4.60.1", "playwright==1.64.1"]
+# dependencies = ["fonttools[woff]==4.68.0", "playwright==1.65.2"]
 # ///
 """按站点实际渲染的字符、字重与 OpenType 特性裁剪网页字体，每个字体拆成核心与扩展两个文件。
 
