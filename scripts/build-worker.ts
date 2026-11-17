@@ -4,8 +4,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import config from "../cloudflare.config";
 
-const output = path.resolve(".cloudflare/output/v0");
-const workerDirectory = path.join(output, "workers/default");
+const output = path.resolve(".cloudflare/output");
+const workerDirectory = path.join(output, "v1/workers/default");
 const { worker, ...settings } = config;
 const { entrypoint, ...workerConfig } = worker;
 
@@ -35,7 +35,7 @@ await fs.writeFile(
   }),
 );
 await fs.writeFile(
-  path.join(output, "config.json"),
-  JSON.stringify({ ...settings, buildContext: { isPreview: false } }),
+  path.join(output, "v1/config.json"),
+  JSON.stringify({ settings, buildContext: { isPreview: false } }),
 );
 console.log("✅ 生成 Workers 部署产物（cf deploy --prebuilt）");

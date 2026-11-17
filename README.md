@@ -91,7 +91,7 @@ uv run scripts/subset-fonts.py  # 按 dist/ 实际用字重新裁剪网页字体
 ## 部署
 
 默认部署目标是 Cloudflare Workers。使用 mise 全局安装的 `cf`（已验证
-`1.0.0-beta.12`），不将 CLI 安装为项目依赖。完成 `cf auth login` 后运行：
+`1.0.0-rc.0`），不将 CLI 安装为项目依赖。完成 `cf auth login` 后运行：
 
 ```bash
 bun run deploy
@@ -99,7 +99,7 @@ bun run deploy
 
 该命令先验证照片目录、执行完整构建，再通过 `cf deploy --prebuilt` 发布到 `blog` Worker。
 `cloudflare.config.ts` 管理 Worker 配置；`scripts/build-worker.ts` 使用 Bun 打包
-`src/worker.ts`，将 `dist/` 和 Worker 写入 `.cloudflare/output/v0/`。
+`src/worker.ts`，将 `dist/` 和 Worker 写入 `.cloudflare/output/v1/`。
 `dist/` 仍是纯静态产物，Worker 负责 HTML／Markdown 内容协商与发现响应头。
 
 正式域名为 `xingkaixin.me`、`www.xingkaixin.me` 和 `blog.xingkaixin.me`；
