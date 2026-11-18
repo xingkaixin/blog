@@ -9,7 +9,12 @@ import { formatCalendarDate } from "../src/lib/calendar-date";
 import type { Locale } from "../src/lib/i18n";
 import type { PublishedPost } from "../src/lib/published-post";
 import { siteConfig, siteCopy } from "../src/lib/site";
-import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./lib/artifact-reconciler";
+import {
+  fingerprint,
+  reconcileArtifacts,
+  withArtifactDirectoryLock,
+  type ArtifactPlan,
+} from "./lib/artifact-reconciler";
 import { readPublishedPosts } from "./lib/post-catalog";
 
 const ROOT = process.cwd();
@@ -344,7 +349,7 @@ async function generateOgImages() {
   });
 }
 
-const result = await generateOgImages();
+const result = await withArtifactDirectoryLock(OUTPUT_DIR, generateOgImages);
 console.log(
   `✅ OG 图片：生成 ${result.generated}，跳过 ${result.reused}，清理 ${result.removed}: ${OUTPUT_DIR}`,
 );

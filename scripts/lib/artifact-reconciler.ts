@@ -1,7 +1,9 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
+import { withFileLock } from "./file-lock";
 
 const MANIFEST_VERSION = 2;
 
@@ -36,6 +38,17 @@ export type ReconcileArtifactsResult = {
   reused: number;
   removed: number;
 };
+
+export async function withArtifactDirectoryLock<T>(
+  outputDirectory: string,
+  generate: () => Promise<T>,
+): Promise<T> {
+  fs.mkdirSync(outputDirectory, { recursive: true });
+  // 锁放在公开目录外，避免构建时被复制到站点。
+  const directoryId = fingerprint([fs.realpathSync(outputDirectory)]);
+  const lock = path.join(os.tmpdir(), `blog-images-${directoryId}.lock`);
+  return withFileLock(lock, generate, 120_000);
+}
 
 export async function reconcileArtifacts(
   options: ReconcileArtifactsOptions,

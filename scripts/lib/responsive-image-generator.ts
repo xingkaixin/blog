@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   fingerprint,
   reconcileArtifacts,
+  withArtifactDirectoryLock,
   type ArtifactPlan,
   type ReconcileArtifactsResult,
 } from "./artifact-reconciler";
@@ -60,7 +61,16 @@ type GenerateResponsiveImagesResult<Key extends string> = ReconcileArtifactsResu
   images: Array<GeneratedResponsiveImage<Key>>;
 };
 
-export async function generateResponsiveImageSet<Key extends string>(
+export function generateResponsiveImageSet<Key extends string>(
+  options: ResponsiveImageSetOptions,
+  specification: ResponsiveImageSetSpecification<Key>,
+): Promise<ReconcileArtifactsResult> {
+  return withArtifactDirectoryLock(options.outputDirectory, () =>
+    writeResponsiveImageSet(options, specification),
+  );
+}
+
+async function writeResponsiveImageSet<Key extends string>(
   options: ResponsiveImageSetOptions,
   specification: ResponsiveImageSetSpecification<Key>,
 ): Promise<ReconcileArtifactsResult> {
