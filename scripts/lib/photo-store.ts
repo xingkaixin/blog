@@ -9,7 +9,6 @@ import {
   S3Client,
   type PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
-import { withFileLock } from "./file-lock";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
 
 export type PhotoObjectBody = string | Uint8Array;
@@ -142,7 +141,7 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
 
   async put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string> {
     const target = await resolveSafeObjectPath(this.rootDirectory, key, true);
-    return withFileLock(`${target}.lock`, async () => {
+    return withObjectLock(target, async () => {
       const currentTarget = await resolveSafeObjectPath(this.rootDirectory, key, true);
       const currentVersion = await readFileVersion(currentTarget);
       if (currentVersion !== options.expectedVersion) {
@@ -260,6 +259,36 @@ async function readFileVersion(target: string): Promise<string | null> {
     }
     throw error;
   }
+}
+
+async function withObjectLock<T>(target: string, operation: () => Promise<T>): Promise<T> {
+  const lock = `${target}.lock`;
+  const retryDelayMs = 20;
+  const maximumAttempts = 250;
+
+  for (let attempt = 0; attempt < maximumAttempts; attempt += 1) {
+    const handle = await fs.open(lock, "wx").catch((error: unknown) => {
+      if (isNodeError(error) && error.code === "EEXIST") {
+        return null;
+      }
+      throw error;
+    });
+    if (!handle) {
+      // 锁龄不能证明持有者已退出，慢写入或进程暂停时仍必须保持互斥。
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      continue;
+    }
+    try {
+      return await operation();
+    } finally {
+      await handle.close();
+      await fs.rm(lock, { force: true });
+    }
+  }
+
+  throw new Error(
+    `等待对象锁超时: ${lock}；请等待当前写入完成。若锁为异常退出遗留，确认所有写入进程已退出后再删除此锁文件重试`,
+  );
 }
 
 function objectVersion(body: PhotoObjectBody): string {

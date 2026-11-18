@@ -2,7 +2,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { fingerprint, reconcileArtifacts, type ArtifactPlan } from "./artifact-reconciler";
+import {
+  fingerprint,
+  reconcileArtifacts,
+  withArtifactDirectoryLock,
+  type ArtifactPlan,
+} from "./artifact-reconciler";
 
 const temporaryDirectories: string[] = [];
 
@@ -13,6 +18,36 @@ afterEach(() => {
 });
 
 describe("artifact reconciliation", () => {
+  it("waits for the current build and acquires its lock after interruption", async () => {
+    const root = temporaryDirectory();
+    const output = path.join(root, "public", "cover");
+    const module = JSON.stringify(import.meta.resolve("./artifact-reconciler.ts"));
+    const holdLock = `
+      import { withArtifactDirectoryLock } from ${module};
+      await withArtifactDirectoryLock(process.argv[1], async () => {
+        console.log("locked");
+        await Bun.sleep(30_000);
+      });
+    `;
+    const child = Bun.spawn([process.execPath, "-e", holdLock, output], {
+      env: { ...process.env, TMPDIR: root },
+      stdout: "pipe",
+    });
+
+    try {
+      const ready = await child.stdout.getReader().read();
+      expect(new TextDecoder().decode(ready.value).trim()).toBe("locked");
+      const acquired = withArtifactDirectoryLock(output, async () => "acquired");
+      const beforeInterrupt = await Promise.race([acquired, Bun.sleep(100).then(() => "waiting")]);
+      expect(beforeInterrupt).toBe("waiting");
+      child.kill("SIGINT");
+      await expect(acquired).resolves.toBe("acquired");
+    } finally {
+      child.kill();
+      await child.exited;
+    }
+  });
+
   it("reuses matching outputs and removes orphan artifacts", async () => {
     const root = temporaryDirectory();
     const outputDirectory = path.join(root, "output");

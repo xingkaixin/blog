@@ -1,9 +1,8 @@
+import { Database, SQLiteError } from "bun:sqlite";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
-import { withFileLock } from "./file-lock";
 
 const MANIFEST_VERSION = 2;
 
@@ -44,10 +43,31 @@ export async function withArtifactDirectoryLock<T>(
   generate: () => Promise<T>,
 ): Promise<T> {
   fs.mkdirSync(outputDirectory, { recursive: true });
-  // 锁放在公开目录外，避免构建时被复制到站点。
-  const directoryId = fingerprint([fs.realpathSync(outputDirectory)]);
-  const lock = path.join(os.tmpdir(), `blog-images-${directoryId}.lock`);
-  return withFileLock(lock, generate, 120_000);
+  const directory = fs.realpathSync(outputDirectory);
+  // 公开图片的锁属于站点缓存；自定义输出目录使用旁边的缓存。
+  const publicAt = directory.lastIndexOf(`${path.sep}public${path.sep}`);
+  const root = publicAt < 0 ? path.dirname(directory) : directory.slice(0, publicAt + 1);
+  const cache = path.join(root, ".cache", "image-locks");
+  fs.mkdirSync(cache, { recursive: true });
+
+  // SQLite 的写锁随连接或进程退出而释放，Ctrl+C 后可直接重跑。
+  using db = new Database(path.join(cache, `${fingerprint([directory])}.sqlite`));
+  const deadline = Date.now() + 120_000;
+  for (;;) {
+    try {
+      db.exec("BEGIN IMMEDIATE");
+      break;
+    } catch (error) {
+      if (!(error instanceof SQLiteError) || error.code !== "SQLITE_BUSY") {
+        throw error;
+      }
+      if (Date.now() >= deadline) {
+        throw new Error(`等待图片生成超时: ${directory}`, { cause: error });
+      }
+      await Bun.sleep(50);
+    }
+  }
+  return await generate();
 }
 
 export async function reconcileArtifacts(
