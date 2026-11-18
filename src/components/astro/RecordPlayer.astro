@@ -203,6 +203,9 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
           const elapsed = (now - bStart) / 1000;
           while (bCue < invertedVariation.length && invertedVariation[bCue].time - originTime <= elapsed) {
             const note = invertedVariation[bCue++];
+            if (elapsed - (note.time - originTime) >= 0.25) {
+              continue;
+            }
             synth.piano.play(note.midi, synth.context.currentTime + 0.01, Math.min(1.8, note.duration), note.velocity);
             announce("record-note", {
               midi: note.midi,

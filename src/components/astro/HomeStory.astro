@@ -106,7 +106,7 @@ const deferredSprites = await Promise.all(
         </div>
         <AboutIntro />
         <p class="intro-extra">{t.room.extra}</p>
-        <button type="button" class="motto" data-motto-toggle aria-pressed="false" aria-label={t.room.mottoFlipLabel}>
+        <button type="button" class="motto" data-motto-toggle aria-pressed="false" aria-description={t.room.mottoFlipLabel}>
           <span data-motto-a>{siteCopy[locale].motto}</span>
           <span data-motto-b hidden>{t.room.mottoBSide}</span>
         </button>
