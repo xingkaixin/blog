@@ -8,9 +8,6 @@ type Props = {
 const { items } = Astro.props;
 ---
 
-{
-  items.length > 0 && (
-    <>
       <div
         data-toc-scroll
         class="hidden border-l border-line px-5 py-4 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
@@ -21,7 +18,7 @@ const { items } = Astro.props;
           </p>
           <ul data-toc-highlight-list class="space-y-1"></ul>
         </div>
-        <nav data-toc-track class="relative space-y-0.5 pl-4">
+        <nav hidden={!items.length} data-toc-track class="relative space-y-0.5 pl-4">
           <span data-toc-dot aria-hidden="true" class="pointer-events-none absolute left-0 top-0 size-1.5 rounded-full bg-accent opacity-0" />
           {items.map((item) => (
             <a
@@ -48,7 +45,7 @@ const { items } = Astro.props;
           </p>
           <ul data-toc-highlight-list class="space-y-1"></ul>
         </div>
-        <nav class="mt-3 space-y-0.5 border-t border-line pt-3">
+        <nav hidden={!items.length} class="mt-3 space-y-0.5 border-t border-line pt-3">
           {items.map((item) => (
             <a
               data-astro-reload
@@ -98,7 +95,16 @@ const { items } = Astro.props;
         }
 
         function renderHighlightBookmarks() {
+          const toc = document.querySelector<HTMLElement>("[data-post-toc]");
+          if (!toc) {
+            return;
+          }
           const highlights = orderedHighlightsForPage();
+          toc.hidden = !toc.querySelector("[data-toc-link]") && highlights.length === 0;
+          const shortcut = document.querySelector<HTMLButtonElement>("[data-compact-toc]");
+          if (shortcut) {
+            shortcut.hidden = toc.hidden;
+          }
           for (const section of document.querySelectorAll<HTMLElement>("[data-toc-highlights]")) {
             const list = section.querySelector<HTMLElement>("[data-toc-highlight-list]");
             const count = section.querySelector<HTMLElement>("[data-toc-highlight-count]");
@@ -539,6 +545,3 @@ const { items } = Astro.props;
         });
         initialize();
       </script>
-    </>
-  )
-}

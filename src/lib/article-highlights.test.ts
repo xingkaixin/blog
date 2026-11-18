@@ -6,6 +6,7 @@ import {
   clearAllHighlightMarks,
   createHighlightDraftFromRange,
   findHighlightRange,
+  findHighlightIdsInRange,
   HIGHLIGHT_ATTR,
   readHighlights,
   removeHighlights,
@@ -84,5 +85,39 @@ describe("article highlights", () => {
 
     clearAllHighlightMarks(scope);
     expect(scope.querySelectorAll(`mark[${HIGHLIGHT_ATTR}]`)).toHaveLength(0);
+  });
+
+  it("keeps both occurrences of a phrase with identical surrounding text", () => {
+    const scope = document.createElement("article");
+    const paragraph = "a".repeat(24) + "访问时间" + "b".repeat(24);
+    scope.innerHTML = `<p>${paragraph}</p><p>${paragraph}</p>`;
+    document.body.append(scope);
+    for (const p of scope.querySelectorAll("p")) {
+      const range = document.createRange();
+      range.setStart(p.firstChild!, 24);
+      range.setEnd(p.firstChild!, 28);
+      addHighlight("/repeat", createHighlightDraftFromRange(scope, range)!);
+    }
+    expect(syncHighlightsInScope(scope, "/repeat")).toHaveLength(2);
+    expect([...scope.children].map((p) => p.querySelector("mark")?.textContent)).toEqual([
+      "访问时间",
+      "访问时间",
+    ]);
+  });
+
+  it("requires a shared character before removing a neighboring highlight", () => {
+    const scope = document.createElement("article");
+    scope.innerHTML = `before<mark ${HIGHLIGHT_ATTR}="saved">word</mark>after`;
+    document.body.append(scope);
+    const marked = scope.querySelector("mark")!.firstChild!;
+    const range = document.createRange();
+    range.setStart(marked, 4);
+    range.setEnd(scope.lastChild!, 3);
+    expect(findHighlightIdsInRange(scope, range)).toEqual([]);
+    range.setStart(marked, 3);
+    expect(findHighlightIdsInRange(scope, range)).toEqual(["saved"]);
+    range.setStart(scope.firstChild!, 2);
+    range.setEnd(marked, 0);
+    expect(findHighlightIdsInRange(scope, range)).toEqual([]);
   });
 });

@@ -1,12 +1,13 @@
 export type ArticleHighlight = {
   id: string;
   text: string;
+  start?: number;
   prefix: string;
   suffix: string;
   createdAt: string;
 };
 
-export type ArticleHighlightDraft = Pick<ArticleHighlight, "text" | "prefix" | "suffix">;
+export type ArticleHighlightDraft = Pick<ArticleHighlight, "text" | "prefix" | "suffix" | "start">;
 
 export const HIGHLIGHT_ATTR = "data-article-highlight";
 export const HIGHLIGHTS_CHANGED_EVENT = "site:highlights-changed";
@@ -40,6 +41,8 @@ function isValidHighlight(value: unknown): value is ArticleHighlight {
     item.id.length > 0 &&
     typeof item.text === "string" &&
     item.text.trim().length > 0 &&
+    (item.start === undefined ||
+      (typeof item.start === "number" && Number.isSafeInteger(item.start) && item.start >= 0)) &&
     typeof item.prefix === "string" &&
     typeof item.suffix === "string" &&
     typeof item.createdAt === "string"
@@ -79,7 +82,10 @@ export function addHighlight(path: string, draft: ArticleHighlightDraft): Articl
   const current = readHighlights(path);
   const existing = current.find(
     (item) =>
-      item.text === draft.text && item.prefix === draft.prefix && item.suffix === draft.suffix,
+      item.start === draft.start &&
+      item.text === draft.text &&
+      item.prefix === draft.prefix &&
+      item.suffix === draft.suffix,
   );
   if (existing) {
     return existing;
@@ -89,9 +95,7 @@ export function addHighlight(path: string, draft: ArticleHighlightDraft): Articl
       typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
         ? `hl-${crypto.randomUUID().slice(0, 8)}`
         : `hl-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-    text: draft.text,
-    prefix: draft.prefix,
-    suffix: draft.suffix,
+    ...draft,
     createdAt: new Date().toISOString(),
   };
   writeHighlights(path, [...current, created]);
@@ -204,6 +208,7 @@ export function createHighlightDraftFromRange(
   }
   return {
     text,
+    start,
     prefix: fullText.slice(Math.max(0, start - CONTEXT_CHARS), start),
     suffix: fullText.slice(end, end + CONTEXT_CHARS),
   };
@@ -211,13 +216,20 @@ export function createHighlightDraftFromRange(
 
 export function findHighlightRange(
   fullText: string,
-  entry: Pick<ArticleHighlight, "text" | "prefix" | "suffix">,
+  entry: ArticleHighlightDraft,
 ): { start: number; end: number } | null {
   if (!entry.text) {
     return null;
   }
+  const fullNeedle = `${entry.prefix}${entry.text}${entry.suffix}`;
+  if (
+    entry.start !== undefined &&
+    entry.start >= entry.prefix.length &&
+    fullText.startsWith(fullNeedle, entry.start - entry.prefix.length)
+  ) {
+    return { start: entry.start, end: entry.start + entry.text.length };
+  }
   if (entry.prefix || entry.suffix) {
-    const fullNeedle = `${entry.prefix}${entry.text}${entry.suffix}`;
     const exact = fullText.indexOf(fullNeedle);
     if (exact !== -1) {
       const start = exact + entry.prefix.length;
@@ -263,7 +275,13 @@ export function findHighlightIdsInRange(scope: HTMLElement, range: Range): strin
   const ids: string[] = [];
   const marks = scope.querySelectorAll<HTMLElement>(`mark[${HIGHLIGHT_ATTR}]`);
   for (const mark of marks) {
-    if (!range.intersectsNode(mark)) {
+    const text = mark.firstChild;
+    if (
+      !(text instanceof Text) ||
+      !range.intersectsNode(text) ||
+      (range.startContainer === text && range.startOffset === text.length) ||
+      (range.endContainer === text && range.endOffset === 0)
+    ) {
       continue;
     }
     const id = mark.getAttribute(HIGHLIGHT_ATTR);

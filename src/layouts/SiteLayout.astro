@@ -349,20 +349,15 @@ const pageTransition = {
                 <span class="min-w-0 flex-1 truncate text-center font-sans text-sm font-medium text-ink-800">
                   {compactHeader.title}
                 </span>
-                {compactHeader.hasToc ? (
-                  <button
-                    type="button"
-                    data-compact-toc
-                    class="inline-flex shrink-0 items-center gap-1 rounded-[6px] border border-line bg-paper px-2.5 py-1 font-mono text-[11px] text-ink-700 transition-colors hover:border-ink-300 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 lg:hidden pointer-coarse:min-h-9"
-                  >
-                    {locale === "en" ? "Contents" : "目录"}
-                  </button>
-                ) : (
-                  <span aria-hidden="true" class="w-12 shrink-0 lg:w-14" />
-                )}
-                {compactHeader.hasToc && (
-                  <span aria-hidden="true" class="hidden w-14 shrink-0 lg:block" />
-                )}
+                <button
+                  type="button"
+                  data-compact-toc
+                  hidden={!compactHeader.hasToc}
+                  class="peer inline-flex shrink-0 items-center gap-1 rounded-[6px] border border-line bg-paper px-2.5 py-1 font-mono text-[11px] text-ink-700 transition-colors hover:border-ink-300 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 lg:hidden pointer-coarse:min-h-9"
+                >
+                  {locale === "en" ? "Contents" : "目录"}
+                </button>
+                <span aria-hidden="true" class="hidden w-12 shrink-0 peer-[[hidden]]:block lg:block lg:w-14" />
               </div>
             )
           }
@@ -407,16 +402,6 @@ const pageTransition = {
 
       let headerController: SmartHeaderController | null = null;
 
-      function setupCompactToc() {
-        const button = document.querySelector<HTMLButtonElement>("[data-compact-toc]");
-        const toc = document.querySelector<HTMLElement>("[data-post-toc]");
-        if (!button) {
-          return;
-        }
-        button.hidden = !toc;
-        button.classList.toggle("hidden", !toc);
-      }
-
       document.addEventListener("click", (event) => {
         const button =
           event.target instanceof Element
@@ -442,7 +427,6 @@ const pageTransition = {
       function setupSmartHeader() {
         headerController?.destroy();
         headerController = null;
-        setupCompactToc();
 
         const header = document.querySelector<HTMLElement>("header[data-smart-header]");
         if (!header) {
