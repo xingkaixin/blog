@@ -40,6 +40,7 @@ export interface RecordNote {
   velocity: number;
   duration: number;
   jam: boolean;
+  bSide?: boolean;
 }
 
 export interface Song {
