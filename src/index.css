@@ -593,6 +593,24 @@ body {
   content: "";
 }
 
+.article-prose mark[data-article-highlight] {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-soft) 92%, transparent);
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding-inline: 0.1em;
+  border-bottom: 1.5px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  transition:
+    background-color var(--duration-fast) var(--ease-smooth-out),
+    border-color var(--duration-fast);
+}
+
+.article-prose mark[data-article-highlight][data-highlight-flash] {
+  background: color-mix(in srgb, var(--accent) 26%, var(--accent-soft));
+  border-bottom-color: var(--accent);
+}
+
 .print-references {
   display: none;
 }

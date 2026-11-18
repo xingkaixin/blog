@@ -76,11 +76,7 @@ const meta = {
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <div
       data-post-grid
-      class:list={[
-        "grid min-w-0 gap-x-8 gap-y-6 lg:items-start",
-        postMeta.toc.length && "lg:grid-cols-[minmax(0,860px)_260px] lg:justify-center",
-        !postMeta.toc.length && "mx-auto max-w-[860px]",
-      ]}
+      class="grid min-w-0 gap-x-8 gap-y-6 lg:items-start lg:justify-center"
     >
       <header
         class="order-1 min-w-0 border-b border-line pb-5 lg:col-start-1 lg:row-start-1"
@@ -227,13 +223,22 @@ const meta = {
         </div>
       </article>
 
-      {
-        postMeta.toc.length > 0 && (
-          <aside data-post-toc class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
-            <TocNav items={postMeta.toc} />
-          </aside>
-        )
-      }
+      <aside data-post-toc hidden={!postMeta.toc.length} class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
+        <TocNav items={postMeta.toc} />
+      </aside>
     </div>
   </section>
 </SiteLayout>
+
+<style>
+  [data-post-grid]:has(> aside[hidden]) {
+    margin-inline: auto;
+    max-width: 860px;
+  }
+
+  @media (min-width: 64rem) {
+    :where([data-post-grid]:has(> aside:not([hidden]))) {
+      grid-template-columns: minmax(0, 860px) 260px;
+    }
+  }
+</style>
