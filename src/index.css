@@ -27,6 +27,9 @@
   --accent-soft: #f6e3de;
   /* 胶片片边印字的琥珀色，两种主题共用 */
   --film: #c98a3a;
+  --pond-caption-paper: #f6e8cd;
+  --pond-caption-ink: #31291f;
+  --pond-glint: #e2fff2;
   --season-spring: #b96d86;
   --season-summer: #4c929e;
   --season-autumn: #c98a3a;

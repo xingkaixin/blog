@@ -1,0 +1,91 @@
+---
+import { Image } from "astro:assets";
+import comic from "@/assets/pond/fishing-for-a-programmer.webp";
+import { localeFromPath } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+import KoiPond from "./KoiPond.astro";
+
+const { comicAlt, caption } = homeMessages[localeFromPath(Astro.url.pathname)].pond;
+---
+
+<div class="ending" data-pond-ending>
+  <div class="track">
+    <div class="shot">
+      <div class="water"><KoiPond /></div>
+      <figure>
+        <Image src={comic} alt={comicAlt} widths={[480, 800, 1200, 1536]} sizes="(max-width: 767px) 100vw, min(100vw, 150vh)" loading="lazy" decoding="async" />
+        <figcaption>{caption}</figcaption>
+      </figure>
+      <svg class="waterline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <clipPath id="pond-reveal-mask" clipPathUnits="objectBoundingBox">
+            <path data-cut transform="translate(0,-.06)" d="M-.02,0 C.095,-.012 .171,.018 .293,.005 S.494,-.014 .617,.002 S.816,.017 1.02,-.003 V2 H-.02Z" />
+          </clipPath>
+        </defs>
+        <g data-glint opacity="0" fill="none" stroke="currentColor">
+          <path vector-effect="non-scaling-stroke" stroke-width="2" d="M-20,0 C95,-12 171,18 293,5 S494,-14 617,2 S816,17 1020,-3" />
+          <path vector-effect="non-scaling-stroke" opacity=".65" d="M110,9 Q176,20 260,13 M637,10 Q748,26 843,14" />
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<style>
+  .track, figure { position: relative; }
+  .water { height: var(--pond-height); }
+  .shot { background: var(--bg); }
+  figure { width: min(100%, calc(1.5 * var(--pond-height))); margin: 0 auto; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption {
+    position: absolute;
+    left: 50%;
+    bottom: 3.6%;
+    translate: -50% 0;
+    width: max-content;
+    max-width: 96%;
+    padding: 4px 12px;
+    border: 1px solid var(--ink-500);
+    border-radius: 2px;
+    background: var(--pond-caption-paper);
+    color: var(--pond-caption-ink);
+    font: 600 clamp(14px, 2vw, 23px)/1.5 var(--font-serif);
+    text-align: center;
+  }
+  .waterline { display: none; }
+  .ending[data-motion] { padding-bottom: var(--pond-inset); }
+  [data-motion] .track { height: calc(2.12 * var(--pond-height)); }
+  [data-motion] .shot {
+    position: sticky;
+    top: calc(var(--stage-top) + var(--pond-inset));
+    height: var(--pond-height);
+    overflow: hidden;
+    isolation: isolate;
+    --gutter-width: max(0px, calc((100% - 1.5 * var(--pond-height)) / 2));
+    clip-path: inset(0 calc(var(--gutter-width) * var(--framing, 0)));
+  }
+  [data-motion] .water {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .water[inert] :global(.pond-stage > :not(.pond-canvas)) { visibility: hidden; }
+  [data-wiping] .water {
+    clip-path: url(#pond-reveal-mask);
+    mask-image: var(--feather);
+    filter: sepia(calc(.83 * var(--grade))) hue-rotate(calc(9deg * var(--grade)))
+      saturate(calc(1 + .25 * var(--grade))) brightness(calc(1 - .39 * var(--grade)));
+  }
+  [data-motion] figure { top: 50%; translate: 0 -50%; }
+  [data-motion] figcaption { opacity: var(--caption-opacity, 0); }
+  [data-motion] .waterline {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: var(--pond-glint);
+    pointer-events: none;
+  }
+</style>

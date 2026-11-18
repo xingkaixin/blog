@@ -47,6 +47,9 @@ const zh = {
   pond: {
     title: "院子里的池塘",
     text: "片尾之后，到院子里坐一会儿。池子里有七尾锦鲤。",
+    comicAlt:
+      "岸上的程序员伸手去够绿色的「所有检查通过」标牌。顺着线看下去，拿着鱼竿的是一尾锦鲤。",
+    caption: "“别提竿，他还没点合并。”",
   },
   character: "卷发、圆眼镜的开心，悠闲地坐在沙发上，目光随着鼠标轻轻转动",
   characterAction: "拖动脸颊，松手回弹；也可以点击或按回车切换表情",
@@ -162,6 +165,9 @@ const en: HomeMessages = {
   pond: {
     title: "The pond in the yard",
     text: "After the credits, come sit in the yard for a while. Seven koi live in the pond.",
+    comicAlt:
+      "A programmer reaches for a green “All checks passed” badge. Underwater, a koi holds the other end of the fishing line.",
+    caption: "“Wait. He hasn’t clicked merge yet.”",
   },
   character:
     "Kaixin, with curly hair and round glasses, lounging on the sofa, eyes following your cursor",

@@ -7,7 +7,7 @@ import feifei from "@/assets/about/feifei-angel.png";
 import AboutCharacter from "./AboutCharacter.astro";
 import AboutIntro from "./AboutIntro.astro";
 import ContactCard from "./ContactCard.astro";
-import KoiPond from "./KoiPond.astro";
+import PondEnding from "./PondEnding.astro";
 import RecordPlayer from "./RecordPlayer.astro";
 import SiteCredits from "./SiteCredits.astro";
 import TravelWindow from "./TravelWindow.astro";
@@ -149,7 +149,7 @@ const deferredSprites = await Promise.all(
       <h2>{t.pond.title}</h2>
       <p>{t.pond.text}</p>
     </div>
-    <div class="pond-water"><KoiPond /></div>
+    <PondEnding />
   </section>
 </home-story>
 
@@ -292,11 +292,20 @@ const deferredSprites = await Promise.all(
   .credits-copy { display: flex; flex-direction: column; gap: 12px; width: 40%; }
   home-story[data-rolling] :global(.roll) { animation-play-state: running; }
 
-  .pond { display: flex; flex-direction: column; gap: 32px; }
-  .pond-copy { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
+  .scene.pond {
+    /* 保住 3:1 水面画布的宽度，也给 3:2 漫画留出完整画幅。 */
+    --pond-height: min(66.6667vw, max(33.4vw, calc(var(--stage-h) - 200px)));
+    --pond-inset: max(0px, calc((var(--stage-h) - var(--pond-height)) / 2));
+    padding: 0;
+  }
+  .pond-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: calc(var(--stage-h) - var(--pond-height));
+    padding: 96px var(--gutter) 32px;
+  }
   .pond-copy p { margin: 0; font-size: 14px; line-height: 23px; color: var(--ink-500); }
-  /* 池子世界是 3:1，取景框不能比它更扁，否则画布盖不满宽度 */
-  .pond-water { height: max(calc(var(--stage-h) * .6), 33.4vw); margin: auto calc(-1 * var(--gutter)) 0; }
 
   /* 脚本未运行时没有夜幕，夜景场景自己铺底色以保证文字可读 */
   home-story:not([data-ready]) .story-night { background: #0a0d0c; }
@@ -308,7 +317,8 @@ const deferredSprites = await Promise.all(
     .hello-copy, .credits-copy { width: 100%; margin-left: 0; }
     .rail, .cue, .intro-extra, .bubble::before { display: none; }
     .season-chip { top: 12px; right: 12px; }
-    .pond-water { height: calc(var(--stage-h) * .42); }
+    .scene.pond { --pond-height: min(66.6667vw, max(33.4vw, calc(var(--stage-h) * .42))); }
+    .pond-copy { padding: 48px 20px 32px; }
   }
 
   /* 手机横屏时页面两侧的留白取根背景色，地板同色才没有接缝 */
@@ -317,7 +327,6 @@ const deferredSprites = await Promise.all(
   }
 
   .room { padding-top: calc(var(--masthead-top) + var(--masthead-size) * 1.2 + 16px); }
-  .pond { padding-bottom: 0; }
 
   @media (prefers-reduced-motion: reduce) {
     .cue svg { animation: none; }
@@ -327,6 +336,7 @@ const deferredSprites = await Promise.all(
 </style>
 
 <script>
+  import { bindPondEnding } from "@/lib/pond-ending";
   import type { RecordNote } from "@/lib/home-score";
   import { isSeason, seasonAt } from "@/lib/season";
   import type { SeasonBackdrop } from "@/lib/season-backdrop";
@@ -421,6 +431,8 @@ const deferredSprites = await Promise.all(
       const scenes = [...this.querySelectorAll<HTMLElement>("[data-story-scene]")];
       const copies = scenes.map((scene) => scene.querySelector<HTMLElement>("[data-story-copy]")!);
       const links = [...this.querySelectorAll<HTMLAnchorElement>("[data-story-rail]")];
+      const castLayer = this.querySelector<HTMLElement>(".cast")!;
+      const renderPondEnding = bindPondEnding(this.querySelector<HTMLElement>("[data-pond-ending]")!);
       const cast = [...this.querySelectorAll<HTMLElement>("[data-sprite]")].map((element) => ({
         element,
         sprite: sprites[element.dataset.sprite!],
@@ -483,6 +495,11 @@ const deferredSprites = await Promise.all(
         frame = 0;
         const p = progress();
         const still = reducedMotion.matches;
+        const pastShore = Math.max(0, scrollY - tops[tops.length - 1]);
+        const shoreVisibility = 1 - smooth(0, window.innerHeight * 0.24, pastShore);
+        castLayer.style.opacity = String(shoreVisibility);
+        castLayer.inert = shoreVisibility === 0;
+        renderPondEnding(still, pastShore);
         if (p > 0 && deferred.length) {
           for (const image of deferred) {
             image.srcset = image.dataset.srcset!;
