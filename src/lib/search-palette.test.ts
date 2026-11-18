@@ -22,6 +22,9 @@ describe("search palette", () => {
     const group = buildSearchPalette("experiments", null, "en").find(
       ({ label }) => label === "Experiments",
     );
+    expect(group?.items).toContainEqual(
+      expect.objectContaining({ kind: "link", href: "/lab/desk/", reload: false }),
+    );
     expect(group?.items[0].title).toBe("Holiday Logo Workshop (Chinese)");
   });
 });
