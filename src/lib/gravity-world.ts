@@ -170,7 +170,7 @@ export function mountGravityWorld({
     });
   };
 
-  let drag: { constraint: Matter.Constraint; index: number } | null = null;
+  let drag: { constraint: Matter.Constraint; index: number; pointerId: number } | null = null;
   let frame = 0;
   let last = 0;
   let lag = 0;
@@ -195,20 +195,9 @@ export function mountGravityWorld({
     frame = requestAnimationFrame(tick);
   };
 
-  const toWorld = (
-    event: PointerEvent | React.PointerEvent,
-    halfWidth: number,
-    halfHeight: number,
-  ) => {
+  const toWorld = (event: PointerEvent | React.PointerEvent) => {
     const rect = container.getBoundingClientRect();
-    return clampBodyCenter(
-      event.clientX - rect.left,
-      event.clientY - rect.top,
-      halfWidth,
-      halfHeight,
-      width,
-      height,
-    );
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
 
   const grab = (event: React.PointerEvent, index: number) => {
@@ -217,7 +206,7 @@ export function mountGravityWorld({
       return;
     }
     event.currentTarget.setPointerCapture(event.pointerId);
-    const point = toWorld(event, item.halfWidth, item.halfHeight);
+    const point = toWorld(event);
     const constraint = Constraint.create({
       pointA: point,
       bodyB: item.body,
@@ -228,22 +217,21 @@ export function mountGravityWorld({
     });
     Composite.add(engine.world, constraint);
     Sleeping.set(item.body, false);
-    drag = { constraint, index };
+    drag = { constraint, index, pointerId: event.pointerId };
     getElement(index)?.setAttribute("data-dragging", "");
     onDraggingChange?.(index);
     start();
   };
 
   const onMove = (event: PointerEvent) => {
-    if (!drag) {
+    if (drag?.pointerId !== event.pointerId) {
       return;
     }
-    const item = items[drag.index];
-    drag.constraint.pointA = toWorld(event, item.halfWidth, item.halfHeight);
+    drag.constraint.pointA = toWorld(event);
   };
 
-  const onRelease = () => {
-    if (!drag) {
+  const onRelease = (event: PointerEvent) => {
+    if (drag?.pointerId !== event.pointerId) {
       return;
     }
     Composite.remove(engine.world, drag.constraint);

@@ -110,7 +110,7 @@ function SealChars({ seal }: { seal: string }) {
 
 export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const worldRef = useRef<GravityWorldHandle | null>(null);
   const pointerDownRef = useRef<{ x: number; y: number; index: number } | null>(null);
 
@@ -269,22 +269,27 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
             const isDragging = draggingIndex === index;
             const isSelected = selectedIndex === index;
             return (
-              <div
+              <button
+                type="button"
                 key={item.key}
                 ref={(el) => {
                   itemRefs.current[index] = el;
                 }}
                 onPointerDown={(event) => {
+                  if (!event.isPrimary) {
+                    return;
+                  }
                   pointerDownRef.current = { x: event.clientX, y: event.clientY, index };
                   worldRef.current?.grab(event, index);
                 }}
-                onPointerUp={(event) => {
+                onClick={(event) => {
                   const down = pointerDownRef.current;
                   pointerDownRef.current = null;
                   if (
-                    down &&
-                    down.index === index &&
-                    Math.hypot(event.clientX - down.x, event.clientY - down.y) < 5
+                    event.detail === 0 ||
+                    (down &&
+                      down.index === index &&
+                      Math.hypot(event.clientX - down.x, event.clientY - down.y) < 5)
                   ) {
                     setSelectedIndex(index);
                   }
@@ -298,7 +303,7 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                 )}
               >
                 {item.kind === "polaroid" && (
-                  <div
+                  <span
                     className={cn(
                       "flex h-full w-full flex-col rounded-[4px] border bg-surface p-1.5 pb-2.5 shadow-[var(--shadow-card)] transition-transform duration-150",
                       isDragging
@@ -317,11 +322,11 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                     <span className="mt-2 block text-center font-mono text-[10px] tracking-[0.14em] text-ink-600">
                       {item.label}
                     </span>
-                  </div>
+                  </span>
                 )}
 
                 {item.kind === "seal" && (
-                  <div
+                  <span
                     className={cn(
                       "flex h-full w-full items-center justify-center rounded-[6px] border-2 shadow-[var(--shadow-card)] transition-transform duration-150",
                       collectedStamps[item.id]
@@ -331,11 +336,11 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                     )}
                   >
                     <SealChars seal={item.seal} />
-                  </div>
+                  </span>
                 )}
 
                 {item.kind === "slip" && (
-                  <div
+                  <span
                     className={cn(
                       "flex h-full w-full items-center justify-between gap-2 rounded-[4px] border bg-surface px-2.5 py-1.5 shadow-[var(--shadow-card)] transition-transform duration-150",
                       isDragging
@@ -349,7 +354,7 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                     <span className="shrink-0 font-mono text-[9px] tracking-[0.08em] text-ink-400">
                       {item.tag}
                     </span>
-                  </div>
+                  </span>
                 )}
 
                 {item.kind === "sticker" && (
@@ -364,7 +369,7 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                     )}
                   />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
