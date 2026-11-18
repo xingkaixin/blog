@@ -25,6 +25,10 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Audit dependencies
-        run: bun audit
+        # The affected picomatch copies come from build and test tooling, outside the Worker request path.
+        # Remove this exception when a fixed release is available or the advisory is withdrawn.
+        run: |
+          echo "::warning title=Temporary audit exception::GHSA-fc5q-39xc-vjpf has no patched picomatch release. https://github.com/advisories/GHSA-fc5q-39xc-vjpf"
+          bun audit --ignore=GHSA-fc5q-39xc-vjpf
       - name: Validate source and production output
         run: bun run isok
