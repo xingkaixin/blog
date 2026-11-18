@@ -12,6 +12,8 @@
 
 ## 文章
 
+用户要求“润色”时，指出原文位置、问题和建议改法。等用户明确指定要改哪些地方，再修改正文。
+
 文章平铺在 `content/posts/`，不支持子目录，放进子目录会让构建报错。字段以 `post-schema.ts` 为准：
 
 ```yaml
@@ -61,6 +63,7 @@ draft: true # 可选，草稿不发布
 
 ## UI 约定
 
+- 有完整设计稿时，按稿完成整项改动，验证后一次交付。只有用户明确要求分阶段实施和验证时，才分阶段交付。
 - 颜色使用 `src/index.css` 中声明的主题 token。`@shadcn/lint` 不检查 `.astro` 模板和 CSS，这两处需要自己遵守。
 - 优先复用 `src/components/ui/` 中已有组件；只有存在真实变体时才使用 class-variance-authority。
 - 需要组合条件类名或调用方 `className` 时，复用 `src/lib/utils.ts` 的 `cn()`。
