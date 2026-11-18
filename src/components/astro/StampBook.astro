@@ -40,7 +40,7 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
               <span class="stamp-seal" style={`--tilt: ${[-7, 4, -3, 6, -5, 3, -4, 7, -2][index]}deg`}>
                 <span lang="zh-CN">{stamp.seal}</span>
               </span>
-              <span class="stamp-hint" data-stamp-hint>{t.hints[stamp.id]}</span>
+              <span class="stamp-hint" data-stamp-hint={t.hints[stamp.id]}>{t.hints[stamp.id]}</span>
             </li>
           ))
         }
@@ -341,9 +341,9 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
         for (const item of this.querySelectorAll<HTMLElement>("[data-stamp]")) {
           const date = collected[item.dataset.stamp as StampId];
           const hint = item.querySelector<HTMLElement>("[data-stamp-hint]");
-          if (date && hint) {
-            item.toggleAttribute("data-collected", true);
-            hint.textContent = date;
+          item.toggleAttribute("data-collected", Boolean(date));
+          if (hint) {
+            hint.textContent = date ?? hint.dataset.stampHint ?? "";
           }
         }
         const count = String(stamps.filter((stamp) => collected[stamp.id]).length);
@@ -514,6 +514,7 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
         },
         { signal },
       );
+      window.addEventListener("storage", render, { signal });
       window.addEventListener(THEME_TOGGLE_EVENT, () => collectStamp("flip"), { signal });
       window.addEventListener(OPEN_STAMPS_EVENT, openDialog, { signal });
       document.addEventListener(

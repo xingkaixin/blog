@@ -17,9 +17,9 @@ export const stamps = [
 export type StampId = (typeof stamps)[number]["id"];
 
 const STORAGE_KEY = "site-stamps";
+const stampKey = (id: StampId) => `${STORAGE_KEY}:${id}`;
 
-/** 已盖的章，值是盖章当天的本地日期。 */
-export function readStamps(): Partial<Record<StampId, string>> {
+function readLegacyStamps(): Partial<Record<StampId, string>> {
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
     return stored && typeof stored === "object" ? stored : {};
@@ -28,17 +28,32 @@ export function readStamps(): Partial<Record<StampId, string>> {
   }
 }
 
+/** 已盖的章，值是盖章当天的本地日期。 */
+export function readStamps(): Partial<Record<StampId, string>> {
+  const collected = readLegacyStamps();
+  try {
+    for (const { id } of stamps) {
+      const date = localStorage.getItem(stampKey(id));
+      if (date) {
+        collected[id] = date;
+      }
+    }
+  } catch {
+    // 浏览器禁止存储时，仍返回已读到的印章。
+  }
+  return collected;
+}
+
 export function collectStamp(id: StampId): void {
-  const collected = readStamps();
-  if (collected[id]) {
+  if (readStamps()[id]) {
     return;
   }
   const now = new Date();
-  collected[id] = [now.getFullYear(), now.getMonth() + 1, now.getDate()]
+  const date = [now.getFullYear(), now.getMonth() + 1, now.getDate()]
     .map((part) => String(part).padStart(2, "0"))
     .join("-");
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collected));
+    localStorage.setItem(stampKey(id), date);
   } catch {
     // 存不下来就不提示，否则每次进站都会重复盖同一枚章
     return;
