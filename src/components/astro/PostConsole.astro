@@ -60,15 +60,15 @@ const previewPost = posts[0];
         selected={latestYear}
         showCounts
       />
-      <div class="relative flex flex-1 flex-col gap-6">
-        <PostFilter
-          layout="desktop"
-          kind="tag"
-          label="标签"
-          options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
-          allLabel="全部"
-        />
+      <PostFilter
+        layout="desktop"
+        kind="tag"
+        label="标签"
+        options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
+        allLabel="全部"
+      />
 
+      <div class="relative flex flex-1 flex-col gap-6">
         <PageArtwork scene="writing" />
 
         <div class="mt-auto h-20"></div>
