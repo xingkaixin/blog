@@ -70,13 +70,15 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
 </style>
 
 <script>
-  import { homeSong, type RecordNote } from "@/lib/home-score";
+  import { buildInvertedVariation, pushPianoHistory } from "@/lib/home-playground";
+  import { homeSong, type RecordNote, type ScoreNote } from "@/lib/home-score";
   import { localeFromLang } from "@/lib/i18n";
   import { homeMessages } from "@/lib/messages/home";
   import type { Piano, createPiano as CreatePiano } from "@/lib/piano-synth";
   import { collectStamp } from "@/lib/stamps";
 
   const melody = homeSong.notes.filter((note) => note.hand === "melody");
+  const invertedVariation = buildInvertedVariation(homeSong.notes);
 
   class RecordPlayer extends HTMLElement {
     private cleanup?: () => void;
@@ -90,18 +92,40 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       const options = { signal: events.signal };
       const t = homeMessages[localeFromLang(document.documentElement.lang)].record;
       let requested = false;
+      let bSideActive = false;
       let attempt = 0;
       let fadeFrame = 0;
       let followFrame = 0;
+      let bSideFrame = 0;
       let cue = 0;
+      let bCue = 0;
+      let bStart = 0;
+      let bLastBeat = -1;
       let lastBeat = -1;
+      let motifHistory: number[] = [];
       let createPiano: typeof CreatePiano | undefined;
+      let pianoPromise: Promise<void> | undefined;
       let piano: Piano | undefined;
       let pianoContext: AudioContext | undefined;
       button.disabled = false;
 
       const announce = (type: string, detail: unknown) => {
         this.dispatchEvent(new CustomEvent(type, { bubbles: true, detail }));
+      };
+      const ensurePiano = async () => {
+        if (!createPiano) {
+          pianoPromise ??= import("@/lib/piano-synth").then((module) => {
+            createPiano = module.createPiano;
+          });
+          await pianoPromise;
+        }
+        if (events.signal.aborted || !createPiano) {
+          return null;
+        }
+        pianoContext ??= new AudioContext();
+        await pianoContext.resume();
+        piano ??= createPiano(pianoContext, 0.32);
+        return { piano, context: pianoContext };
       };
       // 按播放进度对照乐谱，把旋律音和拍点派发给页面上的动画
       const follow = () => {
@@ -128,27 +152,83 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         followFrame = requestAnimationFrame(follow);
       };
 
-      const show = (playing: boolean, message: string) => {
+      const show = (playing: boolean, message: string, bSide = false) => {
         this.toggleAttribute("data-playing", playing);
+        this.toggleAttribute("data-b-side", bSide);
         button.setAttribute("aria-pressed", String(playing));
-        button.setAttribute("aria-label", requested ? t.pause : t.play);
+        button.setAttribute("aria-label", requested || bSideActive ? t.pause : t.play);
         status.textContent = message;
       };
+      const stopBSide = () => {
+        bSideActive = false;
+        cancelAnimationFrame(bSideFrame);
+        bSideFrame = 0;
+      };
       const stop = () => {
+        requested = false;
+        stopBSide();
+        attempt++;
+        cancelAnimationFrame(fadeFrame);
+        cancelAnimationFrame(followFrame);
+        audio.pause();
+        show(false, audio.currentTime > 0 && !audio.ended ? t.toResume : t.toPlay, false);
+      };
+      const fail = () => {
+        stop();
+        show(false, t.failed, false);
+      };
+
+      const startBSide = async () => {
+        const synth = await ensurePiano();
+        if (!synth || events.signal.aborted) {
+          return;
+        }
         requested = false;
         attempt++;
         cancelAnimationFrame(fadeFrame);
         cancelAnimationFrame(followFrame);
         audio.pause();
-        show(false, audio.currentTime > 0 && !audio.ended ? t.toResume : t.toPlay);
-      };
-      const fail = () => {
-        stop();
-        show(false, t.failed);
+        stopBSide();
+        bSideActive = true;
+        bCue = 0;
+        bLastBeat = -1;
+        bStart = performance.now();
+        const originTime = (invertedVariation[0] as ScoreNote | undefined)?.time ?? 0;
+        show(true, t.toPause, true);
+
+        const stepBSide = (now: number) => {
+          if (!bSideActive || events.signal.aborted) {
+            return;
+          }
+          const elapsed = (now - bStart) / 1000;
+          while (bCue < invertedVariation.length && invertedVariation[bCue].time - originTime <= elapsed) {
+            const note = invertedVariation[bCue++];
+            synth.piano.play(note.midi, synth.context.currentTime + 0.01, Math.min(1.8, note.duration), note.velocity);
+            announce("record-note", {
+              midi: note.midi,
+              velocity: note.velocity,
+              duration: note.duration,
+              jam: false,
+              bSide: true,
+            } satisfies RecordNote);
+          }
+          const beat = Math.floor(homeSong.beatOf(elapsed + originTime));
+          if (beat !== bLastBeat) {
+            bLastBeat = beat;
+            announce("record-beat", beat);
+          }
+          const lastNote = invertedVariation.at(-1);
+          if (bCue >= invertedVariation.length && lastNote && elapsed > lastNote.time - originTime + 1.6) {
+            stop();
+            return;
+          }
+          bSideFrame = requestAnimationFrame(stepBSide);
+        };
+        bSideFrame = requestAnimationFrame(stepBSide);
       };
 
       button.addEventListener("click", async () => {
-        if (requested) {
+        if (requested || bSideActive) {
           stop();
           return;
         }
@@ -158,14 +238,14 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
           audio.load();
         }
         audio.volume = 0;
-        show(false, t.preparing);
+        show(false, t.preparing, false);
         try {
           // Start within the click gesture; fade in after the arm reaches the record.
           await audio.play();
           if (currentAttempt !== attempt) {
             return;
           }
-          show(true, t.toPause);
+          show(true, t.toPause, false);
           startFollowing();
           void import("@/lib/piano-synth").then((module) => {
             createPiano = module.createPiano;
@@ -203,6 +283,27 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
           .reduce((best, candidate) => (Math.abs(candidate - target) < Math.abs(best - target) ? candidate : best));
         piano.play(midi, pianoContext.currentTime + 0.005, 1.4, 0.52);
         announce("record-note", { midi, velocity: 0.52, duration: 0.5, jam: true } satisfies RecordNote);
+      }, options);
+      this.addEventListener("record-play-key", (event) => {
+        const { midi } = (event as CustomEvent<{ midi: number }>).detail;
+        void ensurePiano().then((synth) => {
+          if (!synth || events.signal.aborted) {
+            return;
+          }
+          synth.piano.play(midi, synth.context.currentTime + 0.005, 1.1, 0.56);
+          announce("record-note", {
+            midi,
+            velocity: 0.56,
+            duration: 0.45,
+            jam: true,
+            bSide: bSideActive,
+          } satisfies RecordNote);
+          const next = pushPianoHistory(motifHistory, midi);
+          motifHistory = next.history;
+          if (next.matched) {
+            void startBSide();
+          }
+        });
       }, options);
       audio.addEventListener("ended", stop, options);
       audio.addEventListener("ended", () => collectStamp("record"), options);

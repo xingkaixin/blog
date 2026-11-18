@@ -50,7 +50,6 @@ const deferredSprites = await Promise.all(
 <home-story>
   <div class="backdrop" aria-hidden="true">
     <div class="floor"></div>
-    <TravelWindow />
     <div class="masthead" data-story-masthead>
       <SignatureAnimation client:load className="mt-0 justify-start text-ink-800" fontSize="inherit" />
     </div>
@@ -59,6 +58,7 @@ const deferredSprites = await Promise.all(
   </div>
 
   <div class="cast">
+    <TravelWindow />
     <div class="sprite" data-sprite="sofa"><AboutCharacter /></div>
     {deferredSprites.map(({ name, sizes, image }) => (
       <img
@@ -73,7 +73,9 @@ const deferredSprites = await Promise.all(
         decoding="async"
       />
     ))}
-    <Image src={feifei} alt="" class="sprite" data-sprite="feifei" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
+    <button type="button" class="sprite sprite-feifei" data-sprite="feifei" aria-label={t.feifeiAction}>
+      <Image src={feifei} alt="" class="feifei-img" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
+    </button>
     <nav class="rail story-rail" aria-label={t.railLabel}>
       {scenes.map((scene, index) => (
         <a href={`#${scene.id}`} data-story-rail aria-current={index === 0 ? "step" : undefined}>
@@ -104,19 +106,39 @@ const deferredSprites = await Promise.all(
         </div>
         <AboutIntro />
         <p class="intro-extra">{t.room.extra}</p>
-        <figure class="motto"><blockquote>{siteCopy[locale].motto}</blockquote></figure>
+        <button type="button" class="motto" data-motto-toggle aria-pressed="false" aria-label={t.room.mottoFlipLabel}>
+          <span data-motto-a>{siteCopy[locale].motto}</span>
+          <span data-motto-b hidden>{t.room.mottoBSide}</span>
+        </button>
         <div class="record">
           <RecordPlayer />
-          <p class="record-copy">
+          <div class="record-copy">
             <span class="record-title" data-idle>{t.room.recordIdle}</span>
             <span class="record-title" data-active>{t.room.recordActive}</span>
+            <span class="record-title" data-bside>{t.room.recordBSide}</span>
             <span class="record-hint" data-idle>{t.room.recordHint}</span>
             <span class="record-hint" data-active>{t.room.recordJam}</span>
-            <span class="record-keys" aria-hidden="true">
-              {whiteKeys.map((midi) => <i data-key={midi}></i>)}
-              {blackKeys.map((midi) => <b data-key={midi} style={`--seam: ${(whiteKeys.indexOf(midi - 1) + 1) / whiteKeys.length}`}></b>)}
-            </span>
-          </p>
+            <span class="record-hint" data-bside>{t.room.recordBSideHint}</span>
+            <div class="record-keys" role="group" aria-label={t.room.pianoLabel}>
+              {whiteKeys.map((midi, index) => (
+                <button
+                  type="button"
+                  class:list={["key-white", index === whiteKeys.length - 1 && "key-last"]}
+                  data-key={midi}
+                  aria-label={`MIDI ${midi}`}
+                ></button>
+              ))}
+              {blackKeys.map((midi) => (
+                <button
+                  type="button"
+                  class="key-black"
+                  data-key={midi}
+                  aria-label={`MIDI ${midi}`}
+                  style={`--seam: ${(whiteKeys.indexOf(midi - 1) + 1) / whiteKeys.length}`}
+                ></button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
       <span class="cue" aria-hidden="true">
@@ -223,6 +245,11 @@ const deferredSprites = await Promise.all(
   [data-sprite="building"] { --hw: 56cqh; --hn: 22cqh; --bw: 4cqh; --bn: 2cqh; opacity: 0; }
   [data-sprite="photographer"] { --hw: 60cqh; --hn: 30cqh; --bw: -1cqh; --bn: 0px; opacity: 0; }
   [data-sprite="feifei"] { --xw: calc(68% + 28cqh); --xn: calc(56% + 9.6cqh); --hw: 27cqh; --hn: 9.5cqh; --bw: 4cqh; --bn: 2cqh; }
+  .sprite-feifei { padding: 0; border: 0; background: none; pointer-events: auto; cursor: pointer; }
+  .sprite-feifei:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 9999px; }
+  .feifei-img { display: block; height: 100%; width: auto; pointer-events: none; }
+  .cast :global(.float-paw) { position: absolute; top: 0; left: 0; color: var(--accent); opacity: 0; pointer-events: none; }
+  .cast :global(.float-paw svg) { display: block; width: 100%; height: 100%; }
 
   .rail { position: absolute; right: 20px; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: auto; }
   .rail a { display: flex; align-items: center; gap: 10px; height: 30px; color: var(--ink-400); font-size: 11px; font-weight: 500; }
@@ -258,24 +285,34 @@ const deferredSprites = await Promise.all(
   .status-pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9999px; background: var(--surface); color: var(--ink-500); font-size: 11px; font-weight: 500; }
   .status-pill > span { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); }
   .intro-extra { margin: 0; font-size: 15px; line-height: 27px; color: var(--ink-500); }
-  .motto { position: relative; align-self: flex-start; max-width: 420px; margin: 2px 0 0; padding: 16px 20px 16px 40px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); box-shadow: var(--shadow-card); rotate: -1.2deg; }
+  .motto { position: relative; align-self: flex-start; max-width: 420px; margin: 2px 0 0; padding: 16px 20px 16px 40px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); box-shadow: var(--shadow-card); rotate: -1.2deg; text-align: left; font: inherit; cursor: pointer; transition: rotate 220ms var(--ease-smooth-out), border-color 180ms; }
+  .motto:hover { border-color: var(--ink-300); }
+  .motto:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .motto[data-flipped="true"] { rotate: 1.4deg; border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
   .motto::before { content: ""; position: absolute; top: 12px; bottom: 12px; left: 22px; border-left: 1px dashed var(--ink-200); }
   .motto::after { content: ""; position: absolute; top: -9px; left: calc(50% - 32px); width: 64px; height: 18px; background: color-mix(in srgb, var(--accent) 20%, transparent); rotate: 2deg; }
-  .motto blockquote { margin: 0; font-size: 14px; line-height: 24px; color: var(--ink-700); }
+  .motto span { font-size: 14px; line-height: 24px; color: var(--ink-700); }
+  .motto span:not([hidden]) { display: block; }
   .record { position: relative; display: flex; align-items: flex-end; gap: 14px; }
   .record :global(.float-note) { position: absolute; top: 0; left: 0; color: var(--ink-400); opacity: 0; pointer-events: none; }
   .record :global(.float-note svg) { display: block; width: 100%; height: 100%; }
   .record-copy { display: flex; flex-direction: column; gap: 2px; margin: 0; padding-bottom: 6px; }
   .record-title { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-800); }
   .record-hint { font-size: 12px; line-height: 17px; color: var(--ink-500); }
-  .record [data-active], .record:has(record-player[data-playing]) [data-idle] { display: none; }
-  .record:has(record-player[data-playing]) [data-active] { display: inline; }
-  .record-keys { position: relative; display: none; width: 120px; height: 16px; margin-top: 4px; }
-  .record:has(record-player[data-playing]) .record-keys { display: flex; }
-  .record-keys i { flex: 1; border: 1px solid var(--ink-300); border-left-width: 0; background: var(--surface); }
-  .record-keys i:first-child { border-left-width: 1px; border-radius: 3px 0 0 3px; }
-  .record-keys i:last-of-type { border-radius: 0 3px 3px 0; }
-  .record-keys b { position: absolute; top: 0; left: calc(var(--seam) * 100% - 2.5px); width: 5px; height: 9px; border-radius: 0 0 1.5px 1.5px; background: var(--ink-700); }
+  .record [data-active],
+  .record [data-bside],
+  .record:has(record-player[data-playing]) [data-idle],
+  .record:has(record-player[data-playing][data-b-side]) [data-active] { display: none; }
+  .record:has(record-player[data-playing]:not([data-b-side])) [data-active],
+  .record:has(record-player[data-playing][data-b-side]) [data-bside] { display: inline; }
+  .record-keys { position: relative; display: flex; width: min(240px, 100%); height: 28px; margin-top: 6px; user-select: none; }
+  .key-white { flex: 1; padding: 0; border: 1px solid var(--ink-300); border-left-width: 0; background: var(--surface); cursor: pointer; transition: background-color 120ms ease-out; }
+  .key-white:first-child { border-left-width: 1px; border-radius: 3px 0 0 3px; }
+  .key-last { border-radius: 0 3px 3px 0; }
+  .key-black { position: absolute; top: 0; left: calc(var(--seam) * 100% - 4.5px); z-index: 1; width: 9px; height: 16px; padding: 0; border: 0; border-radius: 0 0 2px 2px; background: var(--ink-700); cursor: pointer; transition: background-color 120ms ease-out; }
+  .key-white:hover { background: var(--ink-50); }
+  .key-black:hover { background: var(--ink-800); }
+  .key-white:focus-visible, .key-black:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; z-index: 2; }
   .record-keys [data-lit] { background: var(--accent); }
   .cue { position: absolute; left: var(--gutter); bottom: 28px; display: inline-flex; align-items: center; gap: 8px; color: var(--ink-500); font-size: 12px; font-weight: 500; }
   .cue svg { width: 14px; height: 14px; animation: nudge 1.8s ease-in-out infinite; }
@@ -330,7 +367,7 @@ const deferredSprites = await Promise.all(
 
   @media (prefers-reduced-motion: reduce) {
     .cue svg { animation: none; }
-    .rail-label, .rail-dot { transition: none; }
+    .motto, .rail-label, .rail-dot, .key-white, .key-black { transition: none; }
     .season-chip:not([hidden]) { display: none; }
   }
 </style>
@@ -396,6 +433,8 @@ const deferredSprites = await Promise.all(
     '<svg viewBox="0 0 12 16" fill="currentColor"><ellipse cx="4.3" cy="12.6" rx="3.3" ry="2.4" transform="rotate(-22 4.3 12.6)"/><path d="M6.6 12.2V1.2h1.3c.3 1.6 1.4 2.5 2.4 3.5 1 1 1.5 2.4 1 4.4-.2-1.6-1-2.7-2.3-3.3-.5-.2-.8-.3-1.1-.3v6.7Z"/></svg>',
     '<svg viewBox="0 0 16 16" fill="currentColor"><ellipse cx="3.6" cy="13" rx="3.1" ry="2.3" transform="rotate(-22 3.6 13)"/><ellipse cx="11.8" cy="11.4" rx="3.1" ry="2.3" transform="rotate(-22 11.8 11.4)"/><path d="M5.8 12.6V3.4L15 1.6v9.4h-1.3V5.3L7.1 6.6v6Z"/></svg>',
   ];
+  const pawGlyph =
+    '<svg viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="5" r="1.4"/><circle cx="7.1" cy="3.6" r="1.4"/><circle cx="10.4" cy="4.4" r="1.4"/><circle cx="12.6" cy="6.8" r="1.3"/><path d="M5.2 10.6c0-1.9 1.6-3.2 3.4-3.2s3.1 1.4 3.1 3.1c0 1.4-.9 2.5-2.1 2.5-.8 0-1.2-.4-1.6-.4-.4 0-.8.4-1.5.4-.9 0-1.3-1-1.3-2.4Z"/></svg>';
 
   function between(min: number, max: number) {
     return min + Math.random() * (max - min);
@@ -438,6 +477,7 @@ const deferredSprites = await Promise.all(
         sprite: sprites[element.dataset.sprite!],
       }));
       const sofa = cast.find(({ element }) => element.dataset.sprite === "sofa")!.element;
+      const feifeiButton = cast.find(({ element }) => element.dataset.sprite === "feifei")?.element;
       const masthead = this.querySelector<HTMLElement>("[data-story-masthead]")!;
       const art = this.querySelector<HTMLElement>("[data-story-art]")!;
       const night = this.querySelector<HTMLElement>("[data-story-night]")!;
@@ -452,6 +492,9 @@ const deferredSprites = await Promise.all(
       // 开发时用 ?season=winter 预览其他季节
       const previewSeason = import.meta.env.DEV ? new URLSearchParams(location.search).get("season") : null;
       const season = isSeason(previewSeason) ? previewSeason : seasonAt(new Date());
+      const mottoToggle = this.querySelector<HTMLButtonElement>("[data-motto-toggle]");
+      const mottoA = mottoToggle?.querySelector<HTMLElement>("[data-motto-a]") ?? null;
+      const mottoB = mottoToggle?.querySelector<HTMLElement>("[data-motto-b]") ?? null;
       const recordPlayer = this.querySelector<HTMLElement>("record-player");
       const turntable = recordPlayer?.querySelector("button");
       const recordRow = this.querySelector<HTMLElement>(".record");
@@ -463,7 +506,9 @@ const deferredSprites = await Promise.all(
       let backdrop: SeasonBackdrop | null = null;
       let tap: { x: number; y: number } | null = null;
       let floatingNotes = 0;
+      let floatingPaws = 0;
       let lastKeyNote = 0;
+      let manualMottoFlipped: boolean | null = null;
       let seasonPaused = readSeasonPaused();
       let nightAmount = 0;
       let stageTop = 0;
@@ -513,7 +558,7 @@ const deferredSprites = await Promise.all(
           element.style.setProperty("--xw", `calc(${value[1]}% + ${value[2]}cqh)`);
           element.style.setProperty("--xn", `calc(${value[3]}% + ${value[4]}cqh)`);
           element.style.opacity = String(value[5]);
-          if (element.dataset.sprite === "sofa") {
+          if (element.dataset.sprite === "sofa" || element.dataset.sprite === "feifei") {
             element.inert = value[5] < 0.05;
           }
           element.style.transform = still ? "" : `translateY(${bob}px) rotate(${moving ? direction * 2 : 0}deg)`;
@@ -526,7 +571,9 @@ const deferredSprites = await Promise.all(
         } else {
           masthead.style.transform = still ? "" : `translateY(${-Math.min(p, 1) * 40}cqh)`;
         }
-        art.style.setProperty("--art-fade", String(1 - smooth(0.2, 0.7, p)));
+        const artFade = 1 - smooth(0.2, 0.7, p);
+        art.style.setProperty("--art-fade", String(artFade));
+        art.inert = artFade < 0.05;
         nightAmount = smooth(1.3, 1.75, p);
         night.style.opacity = String(nightAmount);
         backdrop?.setNight(nightAmount);
@@ -650,14 +697,14 @@ const deferredSprites = await Promise.all(
       this.addEventListener(
         "record-note",
         (event) => {
-          const { midi, velocity, duration, jam } = (event as CustomEvent<RecordNote>).detail;
+          const { midi, velocity, duration, jam, bSide } = (event as CustomEvent<RecordNote>).detail;
           lightKey(midi, Math.min(900, duration * 1000));
-          // 只跟一拍以上的长音，从键盘右端往右上飘，不压文字
+          // 只跟一拍以上的长音，从键盘右端往右上（或 B 面向右下）飘，不压文字
           if (!jam && keyboard && duration >= 0.6 && performance.now() - lastKeyNote >= 450) {
             lastKeyNote = performance.now();
             const lift = Math.min(1, Math.max(0, (midi - 64) / 24));
             const box = keyboard.getBoundingClientRect();
-            floatNote(box.right + 4, box.top - 2, between(26, 40), -(14 + lift * 22), 12, 2200);
+            floatNote(box.right + 4, box.top - 2, between(26, 40), (bSide ? 1 : -1) * (14 + lift * 22), 12, 2200);
           }
           const weight = Math.min(1, Math.max(0, (velocity - 0.45) / 0.47));
           if (jam) {
@@ -672,6 +719,97 @@ const deferredSprites = await Promise.all(
             const lift = Math.min(1, Math.max(0, (midi - 64) / 24));
             backdrop?.emit(record.x + Math.cos(angle) * record.radius, record.y + Math.sin(angle) * record.radius, lift, weight);
           }
+        },
+        { signal: events.signal },
+      );
+      keyboard?.addEventListener(
+        "click",
+        (event) => {
+          const key = (event.target as Element | null)?.closest<HTMLButtonElement>("[data-key]");
+          const midi = Number(key?.dataset.key);
+          if (!key || Number.isNaN(midi)) {
+            return;
+          }
+          recordPlayer?.dispatchEvent(new CustomEvent("record-play-key", { detail: { midi } }));
+        },
+        { signal: events.signal },
+      );
+      const isMottoFlipped = () => manualMottoFlipped ?? document.documentElement.dataset.theme === "dark";
+      const syncMotto = () => {
+        if (!mottoToggle || !mottoA || !mottoB) {
+          return;
+        }
+        const flipped = isMottoFlipped();
+        mottoToggle.setAttribute("aria-pressed", String(flipped));
+        mottoToggle.setAttribute("data-flipped", String(flipped));
+        mottoA.hidden = flipped;
+        mottoB.hidden = !flipped;
+      };
+      syncMotto();
+      const themeObserver = new MutationObserver(() => {
+        manualMottoFlipped = null;
+        syncMotto();
+      });
+      themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      mottoToggle?.addEventListener(
+        "click",
+        () => {
+          manualMottoFlipped = !isMottoFlipped();
+          syncMotto();
+        },
+        { signal: events.signal },
+      );
+      const floatPaw = (x: number, y: number, dx: number, dy: number, size: number) => {
+        if (reducedMotion.matches || floatingPaws >= 6) {
+          return;
+        }
+        const layer = castLayer.getBoundingClientRect();
+        const paw = document.createElement("span");
+        paw.className = "float-paw";
+        paw.setAttribute("aria-hidden", "true");
+        paw.innerHTML = pawGlyph;
+        paw.style.width = paw.style.height = `${size}px`;
+        castLayer.append(paw);
+        floatingPaws++;
+        const done = () => {
+          paw.remove();
+          floatingPaws--;
+        };
+        const left = x - layer.left;
+        const top = y - layer.top;
+        const tilt = between(-18, 18);
+        paw
+          .animate(
+            [
+              { transform: `translate(${left}px, ${top}px) rotate(${tilt}deg) scale(0.6)`, opacity: 0 },
+              {
+                transform: `translate(${left + dx * 0.45}px, ${top + dy * 0.45}px) rotate(${tilt * 0.4}deg) scale(1)`,
+                opacity: 0.75,
+                offset: 0.3,
+              },
+              { transform: `translate(${left + dx}px, ${top + dy}px) rotate(${-tilt * 0.5}deg) scale(0.85)`, opacity: 0 },
+            ],
+            { duration: 900, easing: "cubic-bezier(.22, 1, .36, 1)" },
+          )
+          .finished.then(done, done);
+      };
+      feifeiButton?.addEventListener(
+        "click",
+        () => {
+          const box = feifeiButton.getBoundingClientRect();
+          if (!reducedMotion.matches) {
+            feifeiButton.animate(
+              [
+                { scale: "1 1" },
+                { scale: "1.08 0.92", offset: 0.2 },
+                { scale: "0.95 1.08", offset: 0.52 },
+                { scale: "1 1" },
+              ],
+              { duration: 380, easing: "cubic-bezier(.34, 1.56, .64, 1)" },
+            );
+          }
+          floatPaw(box.left + box.width * 0.38, box.top + box.height * 0.16, between(-18, -6), between(-34, -22), 14);
+          floatPaw(box.left + box.width * 0.62, box.top + box.height * 0.12, between(6, 18), between(-38, -24), 12);
         },
         { signal: events.signal },
       );
@@ -729,6 +867,7 @@ const deferredSprites = await Promise.all(
       });
       this.cleanup = () => {
         events.abort();
+        themeObserver.disconnect();
         resizeObserver.disconnect();
         cancelAnimationFrame(frame);
         keyTimers.forEach((timer) => clearTimeout(timer));

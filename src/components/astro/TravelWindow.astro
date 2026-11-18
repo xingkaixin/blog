@@ -8,43 +8,67 @@ import harbin from "@/assets/travel-window/scenes/harbin.webp";
 import hongKong from "@/assets/travel-window/scenes/hong-kong.webp";
 import kyoto from "@/assets/travel-window/scenes/kyoto.webp";
 import suzhou from "@/assets/travel-window/scenes/suzhou.webp";
+import { TRAVEL_STOPS, travelAlbumHref } from "@/lib/home-playground";
 import { localeFromPath } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
 
-const places = homeMessages[localeFromPath(Astro.url.pathname)].places;
+const locale = localeFromPath(Astro.url.pathname);
+const t = homeMessages[locale];
+const sceneImages = {
+  kyoto,
+  "hong-kong": hongKong,
+  bangkok,
+  chongqing,
+  suzhou,
+  harbin,
+} as const;
 const scenes = await Promise.all(
-  (
-    [
-      ["kyoto", kyoto],
-      ["hong-kong", hongKong],
-      ["bangkok", bangkok],
-      ["chongqing", chongqing],
-      ["suzhou", suzhou],
-      ["harbin", harbin],
-    ] as const
-  ).map(async ([id, src]) => {
-    const image = await getImage({ src, widths: [360, 720], format: "webp" });
-    return { name: places[id], src: image.src, srcset: image.srcSet.attribute };
+  TRAVEL_STOPS.map(async ({ id, km }) => {
+    const image = await getImage({ src: sceneImages[id], widths: [360, 720], format: "webp" });
+    return {
+      id,
+      name: t.places[id],
+      km,
+      albumHref: travelAlbumHref(id, locale),
+      src: image.src,
+      srcset: image.srcSet.attribute,
+    };
   }),
 );
 const frameImage = await getImage({ src: frame, widths: [420, 840], format: "webp" });
 const curtainImage = await getImage({ src: curtain, width: 400, format: "webp" });
 const [first] = scenes;
+const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" : "zh-CN");
 ---
 
-<travel-window data-story-art data-stamped data-scenes={JSON.stringify(scenes.map(({ src, srcset }) => ({ src, srcset })))}>
-  <!-- 窄屏不显示窗户，地址由脚本在宽屏时填入 -->
-  <div class="glass">
-    <img class="view" data-src={first.src} data-srcset={first.srcset} sizes="28vh" alt="" decoding="async" />
-    <canvas class="scenery" aria-hidden="true"></canvas>
+<travel-window
+  data-story-art
+  data-stamped
+  data-route-prefix={t.travel.routePrefix}
+  data-locale={locale}
+  data-scenes={JSON.stringify(scenes.map(({ id, name, km, albumHref, src, srcset }) => ({ id, name, km, albumHref, src, srcset })))}
+>
+  <button type="button" class="window-trigger" aria-label={t.travel.windowAction}>
+    <!-- 窄屏不显示窗户，地址由脚本在宽屏时填入 -->
+    <div class="glass">
+      <img class="view" data-src={first.src} data-srcset={first.srcset} sizes="28vh" alt="" decoding="async" />
+      <canvas class="scenery" aria-hidden="true"></canvas>
+    </div>
+    <img class="frame" data-src={frameImage.src} data-srcset={frameImage.srcSet.attribute} sizes="44vh" alt="" decoding="async" />
+    <span class="stamp">
+      <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="60" cy="60" r="56" stroke-width="3" /><circle cx="60" cy="60" r="48" stroke-width="1.2" stroke-dasharray="3 3" /></svg>
+      <!-- 地名全部写进页面，字体裁剪脚本才收集得到这些字 -->
+      {scenes.map((scene, index) => <span class="stamp-name" hidden={index > 0}>{scene.name}</span>)}
+    </span>
+    <canvas class="curtains" data-src={curtainImage.src}></canvas>
+  </button>
+  <div class="ticket-stub">
+    <div class="ticket-meta">
+      <span class="ticket-route" data-ticket-route>{t.travel.routePrefix} {first.name} · {formattedKm(first.km)} km</span>
+      <span class="ticket-progress" data-ticket-progress>{t.travel.stops(1, scenes.length)}</span>
+    </div>
+    <a class="ticket-link" data-ticket-link href={first.albumHref}>{t.travel.openRoll}</a>
   </div>
-  <img class="frame" data-src={frameImage.src} data-srcset={frameImage.srcSet.attribute} sizes="44vh" alt="" decoding="async" />
-  <span class="stamp">
-    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor"><circle cx="60" cy="60" r="56" stroke-width="3" /><circle cx="60" cy="60" r="48" stroke-width="1.2" stroke-dasharray="3 3" /></svg>
-    <!-- 地名全部写进页面，字体裁剪脚本才收集得到这些字 -->
-    {scenes.map((scene, index) => <span class="stamp-name" hidden={index > 0}>{scene.name}</span>)}
-  </span>
-  <canvas class="curtains" data-src={curtainImage.src}></canvas>
 </travel-window>
 
 <style>
@@ -57,22 +81,37 @@ const [first] = scenes;
     --rod-end: 10.5%;
     --curtain-w: 16.5%;
     position: absolute;
-    top: 8cqh;
+    top: 6cqh;
     /* 沙发中线 68% 右侧紧挨头部；右边给场景导航的标签留出位置 */
     left: calc(68% + 1cqh);
     width: min(44cqh, calc(32% - 1cqh - 110px));
-    aspect-ratio: 1;
     opacity: var(--art-fade, 1);
+    pointer-events: auto;
   }
-  :global([data-theme="dark"]) travel-window { filter: brightness(.82) saturate(.9); }
+  .window-trigger {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+  }
+  .window-trigger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+  :global([data-theme="dark"]) .window-trigger { filter: brightness(.82) saturate(.9); }
   .glass { position: absolute; inset: var(--glass-top) var(--glass-right) var(--glass-bottom) var(--glass-left); overflow: hidden; background: var(--ink-50); }
   .view { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .scenery { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
   travel-window[data-scenery-ready] .scenery { opacity: 1; }
   travel-window[data-scenery-ready] .view { visibility: hidden; }
-  .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   /* 左右外扩的 8% 与 travel-curtains.ts 的 curtainBleed 一致 */
-  .curtains { position: absolute; top: 0; left: -8%; width: 116%; height: 100%; }
+  .curtains { position: absolute; top: 0; left: -8%; width: 116%; height: 100%; pointer-events: none; }
   .stamp {
     position: absolute;
     right: calc(var(--rod-end) + var(--curtain-w) + 3%);
@@ -87,14 +126,71 @@ const [first] = scenes;
     scale: 1.4;
     rotate: -12deg;
     mix-blend-mode: multiply;
+    pointer-events: none;
     transition: opacity 200ms ease-out, scale 200ms ease-out;
   }
   .stamp svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .stamp-name { font-family: var(--font-display); font-size: 15cqi; line-height: 1; letter-spacing: .04em; white-space: nowrap; }
   travel-window[data-stamped] .stamp { opacity: .9; scale: 1; transition: opacity 120ms ease-out, scale 320ms var(--ease-smooth-out); }
+
+  .ticket-stub {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 7px 10px;
+    border: 1px dashed color-mix(in srgb, var(--pond-caption-ink) 28%, transparent);
+    border-radius: 6px;
+    background: var(--pond-caption-paper);
+    color: var(--pond-caption-ink);
+    box-shadow: var(--shadow-card);
+  }
+  .ticket-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 1px;
+  }
+  .ticket-route {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    line-height: 1.3;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ticket-progress {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.3;
+    opacity: .72;
+    font-variant-numeric: tabular-nums;
+  }
+  .ticket-link {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: filter var(--duration-quick) var(--ease-smooth-out);
+  }
+  .ticket-link:hover { filter: brightness(1.1); }
+  .ticket-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
   @media (prefers-reduced-motion: reduce) {
     travel-window[data-scenery-ready] .scenery { opacity: 0; }
     travel-window[data-scenery-ready] .view { visibility: visible; }
+  }
+  @media (max-width: 63.999rem) {
+    .ticket-stub { display: none; }
   }
   @media (max-width: 47.999rem) {
     travel-window { display: none; }
@@ -105,10 +201,10 @@ const [first] = scenes;
   import { createCurtains, type TravelCurtains } from "@/lib/travel-curtains";
   import { createTravelScenery, type TravelScenery } from "@/lib/travel-scenery";
   import { HOLD_DURATION_MS, RIDE_DURATION_MS, sampleTravelRide } from "@/lib/travel-window-motion";
+  import { homeMessages } from "@/lib/messages/home";
+  import type { Locale } from "@/lib/i18n";
 
-  type Scene = { src: string; srcset: string };
-
-  const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+  type Scene = { id: string; name: string; km: number; albumHref: string; src: string; srcset: string };
 
   class TravelWindow extends HTMLElement {
     private cleanup?: () => void;
@@ -116,10 +212,16 @@ const [first] = scenes;
     connectedCallback() {
       this.cleanup?.();
       const scenes = JSON.parse(this.dataset.scenes!) as Scene[];
+      const locale = (this.dataset.locale === "en" ? "en" : "zh") as Locale;
+      const tTravel = homeMessages[locale].travel;
+      const trigger = this.querySelector<HTMLButtonElement>(".window-trigger")!;
       const view = this.querySelector<HTMLImageElement>(".view")!;
       const sceneryCanvas = this.querySelector<HTMLCanvasElement>(".scenery")!;
       const curtainsCanvas = this.querySelector<HTMLCanvasElement>(".curtains")!;
       const names = [...this.querySelectorAll<HTMLElement>(".stamp-name")];
+      const ticketRoute = this.querySelector<HTMLElement>("[data-ticket-route]");
+      const ticketProgress = this.querySelector<HTMLElement>("[data-ticket-progress]");
+      const ticketLink = this.querySelector<HTMLAnchorElement>("[data-ticket-link]");
       const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
       const wide = matchMedia("(min-width: 48rem)");
       const events = new AbortController();
@@ -129,6 +231,7 @@ const [first] = scenes;
 
       let stopped = false;
       let index = 0;
+      const visited = new Set([scenes[0].id]);
       let scenery: TravelScenery | null = null;
       let sceneryInitialized = false;
       let curtains: TravelCurtains | null = null;
@@ -139,13 +242,39 @@ const [first] = scenes;
       let rideActive = false;
       let curtainsMoving = false;
       let rideResolve: (() => void) | null = null;
+      let wakeTimer: (() => void) | null = null;
+      let manualRequested = false;
+
+      const waitHold = () =>
+        new Promise<boolean>((resolve) => {
+          const timer = window.setTimeout(() => {
+            wakeTimer = null;
+            resolve(false);
+          }, HOLD_DURATION_MS);
+          wakeTimer = () => {
+            clearTimeout(timer);
+            wakeTimer = null;
+            resolve(true);
+          };
+        });
 
       const stampArrival = () => {
-        view.srcset = scenes[index].srcset;
-        view.src = scenes[index].src;
+        const current = scenes[index];
+        visited.add(current.id);
+        view.srcset = current.srcset;
+        view.src = current.src;
         names.forEach((name, stop) => {
           name.hidden = stop !== index;
         });
+        if (ticketRoute) {
+          ticketRoute.textContent = `${tTravel.routePrefix} ${current.name} · ${current.km.toLocaleString(locale === "en" ? "en-US" : "zh-CN")} km`;
+        }
+        if (ticketProgress) {
+          ticketProgress.textContent = tTravel.stops(visited.size, scenes.length);
+        }
+        if (ticketLink) {
+          ticketLink.href = current.albumHref;
+        }
         this.toggleAttribute("data-stamped", true);
       };
 
@@ -252,25 +381,43 @@ const [first] = scenes;
         { signal: events.signal },
       );
 
+      trigger.addEventListener(
+        "click",
+        () => {
+          if (rideActive) {
+            return;
+          }
+          manualRequested = true;
+          wakeTimer?.();
+        },
+        { signal: events.signal },
+      );
+
       // 页面隐藏、窄屏不显示、窗户随滚动淡出或要求减少动态时停在当前城市
       const idle = () =>
         document.hidden || reducedMotion.matches || !wide.matches || Number(getComputedStyle(this).opacity) < 0.05;
 
       const travel = async () => {
         while (!stopped) {
-          await wait(HOLD_DURATION_MS);
-          if (stopped || idle()) {
+          const manual = await waitHold();
+          manualRequested = manualRequested || manual;
+          if (stopped) {
+            return;
+          }
+          if (!manualRequested && idle()) {
             continue;
           }
+          const isManual = manualRequested;
+          manualRequested = false;
           index = (index + 1) % scenes.length;
           loader.srcset = scenes[index].srcset;
           loader.src = scenes[index].src;
           await loader.decode().catch(() => undefined);
-          if (stopped || idle()) {
+          if (stopped || (!isManual && idle())) {
             continue;
           }
           this.removeAttribute("data-stamped");
-          if (scenery !== null && scenery.prepareRide(loader)) {
+          if (!reducedMotion.matches && scenery !== null && scenery.prepareRide(loader)) {
             await new Promise<void>((resolve) => {
               rideStart = performance.now();
               rideActive = true;
@@ -296,6 +443,7 @@ const [first] = scenes;
       this.cleanup = () => {
         stopped = true;
         events.abort();
+        wakeTimer?.();
         finishActiveRide(true);
         scenery?.destroy();
         scenery = null;
