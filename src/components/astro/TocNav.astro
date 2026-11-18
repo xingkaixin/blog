@@ -15,6 +15,12 @@ const { items } = Astro.props;
         data-toc-scroll
         class="hidden border-l border-line px-5 py-4 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto"
       >
+        <div data-toc-highlights hidden class="mb-4 border-b border-line pb-3">
+          <p class="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-400">
+            我的划线 · <span data-toc-highlight-count>0</span>
+          </p>
+          <ul data-toc-highlight-list class="space-y-1"></ul>
+        </div>
         <nav data-toc-track class="relative space-y-0.5 pl-4">
           <span data-toc-dot aria-hidden="true" class="pointer-events-none absolute left-0 top-0 size-1.5 rounded-full bg-accent opacity-0" />
           {items.map((item) => (
@@ -36,6 +42,12 @@ const { items } = Astro.props;
         <summary class="cursor-pointer list-none font-mono text-[11px] text-ink-600">
           展开导览
         </summary>
+        <div data-toc-highlights hidden class="mt-3 border-t border-line pt-3">
+          <p class="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-400">
+            我的划线 · <span data-toc-highlight-count>0</span>
+          </p>
+          <ul data-toc-highlight-list class="space-y-1"></ul>
+        </div>
         <nav class="mt-3 space-y-0.5 border-t border-line pt-3">
           {items.map((item) => (
             <a
@@ -53,7 +65,77 @@ const { items } = Astro.props;
         </nav>
       </details>
       <script>
+        import {
+          HIGHLIGHT_ATTR,
+          HIGHLIGHTS_CHANGED_EVENT,
+          normalizeHighlightPath,
+          readHighlights,
+          removeHighlights,
+        } from "@/lib/article-highlights";
         import { getTocActiveOffset, resolveActiveTocId } from "@/lib/toc-active";
+
+        function orderedHighlightsForPage() {
+          const saved = readHighlights(location.pathname);
+          if (saved.length <= 1) {
+            return saved;
+          }
+          const scope = document.querySelector<HTMLElement>("[data-quote-scope]");
+          if (!scope) {
+            return saved;
+          }
+          const order = new Map<string, number>();
+          for (const mark of scope.querySelectorAll<HTMLElement>(`mark[${HIGHLIGHT_ATTR}]`)) {
+            const id = mark.getAttribute(HIGHLIGHT_ATTR);
+            if (id && !order.has(id)) {
+              order.set(id, order.size);
+            }
+          }
+          return saved.toSorted(
+            (a, b) =>
+              (order.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+              (order.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+          );
+        }
+
+        function renderHighlightBookmarks() {
+          const highlights = orderedHighlightsForPage();
+          for (const section of document.querySelectorAll<HTMLElement>("[data-toc-highlights]")) {
+            const list = section.querySelector<HTMLElement>("[data-toc-highlight-list]");
+            const count = section.querySelector<HTMLElement>("[data-toc-highlight-count]");
+            if (!list || !count) {
+              continue;
+            }
+            section.hidden = highlights.length === 0;
+            count.textContent = String(highlights.length);
+            list.replaceChildren(
+              ...highlights.map((item) => {
+                const li = document.createElement("li");
+                li.className = "flex items-start gap-1";
+
+                const jump = document.createElement("button");
+                jump.type = "button";
+                jump.dataset.highlightJump = item.id;
+                jump.className =
+                  "min-w-0 flex-1 rounded-[5px] px-2 py-1 text-left text-[12px] leading-[18px] text-ink-600 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+                const snippet = document.createElement("span");
+                snippet.className = "line-clamp-2 border-l-2 border-accent/60 pl-2";
+                snippet.textContent = item.text;
+                jump.appendChild(snippet);
+
+                const del = document.createElement("button");
+                del.type = "button";
+                del.dataset.highlightRemove = item.id;
+                del.setAttribute("aria-label", `删除划线：${item.text.slice(0, 20)}`);
+                del.className =
+                  "mt-1 shrink-0 rounded px-1.5 py-0.5 font-mono text-[11px] text-ink-400 transition-colors hover:bg-ink-100 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+                del.textContent = "×";
+
+                li.append(jump, del);
+                return li;
+              }),
+            );
+          }
+        }
 
         function keepActiveLinkVisible(container: HTMLElement, link: HTMLElement) {
           const containerRect = container.getBoundingClientRect();
@@ -212,6 +294,7 @@ const { items } = Astro.props;
             resizeObserver.observe(track);
           }
           previousActiveId = null;
+          renderHighlightBookmarks();
           scheduleUpdate();
         }
 
@@ -234,6 +317,12 @@ const { items } = Astro.props;
         window.addEventListener("keydown", finishNavigation);
         reducedMotion.addEventListener("change", alignDot);
         document.addEventListener("astro:page-load", initialize);
+        window.addEventListener(HIGHLIGHTS_CHANGED_EVENT, (event) => {
+          const detailPath = (event as CustomEvent<{ path?: string }>).detail?.path;
+          if (!detailPath || detailPath === normalizeHighlightPath(location.pathname)) {
+            renderHighlightBookmarks();
+          }
+        });
         type TocDetailsAnimation = {
           anim: Animation;
           closing: boolean;
@@ -376,6 +465,43 @@ const { items } = Astro.props;
           }
         });
         document.addEventListener("click", (event) => {
+          const jumpButton =
+            event.target instanceof Element ? event.target.closest<HTMLElement>("[data-highlight-jump]") : null;
+          if (jumpButton) {
+            const id = jumpButton.dataset.highlightJump;
+            const scope = document.querySelector<HTMLElement>("[data-quote-scope]");
+            if (id && scope) {
+              const marks = scope.querySelectorAll<HTMLElement>(`mark[${HIGHLIGHT_ATTR}="${CSS.escape(id)}"]`);
+              marks[0]?.scrollIntoView({
+                behavior: reducedMotion.matches ? "auto" : "smooth",
+                block: "center",
+              });
+              for (const mark of marks) {
+                mark.setAttribute("data-highlight-flash", "");
+              }
+              window.setTimeout(() => {
+                for (const mark of marks) {
+                  mark.removeAttribute("data-highlight-flash");
+                }
+              }, 900);
+            }
+            const details = jumpButton.closest("details");
+            if (details instanceof HTMLDetailsElement) {
+              setTocDetailsOpen(details, false);
+            }
+            return;
+          }
+
+          const removeButton =
+            event.target instanceof Element ? event.target.closest<HTMLElement>("[data-highlight-remove]") : null;
+          if (removeButton) {
+            const id = removeButton.dataset.highlightRemove;
+            if (id) {
+              removeHighlights(location.pathname, [id]);
+            }
+            return;
+          }
+
           const summary =
             event.target instanceof Element
               ? event.target.closest("[data-toc-mobile-details] > summary")
