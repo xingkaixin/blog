@@ -411,11 +411,12 @@ const dialogButton =
             button.disabled = true;
             try {
               const theme = document.documentElement.dataset.theme === "dark" ? "night" : "day";
-              const canvas = await renderQuoteCard({ quote, title, date, path, author, theme });
+              const cardQuote = quote;
+              const canvas = await renderQuoteCard({ quote: cardQuote, title, date, path, author, theme });
               // CSP 的 img-src 只放行 data:，预览和下载不能用 blob URL
               preview.src = canvas.toDataURL("image/png");
               card = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-              preview.alt = `金句卡：${quote}`;
+              preview.alt = `金句卡：${cardQuote}`;
               openDialog();
             } catch {
               flash(button, "生成失败");
