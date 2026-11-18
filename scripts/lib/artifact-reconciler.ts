@@ -44,14 +44,18 @@ export async function withArtifactDirectoryLock<T>(
 ): Promise<T> {
   fs.mkdirSync(outputDirectory, { recursive: true });
   const directory = fs.realpathSync(outputDirectory);
-  // 公开图片的锁属于站点缓存；自定义输出目录使用旁边的缓存。
+  // 公开目录会随站点部署，自定义输出也只应包含生成的图片。
   const publicAt = directory.lastIndexOf(`${path.sep}public${path.sep}`);
-  const root = publicAt < 0 ? path.dirname(directory) : directory.slice(0, publicAt + 1);
-  const cache = path.join(root, ".cache", "image-locks");
-  fs.mkdirSync(cache, { recursive: true });
+  const lockDirectory =
+    publicAt < 0
+      ? path.dirname(directory)
+      : path.join(directory.slice(0, publicAt + 1), ".cache", "image-locks");
+  fs.mkdirSync(lockDirectory, { recursive: true });
 
   // SQLite 的写锁随连接或进程退出而释放，Ctrl+C 后可直接重跑。
-  using db = new Database(path.join(cache, `${fingerprint([directory])}.sqlite`));
+  using db = new Database(
+    path.join(lockDirectory, `.image-lock-${fingerprint([directory])}.sqlite`),
+  );
   const deadline = Date.now() + 120_000;
   for (;;) {
     try {

@@ -69,6 +69,19 @@ describe("image generators", () => {
     expect(fs.existsSync(options.dataFile)).toBe(false);
   });
 
+  it("generates covers in a custom output directory named .cache", async () => {
+    const options = createCoverOptions();
+    options.outputDirectory = path.resolve(options.outputDirectory, "../../.cache");
+    fs.mkdirSync(options.sourceDirectory, { recursive: true });
+    await writeFixture(path.join(options.sourceDirectory, "demo.png"), "#00ff00", "png");
+    expect(await generateCovers(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
+    expect(fs.readdirSync(options.outputDirectory).toSorted()).toEqual([
+      "demo-400.webp",
+      "demo-800.webp",
+      "demo.webp",
+    ]);
+  });
+
   it("detects regenerated outputs missing from Git while ignoring unrelated files", async () => {
     const options = createCoverOptions();
     const root = path.resolve(options.outputDirectory, "../..");
