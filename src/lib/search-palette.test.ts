@@ -25,6 +25,9 @@ describe("search palette", () => {
     expect(group?.items).toContainEqual(
       expect.objectContaining({ kind: "link", href: "/lab/desk/", reload: false }),
     );
+    expect(group?.items).toContainEqual(
+      expect.objectContaining({ kind: "link", href: "/lab/shell/", reload: false }),
+    );
     expect(group?.items[0].title).toBe("Holiday Logo Workshop (Chinese)");
   });
 });

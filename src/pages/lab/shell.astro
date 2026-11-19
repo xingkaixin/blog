@@ -1,0 +1,22 @@
+---
+import { AgentShell } from "@/components/agent-shell";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getPublishedPosts } from "@/lib/astro-posts";
+import { siteConfig } from "@/lib/site";
+
+const posts = await getPublishedPosts();
+const featuredSlug = posts[0]?.id ?? "agent-harness-not-model";
+
+const meta = {
+  title: "Agent 终端漫游器",
+  description:
+    "在浏览器终端里直接用 ls、grep、cat、mcp call、fish 与 flip 漫游整座博客，现场调用本站 WebMCP 只读工具与 Markdown 原文。",
+  url: `${siteConfig.url}/lab/shell/`,
+  type: "webpage" as const,
+};
+---
+
+<SiteLayout meta={meta} footerStage={false}>
+  <h1 class="sr-only">Agent 终端漫游器</h1>
+  <AgentShell featuredSlug={featuredSlug} client:load />
+</SiteLayout>
