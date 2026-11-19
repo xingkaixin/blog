@@ -4,6 +4,7 @@
  * 宽屏下正文收到左半边、Markdown 占右半边；窄屏下 Markdown 盖住整页。
  */
 import { markdownPathForPage } from "@/lib/markdown-negotiation";
+import { parsePostDetailSlug } from "@/lib/site-navigation";
 import { siteConfig } from "@/lib/site";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 
@@ -11,6 +12,8 @@ type Props = { path: string };
 
 const { path } = Astro.props;
 const host = new URL(siteConfig.url).host;
+const postSlug = parsePostDetailSlug(path);
+const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` : "/lab/shell/";
 ---
 
 <agent-view data-source={markdownPathForPage(path)} data-agent-markdown="exclude" class="contents print:hidden">
@@ -37,12 +40,15 @@ const host = new URL(siteConfig.url).host;
     <pre class="agent-body" data-agent-body tabindex="0">正在取这一页的 Markdown…</pre>
     <div class="agent-foot">
       <span data-agent-meta>text/markdown</span>
-      <button type="button" data-agent-copy disabled class="agent-copy">
-        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
-        </svg>
-        <span data-agent-copy-label>复制 Markdown</span>
-      </button>
+      <div class="agent-foot-actions">
+        <a href={shellHref} class="agent-shell-link">在终端打开 →</a>
+        <button type="button" data-agent-copy disabled class="agent-copy">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
+          </svg>
+          <span data-agent-copy-label>复制 Markdown</span>
+        </button>
+      </div>
     </div>
   </section>
 </agent-view>
@@ -121,6 +127,13 @@ const host = new URL(siteConfig.url).host;
     font-variant-numeric: tabular-nums;
   }
 
+  .agent-foot-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .agent-shell-link,
   .agent-close,
   .agent-copy {
     display: inline-flex;
@@ -135,8 +148,17 @@ const host = new URL(siteConfig.url).host;
     font-family: inherit;
     font-size: 12px;
     color: var(--ink-800);
+    text-decoration: none;
     cursor: pointer;
-    transition: background-color var(--duration-quick) var(--ease-smooth-out);
+    transition: background-color var(--duration-quick) var(--ease-smooth-out), color var(--duration-quick);
+  }
+
+  .agent-shell-link {
+    color: var(--ink-500);
+  }
+
+  .agent-shell-link:hover {
+    color: var(--accent);
   }
 
   .agent-copy:disabled {

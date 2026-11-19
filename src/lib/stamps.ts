@@ -12,6 +12,7 @@ export const stamps = [
   { id: "darkroom", seal: "暗房一游" },
   { id: "lost", seal: "误入歧途" },
   { id: "night", seal: "夜深人静" },
+  { id: "shell", seal: "终端潜行" },
 ] as const;
 
 export type StampId = (typeof stamps)[number]["id"];

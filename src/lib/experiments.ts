@@ -15,4 +15,12 @@ export const experiments = [
     keywords:
       "实验 物理 桌面 重力 贴纸 印章 拍立得 颠倒 desk gravity physics matter stickers stamps polaroid lab experiments",
   },
+  {
+    id: "agent-shell",
+    title: "Agent 终端漫游器",
+    englishTitle: "Agent Shell Explorer (Chinese)",
+    href: "/lab/shell/",
+    keywords:
+      "实验 终端 命令行 漫游器 shell terminal cli webmcp mcp markdown cat grep ls flip fish agent lab experiments",
+  },
 ] as const;

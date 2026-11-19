@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { resetSearchCache, type SearchIndexItem } from "./search";
 import { siteConfig } from "./site";
-import { registerBlogWebMcpTools } from "./webmcp";
+import { invokeBlogWebMcpTool, listBlogWebMcpTools, registerBlogWebMcpTools } from "./webmcp";
 
 type CapturedTool = {
   name: string;
@@ -95,6 +95,24 @@ describe("blog WebMCP tools", () => {
       total: 1,
       projects: [{ id: "voicen", name: "Voicen" }],
     });
+  });
+
+  it("exposes tool descriptors and direct invocation for the interactive shell", async () => {
+    expect(listBlogWebMcpTools().map((tool) => tool.name)).toEqual([
+      "search_posts",
+      "get_post",
+      "list_projects",
+    ]);
+
+    const result = await invokeBlogWebMcpTool("list_projects", { query: "JSON" });
+    expect(result).toMatchObject({
+      total: 1,
+      projects: [{ id: "unquote", name: "Unquote" }],
+    });
+
+    await expect(invokeBlogWebMcpTool("nonexistent_tool", {})).rejects.toThrow(
+      /Unknown WebMCP tool/,
+    );
   });
 });
 

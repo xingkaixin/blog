@@ -37,7 +37,7 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)].stamps;
         {
           stamps.map((stamp, index) => (
             <li data-stamp={stamp.id}>
-              <span class="stamp-seal" style={`--tilt: ${[-7, 4, -3, 6, -5, 3, -4, 7, -2][index]}deg`}>
+              <span class="stamp-seal" style={`--tilt: ${[-7, 4, -3, 6, -5, 3, -4, 7, -2, 5][index] ?? 0}deg`}>
                 <span lang="zh-CN">{stamp.seal}</span>
               </span>
               <span class="stamp-hint" data-stamp-hint={t.hints[stamp.id]}>{t.hints[stamp.id]}</span>
