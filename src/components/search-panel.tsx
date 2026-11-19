@@ -15,7 +15,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 import { localeFromLang } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
-import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
+import { highlightSearchText, loadSearchIndex, type SearchIndexItem } from "@/lib/search";
 import { buildSearchPalette, type SearchPaletteItem } from "@/lib/search-palette";
 import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
 import { siteShortcuts } from "@/lib/site-shortcuts";
@@ -414,15 +414,25 @@ export function SearchPanel({
                           ? "bg-ink-50 text-ink-800 shadow-[inset_2px_0_0_var(--accent)]"
                           : "text-ink-700 hover:bg-ink-50",
                       );
+                      const snippet = item.kind === "link" ? item.snippet : undefined;
                       const content = (
                         <>
-                          <span className="w-4 shrink-0 font-mono text-[11px] text-ink-300">
+                          <span className="w-4 shrink-0 self-start pt-0.5 font-mono text-[11px] text-ink-300">
                             {item.glyph}
                           </span>
-                          <span className="min-w-0 flex-1 truncate text-sm">{item.title}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm">
+                              <HighlightedText text={item.title} query={query} />
+                            </span>
+                            {snippet && (
+                              <span className="mt-0.5 block truncate text-xs text-ink-400">
+                                <HighlightedText text={snippet} query={query} />
+                              </span>
+                            )}
+                          </span>
                           <span
                             className={cn(
-                              "shrink-0 font-mono text-[10px] text-ink-400",
+                              "shrink-0 self-start pt-0.5 font-mono text-[10px] text-ink-400",
                               item.kind === "theme" && "pointer-coarse:hidden",
                             )}
                           >
@@ -510,6 +520,23 @@ export function SearchPanel({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  const segments = highlightSearchText(text, query);
+  return (
+    <>
+      {segments.map((segment) =>
+        segment.matched ? (
+          <mark key={segment.start} className="rounded-[2px] bg-accent-soft px-0.5 text-accent">
+            {segment.text}
+          </mark>
+        ) : (
+          <span key={segment.start}>{segment.text}</span>
+        ),
+      )}
+    </>
   );
 }
 

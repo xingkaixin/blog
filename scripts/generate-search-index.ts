@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { toSearchIndexItem } from "../src/lib/search-index";
-import { readPublishedPosts } from "./lib/post-catalog";
+import { readPublishedPostDocuments } from "./lib/post-catalog";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const OUTPUT_FILE = path.join(process.cwd(), "public", "search-index.json");
@@ -21,10 +21,10 @@ export function generateSearchIndex(
     throw new Error(`文章目录不存在: ${postsDirectory}`);
   }
 
-  const posts = readPublishedPosts(postsDirectory);
-  const searchIndex = posts.map(toSearchIndexItem);
+  const documents = readPublishedPostDocuments(postsDirectory);
+  const searchIndex = documents.map(({ post, body }) => toSearchIndexItem(post, body));
 
-  if (posts.length === 0) {
+  if (documents.length === 0) {
     console.log(`⚠️  在 ${postsDirectory} 中没有找到已发布文章`);
   }
 

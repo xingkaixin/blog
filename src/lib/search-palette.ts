@@ -5,7 +5,7 @@ import { experiments } from "./experiments";
 import { buildPostTaxonomy } from "./post-tags";
 import { localizedProjects, primaryProjectUrl, rankProjects, type Project } from "./projects";
 import { postHref } from "./published-post";
-import { rankPosts, type SearchIndexItem } from "./search";
+import { matchPostSnippet, rankPosts, type SearchIndexItem } from "./search";
 import { matchesSearchQuery, normalizeSearchText } from "./search-text";
 import { searchNavigation } from "./site-navigation";
 
@@ -14,6 +14,7 @@ export type SearchPaletteLink = {
   kind: "link";
   glyph: string;
   title: string;
+  snippet?: string;
   hint: string;
   href: string;
   reload: boolean;
@@ -95,14 +96,26 @@ export function buildSearchPalette(
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) {
     return [
-      ...(posts ? [{ id: "latest", label: t.latest, items: posts.slice(0, 4).map(postItem) }] : []),
+      ...(posts
+        ? [
+            {
+              id: "latest",
+              label: t.latest,
+              items: posts.slice(0, 4).map((post) => postItem(post)),
+            },
+          ]
+        : []),
       { id: "experiments", label: t.experiments, items: experimentItems },
       { id: "commands", label: t.jump, items: routeItems },
     ];
   }
 
   const taxonomy = posts ? buildPostTaxonomy(posts) : null;
-  const matchedPosts = posts ? rankPosts(posts, { query }).slice(0, 8).map(postItem) : [];
+  const matchedPosts = posts
+    ? rankPosts(posts, { query })
+        .slice(0, 8)
+        .map((post) => postItem(post, query))
+    : [];
   const matchedTags =
     taxonomy?.tags
       .filter(({ tag, href }) => href !== null && matchesSearchQuery(tag, normalizedQuery))
@@ -135,12 +148,14 @@ export function buildSearchPalette(
   ].filter((group) => group.items.length > 0);
 }
 
-function postItem(post: SearchIndexItem): SearchPaletteLink {
+function postItem(post: SearchIndexItem, query = ""): SearchPaletteLink {
+  const snippet = query ? matchPostSnippet(post, query) : undefined;
   return {
     id: `post-${post.slug}`,
     kind: "link",
     glyph: "#",
     title: post.title,
+    ...(snippet ? { snippet } : {}),
     hint: post.date,
     href: postHref(post.slug),
     reload: false,

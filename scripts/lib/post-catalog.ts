@@ -19,24 +19,36 @@ const postFrontmatterSchema = createPostFrontmatterSchema(
   fileURLToPath(new URL("../../src/assets/cover/", import.meta.url)),
 );
 
-export function parsePublishedPost(slug: string, source: string): PublishedPost | null {
+export type PublishedPostDocument = {
+  post: PublishedPost;
+  body: string;
+};
+
+export function parsePublishedPostDocument(
+  slug: string,
+  source: string,
+): PublishedPostDocument | null {
   const postSlug = parsePostSlug(slug, "post slug");
-  const frontmatter = parseFrontmatter(
-    postFrontmatterSchema,
-    postSlug,
-    parseAstroFrontmatter(source).frontmatter,
-  );
+  const parsed = parseAstroFrontmatter(source);
+  const frontmatter = parseFrontmatter(postFrontmatterSchema, postSlug, parsed.frontmatter);
 
   if (!isPublishedFrontmatter(frontmatter)) {
     return null;
   }
 
-  return toPublishedPost(postSlug, frontmatter);
+  return {
+    post: toPublishedPost(postSlug, frontmatter),
+    body: parsed.content,
+  };
+}
+
+export function parsePublishedPost(slug: string, source: string): PublishedPost | null {
+  return parsePublishedPostDocument(slug, source)?.post ?? null;
 }
 
 // 文章发现的唯一实现：平铺一层。content collection 的 glob 与之对齐，
 // 子目录在这里显式失败，而不是让文章在 sitemap/feed/搜索索引里悄悄缺席。
-export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
+export function readPublishedPostDocuments(postsDirectory: string): PublishedPostDocument[] {
   const entries = fs.readdirSync(postsDirectory, { withFileTypes: true });
   const directories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   if (directories.length > 0) {
@@ -49,11 +61,15 @@ export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
     .map((entry) => entry.name)
     .filter((file) => path.matchesGlob(file, POST_FILE_PATTERN))
     .map((file) =>
-      parsePublishedPost(
+      parsePublishedPostDocument(
         file.replace(/\.md$/, ""),
         fs.readFileSync(path.join(postsDirectory, file), "utf8"),
       ),
     )
-    .filter((post): post is PublishedPost => post !== null)
-    .toSorted(comparePublishedPostsNewestFirst);
+    .filter((doc): doc is PublishedPostDocument => doc !== null)
+    .toSorted((left, right) => comparePublishedPostsNewestFirst(left.post, right.post));
+}
+
+export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
+  return readPublishedPostDocuments(postsDirectory).map(({ post }) => post);
 }
