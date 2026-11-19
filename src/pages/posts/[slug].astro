@@ -3,6 +3,7 @@ import { render } from "astro:content";
 import AgentView from "@/components/astro/AgentView.astro";
 import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
+import PostEnhancements from "@/components/astro/PostEnhancements.astro";
 import PostTag from "@/components/astro/PostTag.astro";
 import QuoteToolbar from "@/components/astro/QuoteToolbar.astro";
 import SignatureAnimation from "@/components/astro/SignatureAnimation.astro";
@@ -126,6 +127,7 @@ const meta = {
             <Content />
           </div>
           <QuoteToolbar title={postMeta.title} date={postMeta.date} url={canonicalPostUrl} />
+          <PostEnhancements />
         </div>
 
         {

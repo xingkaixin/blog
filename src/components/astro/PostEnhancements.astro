@@ -1,0 +1,490 @@
+---
+---
+
+<post-enhancements class="print:hidden">
+  <dialog
+    data-post-lightbox
+    aria-label="放大查看插图"
+    class="post-lightbox m-auto max-h-none max-w-none border-0 bg-transparent p-0 text-ink-800"
+  >
+    <div class="post-lightbox-stage" data-lightbox-backdrop>
+      <button
+        type="button"
+        data-lightbox-close
+        aria-label="关闭大图"
+        class="post-lightbox-close"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="h-5 w-5">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+      <figure class="post-lightbox-figure">
+        <img data-lightbox-image alt="" class="post-lightbox-img" />
+        <figcaption data-lightbox-caption hidden class="post-lightbox-caption"></figcaption>
+      </figure>
+    </div>
+  </dialog>
+</post-enhancements>
+
+<style is:global>
+  .post-lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+    opacity: 1;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  .post-lightbox[data-closing] {
+    opacity: 0;
+    transition-duration: var(--duration-quick);
+    pointer-events: none;
+  }
+
+  @starting-style {
+    .post-lightbox[open] {
+      opacity: 0;
+    }
+  }
+
+  .post-lightbox::backdrop {
+    background: color-mix(in srgb, #000000 84%, transparent);
+    backdrop-filter: blur(8px);
+    opacity: 1;
+    transition:
+      opacity var(--duration-fast) var(--ease-smooth-out),
+      display var(--duration-fast) allow-discrete,
+      overlay var(--duration-fast) allow-discrete;
+  }
+
+  .post-lightbox[data-closing]::backdrop {
+    opacity: 0;
+    transition-duration: var(--duration-quick);
+  }
+
+  @starting-style {
+    .post-lightbox[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .post-lightbox-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 4.5rem 1rem 2rem;
+    cursor: zoom-out;
+  }
+
+  .post-lightbox-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    background: var(--surface);
+    color: var(--ink-800);
+    cursor: pointer;
+    transition:
+      border-color var(--duration-quick) var(--ease-smooth-out),
+      color var(--duration-quick) var(--ease-smooth-out),
+      transform var(--duration-quick) var(--ease-smooth-out);
+  }
+
+  .post-lightbox-close:hover {
+    border-color: var(--ink-400);
+    color: var(--accent);
+  }
+
+  .post-lightbox-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .post-lightbox-close:active {
+    transform: scale(0.96);
+  }
+
+  .post-lightbox-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: min(92vw, 1360px);
+    max-height: 100%;
+    margin: 0;
+  }
+
+  .post-lightbox-img {
+    display: block;
+    max-width: 100%;
+    max-height: calc(100dvh - 8rem);
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 24px 72px -24px rgb(0 0 0 / 0.6);
+    object-fit: contain;
+    scale: 1;
+    transition: scale var(--duration-fast) var(--ease-smooth-out);
+  }
+
+  .post-lightbox[data-closing] .post-lightbox-img {
+    scale: 0.96;
+  }
+
+  @starting-style {
+    .post-lightbox[open] .post-lightbox-img {
+      scale: 0.96;
+    }
+  }
+
+  .post-lightbox-caption {
+    max-width: 68ch;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--ink-800);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-lightbox,
+    .post-lightbox::backdrop,
+    .post-lightbox-img {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const FEEDBACK_MS = 1600;
+
+  const COPY_ICON =
+    '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+  const CHECK_ICON =
+    '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12.5 9.5 17 19 7.5"/></svg>';
+  const ANCHOR_ICON =
+    '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
+
+  const LANGUAGE_LABELS: Record<string, string> = {
+    bash: "bash",
+    sh: "sh",
+    shell: "shell",
+    zsh: "zsh",
+    ts: "ts",
+    tsx: "tsx",
+    typescript: "ts",
+    js: "js",
+    jsx: "jsx",
+    javascript: "js",
+    py: "python",
+    python: "python",
+    rs: "rust",
+    rust: "rust",
+    go: "go",
+    json: "json",
+    yaml: "yaml",
+    yml: "yaml",
+    toml: "toml",
+    md: "markdown",
+    markdown: "markdown",
+    html: "html",
+    css: "css",
+    sql: "sql",
+    swift: "swift",
+    diff: "diff",
+  };
+
+  function formatLanguage(raw: string | null): string {
+    if (!raw) {
+      return "";
+    }
+    const normalized = raw.trim().toLowerCase();
+    if (!normalized || normalized === "plaintext" || normalized === "text" || normalized === "txt") {
+      return "";
+    }
+    return LANGUAGE_LABELS[normalized] ?? normalized;
+  }
+
+  class PostEnhancements extends HTMLElement {
+    private controller: AbortController | null = null;
+    private closeTimer = 0;
+
+    connectedCallback() {
+      this.controller?.abort();
+      this.controller = new AbortController();
+      const { signal } = this.controller;
+
+      const prose = document.querySelector<HTMLElement>(".article-prose");
+      if (!prose) {
+        return;
+      }
+
+      this.enhanceCodeBlocks(prose, signal);
+      this.enhanceHeadingAnchors(prose, signal);
+      this.setupImageLightbox(prose, signal);
+    }
+
+    disconnectedCallback() {
+      clearTimeout(this.closeTimer);
+      this.controller?.abort();
+      this.controller = null;
+    }
+
+    private enhanceCodeBlocks(prose: HTMLElement, signal: AbortSignal) {
+      for (const pre of prose.querySelectorAll<HTMLPreElement>("pre")) {
+        if (pre.parentElement?.classList.contains("code-block-shell")) {
+          continue;
+        }
+        const shell = document.createElement("div");
+        shell.className = "code-block-shell";
+        pre.parentNode?.insertBefore(shell, pre);
+
+        const bar = document.createElement("div");
+        bar.className = "code-block-bar print:hidden";
+
+        const lang = formatLanguage(pre.getAttribute("data-language"));
+        if (lang) {
+          const badge = document.createElement("span");
+          badge.className = "code-block-lang";
+          badge.textContent = lang;
+          bar.append(badge);
+        }
+
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "code-block-copy";
+        copyBtn.setAttribute("aria-label", "复制代码");
+        copyBtn.innerHTML = `${COPY_ICON}<span>复制</span>`;
+
+        let resetTimer = 0;
+        copyBtn.addEventListener(
+          "click",
+          async () => {
+            const code = pre.querySelector("code")?.textContent ?? pre.textContent ?? "";
+            clearTimeout(resetTimer);
+            try {
+              await navigator.clipboard.writeText(code);
+              copyBtn.dataset.copied = "";
+              copyBtn.innerHTML = `${CHECK_ICON}<span>已复制</span>`;
+            } catch {
+              copyBtn.innerHTML = `${COPY_ICON}<span>复制失败</span>`;
+            }
+            resetTimer = window.setTimeout(() => {
+              delete copyBtn.dataset.copied;
+              copyBtn.innerHTML = `${COPY_ICON}<span>复制</span>`;
+            }, FEEDBACK_MS);
+          },
+          { signal },
+        );
+
+        bar.append(copyBtn);
+        shell.append(bar, pre);
+      }
+    }
+
+    private enhanceHeadingAnchors(prose: HTMLElement, signal: AbortSignal) {
+      for (const heading of prose.querySelectorAll<HTMLElement>("h2[id], h3[id]")) {
+        if (heading.querySelector("[data-heading-anchor]")) {
+          continue;
+        }
+        const id = heading.id;
+        if (!id) {
+          continue;
+        }
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "heading-anchor print:hidden";
+        button.dataset.headingAnchor = id;
+        button.setAttribute("aria-label", "复制章节链接");
+        button.title = "复制章节链接";
+        button.innerHTML = ANCHOR_ICON;
+
+        let resetTimer = 0;
+        button.addEventListener(
+          "click",
+          async (event) => {
+            event.preventDefault();
+            const hash = `#${encodeURIComponent(id)}`;
+            const url = `${location.origin}${location.pathname}${hash}`;
+            history.replaceState(history.state, "", hash);
+            clearTimeout(resetTimer);
+            try {
+              await navigator.clipboard.writeText(url);
+              button.dataset.copied = "";
+              button.innerHTML = CHECK_ICON;
+            } catch {
+              // 剪贴板不可用时至少已更新地址栏锚点
+            }
+            resetTimer = window.setTimeout(() => {
+              delete button.dataset.copied;
+              button.innerHTML = ANCHOR_ICON;
+            }, FEEDBACK_MS);
+          },
+          { signal },
+        );
+
+        heading.append(button);
+      }
+    }
+
+    private setupImageLightbox(prose: HTMLElement, signal: AbortSignal) {
+      const dialog = this.querySelector<HTMLDialogElement>("[data-post-lightbox]");
+      const preview = this.querySelector<HTMLImageElement>("[data-lightbox-image]");
+      const caption = this.querySelector<HTMLElement>("[data-lightbox-caption]");
+      const closeButton = this.querySelector<HTMLButtonElement>("[data-lightbox-close]");
+      if (!dialog || !preview || !caption || !closeButton) {
+        return;
+      }
+
+      let returnFocusTo: HTMLElement | null = null;
+      const prefersReducedMotion = () =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const restoreFocus = () => {
+        const target = returnFocusTo;
+        returnFocusTo = null;
+        if (target && target.isConnected) {
+          target.focus({ preventScroll: true });
+        }
+      };
+
+      const close = () => {
+        if (!dialog.open) {
+          return;
+        }
+        clearTimeout(this.closeTimer);
+        if (prefersReducedMotion()) {
+          delete dialog.dataset.closing;
+          dialog.close();
+          restoreFocus();
+          return;
+        }
+        if (dialog.hasAttribute("data-closing")) {
+          return;
+        }
+        dialog.dataset.closing = "";
+        this.closeTimer = window.setTimeout(() => {
+          delete dialog.dataset.closing;
+          if (dialog.open) {
+            dialog.close();
+          }
+          restoreFocus();
+        }, 160);
+      };
+
+      for (const img of prose.querySelectorAll<HTMLImageElement>("img")) {
+        if (img.closest("a")) {
+          continue;
+        }
+        img.dataset.zoomable = "";
+        img.tabIndex = 0;
+        img.setAttribute("role", "button");
+        const altText = img.alt.trim();
+        img.setAttribute("aria-label", altText ? `放大查看图片：${altText}` : "放大查看图片");
+      }
+
+      const openImage = (img: HTMLImageElement) => {
+        const fullSrc = img.getAttribute("src") || img.currentSrc;
+        if (!fullSrc) {
+          return;
+        }
+        clearTimeout(this.closeTimer);
+        delete dialog.dataset.closing;
+        returnFocusTo = img;
+        preview.src = fullSrc;
+        const altText = img.alt.trim();
+        preview.alt = altText;
+        caption.textContent = altText;
+        caption.hidden = altText.length === 0;
+        if (!dialog.open) {
+          dialog.showModal();
+        }
+      };
+
+      prose.addEventListener(
+        "click",
+        (event) => {
+          const img =
+            event.target instanceof HTMLImageElement && event.target.hasAttribute("data-zoomable")
+              ? event.target
+              : null;
+          if (img) {
+            openImage(img);
+          }
+        },
+        { signal },
+      );
+
+      prose.addEventListener(
+        "keydown",
+        (event) => {
+          if (event.key !== "Enter" && event.key !== " ") {
+            return;
+          }
+          const img =
+            event.target instanceof HTMLImageElement && event.target.hasAttribute("data-zoomable")
+              ? event.target
+              : null;
+          if (img) {
+            event.preventDefault();
+            openImage(img);
+          }
+        },
+        { signal },
+      );
+
+      closeButton.addEventListener("click", close, { signal });
+      dialog.addEventListener(
+        "click",
+        (event) => {
+          if (!(event.target instanceof Element) || !event.target.closest("[data-lightbox-close]")) {
+            close();
+          }
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "cancel",
+        (event) => {
+          event.preventDefault();
+          close();
+        },
+        { signal },
+      );
+      dialog.addEventListener(
+        "close",
+        () => {
+          clearTimeout(this.closeTimer);
+          delete dialog.dataset.closing;
+          restoreFocus();
+        },
+        { signal },
+      );
+    }
+  }
+
+  if (!customElements.get("post-enhancements")) {
+    customElements.define("post-enhancements", PostEnhancements);
+  }
+</script>
