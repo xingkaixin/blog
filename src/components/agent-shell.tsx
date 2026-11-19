@@ -139,10 +139,15 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
 
   useEffect(() => {
     const viewport = outputRef.current;
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
+    if (!viewport) {
+      return undefined;
     }
-  }, [entries]);
+    viewport.scrollTop = viewport.scrollHeight;
+    const frame = requestAnimationFrame(() => {
+      viewport.scrollTop = viewport.scrollHeight;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [entries, running]);
 
   const runCommand = useCallback(
     async (raw: string) => {
@@ -259,7 +264,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
     <section
       data-theme="dark"
       aria-label="Agent 终端漫游器"
-      className="relative flex min-h-[calc(100dvh-61px)] flex-col bg-paper font-mono text-ink-800"
+      className="relative flex flex-col bg-paper font-mono text-ink-800 lg:h-[calc(100dvh-105px)] lg:overflow-hidden"
     >
       {flipped && (
         <div className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2">
@@ -278,11 +283,11 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-320 flex-1 flex-col transition-transform duration-500 ease-out motion-reduce:transition-none",
+          "mx-auto flex min-h-0 w-full max-w-320 flex-1 flex-col transition-transform duration-500 ease-out motion-reduce:transition-none",
           flipped && "rotate-180",
         )}
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3 sm:px-6">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-4 py-3 sm:px-6">
           <div className="flex flex-wrap items-center gap-2.5 text-xs text-ink-500">
             <span className="rounded-[4px] bg-accent-soft px-2 py-0.5 text-[10px] font-medium tracking-wider text-accent">
               WebMCP READY
@@ -310,7 +315,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
         </div>
 
         <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="flex min-h-0 flex-col">
+          <div className="flex h-[68dvh] min-h-[380px] flex-col overflow-hidden lg:h-auto lg:min-h-0">
             <div
               ref={outputRef}
               role="log"
@@ -320,7 +325,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
                   inputRef.current?.focus();
                 }
               }}
-              className="min-h-[420px] flex-1 overflow-y-auto px-4 py-5 text-[13px] leading-6 sm:px-6"
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 text-[13px] leading-6 sm:px-6"
             >
               {entries.map((entry) => (
                 <div key={entry.id} className="mb-4 last:mb-0">
@@ -367,7 +372,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
 
             <form
               onSubmit={handleSubmit}
-              className="flex items-center gap-2.5 border-t border-line bg-surface px-4 py-3 sm:px-6"
+              className="flex shrink-0 items-center gap-2.5 border-t border-line bg-surface px-4 py-3 sm:px-6"
             >
               <label htmlFor="agent-shell-input" className="shrink-0 text-xs text-accent">
                 guest@upside-down:~$
@@ -394,7 +399,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
             </form>
           </div>
 
-          <aside className="flex flex-col gap-4 border-t border-line bg-surface/60 p-4 text-xs lg:border-l lg:border-t-0 lg:p-5">
+          <aside className="flex min-h-0 flex-col gap-4 overflow-y-auto border-t border-line bg-surface/60 p-4 text-xs lg:border-l lg:border-t-0 lg:p-5">
             <div className="rounded-[8px] border border-line bg-surface p-3.5">
               <p className="mb-2.5 text-[10px] uppercase tracking-[0.14em] text-ink-400">
                 已注册 WebMCP 工具
