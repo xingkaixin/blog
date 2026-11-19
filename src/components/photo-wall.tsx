@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import "@/assets/fonts/noto-serif.css";
 import "@/components/photo-background.css";
+import "@/components/photo-wall.css";
 import { PhotoLightbox, PhotoThumbnailRegistryProvider } from "@/components/photo-lightbox";
 import { PhotoOverview, PhotoWallError, PhotoWallLoading } from "@/components/photo-overview";
 import { PhotoTimeline } from "@/components/photo-timeline";

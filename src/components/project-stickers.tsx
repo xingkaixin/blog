@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getThemeGravityY,
   mountGravityWorld,
@@ -14,8 +14,16 @@ export function ProjectStickers() {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const worldRef = useRef<GravityWorldHandle | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) {
+      return undefined;
+    }
     const container = containerRef.current;
     if (!container) {
       return undefined;
@@ -48,7 +56,7 @@ export function ProjectStickers() {
       worldRef.current = null;
       world.destroy();
     };
-  }, []);
+  }, [mounted]);
 
   return (
     <div
@@ -56,25 +64,28 @@ export function ProjectStickers() {
       aria-hidden="true"
       className="project-stickers pointer-events-none absolute inset-0 hidden lg:block"
     >
-      {logos.map((logo, index) => (
-        <div
-          key={logo}
-          ref={(el) => {
-            itemRefs.current[index] = el;
-          }}
-          onPointerDown={(event) => worldRef.current?.grab(event, index)}
-          style={{ width: SIZE, height: SIZE }}
-          className="project-sticker pointer-events-auto absolute left-0 top-0 cursor-grab touch-none will-change-transform active:cursor-grabbing"
-        >
-          <img
-            src={logo}
-            alt=""
-            draggable={false}
-            style={{ filter: STICKER_FILTER }}
-            className="h-full w-full select-none rounded-[22%] object-contain"
-          />
-        </div>
-      ))}
+      {mounted &&
+        logos.map((logo, index) => (
+          <div
+            key={logo}
+            ref={(el) => {
+              itemRefs.current[index] = el;
+            }}
+            onPointerDown={(event) => worldRef.current?.grab(event, index)}
+            style={{ width: SIZE, height: SIZE }}
+            className="project-sticker pointer-events-auto absolute left-0 top-0 cursor-grab touch-none will-change-transform active:cursor-grabbing"
+          >
+            <img
+              src={logo}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+              style={{ filter: STICKER_FILTER }}
+              className="h-full w-full select-none rounded-[22%] object-contain"
+            />
+          </div>
+        ))}
     </div>
   );
 }

@@ -73,7 +73,7 @@ const previewPost = posts[0];
 
         <div class="mt-auto h-20"></div>
 
-        <ProjectStickers client:visible />
+        <ProjectStickers client:media="(min-width: 1024px)" />
       </div>
     </aside>
 
@@ -135,36 +135,27 @@ const previewPost = posts[0];
                       href={postHref(post.slug)}
                       class="post-row block border-b border-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 data-active:bg-surface"
                     >
-                      <span class="block px-3 py-3.5 lg:hidden">
-                        <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500">
+                      <span class="flex flex-col gap-1 px-3 py-3.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2.5">
+                        <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500 lg:w-[80px] lg:shrink-0">
                           <span>{post.date}</span>
                           {post.tags[0] && (
                             <>
-                              <span class="text-ink-200">·</span>
-                              <span class="text-accent">{post.tags[0]}</span>
+                              <span class="text-ink-200 lg:hidden">·</span>
+                              <span class="text-accent lg:hidden">{post.tags[0]}</span>
                             </>
                           )}
                         </span>
-                        <span data-post-title class="mt-1 block text-[15px] leading-6 text-ink-800">
+                        <span data-post-title class="min-w-0 flex-1 text-[15px] leading-6 text-ink-800 lg:text-[14px]">
                           {post.title}
                         </span>
-                      </span>
-
-                      <span class="hidden items-center gap-3 px-5 py-2.5 lg:flex">
-                        <span class="w-[80px] shrink-0 font-mono text-[11px] text-ink-500">{post.date}</span>
-                        <span data-post-title class="min-w-0 flex-1 text-[14px] leading-6 text-ink-800">
-                          {post.title}
-                        </span>
-                        <span class="hidden shrink-0 gap-1.5 2xl:flex">
-                          {post.tags.slice(0, 1).map((tag) => (
-                            <span class="rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500">
-                              {tag}
-                            </span>
-                          ))}
-                        </span>
+                        {post.tags[0] && (
+                          <span class="hidden shrink-0 rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500 2xl:inline-flex">
+                            {post.tags[0]}
+                          </span>
+                        )}
                         <svg
                           aria-hidden="true"
-                          class="post-open-arrow h-4 w-4 shrink-0 text-ink-500"
+                          class="post-open-arrow hidden h-4 w-4 shrink-0 text-ink-500 lg:block"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"

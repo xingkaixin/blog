@@ -33,9 +33,45 @@
   },
   "overrides": [
     {
-      "files": ["src/components/photo-overview.tsx", "src/components/photo-timeline.tsx"],
+      "files": [
+        "src/components/photo-lightbox.tsx",
+        "src/components/photo-overview.tsx",
+        "src/components/photo-period.tsx",
+        "src/components/photo-timeline.tsx"
+      ],
       "rules": {
-        "shadcn/no-unknown-classes": ["error", { "allow": ["photo-sketch"] }]
+        "shadcn/no-unknown-classes": [
+          "error",
+          {
+            "allow": [
+              "film-sprockets",
+              "photo-frame",
+              "photo-gallery",
+              "photo-lightbox",
+              "photo-period-placeholder",
+              "photo-row",
+              "photo-sketch",
+              "photo-tile"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/components/project-console.tsx"],
+      "rules": {
+        "shadcn/no-unknown-classes": [
+          "error",
+          {
+            "allow": [
+              "project-card",
+              "project-card-art",
+              "project-card-scrim",
+              "project-card-surface",
+              "project-logo"
+            ]
+          }
+        ]
       }
     },
     {

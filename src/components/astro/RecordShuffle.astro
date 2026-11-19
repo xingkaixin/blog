@@ -6,24 +6,22 @@ type Props = {
   posts: PublishedPost[];
 };
 
-const records = Astro.props.posts.map((post) => {
-  const cover = resolveCover(post.cover);
-  return {
-    href: postHref(post.slug),
-    title: post.title,
-    date: post.date,
-    summary: post.summary,
-    cover: cover.desktop,
-  };
-});
-const first = records[0];
+const firstPost = Astro.props.posts[0];
+const first = firstPost
+  ? {
+      href: postHref(firstPost.slug),
+      title: firstPost.title,
+      date: firstPost.date,
+      summary: firstPost.summary,
+      cover: resolveCover(firstPost.cover).desktop,
+    }
+  : undefined;
 ---
 
 {
   first && (
     <section class="mx-auto max-w-320 border-t border-line px-3 py-12 sm:px-5 lg:px-8 lg:py-16 print:hidden">
       <record-shuffle
-        data-records={JSON.stringify(records)}
         class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-[minmax(0,440px)_minmax(0,1fr)] md:gap-14"
       >
         <div class="deck" aria-hidden="true">
@@ -136,18 +134,33 @@ const first = records[0];
 </style>
 
 <script>
-  import { elapsedSince, pickRandom } from "@/lib/record-shuffle";
+  import { elapsedSince, pickRandom, shuffleablePosts } from "@/lib/record-shuffle";
 
   type ShuffleRecord = { href: string; title: string; date: string; summary: string; cover: string };
 
   // 唱臂抬起和文字淡出都在这段时间内完成，之后再换内容
   const LIFT_MS = 420;
 
+  function collectRecordsFromConsole(): ShuffleRecord[] {
+    const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-post-row]"));
+    return shuffleablePosts(
+      rows.map((row) => ({
+        href: row.getAttribute("href") ?? "",
+        title: row.querySelector("[data-post-title]")?.textContent?.trim() ?? "",
+        date: row.dataset.postDate ?? "",
+        summary: row.dataset.postSummary ?? "",
+        cover: row.dataset.postCoverDesktop ?? "",
+      })),
+    ).filter((record) => record.href && record.title && record.cover);
+  }
+
   class RecordShuffle extends HTMLElement {
     private timer = 0;
 
     connectedCallback() {
-      const records = JSON.parse(this.dataset.records ?? "[]") as ShuffleRecord[];
+      const records = this.dataset.records
+        ? (JSON.parse(this.dataset.records) as ShuffleRecord[])
+        : collectRecordsFromConsole();
       const cover = this.querySelector<HTMLImageElement>("[data-record-cover]")!;
       const vinyl = this.querySelector<SVGGElement>("[data-record-vinyl]")!;
       const year = this.querySelector<SVGTextElement>("[data-record-year]")!;

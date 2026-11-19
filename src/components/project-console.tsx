@@ -2,6 +2,7 @@ import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/csr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import "@/components/project-console.css";
 import type { Locale } from "@/lib/i18n";
 import { projectFilters, projectMessages, type ProjectFilter } from "@/lib/messages/projects";
 import { mountProjectLogoEffects } from "@/lib/project-logo/effect";
