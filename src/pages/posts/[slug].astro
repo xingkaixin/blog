@@ -5,8 +5,8 @@ import Breadcrumb from "@/components/astro/Breadcrumb.astro";
 import PostCover from "@/components/astro/PostCover.astro";
 import PostTag from "@/components/astro/PostTag.astro";
 import QuoteToolbar from "@/components/astro/QuoteToolbar.astro";
+import SignatureAnimation from "@/components/astro/SignatureAnimation.astro";
 import TocNav from "@/components/astro/TocNav.astro";
-import { SignatureAnimation } from "@/components/signature-animation";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import {
   getPublishedPosts,
@@ -219,7 +219,7 @@ const meta = {
                 </a>
                 许可。
               </p>
-              <SignatureAnimation client:visible />
+              <SignatureAnimation />
         </div>
       </article>
 

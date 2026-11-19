@@ -1,6 +1,6 @@
 ---
 import InterestWord from "./InterestWord.astro";
-import { ShanghaiPreview } from "@/components/shanghai-preview";
+import ShanghaiPreview from "./ShanghaiPreview.astro";
 import { localeFromPath } from "@/lib/i18n";
 import { siteCopy } from "@/lib/site";
 
@@ -11,6 +11,6 @@ const locale = localeFromPath(Astro.url.pathname);
   {siteCopy[locale].aboutIntro.map((part) => typeof part === "string"
     ? part
     : part.kind === "location"
-    ? <ShanghaiPreview label={part.text} locale={locale} client:load />
+    ? <ShanghaiPreview label={part.text} locale={locale} />
     : <InterestWord kind={part.kind}>{part.text}</InterestWord>)}
 </p>

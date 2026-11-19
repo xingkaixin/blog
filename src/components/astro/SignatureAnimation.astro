@@ -1,0 +1,211 @@
+---
+import glyphData from "@/lib/generated/dancing-script-glyph-data.json";
+import { siteConfig } from "@/lib/site";
+
+type Props = {
+  className?: string;
+  fontSize?: string;
+  eager?: boolean;
+};
+
+type StrokeRecord = {
+  p: number[][];
+  d: number;
+  a: number;
+};
+
+type GlyphRecord = {
+  w: number;
+  t: number;
+  s: StrokeRecord[];
+};
+
+const { className, fontSize = "36px", eager = false } = Astro.props;
+const glyphs = glyphData as Record<string, GlyphRecord>;
+const text = siteConfig.author;
+const speed = 1.2;
+const ascender = 920;
+const descender = -280;
+const viewHeight = ascender - descender;
+const padLeft = 40;
+const padRight = 100;
+const maskPrefix = `sig-${eager ? "hero" : "post"}`;
+
+let xCursor = 0;
+let timeCursor = 0;
+
+const characters = Array.from(text).map((char, charIndex) => {
+  const glyph = glyphs[char];
+  if (!glyph) {
+    return null;
+  }
+  const x = xCursor;
+  const charStart = timeCursor;
+  xCursor += glyph.w;
+  timeCursor += glyph.t;
+
+  const strokes = glyph.s
+    .map((stroke) => {
+      if (stroke.p.length === 0) {
+        return null;
+      }
+      const maxWidth = stroke.p.reduce((max, point) => Math.max(max, point[2] ?? 40), 20);
+      const first = stroke.p[0];
+      const commands =
+        stroke.p.length === 1
+          ? `M${(x + first[0]).toFixed(1)} ${first[1].toFixed(1)}l0.1 0`
+          : stroke.p
+              .map(
+                (point, pointIndex) =>
+                  `${pointIndex === 0 ? "M" : "L"}${(x + point[0]).toFixed(1)} ${point[1].toFixed(1)}`,
+              )
+              .join("");
+
+      return {
+        d: commands,
+        width: Math.max(36, Math.round(maxWidth * 1.5)),
+        delay: Number(((charStart + stroke.d) / speed).toFixed(3)),
+        duration: Number((Math.max(stroke.a, 0.04) / speed).toFixed(3)),
+      };
+    })
+    .filter((stroke): stroke is NonNullable<typeof stroke> => stroke !== null);
+
+  return {
+    char,
+    x,
+    maskId: `${maskPrefix}-${charIndex}`,
+    strokes,
+  };
+}).filter((item): item is NonNullable<typeof item> => item !== null);
+
+const viewWidth = xCursor + padLeft + padRight;
+const widthEm = Number((viewWidth / 1000).toFixed(3));
+const heightEm = Number((viewHeight / 1000).toFixed(3));
+---
+
+<signature-animation
+  data-eager={eager ? "" : undefined}
+  class:list={["mt-6 flex justify-end text-ink-600", className]}
+  style={`font-size: ${fontSize}; font-family: 'Dancing Script', cursive;`}
+>
+  <span class="signature-static">{text}</span>
+  <span class="signature-animated" aria-label={text}>
+    <svg
+      class="signature-svg"
+      viewBox={`${-padLeft} ${-ascender} ${viewWidth} ${viewHeight}`}
+      style={`width: ${widthEm}em; height: ${heightEm}em;`}
+      role="img"
+      aria-label={text}
+    >
+      <defs>
+        {
+          characters.map((character) => (
+            <mask id={character.maskId} maskUnits="userSpaceOnUse">
+              {character.strokes.map((stroke) => (
+                <path
+                  class="signature-stroke"
+                  d={stroke.d}
+                  pathLength="1"
+                  fill="none"
+                  stroke="white"
+                  stroke-width={stroke.width}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  style={`--stroke-delay: ${stroke.delay}s; --stroke-duration: ${stroke.duration}s;`}
+                />
+              ))}
+            </mask>
+          ))
+        }
+      </defs>
+      {
+        characters.map((character) => (
+          <text
+            x={character.x}
+            y="0"
+            font-family="'Dancing Script', cursive"
+            font-size="1000"
+            fill="currentColor"
+            mask={`url(#${character.maskId})`}
+          >
+            {character.char}
+          </text>
+        ))
+      }
+    </svg>
+  </span>
+</signature-animation>
+
+<style>
+  signature-animation {
+    display: flex;
+  }
+
+  .signature-animated {
+    display: inline-flex;
+    line-height: 1;
+  }
+
+  .signature-svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .signature-stroke {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  signature-animation[data-playing] .signature-stroke {
+    animation: signature-reveal var(--stroke-duration) linear var(--stroke-delay) forwards;
+  }
+
+  @keyframes signature-reveal {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
+
+<script>
+  class SignatureAnimationElement extends HTMLElement {
+    private observer: IntersectionObserver | null = null;
+
+    connectedCallback() {
+      if (this.hasAttribute("data-playing")) {
+        return;
+      }
+      if (
+        this.hasAttribute("data-eager") ||
+        typeof IntersectionObserver === "undefined" ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        this.setAttribute("data-playing", "");
+        return;
+      }
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.setAttribute("data-playing", "");
+            this.observer?.disconnect();
+            this.observer = null;
+          }
+        },
+        { threshold: 0.3 },
+      );
+      this.observer.observe(this);
+    }
+
+    disconnectedCallback() {
+      this.observer?.disconnect();
+      this.observer = null;
+    }
+  }
+
+  if (!customElements.get("signature-animation")) {
+    customElements.define("signature-animation", SignatureAnimationElement);
+  }
+</script>

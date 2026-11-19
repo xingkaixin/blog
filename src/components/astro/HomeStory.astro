@@ -9,9 +9,9 @@ import AboutIntro from "./AboutIntro.astro";
 import ContactCard from "./ContactCard.astro";
 import PondEnding from "./PondEnding.astro";
 import RecordPlayer from "./RecordPlayer.astro";
+import SignatureAnimation from "./SignatureAnimation.astro";
 import SiteCredits from "./SiteCredits.astro";
 import TravelWindow from "./TravelWindow.astro";
-import { SignatureAnimation } from "@/components/signature-animation";
 import { localeFromPath } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
 import { siteContacts, siteCopy } from "@/lib/site";
@@ -51,7 +51,7 @@ const deferredSprites = await Promise.all(
   <div class="backdrop" aria-hidden="true">
     <div class="floor"></div>
     <div class="masthead" data-story-masthead>
-      <SignatureAnimation client:load className="mt-0 justify-start text-ink-800" fontSize="inherit" />
+      <SignatureAnimation eager className="mt-0 justify-start text-ink-800" fontSize="inherit" />
     </div>
     <div class="night" data-story-night></div>
     <canvas class="season" data-story-season></canvas>

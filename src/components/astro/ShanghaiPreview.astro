@@ -1,0 +1,521 @@
+---
+import type { Locale } from "@/lib/i18n";
+import { homeMessages } from "@/lib/messages/home";
+
+type Props = {
+  label: string;
+  locale: Locale;
+};
+
+const { label, locale } = Astro.props;
+const t = homeMessages[locale].shanghai;
+const popupId = "shanghai-preview-popup";
+
+// Simplified from https://geo.datav.aliyun.com/areas_v3/bound/310000.json.
+const SHANGHAI_OUTLINE =
+  "M53.9 77.7L50.7 76.7L49.3 78.1L47.5 76.0L47.1 78.3L45.2 78.7L44.7 81.1L46.6 90.3L45.8 92.0L43.5 91.4L43.2 93.1L41.7 92.6L41.0 93.7L32.5 92.9L27.8 93.6L25.6 96.5L25.8 97.5L28.8 97.8L29.8 99.1L29.1 102.7L30.7 107.5L33.3 107.7L34.6 105.3L35.7 106.8L38.2 107.1L39.4 111.2L38.4 113.4L39.6 118.8L38.3 120.4L41.3 122.7L40.6 125.1L38.2 127.2L38.3 128.5L40.6 127.1L42.8 129.5L43.0 128.0L43.9 128.3L45.6 125.6L48.5 124.7L50.8 125.5L50.5 127.1L52.3 127.7L51.3 132.3L50.4 132.6L51.0 133.4L55.9 134.2L57.5 133.2L58.0 134.1L58.3 132.9L60.0 132.8L61.4 136.0L65.2 138.7L64.6 141.2L65.5 144.8L73.8 144.6L80.0 138.9L88.7 133.8L101.2 129.3L125.7 129.5L127.6 130.3L129.5 133.6L132.0 132.3L130.5 128.2L134.3 124.0L134.7 119.9L134.0 112.2L131.3 103.4L116.7 86.6L108.3 74.7L96.9 67.0L89.1 64.5L87.7 63.2L88.7 63.2L77.9 55.0L78.0 54.2L72.1 51.4L70.2 52.8L68.4 52.1L67.8 53.7L63.6 55.2L61.7 53.5L61.2 55.2L59.7 55.1L56.5 58.2L53.3 59.0L54.9 60.9L53.2 61.6L54.4 62.8L53.0 64.8L53.4 65.5L49.4 67.9L49.6 69.4L51.7 70.2L51.6 74.8L52.9 74.0L54.6 76.9ZM132.5 39.6L94.5 29.2L86.9 24.4L80.5 22.6L76.0 15.4L68.9 11.0L64.6 12.0L58.4 15.2L50.5 23.7L53.1 24.3L66.9 39.7L74.8 46.8L77.0 43.2L80.7 42.6L97.4 51.9L104.5 53.7L120.1 60.3L127.0 60.0L133.1 56.7L134.1 55.3ZM113.7 74.0L115.6 73.9L115.3 70.0L112.8 64.9L105.9 61.2L95.2 57.8L93.0 54.2L87.9 53.9L93.9 59.9L108.8 69.0ZM115.9 68.7L116.4 72.4L120.8 76.0L136.4 77.1L144.2 80.1L146.6 74.3L146.0 72.7L130.2 70.9L117.4 66.1L115.1 66.1ZM99.2 58.9L99.9 58.0L97.9 55.9L94.3 55.2L96.0 57.4ZM129.4 84.6L131.0 90.9L134.5 90.7L136.0 87.2L135.7 84.0L130.8 82.9ZM123.6 81.7L124.3 84.6L127.1 86.9L127.5 82.5Z";
+---
+
+<shanghai-preview class="shanghai-root">
+  <button
+    type="button"
+    class="shanghai-trigger"
+    data-shanghai-trigger
+    aria-expanded="false"
+    aria-controls={popupId}
+  >
+    {label}
+  </button>
+  <div
+    id={popupId}
+    role="dialog"
+    aria-labelledby="shanghai-preview-title"
+    data-shanghai-popup
+    data-side="top"
+    hidden
+    class="shanghai-preview"
+  >
+    <div class="shanghai-heading">
+      <p id="shanghai-preview-title" class="shanghai-title">{t.title}</p>
+      <span class="shanghai-english" aria-hidden="true">{t.subtitle}</span>
+      <button type="button" class="shanghai-close" data-shanghai-close aria-label={t.close}>
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M4 4L12 12M12 4L4 12" />
+        </svg>
+      </button>
+    </div>
+    <svg class="shanghai-map" viewBox="0 0 184 156" aria-hidden="true">
+      <path
+        class="map-grid"
+        d="M0 39H184M0 78H184M0 117H184M46 0V156M92 0V156M138 0V156"
+      />
+      <path class="map-land" d={SHANGHAI_OUTLINE} />
+      <path
+        class="map-river"
+        d="M87 65.8L89.4 72.9L90 77.3L87.7 79.4L86.1 81.6L87.3 83.6L86.1 86.5L83.2 89.3L80.8 91.1L79.3 94.4L78.3 99.3L80 102.4L78.7 105.1L73.6 106.4L67.9 107.6L60.2 106.4"
+      />
+      <circle class="map-marker-halo" cx="84.4" cy="82.8" r="7" />
+      <circle class="map-marker" cx="84.4" cy="82.8" r="3" />
+      <path class="map-leader" d="M89 83H102" />
+      <text class="map-city" x="106" y="86">{t.city}</text>
+      <text class="map-water-label" x="145" y="132">
+        {
+          t.sea.map((line, index) => (
+            <tspan x={t.sea.length > 1 ? 136 : 145} dy={index === 0 ? 0 : 9}>
+              {line}
+            </tspan>
+          ))
+        }
+      </text>
+      <path class="map-north" d="M15 29V17M12 21L15 17L18 21" />
+      <text class="map-north-label" x="15" y="12" text-anchor="middle">N</text>
+    </svg>
+    <p class="shanghai-caption">{t.caption}</p>
+  </div>
+</shanghai-preview>
+
+<style>
+  .shanghai-root {
+    display: inline;
+  }
+
+  .shanghai-trigger {
+    border: 0;
+    border-radius: 2px;
+    padding: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    vertical-align: baseline;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--ink-300);
+    text-decoration-style: dotted;
+    text-underline-offset: 4px;
+    transition:
+      color 150ms ease-out,
+      text-decoration-color 150ms ease-out;
+  }
+
+  .shanghai-trigger[data-popup-open],
+  .shanghai-trigger:focus-visible {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+
+  .shanghai-trigger:focus-visible,
+  .shanghai-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .shanghai-trigger:active {
+    color: var(--accent);
+  }
+
+  .shanghai-preview {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    width: 192px;
+    max-width: calc(100vw - 24px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px;
+    background: var(--surface);
+    color: var(--ink-700);
+    box-shadow: var(--shadow-card);
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+    transition:
+      opacity 180ms ease-out,
+      scale 180ms var(--ease-smooth-out),
+      translate 180ms var(--ease-smooth-out);
+  }
+
+  .shanghai-preview[hidden] {
+    display: none;
+  }
+
+  .shanghai-preview[data-closing] {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 4px;
+    transition-duration: 120ms;
+    pointer-events: none;
+  }
+
+  .shanghai-preview[data-side="bottom"][data-closing] {
+    translate: 0 -4px;
+  }
+
+  @starting-style {
+    .shanghai-preview {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 4px;
+    }
+
+    .shanghai-preview[data-side="bottom"] {
+      translate: 0 -4px;
+    }
+  }
+
+  .shanghai-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 3px;
+  }
+
+  .shanghai-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .shanghai-english {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--ink-400);
+  }
+
+  .shanghai-close {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    border: 0;
+    border-radius: 4px;
+    padding: 5px;
+    color: var(--ink-400);
+    background: none;
+    cursor: pointer;
+    transition:
+      color 150ms ease-out,
+      transform 150ms ease-out;
+  }
+
+  .shanghai-close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .shanghai-close:active {
+    transform: scale(0.95);
+  }
+
+  .shanghai-map {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    border-radius: 7px;
+    background: var(--ink-50);
+  }
+
+  .map-grid {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 0.5;
+    opacity: 0.6;
+  }
+
+  .map-land {
+    fill: var(--surface);
+    stroke: var(--ink-400);
+    stroke-width: 0.8;
+    stroke-linejoin: round;
+  }
+
+  .map-river {
+    fill: none;
+    stroke: var(--ink-300);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .map-marker-halo {
+    fill: var(--accent-soft);
+  }
+
+  .map-marker {
+    fill: var(--accent);
+    stroke: var(--surface);
+    stroke-width: 1.5;
+  }
+
+  .map-leader {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.6;
+  }
+
+  .map-city {
+    fill: var(--accent);
+    font-size: 9px;
+    font-weight: 500;
+  }
+
+  .map-water-label {
+    fill: var(--ink-400);
+    font-size: 8px;
+    letter-spacing: 2px;
+  }
+
+  .map-water-label:lang(en) {
+    letter-spacing: 0;
+  }
+
+  .map-north {
+    fill: none;
+    stroke: var(--ink-400);
+    stroke-width: 0.8;
+  }
+
+  .map-north-label {
+    fill: var(--ink-400);
+    font-family: var(--font-mono);
+    font-size: 7px;
+  }
+
+  .shanghai-caption {
+    margin: 7px 2px 2px;
+    color: var(--ink-500);
+    font-size: 10px;
+    line-height: 1.6;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .shanghai-trigger:hover {
+      color: var(--accent);
+      text-decoration-color: var(--accent);
+    }
+
+    .shanghai-close:hover {
+      color: var(--ink-800);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shanghai-preview {
+      transition-property: opacity;
+    }
+
+    .shanghai-preview[data-closing],
+    .shanghai-preview[data-side="bottom"][data-closing] {
+      scale: 1;
+      translate: 0 0;
+    }
+
+    @starting-style {
+      .shanghai-preview,
+      .shanghai-preview[data-side="bottom"] {
+        scale: 1;
+        translate: 0 0;
+      }
+    }
+
+    .shanghai-close:active {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const HOVER_OPEN_DELAY = 180;
+  const HOVER_CLOSE_DELAY = 160;
+  const SIDE_OFFSET = 10;
+  const COLLISION_PADDING = 12;
+
+  class ShanghaiPreview extends HTMLElement {
+    private controller: AbortController | null = null;
+    private openTimer = 0;
+    private closeTimer = 0;
+    private hideTimer = 0;
+
+    connectedCallback() {
+      this.controller?.abort();
+      this.controller = new AbortController();
+      const { signal } = this.controller;
+
+      const trigger = this.querySelector<HTMLButtonElement>("[data-shanghai-trigger]");
+      const popup = this.querySelector<HTMLElement>("[data-shanghai-popup]");
+      const closeButton = this.querySelector<HTMLButtonElement>("[data-shanghai-close]");
+      if (!trigger || !popup) {
+        return;
+      }
+
+      const prefersReducedMotion = () =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const canHover = () =>
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+      const clearTimers = () => {
+        clearTimeout(this.openTimer);
+        clearTimeout(this.closeTimer);
+        clearTimeout(this.hideTimer);
+      };
+
+      const place = () => {
+        if (popup.hidden) {
+          return;
+        }
+        const rect = trigger.getBoundingClientRect();
+        const width = popup.offsetWidth || 192;
+        const height = popup.offsetHeight || 220;
+        const aboveTop = rect.top - height - SIDE_OFFSET;
+        const side = aboveTop < COLLISION_PADDING ? "bottom" : "top";
+        const top = side === "top" ? aboveTop : rect.bottom + SIDE_OFFSET;
+        const left = Math.min(
+          Math.max(rect.left + rect.width / 2 - width / 2, COLLISION_PADDING),
+          window.innerWidth - width - COLLISION_PADDING,
+        );
+        popup.dataset.side = side;
+        popup.style.transform = `translate(${Math.round(left)}px, ${Math.round(top)}px)`;
+      };
+
+      const show = () => {
+        clearTimers();
+        delete popup.dataset.closing;
+        const wasHidden = popup.hidden;
+        popup.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        trigger.toggleAttribute("data-popup-open", true);
+        place();
+        if (wasHidden) {
+          void popup.offsetWidth;
+        }
+      };
+
+      const hide = (restoreFocus = false) => {
+        clearTimers();
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.toggleAttribute("data-popup-open", false);
+        if (popup.hidden) {
+          return;
+        }
+        if (prefersReducedMotion()) {
+          delete popup.dataset.closing;
+          popup.hidden = true;
+          if (restoreFocus) {
+            trigger.focus({ preventScroll: true });
+          }
+          return;
+        }
+        popup.dataset.closing = "";
+        this.hideTimer = window.setTimeout(() => {
+          delete popup.dataset.closing;
+          popup.hidden = true;
+          if (restoreFocus) {
+            trigger.focus({ preventScroll: true });
+          }
+        }, 140);
+      };
+
+      const scheduleOpen = () => {
+        clearTimeout(this.closeTimer);
+        if (!popup.hidden && !popup.hasAttribute("data-closing")) {
+          return;
+        }
+        this.openTimer = window.setTimeout(show, HOVER_OPEN_DELAY);
+      };
+
+      const scheduleClose = () => {
+        clearTimeout(this.openTimer);
+        this.closeTimer = window.setTimeout(() => hide(false), HOVER_CLOSE_DELAY);
+      };
+
+      trigger.addEventListener(
+        "click",
+        () => {
+          if (popup.hidden || popup.hasAttribute("data-closing")) {
+            show();
+          } else {
+            hide(false);
+          }
+        },
+        { signal },
+      );
+
+      trigger.addEventListener(
+        "pointerenter",
+        (event) => {
+          if (event.pointerType === "mouse" && canHover()) {
+            scheduleOpen();
+          }
+        },
+        { signal },
+      );
+      trigger.addEventListener(
+        "pointerleave",
+        (event) => {
+          if (event.pointerType === "mouse" && canHover()) {
+            scheduleClose();
+          }
+        },
+        { signal },
+      );
+      popup.addEventListener(
+        "pointerenter",
+        (event) => {
+          if (event.pointerType === "mouse" && canHover()) {
+            clearTimeout(this.closeTimer);
+          }
+        },
+        { signal },
+      );
+      popup.addEventListener(
+        "pointerleave",
+        (event) => {
+          if (event.pointerType === "mouse" && canHover()) {
+            scheduleClose();
+          }
+        },
+        { signal },
+      );
+
+      closeButton?.addEventListener("click", () => hide(true), { signal });
+
+      document.addEventListener(
+        "pointerdown",
+        (event) => {
+          if (!popup.hidden && !this.contains(event.target as Node)) {
+            hide(false);
+          }
+        },
+        { signal },
+      );
+      document.addEventListener(
+        "keydown",
+        (event) => {
+          if (!popup.hidden && event.key === "Escape") {
+            hide(true);
+          }
+        },
+        { signal },
+      );
+      window.addEventListener("scroll", place, { passive: true, signal });
+      window.addEventListener("resize", place, { signal });
+    }
+
+    disconnectedCallback() {
+      clearTimeout(this.openTimer);
+      clearTimeout(this.closeTimer);
+      clearTimeout(this.hideTimer);
+      this.controller?.abort();
+      this.controller = null;
+    }
+  }
+
+  if (!customElements.get("shanghai-preview")) {
+    customElements.define("shanghai-preview", ShanghaiPreview);
+  }
+</script>

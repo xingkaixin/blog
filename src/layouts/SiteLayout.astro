@@ -3,13 +3,13 @@ import jetBrainsMono400CoreUrl from "@/assets/fonts/jetbrains-mono-400-core.woff
 import outfit400CoreUrl from "@/assets/fonts/outfit-400-core.woff2?url";
 import smileyFontUrl from "@/assets/fonts/smiley-sans.css?url";
 import { ClientRouter } from "astro:transitions";
+import MobileHeaderMenu from "@/components/astro/MobileHeaderMenu.astro";
 import SceneFooter from "@/components/astro/SceneFooter.astro";
 import ReadingProgress from "@/components/astro/ReadingProgress.astro";
 import Screensaver from "@/components/astro/Screensaver.astro";
 import SearchLauncher from "@/components/astro/SearchLauncher.astro";
 import SiteBrand from "@/components/astro/SiteBrand.astro";
 import StampBook from "@/components/astro/StampBook.astro";
-import { MobileHeaderMenu } from "@/components/mobile-header-menu";
 import {
   buildJsonLd,
   OG_HEIGHT,
@@ -334,7 +334,7 @@ const pageTransition = {
             </a>
           )}
 
-            <MobileHeaderMenu currentPath={currentPath} locale={locale} client:media="(max-width: 1023px)" />
+            <MobileHeaderMenu currentPath={currentPath} locale={locale} />
           </div>
           {
             compactHeader && (
