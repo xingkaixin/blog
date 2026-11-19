@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildFeed, feedChannels, filterFeedPosts } from "@/lib/feed";
+import {
+  buildFeed,
+  feedChannels,
+  filterFeedPosts,
+  normalizeFeedHtml,
+  renderFeedXml,
+} from "@/lib/feed";
 import type { PublishedPost } from "@/lib/published-post";
 
 function post(index: number, tags: string[] = index === 0 ? ["AI & tools"] : []): PublishedPost {
@@ -64,5 +70,24 @@ describe("RSS feed", () => {
       "/feed-ai.xml",
       "/feed-life.xml",
     ]);
+  });
+
+  it("includes full HTML content with absolute URLs and escaped CDATA delimiters", async () => {
+    const html = normalizeFeedHtml(
+      '<p>Read <a href="/posts/demo/">this</a> and <img src="/avatar.webp" alt="avatar" /></p>',
+    );
+    expect(html).toContain('href="https://xingkaixin.me/posts/demo/"');
+    expect(html).toContain('src="https://xingkaixin.me/avatar.webp"');
+
+    const xml = await renderFeedXml([
+      {
+        post: post(0, ["Agent"]),
+        body: "## 小节\n\n正文含 `]]>` 与 [站内链接](/posts/demo/)。",
+      },
+    ]);
+    expect(xml).toContain('xmlns:content="http://purl.org/rss/1.0/modules/content/"');
+    expect(xml).toContain("<content:encoded><![CDATA[");
+    expect(xml).toContain("]]]]><![CDATA[>");
+    expect(xml).toContain('href="https://xingkaixin.me/posts/demo/"');
   });
 });

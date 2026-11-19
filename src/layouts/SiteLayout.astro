@@ -30,6 +30,7 @@ import {
   type Locale,
 } from "@/lib/i18n";
 import { chromeMessages } from "@/lib/messages/chrome";
+import { feedChannels } from "@/lib/feed";
 import { siteConfig, siteCopy } from "@/lib/site";
 import {
   desktopNavigation,
@@ -125,12 +126,16 @@ const pageTransition = {
       <link rel="alternate" hreflang={htmlLang[alternate.locale]} href={alternate.href} />
     ))}
     {englishAlternate && <link rel="alternate" hreflang="x-default" href={englishAlternate.href} />}
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${copy.title} RSS`}
-      href={`${siteConfig.url}/feed.xml`}
-    />
+    {
+      feedChannels.map((channel) => (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={channel.id === "all" ? `${copy.title} RSS` : channel.title}
+          href={`${siteConfig.url}${channel.path}`}
+        />
+      ))
+    }
     <meta name="theme-color" content="#f8faf9" />
     <script is:inline define:vars={{ themeToggleEvent }}>
       (function () {

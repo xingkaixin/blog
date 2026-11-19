@@ -1,10 +1,13 @@
 import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
-import { buildFeed } from "@/lib/feed";
+import { renderFeedXml } from "@/lib/feed";
 
 export async function GET() {
-  const posts = (await getPublishedPosts()).map(toPostListItem);
+  const posts = (await getPublishedPosts()).map((entry) => ({
+    post: toPostListItem(entry),
+    body: entry.body ?? "",
+  }));
 
-  return new Response(buildFeed(posts, "life"), {
+  return new Response(await renderFeedXml(posts, "life"), {
     headers: { "Content-Type": "application/rss+xml; charset=utf-8" },
   });
 }
