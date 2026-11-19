@@ -1,14 +1,39 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import { feedChannels, filterFeedPosts } from "@/lib/feed";
 import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
 import { rssMessages } from "@/lib/messages/rss";
+import { postHref } from "@/lib/published-post";
 import { siteConfig, siteCopy } from "@/lib/site";
 
 export const getStaticPaths = bilingualStaticPaths;
 
 const locale = localeFromPath(Astro.url.pathname);
 const t = rssMessages[locale];
-const feedUrl = `${siteConfig.url}/feed.xml`;
+const allPosts = (await getPublishedPosts()).map(toPostListItem);
+
+const channelItems = feedChannels.map((channel) => {
+  const posts = filterFeedPosts(allPosts, channel.id);
+  const copy = t.channels[channel.id];
+  return {
+    id: channel.id,
+    frequency: channel.frequency,
+    dialPosition: channel.dialPosition,
+    url: `${siteConfig.url}${channel.path}`,
+    shortLabel: copy.shortLabel,
+    name: copy.name,
+    description: copy.description,
+    countLabel: t.postCount(posts.length),
+    recent: posts.slice(0, 2).map((post) => ({
+      title: post.title,
+      date: post.date,
+      href: postHref(post.slug),
+    })),
+  };
+});
+
+const initial = channelItems[0];
 const meta = {
   title: t.title,
   description: t.description(siteCopy[locale].title),
@@ -18,21 +43,93 @@ const meta = {
 ---
 
 <SiteLayout meta={meta}>
+  {
+    channelItems.slice(1).map((channel) => (
+      <link
+        slot="head"
+        rel="alternate"
+        type="application/rss+xml"
+        title={`${siteCopy[locale].title} · ${channel.name}`}
+        href={channel.url}
+      />
+    ))
+  }
+
   <article class="rss-page" data-agent-content>
-    <svg class="rss-background" viewBox="0 0 320 320" fill="none" aria-hidden="true">
+    <svg class="rss-background" data-rss-waves viewBox="0 0 320 320" fill="none" aria-hidden="true">
       <circle cx="64" cy="256" r="22" fill="currentColor" />
-      <path d="M64 156a100 100 0 0 1 100 100M64 56a200 200 0 0 1 200 200" stroke="currentColor" stroke-width="28" stroke-linecap="round" />
+      <path d="M64 156a100 100 0 0 1 100 100" stroke="currentColor" stroke-width="28" stroke-linecap="round" />
+      <path d="M64 56a200 200 0 0 1 200 200" stroke="currentColor" stroke-width="28" stroke-linecap="round" />
     </svg>
     <div class="rss-content">
       <h1>{t.title}</h1>
       <p class="intro">{t.intro}</p>
       <p class="description">{t.body}</p>
 
-      <rss-subscription>
+      <rss-subscription data-channels={JSON.stringify(channelItems)}>
+        <section class="tuner" aria-label={t.tunerLabel}>
+          <div class="tuner-head">
+            <div class="tuner-freq" aria-live="polite">
+              <span class="freq-value" data-rss-freq>{initial.frequency}</span>
+              <span class="freq-unit">{t.unit}</span>
+            </div>
+            <div class="tuner-meta">
+              <span class="tuner-name" data-rss-name>{initial.name}</span>
+              <span class="tuner-count" data-rss-count>{initial.countLabel}</span>
+            </div>
+          </div>
+
+          <div class="tuner-scale" data-rss-scale>
+            <div class="scale-ticks" aria-hidden="true">
+              <span>96</span>
+              <span>100</span>
+              <span>104</span>
+              <span>108</span>
+            </div>
+            <span class="tuner-needle" data-rss-needle style={`left: ${initial.dialPosition}%`} aria-hidden="true" />
+          </div>
+
+          <div class="tuner-stops" role="radiogroup" aria-label={t.tunerLabel}>
+            {
+              channelItems.map((channel, index) => (
+                <button
+                  type="button"
+                  role="radio"
+                  class="stop-btn"
+                  data-channel-index={index}
+                  aria-checked={index === 0 ? "true" : "false"}
+                  tabindex={index === 0 ? 0 : -1}
+                >
+                  <span class="stop-freq">{channel.frequency}</span>
+                  <span class="stop-label">{channel.shortLabel}</span>
+                </button>
+              ))
+            }
+          </div>
+
+          <p class="channel-desc" data-rss-desc>{initial.description}</p>
+
+          <div class="on-air">
+            <span class="on-air-label">{t.onAir}</span>
+            <ul class="on-air-list" data-rss-recent>
+              {
+                initial.recent.map((post) => (
+                  <li>
+                    <a href={post.href}>
+                      <time datetime={post.date}>{post.date}</time>
+                      <span>{post.title}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </section>
+
         <label for="rss-address">{t.address}</label>
         <div class="address-row">
-          <input id="rss-address" type="url" value={feedUrl} readonly spellcheck="false" />
-          <button type="button" hidden>
+          <input id="rss-address" type="url" value={initial.url} readonly spellcheck="false" />
+          <button type="button" data-rss-copy hidden>
             <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <g class="copy-icon"><rect x="7" y="7" width="10" height="10" rx="2" /><path d="M12 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h2" /></g>
               <path class="check-icon" d="m4 10 4 4 8-8" />
@@ -41,52 +138,247 @@ const meta = {
           </button>
         </div>
         <p class="copy-status" role="status" aria-live="polite"></p>
-      </rss-subscription>
 
-      <p class="instructions">{t.instructions}</p>
-      <a class="feed-link" href={feedUrl} data-astro-reload>{t.rawFeed}</a>
+        <p class="instructions">{t.instructions}</p>
+        <a class="feed-link" data-rss-raw href={initial.url} data-astro-reload>{t.rawFeed}</a>
+      </rss-subscription>
     </div>
   </article>
 </SiteLayout>
 
 <style>
-  .rss-page { position: relative; isolation: isolate; overflow: hidden; max-width: 1056px; margin: auto; padding: 88px 32px 80px; }
-  .rss-content { position: relative; max-width: 600px; }
-  .rss-background { position: absolute; z-index: -1; width: 400px; height: 400px; right: -24px; top: 24px; color: var(--accent); opacity: .07; pointer-events: none; }
+  .rss-page { position: relative; isolation: isolate; overflow: hidden; max-width: 1056px; margin: auto; padding: 72px 32px 80px; }
+  .rss-content { position: relative; max-width: 620px; }
+  .rss-background { position: absolute; z-index: -1; width: 400px; height: 400px; right: -24px; top: 24px; color: var(--accent); opacity: .07; pointer-events: none; transition: opacity 260ms var(--ease-smooth-out), transform 260ms var(--ease-smooth-out); }
+  .rss-background[data-tuning] { opacity: .14; transform: scale(1.03); }
   h1 { margin: 0; font-family: var(--font-display); font-size: clamp(36px, 5vw, 48px); line-height: 1.25; color: var(--ink-800); }
-  .intro { margin: 24px 0 12px; font-size: 20px; line-height: 1.7; color: var(--ink-700); }
-  .description { font-size: 14px; line-height: 1.9; color: var(--ink-500); text-wrap: pretty; }
-  rss-subscription { display: block; margin-top: 36px; }
+  .intro { margin: 20px 0 10px; font-size: 20px; line-height: 1.65; color: var(--ink-700); }
+  .description { font-size: 14px; line-height: 1.85; color: var(--ink-500); text-wrap: pretty; }
+  rss-subscription { display: block; margin-top: 28px; }
+
+  .tuner {
+    margin-bottom: 28px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+  }
+  .tuner-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-bottom: 14px;
+  }
+  .tuner-freq {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .freq-value {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .freq-unit {
+    font-size: 12px;
+    color: var(--ink-400);
+  }
+  .tuner-meta {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .tuner-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-800);
+  }
+  .tuner-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tuner-scale {
+    position: relative;
+    height: 50px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--ink-50);
+    background-image:
+      repeating-linear-gradient(90deg, transparent 0 11px, color-mix(in srgb, var(--ink-500) 22%, transparent) 11px 12px),
+      repeating-linear-gradient(90deg, transparent 0 47px, color-mix(in srgb, var(--ink-600) 40%, transparent) 47px 48px);
+    background-size: 100% 14px, 100% 24px;
+    background-position: left bottom, left bottom;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .scale-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 14px 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-400);
+    pointer-events: none;
+    user-select: none;
+  }
+  .tuner-needle {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
+    transform: translateX(-50%);
+    transition: left var(--duration-fast) var(--ease-smooth-out);
+    pointer-events: none;
+  }
+
+  .tuner-stops {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .stop-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 48px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--ink-50);
+    color: var(--ink-600);
+    cursor: pointer;
+    transition: border-color var(--duration-quick), background-color var(--duration-quick), color var(--duration-quick);
+  }
+  .stop-freq {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-400);
+  }
+  .stop-label {
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  .stop-btn:hover {
+    border-color: var(--ink-300);
+    color: var(--ink-800);
+  }
+  .stop-btn[aria-checked="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .stop-btn[aria-checked="true"] .stop-freq {
+    color: var(--accent);
+  }
+
+  .channel-desc {
+    margin: 14px 0 0;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--ink-600);
+  }
+
+  .on-air {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line);
+  }
+  .on-air-label {
+    display: block;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-400);
+  }
+  .on-air-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 4px;
+  }
+  .on-air-list :global(a) {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 3px 0;
+    font-size: 12.5px;
+    color: var(--ink-700);
+    text-decoration: none;
+    transition: color var(--duration-quick);
+  }
+  .on-air-list :global(a:hover) {
+    color: var(--accent);
+  }
+  .on-air-list :global(a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .on-air-list :global(time) {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-400);
+    font-variant-numeric: tabular-nums;
+  }
+  .on-air-list :global(span) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--ink-600); }
   .address-row { display: flex; gap: 10px; }
-  input { min-width: 0; flex: 1; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); color: var(--ink-700); font: 13px var(--font-mono); text-overflow: ellipsis; }
-  button { flex-shrink: 0; min-width: 128px; border-radius: 6px; padding: 12px 16px; background: var(--ink-800); color: var(--bg); font-size: 13px; cursor: pointer; transition: transform 150ms var(--ease-smooth-out); }
-  button:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-  button:active:not(:focus-visible) { transform: scale(.97); }
-  button:disabled { cursor: wait; }
-  button[data-copied] { background: var(--accent-soft); color: var(--accent); }
-  .check-icon, button[data-copied] .copy-icon { display: none; }
-  button[data-copied] .check-icon { display: block; }
+  input { min-width: 0; flex: 1; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 13px 14px; background: var(--surface); color: var(--ink-700); font: 13px var(--font-mono); text-overflow: ellipsis; }
+  [data-rss-copy] { flex-shrink: 0; min-width: 128px; border-radius: 6px; padding: 12px 16px; background: var(--ink-800); color: var(--bg); font-size: 13px; cursor: pointer; transition: transform 150ms var(--ease-smooth-out), background-color var(--duration-quick); }
+  [data-rss-copy]:not([hidden]) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  [data-rss-copy]:active:not(:focus-visible) { transform: scale(.97); }
+  [data-rss-copy]:disabled { cursor: wait; }
+  [data-rss-copy][data-copied] { background: var(--accent-soft); color: var(--accent); }
+  .check-icon, [data-rss-copy][data-copied] .copy-icon { display: none; }
+  [data-rss-copy][data-copied] .check-icon { display: block; }
   @media (hover: hover) and (pointer: fine) {
-    button:hover:not([data-copied]):not(:disabled) { background: var(--ink-700); }
+    [data-rss-copy]:hover:not([data-copied]):not(:disabled) { background: var(--ink-700); }
   }
   @media (prefers-reduced-motion: reduce) {
-    button { transition: none; }
-    button:active:not(:focus-visible) { transform: none; }
+    .rss-background, .tuner-needle, .stop-btn, [data-rss-copy] { transition: none; }
+    [data-rss-copy]:active:not(:focus-visible) { transform: none; }
   }
-  input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  input:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .copy-status { min-height: 24px; margin-top: 8px; font-size: 12px; line-height: 2; color: var(--ink-600); }
-  /* The button already shows success; keep the message for screen readers without shifting layout. */
   .copy-status[data-quiet] { clip-path: inset(50%); }
   .instructions { margin: 8px 0 16px; font-size: 13px; line-height: 1.9; color: var(--ink-500); }
   .feed-link { font-size: 12px; color: var(--ink-500); text-decoration: underline; text-underline-offset: 4px; }
   .feed-link:hover { color: var(--accent); }
   @media (max-width: 640px) {
-    .rss-page { padding: 52px 20px 48px; }
+    .rss-page { padding: 48px 20px 48px; }
     .rss-background { width: 260px; height: 260px; right: -80px; top: 0; }
     .intro { font-size: 18px; }
+    .tuner { padding: 16px; }
     .address-row { flex-direction: column; }
-    button { min-height: 44px; }
+    [data-rss-copy] { min-height: 44px; }
   }
   @media (pointer: coarse) {
     input { font-size: 16px; }
@@ -97,51 +389,211 @@ const meta = {
   import { localeFromLang } from "@/lib/i18n";
   import { rssMessages } from "@/lib/messages/rss";
 
+  type ChannelPayload = {
+    id: string;
+    frequency: string;
+    dialPosition: number;
+    url: string;
+    shortLabel: string;
+    name: string;
+    description: string;
+    countLabel: string;
+    recent: Array<{ title: string; date: string; href: string }>;
+  };
+
   class RssSubscription extends HTMLElement {
     private resetTimer: ReturnType<typeof setTimeout> | undefined;
+    private waveTimer: ReturnType<typeof setTimeout> | undefined;
+    private channels: ChannelPayload[] = [];
+    private activeIndex = 0;
 
     connectedCallback() {
-      this.querySelector("button")!.hidden = false;
+      const copyButton = this.querySelector<HTMLButtonElement>("[data-rss-copy]");
+      if (copyButton) {
+        copyButton.hidden = false;
+      }
+      try {
+        this.channels = JSON.parse(this.dataset.channels ?? "[]") as ChannelPayload[];
+      } catch {
+        this.channels = [];
+      }
     }
 
     disconnectedCallback() {
       clearTimeout(this.resetTimer);
+      clearTimeout(this.waveTimer);
+    }
+
+    private selectChannel(index: number, focusStop = false) {
+      const channel = this.channels[index];
+      if (!channel) {
+        return;
+      }
+      this.activeIndex = index;
+
+      const freq = this.querySelector<HTMLElement>("[data-rss-freq]");
+      const name = this.querySelector<HTMLElement>("[data-rss-name]");
+      const count = this.querySelector<HTMLElement>("[data-rss-count]");
+      const desc = this.querySelector<HTMLElement>("[data-rss-desc]");
+      const needle = this.querySelector<HTMLElement>("[data-rss-needle]");
+      const recentList = this.querySelector<HTMLElement>("[data-rss-recent]");
+      const input = this.querySelector<HTMLInputElement>("input");
+      const rawLink = this.querySelector<HTMLAnchorElement>("[data-rss-raw]");
+      const copyButton = this.querySelector<HTMLButtonElement>("[data-rss-copy]");
+      const copyLabel = copyButton?.querySelector("span");
+      const status = this.querySelector<HTMLElement>('[role="status"]');
+      const t = rssMessages[localeFromLang(document.documentElement.lang)];
+
+      if (freq) {
+        freq.textContent = channel.frequency;
+      }
+      if (name) {
+        name.textContent = channel.name;
+      }
+      if (count) {
+        count.textContent = channel.countLabel;
+      }
+      if (desc) {
+        desc.textContent = channel.description;
+      }
+      if (needle) {
+        needle.style.left = `${channel.dialPosition}%`;
+      }
+      if (input) {
+        input.value = channel.url;
+      }
+      if (rawLink) {
+        rawLink.href = channel.url;
+      }
+
+      if (recentList) {
+        recentList.replaceChildren(
+          ...channel.recent.map((post) => {
+            const li = document.createElement("li");
+            const link = document.createElement("a");
+            link.href = post.href;
+            const time = document.createElement("time");
+            time.dateTime = post.date;
+            time.textContent = post.date;
+            const title = document.createElement("span");
+            title.textContent = post.title;
+            link.append(time, title);
+            li.append(link);
+            return li;
+          }),
+        );
+      }
+
+      const stops = [...this.querySelectorAll<HTMLButtonElement>("[data-channel-index]")];
+      stops.forEach((button, stopIndex) => {
+        const selected = stopIndex === index;
+        button.setAttribute("aria-checked", String(selected));
+        button.tabIndex = selected ? 0 : -1;
+        if (selected && focusStop) {
+          button.focus();
+        }
+      });
+
+      clearTimeout(this.resetTimer);
+      copyButton?.removeAttribute("data-copied");
+      if (copyLabel) {
+        copyLabel.textContent = t.copy;
+      }
+      if (status) {
+        status.textContent = "";
+        status.removeAttribute("data-quiet");
+      }
+
+      const waves = document.querySelector<SVGElement>("[data-rss-waves]");
+      if (waves) {
+        waves.setAttribute("data-tuning", "");
+        clearTimeout(this.waveTimer);
+        this.waveTimer = setTimeout(() => waves.removeAttribute("data-tuning"), 320);
+      }
     }
 
     constructor() {
       super();
-      this.addEventListener("click", async (event) => {
-        if (!(event.target instanceof Element) || !event.target.closest("button")) {
+      this.addEventListener("keydown", (event) => {
+        const target = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-channel-index]") : null;
+        if (!target || this.channels.length === 0) {
           return;
         }
-        const input = this.querySelector("input")!;
-        const button = this.querySelector("button")!;
-        const label = button.querySelector("span")!;
+        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+          event.preventDefault();
+          this.selectChannel((this.activeIndex + 1) % this.channels.length, true);
+        } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+          event.preventDefault();
+          this.selectChannel((this.activeIndex - 1 + this.channels.length) % this.channels.length, true);
+        }
+      });
+
+      this.addEventListener("click", async (event) => {
+        if (!(event.target instanceof Element)) {
+          return;
+        }
+
+        const stopButton = event.target.closest<HTMLButtonElement>("[data-channel-index]");
+        if (stopButton) {
+          this.selectChannel(Number(stopButton.dataset.channelIndex));
+          return;
+        }
+
+        const scale = event.target.closest<HTMLElement>("[data-rss-scale]");
+        if (scale && this.channels.length > 0) {
+          const rect = scale.getBoundingClientRect();
+          const percent = ((event.clientX - rect.left) / rect.width) * 100;
+          let nearestIndex = 0;
+          let nearestDist = Infinity;
+          this.channels.forEach((channel, idx) => {
+            const dist = Math.abs(channel.dialPosition - percent);
+            if (dist < nearestDist) {
+              nearestDist = dist;
+              nearestIndex = idx;
+            }
+          });
+          this.selectChannel(nearestIndex);
+          return;
+        }
+
+        const copyButton = event.target.closest<HTMLButtonElement>("[data-rss-copy]");
+        if (!copyButton) {
+          return;
+        }
+        const input = this.querySelector<HTMLInputElement>("input")!;
+        const label = copyButton.querySelector("span")!;
         const status = this.querySelector<HTMLElement>('[role="status"]')!;
         const t = rssMessages[localeFromLang(document.documentElement.lang)];
         clearTimeout(this.resetTimer);
-        button.removeAttribute("data-copied");
-        button.disabled = true;
+        copyButton.removeAttribute("data-copied");
+        copyButton.disabled = true;
         label.textContent = t.copying;
         status.textContent = "";
         status.removeAttribute("data-quiet");
+        const url = input.value;
         try {
-          await navigator.clipboard.writeText(input.value);
-          button.setAttribute("data-copied", "");
+          await navigator.clipboard.writeText(url);
+          if (input.value !== url) {
+            return;
+          }
+          copyButton.setAttribute("data-copied", "");
           label.textContent = t.copied;
           status.textContent = t.copiedStatus;
           status.setAttribute("data-quiet", "");
           this.resetTimer = setTimeout(() => {
-            button.removeAttribute("data-copied");
+            copyButton.removeAttribute("data-copied");
             label.textContent = t.copy;
           }, 2500);
         } catch {
+          if (input.value !== url) {
+            return;
+          }
           label.textContent = t.retryCopy;
           input.focus();
           input.select();
           status.textContent = t.copyFailed;
         } finally {
-          button.disabled = false;
+          copyButton.disabled = false;
         }
       });
     }

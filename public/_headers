@@ -20,6 +20,12 @@
 /feed.xml
   Content-Type: application/rss+xml; charset=utf-8
 
+/feed-ai.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
+/feed-life.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
 /openapi.json
   Content-Type: application/vnd.oai.openapi+json;version=3.1
   Cache-Control: public, max-age=300
