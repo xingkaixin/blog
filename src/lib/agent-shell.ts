@@ -6,6 +6,7 @@ import { rankPosts, type SearchIndexItem } from "./search";
 import { siteConfig } from "./site";
 import { stamps, type StampId } from "./stamps";
 import type { WebMcpToolDescriptor } from "./webmcp";
+import type { WebMcpPost } from "./webmcp-post";
 
 export type ShellTone = "default" | "dim" | "accent" | "film" | "ok" | "error";
 
@@ -119,14 +120,9 @@ function parseMcpInput(toolName: string, rawArgs: string): Record<string, unknow
 function renderMarkdownLines(markdown: string, maxLines = 48): ShellLine[] {
   const rawLines = markdown.replace(/\r\n/g, "\n").split("\n");
   const visible = rawLines.slice(0, maxLines);
-  let inFrontmatter = visible[0] === "---";
   let fenced = false;
 
-  const lines = visible.map((rawLine, index) => {
-    if (inFrontmatter) {
-      inFrontmatter = index === 0 || rawLine !== "---";
-      return line(text(rawLine, "dim"));
-    }
+  const lines = visible.map((rawLine) => {
     if (rawLine.startsWith("```")) {
       fenced = !fenced;
       return line(text(rawLine, "film"));
@@ -152,10 +148,10 @@ function buildHelpLines(): ShellLine[] {
       text("  ls [posts|projects|stamps|labs]", "accent"),
       text("   列出文章、项目、印章或实验室"),
     ),
-    line(text("  grep <关键词>", "accent"), text("                     全文搜索已发布文章")),
+    line(text("  grep <关键词>", "accent"), text("                     搜索文章标题、摘要和标签")),
     line(
       text("  cat <slug>", "accent"),
-      text("                        读取文章原始 Markdown 与 token 估算"),
+      text("                        读取 Markdown 正文与 token 估算"),
     ),
     line(
       text("  mcp tools", "accent"),
@@ -258,14 +254,15 @@ async function handleGrep(query: string, deps: ShellDeps): Promise<ShellExecutio
     return { lines: [line(text("用法：grep <关键词>，例如 grep Harness", "error"))] };
   }
   const posts = await deps.loadPosts();
-  const matches = rankPosts(posts, { query }).slice(0, 10);
+  const matches = rankPosts(posts, { query });
   if (matches.length === 0) {
     return { lines: [line(text(`没有命中「${query}」的文章。`, "dim"))] };
   }
+  const visible = matches.slice(0, 10);
   return {
     lines: [
-      line(text(`命中 ${matches.length} 篇文章：`, "ok")),
-      ...matches.map((post) =>
+      line(text(`命中 ${matches.length} 篇，显示 ${visible.length} 篇：`, "ok")),
+      ...visible.map((post) =>
         line(
           text(`${post.date}  `, "dim"),
           text(`${post.slug}  `, "film"),
@@ -286,29 +283,14 @@ async function handleCat(rawSlug: string, deps: ShellDeps): Promise<ShellExecuti
     return { lines: [line(text("用法：cat <slug>，先用 ls posts 查看文章 slug", "error"))] };
   }
 
-  const raw = (await deps.invokeTool("get_post", { slug })) as {
-    slug: string;
-    title: string;
-    date: string;
-    tags: string[];
-    content: string;
-  };
-
-  const frontmatter = [
-    "---",
-    `title: ${raw.title}`,
-    `date: "${raw.date}"`,
-    `tags: [${raw.tags.join(", ")}]`,
-    "---",
-    "",
-  ].join("\n");
-  const fullMarkdown = `${frontmatter}${raw.content}`;
+  const raw = (await deps.invokeTool("get_post", { slug })) as WebMcpPost;
   const unlocked = deps.collectShellStamp();
 
   const lines: ShellLine[] = [
-    ...renderMarkdownLines(fullMarkdown),
+    line(text(raw.title, "accent")),
+    ...renderMarkdownLines(raw.content),
     line(
-      text(`[${formatBytesAndTokens(fullMarkdown)}] · `, "dim"),
+      text(`[${formatBytesAndTokens(raw.content)}] · `, "dim"),
       link("在阅读页打开全文 →", postHref(raw.slug)),
     ),
   ];
@@ -427,8 +409,9 @@ async function handleOpen(target: string, deps: ShellDeps): Promise<ShellExecuti
       lines: [line(text("用法：open <slug|posts|projects|photos|rss|desk|logos>", "error"))],
     };
   }
-  const route = NAMED_ROUTES[key.toLowerCase()];
-  if (route) {
+  const routeName = key.toLowerCase();
+  if (Object.hasOwn(NAMED_ROUTES, routeName)) {
+    const route = NAMED_ROUTES[routeName];
     return {
       lines: [line(text(`正在前往 ${route} …`, "ok"))],
       navigateTo: route,
@@ -437,7 +420,10 @@ async function handleOpen(target: string, deps: ShellDeps): Promise<ShellExecuti
   const slug = key.replace(/^\/?posts\//, "").replace(/\/$/, "");
   const posts = await deps.loadPosts();
   const match = posts.find((post) => post.slug === slug);
-  const href = match ? postHref(match.slug) : postHref(slug);
+  if (!match) {
+    return { lines: [line(text(`找不到文章：${slug}`, "error"))] };
+  }
+  const href = postHref(match.slug);
   return {
     lines: [line(text(`正在打开 ${href} …`, "ok"))],
     navigateTo: href,

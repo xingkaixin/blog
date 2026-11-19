@@ -224,9 +224,18 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setInput((current) => completeShellInput(current, slugsRef.current));
+    if (
+      event.key === "Tab" &&
+      !event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      const completed = completeShellInput(input, slugsRef.current);
+      if (completed !== input) {
+        event.preventDefault();
+        setInput(completed);
+      }
       return;
     }
 

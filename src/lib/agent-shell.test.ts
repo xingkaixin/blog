@@ -105,9 +105,8 @@ describe("agent shell engine", () => {
     const result = await executeShellCommand("cat agent-harness-not-model", deps);
     const out = textOf(result.lines);
 
-    expect(out).toContain("title: Agent Harness，而不是模型本身");
-    expect(out).toContain("# Harness");
-    expect(out).toContain("tokens");
+    expect(out).toContain("Agent Harness，而不是模型本身\n# Harness");
+    expect(out).toContain("≈ 9 tokens");
     expect(deps.collectShellStamp).toHaveBeenCalledTimes(1);
     expect(result.unlockedShellStamp).toBe(true);
   });
@@ -132,6 +131,7 @@ describe("agent shell engine", () => {
     expect((await executeShellCommand("open agent-harness-not-model", deps)).navigateTo).toBe(
       "/posts/agent-harness-not-model/",
     );
+    expect((await executeShellCommand("open constructor", deps)).navigateTo).toBeUndefined();
     expect((await executeShellCommand("open photos", deps)).navigateTo).toBe("/photos/");
     expect(textOf((await executeShellCommand("fish", deps)).lines)).toContain("><(((°>");
     expect(textOf((await executeShellCommand("fortune", deps)).lines).length).toBeGreaterThan(5);
