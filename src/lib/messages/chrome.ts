@@ -37,6 +37,7 @@ const zh = {
       darkroom: "去暗房看看照片",
       lost: "找到一个不存在的页面",
       night: "深夜来一次",
+      shell: "在 Agent 终端里跑通一次命令",
     },
   },
   footer: {
@@ -124,6 +125,7 @@ const en: ChromeMessages = {
       darkroom: "See the photos in the darkroom",
       lost: "Find a page that doesn't exist",
       night: "Drop by late at night",
+      shell: "Run a command in the Agent shell",
     },
   },
   footer: {

@@ -19,7 +19,7 @@ type ToolExecuteOptions = {
   signal: AbortSignal;
 };
 
-type WebMcpTool = {
+export type WebMcpToolDescriptor = {
   name: string;
   title: string;
   description: string;
@@ -28,6 +28,9 @@ type WebMcpTool = {
     readOnlyHint: boolean;
     untrustedContentHint: boolean;
   };
+};
+
+type WebMcpTool = WebMcpToolDescriptor & {
   execute(input: unknown, options: ToolExecuteOptions): unknown;
 };
 
@@ -145,6 +148,28 @@ const listProjectsTool: WebMcpTool = {
 };
 
 const blogTools = [searchPostsTool, getPostTool, listProjectsTool];
+
+export function listBlogWebMcpTools(): readonly WebMcpToolDescriptor[] {
+  return blogTools.map((tool) => ({
+    name: tool.name,
+    title: tool.title,
+    description: tool.description,
+    inputSchema: tool.inputSchema,
+    annotations: tool.annotations,
+  }));
+}
+
+export async function invokeBlogWebMcpTool(
+  name: string,
+  input: unknown,
+  signal: AbortSignal = new AbortController().signal,
+): Promise<unknown> {
+  const tool = blogTools.find((candidate) => candidate.name === name);
+  if (!tool) {
+    throw new Error(`Unknown WebMCP tool: ${name}`);
+  }
+  return await tool.execute(input, { signal });
+}
 
 export async function registerBlogWebMcpTools(target: Document): Promise<void> {
   const modelContext = (target as WebMcpDocument).modelContext;
