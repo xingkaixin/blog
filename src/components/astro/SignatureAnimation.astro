@@ -1,6 +1,7 @@
 ---
 import glyphData from "@/lib/generated/dancing-script-glyph-data.json";
 import { siteConfig } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
@@ -23,9 +24,9 @@ type GlyphRecord = {
 const { className, fontSize = "36px", eager = false } = Astro.props;
 const glyphs = glyphData as Record<string, GlyphRecord>;
 const text = siteConfig.author;
-const speed = 1.2;
+const speed = 2.4;
 const ascender = 920;
-const descender = -280;
+const descender = -320;
 const viewHeight = ascender - descender;
 const padLeft = 40;
 const padRight = 100;
@@ -34,49 +35,51 @@ const maskPrefix = `sig-${eager ? "hero" : "post"}`;
 let xCursor = 0;
 let timeCursor = 0;
 
-const characters = Array.from(text).map((char, charIndex) => {
-  const glyph = glyphs[char];
-  if (!glyph) {
-    return null;
-  }
-  const x = xCursor;
-  const charStart = timeCursor;
-  xCursor += glyph.w;
-  timeCursor += glyph.t;
+const characters = Array.from(text)
+  .map((char, charIndex) => {
+    const glyph = glyphs[char];
+    if (!glyph) {
+      return null;
+    }
+    const x = xCursor;
+    const charStart = timeCursor;
+    xCursor += glyph.w;
+    timeCursor += glyph.t;
 
-  const strokes = glyph.s
-    .map((stroke) => {
-      if (stroke.p.length === 0) {
-        return null;
-      }
-      const maxWidth = stroke.p.reduce((max, point) => Math.max(max, point[2] ?? 40), 20);
-      const first = stroke.p[0];
-      const commands =
-        stroke.p.length === 1
-          ? `M${(x + first[0]).toFixed(1)} ${first[1].toFixed(1)}l0.1 0`
-          : stroke.p
-              .map(
-                (point, pointIndex) =>
-                  `${pointIndex === 0 ? "M" : "L"}${(x + point[0]).toFixed(1)} ${point[1].toFixed(1)}`,
-              )
-              .join("");
+    const strokes = glyph.s
+      .map((stroke) => {
+        if (stroke.p.length === 0) {
+          return null;
+        }
+        const maxWidth = stroke.p.reduce((max, point) => Math.max(max, point[2] ?? 40), 20);
+        const first = stroke.p[0];
+        const commands =
+          stroke.p.length === 1
+            ? `M${(x + padLeft + first[0]).toFixed(1)} ${(ascender + first[1]).toFixed(1)}l0.1 0`
+            : stroke.p
+                .map(
+                  (point, pointIndex) =>
+                    `${pointIndex === 0 ? "M" : "L"}${(x + padLeft + point[0]).toFixed(1)} ${(ascender + point[1]).toFixed(1)}`,
+                )
+                .join("");
 
-      return {
-        d: commands,
-        width: Math.max(36, Math.round(maxWidth * 1.5)),
-        delay: Number(((charStart + stroke.d) / speed).toFixed(3)),
-        duration: Number((Math.max(stroke.a, 0.04) / speed).toFixed(3)),
-      };
-    })
-    .filter((stroke): stroke is NonNullable<typeof stroke> => stroke !== null);
+        return {
+          d: commands,
+          width: Math.max(40, Math.round(maxWidth * 1.55)),
+          delay: Number(((charStart + stroke.d) / speed).toFixed(3)),
+          duration: Number((Math.max(stroke.a, 0.04) / speed).toFixed(3)),
+        };
+      })
+      .filter((stroke): stroke is NonNullable<typeof stroke> => stroke !== null);
 
-  return {
-    char,
-    x,
-    maskId: `${maskPrefix}-${charIndex}`,
-    strokes,
-  };
-}).filter((item): item is NonNullable<typeof item> => item !== null);
+    return {
+      char,
+      x: x + padLeft,
+      maskId: `${maskPrefix}-${charIndex}`,
+      strokes,
+    };
+  })
+  .filter((item): item is NonNullable<typeof item> => item !== null);
 
 const viewWidth = xCursor + padLeft + padRight;
 const widthEm = Number((viewWidth / 1000).toFixed(3));
@@ -85,14 +88,14 @@ const heightEm = Number((viewHeight / 1000).toFixed(3));
 
 <signature-animation
   data-eager={eager ? "" : undefined}
-  class:list={["mt-6 flex justify-end text-ink-600", className]}
+  class={cn("mt-6 flex justify-end text-ink-600", className)}
   style={`font-size: ${fontSize}; font-family: 'Dancing Script', cursive;`}
 >
   <span class="signature-static">{text}</span>
   <span class="signature-animated" aria-label={text}>
     <svg
       class="signature-svg"
-      viewBox={`${-padLeft} ${-ascender} ${viewWidth} ${viewHeight}`}
+      viewBox={`0 0 ${viewWidth} ${viewHeight}`}
       style={`width: ${widthEm}em; height: ${heightEm}em;`}
       role="img"
       aria-label={text}
@@ -100,7 +103,14 @@ const heightEm = Number((viewHeight / 1000).toFixed(3));
       <defs>
         {
           characters.map((character) => (
-            <mask id={character.maskId} maskUnits="userSpaceOnUse">
+            <mask
+              id={character.maskId}
+              maskUnits="userSpaceOnUse"
+              x="0"
+              y="0"
+              width={viewWidth}
+              height={viewHeight}
+            >
               {character.strokes.map((stroke) => (
                 <path
                   class="signature-stroke"
@@ -122,7 +132,7 @@ const heightEm = Number((viewHeight / 1000).toFixed(3));
         characters.map((character) => (
           <text
             x={character.x}
-            y="0"
+            y={ascender}
             font-family="'Dancing Script', cursive"
             font-size="1000"
             fill="currentColor"

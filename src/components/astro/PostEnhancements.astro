@@ -5,7 +5,7 @@
   <dialog
     data-post-lightbox
     aria-label="放大查看插图"
-    class="post-lightbox m-auto max-h-none max-w-none border-0 bg-transparent p-0 text-ink-800"
+    class="post-lightbox border-0 bg-transparent p-0 text-ink-800"
   >
     <div class="post-lightbox-stage" data-lightbox-backdrop>
       <button
@@ -30,14 +30,14 @@
   .post-lightbox {
     position: fixed;
     inset: 0;
+    margin: 0;
     width: 100vw;
+    max-width: none;
     height: 100dvh;
+    max-height: none;
     overflow: hidden;
     opacity: 1;
-    transition:
-      opacity var(--duration-fast) var(--ease-smooth-out),
-      display var(--duration-fast) allow-discrete,
-      overlay var(--duration-fast) allow-discrete;
+    transition: opacity var(--duration-fast) var(--ease-smooth-out);
   }
 
   .post-lightbox[data-closing] {
@@ -56,10 +56,7 @@
     background: color-mix(in srgb, #000000 84%, transparent);
     backdrop-filter: blur(8px);
     opacity: 1;
-    transition:
-      opacity var(--duration-fast) var(--ease-smooth-out),
-      display var(--duration-fast) allow-discrete,
-      overlay var(--duration-fast) allow-discrete;
+    transition: opacity var(--duration-fast) var(--ease-smooth-out);
   }
 
   .post-lightbox[data-closing]::backdrop {
@@ -369,28 +366,39 @@
         }
       };
 
+      const finishClose = () => {
+        clearTimeout(this.closeTimer);
+        this.closeTimer = 0;
+        if (dialog.open) {
+          dialog.close();
+        }
+        delete dialog.dataset.closing;
+      };
+
       const close = () => {
         if (!dialog.open) {
+          delete dialog.dataset.closing;
           return;
         }
         clearTimeout(this.closeTimer);
         if (prefersReducedMotion()) {
-          delete dialog.dataset.closing;
-          dialog.close();
-          restoreFocus();
+          finishClose();
           return;
         }
         if (dialog.hasAttribute("data-closing")) {
           return;
         }
         dialog.dataset.closing = "";
-        this.closeTimer = window.setTimeout(() => {
-          delete dialog.dataset.closing;
-          if (dialog.open) {
-            dialog.close();
-          }
-          restoreFocus();
-        }, 160);
+        dialog.addEventListener(
+          "transitionend",
+          (event) => {
+            if (event.target === dialog && dialog.hasAttribute("data-closing")) {
+              finishClose();
+            }
+          },
+          { once: true, signal },
+        );
+        this.closeTimer = window.setTimeout(finishClose, 180);
       };
 
       for (const img of prose.querySelectorAll<HTMLImageElement>("img")) {
@@ -404,14 +412,14 @@
         img.setAttribute("aria-label", altText ? `放大查看图片：${altText}` : "放大查看图片");
       }
 
-      const openImage = (img: HTMLImageElement) => {
+      const openImage = (img: HTMLImageElement, restoreOnClose: boolean) => {
         const fullSrc = img.getAttribute("src") || img.currentSrc;
         if (!fullSrc) {
           return;
         }
         clearTimeout(this.closeTimer);
         delete dialog.dataset.closing;
-        returnFocusTo = img;
+        returnFocusTo = restoreOnClose ? img : null;
         preview.src = fullSrc;
         const altText = img.alt.trim();
         preview.alt = altText;
@@ -430,7 +438,7 @@
               ? event.target
               : null;
           if (img) {
-            openImage(img);
+            openImage(img, false);
           }
         },
         { signal },
@@ -448,7 +456,7 @@
               : null;
           if (img) {
             event.preventDefault();
-            openImage(img);
+            openImage(img, true);
           }
         },
         { signal },
