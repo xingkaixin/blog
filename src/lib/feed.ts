@@ -7,6 +7,8 @@ const FEED_ITEM_LIMIT = 20;
 const AI_ENGINEERING_TAG_PATTERN =
   /(^ai|agent|llm|大模型|人工智能|mcp|claude|codex|cursor|openai|deepseek|vibe|prompt|karpathy|benchmark|swe-bench|蒸馏|推理引擎|模型评测|多智能体|skill|编程|代码|工程|架构|测试|ci|git|cli|rust|前端|可观测|cloudflare|运维|系统设计|软件|开发)/i;
 
+const LIFE_TAGS = new Set(["生活", "旅行", "影视", "摄影", "年终回顾"]);
+
 export type FeedChannelId = "all" | "ai" | "life";
 
 export type FeedChannel = {
@@ -56,9 +58,10 @@ export function filterFeedPosts<T extends Pick<PublishedPost, "tags">>(
   if (channelId === "all") {
     return posts;
   }
-  return posts.filter((post) =>
-    channelId === "ai" ? isAiEngineeringPost(post) : !isAiEngineeringPost(post),
-  );
+  if (channelId === "ai") {
+    return posts.filter(isAiEngineeringPost);
+  }
+  return posts.filter((post) => post.tags.some((tag) => LIFE_TAGS.has(tag)));
 }
 
 export function getFeedChannel(channelId: FeedChannelId): FeedChannel {

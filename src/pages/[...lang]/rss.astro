@@ -570,8 +570,12 @@ const meta = {
         label.textContent = t.copying;
         status.textContent = "";
         status.removeAttribute("data-quiet");
+        const url = input.value;
         try {
-          await navigator.clipboard.writeText(input.value);
+          await navigator.clipboard.writeText(url);
+          if (input.value !== url) {
+            return;
+          }
           copyButton.setAttribute("data-copied", "");
           label.textContent = t.copied;
           status.textContent = t.copiedStatus;
@@ -581,6 +585,9 @@ const meta = {
             label.textContent = t.copy;
           }, 2500);
         } catch {
+          if (input.value !== url) {
+            return;
+          }
           label.textContent = t.retryCopy;
           input.focus();
           input.select();

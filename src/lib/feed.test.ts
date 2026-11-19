@@ -27,26 +27,21 @@ describe("RSS feed", () => {
     expect(feed).not.toContain("/posts/post-20/");
   });
 
-  it("partitions posts cleanly between AI engineering and life channels", () => {
+  it("filters each topic by its tags and keeps uncategorized posts in the full stream", () => {
     const posts = [
       post(0, ["AI编程", "Agent"]),
       post(1, ["旅行", "生活"]),
       post(2, ["工程实践", "代码审查"]),
       post(3, ["影视", "Apple TV"]),
       post(4, ["MCP", "CLI"]),
+      post(5, ["策略组", "科学上网"]),
     ];
 
     const all = filterFeedPosts(posts, "all");
     const ai = filterFeedPosts(posts, "ai");
     const life = filterFeedPosts(posts, "life");
 
-    expect(all.map((item) => item.slug)).toEqual([
-      "post-0",
-      "post-1",
-      "post-2",
-      "post-3",
-      "post-4",
-    ]);
+    expect(all).toEqual(posts);
     expect(ai.map((item) => item.slug)).toEqual(["post-0", "post-2", "post-4"]);
     expect(life.map((item) => item.slug)).toEqual(["post-1", "post-3"]);
   });
