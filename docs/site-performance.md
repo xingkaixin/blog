@@ -4,9 +4,9 @@
 
 ## 缓存
 
-- `/_astro/` 的构建资源使用内容哈希文件名，由 `public/_headers` 设置一年 `immutable`
-  缓存。修改内容必须生成新文件名，不能覆盖同一个 URL。
-- `/cover/`、`/posts/images/`、搜索索引和 HTML 不套用这条长期缓存。字体也经构建输出到 `/_astro/`。
+- `/_astro/`、`/cover/` 和 `/posts/images/` 的构建资源均使用内容哈希文件名，由 `public/_headers`
+  设置一年 `immutable` 缓存。修改内容必须生成新文件名，不能覆盖同一个 URL。字体也经构建输出到 `/_astro/`。
+- 搜索索引和 HTML 不套用这条长期缓存。
 - HTML 与 Markdown 通过 `Accept` 协商，Worker 为页面响应添加 `Vary: Accept`。
   `cloudflare.config.ts` 让页面先执行 Worker，图片、字体、JS 等资源直接由 Assets 返回。
   不启用 Worker 整体响应缓存或全站 Cache Everything，避免 HTML 与 Markdown 混用。

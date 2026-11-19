@@ -24,20 +24,28 @@ describe("image generators", () => {
     await writeFixture(source, "#ff0000", "jpeg");
 
     expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
-    const full = path.join(options.outputDirectory, "post", "demo.webp");
-    expect((await sharp(full).metadata()).format).toBe("webp");
-    expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-800w.webp"))).toBe(true);
-    expect(fs.existsSync(path.join(options.outputDirectory, "post", "demo-1200w.webp"))).toBe(true);
     const mapping = JSON.parse(fs.readFileSync(options.dataFile, "utf8"))[
       "/posts/images/post/demo.jpg"
     ];
-    expect(mapping).toEqual({
-      webp: "/posts/images/post/demo.webp",
-      mobile: "/posts/images/post/demo-800w.webp",
-      desktop: "/posts/images/post/demo-1200w.webp",
+    expect(mapping).toMatchObject({
+      webp: expect.stringMatching(/^\/posts\/images\/post\/demo\.[a-f0-9]{8}\.webp$/),
+      mobile: expect.stringMatching(/^\/posts\/images\/post\/demo-800w\.[a-f0-9]{8}\.webp$/),
+      desktop: expect.stringMatching(/^\/posts\/images\/post\/demo-1200w\.[a-f0-9]{8}\.webp$/),
       width: 24,
       height: 16,
     });
+    const full = path.join(options.outputDirectory, mapping.webp.replace(/^\/posts\/images\//, ""));
+    expect((await sharp(full).metadata()).format).toBe("webp");
+    expect(
+      fs.existsSync(
+        path.join(options.outputDirectory, mapping.mobile.replace(/^\/posts\/images\//, "")),
+      ),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(options.outputDirectory, mapping.desktop.replace(/^\/posts\/images\//, "")),
+      ),
+    ).toBe(true);
 
     const orphan = path.join(options.outputDirectory, "post", "orphan.webp");
     fs.writeFileSync(orphan, "orphan");
@@ -48,10 +56,12 @@ describe("image generators", () => {
 
     await writeFixture(source, "#0000ff", "jpeg", { width: 16, height: 24 });
     fs.utimesSync(source, new Date(0), new Date(0));
-    expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
-    expect(
-      JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
-    ).toMatchObject({ width: 16, height: 24 });
+    expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 3 });
+    const updatedMapping = JSON.parse(fs.readFileSync(options.dataFile, "utf8"))[
+      "/posts/images/post/demo.jpg"
+    ];
+    expect(updatedMapping).toMatchObject({ width: 16, height: 24 });
+    expect(updatedMapping.webp).not.toBe(mapping.webp);
 
     fs.writeFileSync(path.join(options.outputDirectory, "leaked.jpg"), "source");
     await expect(generatePostImages(options)).rejects.toThrow("非生成文件");
@@ -75,11 +85,11 @@ describe("image generators", () => {
     fs.mkdirSync(options.sourceDirectory, { recursive: true });
     await writeFixture(path.join(options.sourceDirectory, "demo.png"), "#00ff00", "png");
     expect(await generateCovers(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
-    expect(fs.readdirSync(options.outputDirectory).toSorted()).toEqual([
-      "demo-400.webp",
-      "demo-800.webp",
-      "demo.webp",
-    ]);
+    const coverFiles = fs.readdirSync(options.outputDirectory).toSorted();
+    expect(coverFiles).toHaveLength(3);
+    expect(coverFiles[0]).toMatch(/^demo-400\.[a-f0-9]{8}\.webp$/);
+    expect(coverFiles[1]).toMatch(/^demo-800\.[a-f0-9]{8}\.webp$/);
+    expect(coverFiles[2]).toMatch(/^demo\.[a-f0-9]{8}\.webp$/);
   });
 
   it("detects regenerated outputs missing from Git while ignoring unrelated files", async () => {
@@ -94,17 +104,20 @@ describe("image generators", () => {
     git("add", "--", ".");
     expect(() => checkGeneratedArtifacts(root)).not.toThrow();
 
-    const output = path.join(options.outputDirectory, "demo-400.webp");
-    git("rm", "--cached", "--", "public/cover/demo-400.webp");
+    const coverFile = fs
+      .readdirSync(options.outputDirectory)
+      .find((name) => name.startsWith("demo-400."))!;
+    const output = path.join(options.outputDirectory, coverFile);
+    git("rm", "--cached", "--", `public/cover/${coverFile}`);
     fs.rmSync(output);
     await generateCovers(options);
-    expect(() => checkGeneratedArtifacts(root)).toThrow("demo-400.webp");
+    expect(() => checkGeneratedArtifacts(root)).toThrow(coverFile);
 
-    git("add", "--", "public/cover/demo-400.webp");
+    git("add", "--", `public/cover/${coverFile}`);
     fs.writeFileSync(path.join(root, "notes.txt"), "unrelated workspace file");
     expect(() => checkGeneratedArtifacts(root)).not.toThrow();
     fs.writeFileSync(output, "changed output");
-    expect(() => checkGeneratedArtifacts(root)).toThrow("demo-400.webp");
+    expect(() => checkGeneratedArtifacts(root)).toThrow(coverFile);
   });
 });
 

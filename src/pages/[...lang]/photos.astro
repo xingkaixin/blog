@@ -29,7 +29,14 @@ const meta = {
 ---
 
 <SiteLayout meta={meta}>
-  {/* Catalog 请求要等 PhotoWall 水合后才发出，提前建好跨域连接 */}
+  {/* Catalog 请求要等 PhotoWall 水合后才发出，提前建连并预加载主索引 */}
   {photoOrigin && <link slot="head" rel="preconnect" href={photoOrigin} crossorigin />}
+  <link
+    slot="head"
+    rel="preload"
+    as="fetch"
+    href={`${photoBaseUrl.replace(/\/+$/, "")}/catalog/index.json`}
+    crossorigin
+  />
   <PhotoWall baseUrl={photoBaseUrl} locale={locale} client:load />
 </SiteLayout>

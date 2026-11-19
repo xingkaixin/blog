@@ -2,11 +2,10 @@
 import { Image } from "astro:assets";
 import writing from "@/assets/page-backgrounds/writing.png";
 import building from "@/assets/page-backgrounds/building.png";
-import photography from "@/assets/page-backgrounds/photography.png";
 
-type Props = { scene: "writing" | "building" | "photography" };
+type Props = { scene: "writing" | "building" };
 const { scene } = Astro.props;
-const images = { writing, building, photography };
+const images = { writing, building };
 ---
 
 <Image
@@ -26,10 +25,8 @@ const images = { writing, building, photography };
   :global([data-theme="dark"]) .page-artwork { opacity: .22; }
   [data-scene="writing"] { position: static; width: 100%; }
   [data-scene="building"] { top: -12px; left: calc(50% - 140px); width: 280px; }
-  [data-scene="photography"] { top: -30px; right: -20px; width: 300px; }
   @media (max-width: 640px) {
     .page-artwork { opacity: .11; }
     [data-scene="building"] { top: 0; left: auto; right: 8px; width: 240px; }
-    [data-scene="photography"] { top: 12px; right: 0; width: 220px; }
   }
 </style>

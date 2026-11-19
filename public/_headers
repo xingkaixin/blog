@@ -8,6 +8,12 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+/cover/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/posts/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /analytics/*
   X-Robots-Tag: noindex
 

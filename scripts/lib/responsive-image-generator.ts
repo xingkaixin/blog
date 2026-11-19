@@ -150,17 +150,19 @@ async function generateResponsiveImages<Key extends string>(
     }
     usedStems.add(source.stem);
 
+    const sourceFingerprint = fingerprint([rendererFingerprint, fs.readFileSync(source.file)]);
+    const hash = sourceFingerprint.slice(0, 8);
     const outputEntries = options.variants.map(
       (variant) =>
         [
           variant.key,
-          path.join(options.outputDirectory, `${source.stem}${variant.suffix}.webp`),
+          path.join(options.outputDirectory, `${source.stem}${variant.suffix}.${hash}.webp`),
         ] as const,
     );
     const outputPaths = outputEntries.map(([, output]) => output);
     plans.push({
       key: source.key,
-      fingerprint: () => fingerprint([rendererFingerprint, fs.readFileSync(source.file)]),
+      fingerprint: () => sourceFingerprint,
       outputs: outputPaths,
       generate: async () => {
         for (const output of outputPaths) {

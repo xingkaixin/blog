@@ -27,6 +27,8 @@ export default {
         "!/avatar.webp",
         "!/f1-car.png",
         "!/feed.xml",
+        "!/feed-ai.xml",
+        "!/feed-life.xml",
         "!/finish-flag.png",
         "!/logo.svg",
         "!/llms.txt",
