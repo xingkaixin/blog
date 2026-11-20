@@ -104,6 +104,13 @@
     "width": 1923,
     "height": 818
   },
+  "agent-codemode-tools.png": {
+    "mobile": "/cover/agent-codemode-tools-400.2c737284.webp",
+    "desktop": "/cover/agent-codemode-tools-800.2c737284.webp",
+    "full": "/cover/agent-codemode-tools.2c737284.webp",
+    "width": 1927,
+    "height": 820
+  },
   "agent-context-compaction.png": {
     "mobile": "/cover/agent-context-compaction-400.eb8d7e9b.webp",
     "desktop": "/cover/agent-context-compaction-800.eb8d7e9b.webp",
@@ -229,6 +236,20 @@
     "full": "/cover/agentic-workflow-waiting-revalued.c4f0684a.webp",
     "width": 1536,
     "height": 864
+  },
+  "ai-better-why-do-it-yourself.png": {
+    "mobile": "/cover/ai-better-why-do-it-yourself-400.61971506.webp",
+    "desktop": "/cover/ai-better-why-do-it-yourself-800.61971506.webp",
+    "full": "/cover/ai-better-why-do-it-yourself.61971506.webp",
+    "width": 1927,
+    "height": 820
+  },
+  "ai-bug-reports-patch-window.png": {
+    "mobile": "/cover/ai-bug-reports-patch-window-400.b1c3390d.webp",
+    "desktop": "/cover/ai-bug-reports-patch-window-800.b1c3390d.webp",
+    "full": "/cover/ai-bug-reports-patch-window.b1c3390d.webp",
+    "width": 1880,
+    "height": 800
   },
   "ai-code-5-checkpoints.png": {
     "mobile": "/cover/ai-code-5-checkpoints-400.3c826f2c.webp",

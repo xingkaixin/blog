@@ -121,6 +121,14 @@
         "8ab084b80cf0e977b777e2add11498e516e254826d8384b61de6febc5eaf3254"
       ]
     },
+    "agent-codemode-tools.png": {
+      "fingerprint": "2c73728493b9cee780a80c6c7fc4acd974fa899b84e174b106e73de6ea7e0287",
+      "outputFingerprints": [
+        "1a5e4118c5925cff70096590c607c24ca09a8e46ad00dd37cca74783e74b0daa",
+        "bfec7145a3fc0edf6c7fb7fca8697a2de5582ff4639a4f5fddadee4d8daa71ce",
+        "240a754b88639cb778d32807693225ffd2c9cffbed4418d5ad745d34b8b314db"
+      ]
+    },
     "agent-context-compaction.png": {
       "fingerprint": "eb8d7e9bdb7e9ac48872a67cb03d5ecdf7a92f0a7e6b3755d0d75eef10631479",
       "outputFingerprints": [
@@ -263,6 +271,22 @@
         "381a59bc2a94820d4e4c2446be1ebfa7b1d9c2f38da8d291815308c6ac886879",
         "fece5d7476604cf5858f129ae96736f72297ddb002d8dfd8289a32f4d3632b1c",
         "7900dbf4777c595dacfa7d8f58c28a742bb0d824ee8bc616e4c11b16c4f9ec3d"
+      ]
+    },
+    "ai-better-why-do-it-yourself.png": {
+      "fingerprint": "61971506aefb19881902e980cc88f384273ce347267b3d292099029cf7de07e4",
+      "outputFingerprints": [
+        "2e6720a2e743503d322a5f3e842af4833d4eb932b6982985fb3ea7bb668eb9b3",
+        "5b29adc9628a35253dba6bec6e572a5a5ffbed59fa6590f7fb8f6fddc76d0bc2",
+        "daf385b5bb2e3acb55955b6f2b7d77bb6b10b2b6ea9c8e525b98170f6b85aa1c"
+      ]
+    },
+    "ai-bug-reports-patch-window.png": {
+      "fingerprint": "b1c3390da1195e49849c9ea1b1f94a61d0ed6e1d518ab3c7f6aed76e9f124259",
+      "outputFingerprints": [
+        "b988691e12087d13c75fd85e8b35c9680b41a897184ef9fcfaabab76ca7c4703",
+        "133847b8dcecccd7c9f9bfc6ce68ab0f613dee4fa98ef004761384785aa4d7bd",
+        "b3d218ad520da2be549f8d2079732fa64d97d9ef1c2613a3781c0b1ea5846325"
       ]
     },
     "ai-code-5-checkpoints.png": {

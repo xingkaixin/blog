@@ -167,6 +167,13 @@
     "width": 1672,
     "height": 941
   },
+  "/posts/images/agent-codemode-tools/agent-codemode-tools-01.png": {
+    "webp": "/posts/images/agent-codemode-tools/agent-codemode-tools-01.3d0bf2ba.webp",
+    "mobile": "/posts/images/agent-codemode-tools/agent-codemode-tools-01-800w.3d0bf2ba.webp",
+    "desktop": "/posts/images/agent-codemode-tools/agent-codemode-tools-01-1200w.3d0bf2ba.webp",
+    "width": 1680,
+    "height": 945
+  },
   "/posts/images/agent-context-compaction/agent-context-compaction-01.png": {
     "webp": "/posts/images/agent-context-compaction/agent-context-compaction-01.09b9afbf.webp",
     "mobile": "/posts/images/agent-context-compaction/agent-context-compaction-01-800w.09b9afbf.webp",
@@ -481,6 +488,20 @@
     "desktop": "/posts/images/agentic-workflow-waiting-revalued/agentic-workflow-waiting-revalued-03-1200w.6850d7d9.webp",
     "width": 2752,
     "height": 1536
+  },
+  "/posts/images/ai-better-why-do-it-yourself/ai-better-why-do-it-yourself-01.png": {
+    "webp": "/posts/images/ai-better-why-do-it-yourself/ai-better-why-do-it-yourself-01.ff5ee9dc.webp",
+    "mobile": "/posts/images/ai-better-why-do-it-yourself/ai-better-why-do-it-yourself-01-800w.ff5ee9dc.webp",
+    "desktop": "/posts/images/ai-better-why-do-it-yourself/ai-better-why-do-it-yourself-01-1200w.ff5ee9dc.webp",
+    "width": 1680,
+    "height": 945
+  },
+  "/posts/images/ai-bug-reports-patch-window/ai-bug-reports-patch-window-01.png": {
+    "webp": "/posts/images/ai-bug-reports-patch-window/ai-bug-reports-patch-window-01.668caeca.webp",
+    "mobile": "/posts/images/ai-bug-reports-patch-window/ai-bug-reports-patch-window-01-800w.668caeca.webp",
+    "desktop": "/posts/images/ai-bug-reports-patch-window/ai-bug-reports-patch-window-01-1200w.668caeca.webp",
+    "width": 1600,
+    "height": 900
   },
   "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png": {
     "webp": "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.34673607.webp",

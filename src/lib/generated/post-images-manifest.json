@@ -193,6 +193,14 @@
         "169945e7c2832b11c715de45cd3e1d68bd5cbe9133aaa1553a131d5e232d3b89"
       ]
     },
+    "/posts/images/agent-codemode-tools/agent-codemode-tools-01.png": {
+      "fingerprint": "3d0bf2ba8bcd4a929f17cbb8e5971ed9b7b9e8d613b24e99f0891ec338b5c33a",
+      "outputFingerprints": [
+        "5884cad07309653a7a7b33c0a33a97354001d948058265845279e91f8757dbc2",
+        "866231ddd267542803294162e3516ee859a30d2cb7870918dca3bc651330bdb2",
+        "1b1cd1ca4ad552a763bff10fece53104fa4a57512cd90a02bf4eda7d3bc39584"
+      ]
+    },
     "/posts/images/agent-context-compaction/agent-context-compaction-01.png": {
       "fingerprint": "09b9afbf963cae4a4e4e40422dca9098e0edf977dc0a1d978ab08aafa3a8fde1",
       "outputFingerprints": [
@@ -551,6 +559,22 @@
         "d0659e5bd89eb75e25ab5459fbd8d445e971b6654bf9c665ff0867613ef7314f",
         "965cefa1d22ab5ad972ae4359f6d2b4fc9294679247a8f09cb71194afbaa0c80",
         "c053af6c914231b4b5f4bd4ca97843f3331b8284a4cc793e012d872ebe2a224d"
+      ]
+    },
+    "/posts/images/ai-better-why-do-it-yourself/ai-better-why-do-it-yourself-01.png": {
+      "fingerprint": "ff5ee9dc8ba7ad5d7fcdb03d86e5594727b0bc262d0667191d796417f5f63369",
+      "outputFingerprints": [
+        "4b17e0fe4ea163f260f2b16965ee89692bce7de269aacf76ad3c51d48b673e8b",
+        "02f820e8250b4dff9ed3885132370598c37486fca2f7e7e60d9b0bcaf6bce9d2",
+        "cfafdb1a7db149e8c0829041080ca8f82fe4c9d77ad9c0d2bfbdb27fe2650bb9"
+      ]
+    },
+    "/posts/images/ai-bug-reports-patch-window/ai-bug-reports-patch-window-01.png": {
+      "fingerprint": "668caecaea7b48517e89602e7b5c936d04cfb9b0272b12c4ad632f9a942f5386",
+      "outputFingerprints": [
+        "d5c6d059b747b1180b2a683ee6f203855e9b7a8924f927241ef56aef009e3015",
+        "de6c503dd3e7af5bdfecf3669e8c68e191e9b4714f4201f66255a2db22b884f6",
+        "e065893aae174f6b447ca535828974d7806a0dee5e2b98ab96381cb6136a360b"
       ]
     },
     "/posts/images/ai-code-responsibility-gap/ai-code-responsibility-gap-01.png": {

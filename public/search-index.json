@@ -1,5 +1,38 @@
 [
   {
+    "slug": "ai-bug-reports-patch-window",
+    "title": "AI 报的 79 个内核 bug 只认下 10 个，漏洞利用却平均比补丁早 7 天",
+    "date": "2026-11-20",
+    "summary": "AI 漏洞报告与补丁仍需人工复核，但拿公开漏洞拼出利用链的单次模型估算成本已降到 20.40 美元。本文拆解如何通过独立安全 PR、--pull 定时重建基础镜像与摘要核对缩短部署窗口。",
+    "tags": [
+      "安全",
+      "代码审查",
+      "软件交付"
+    ]
+  },
+  {
+    "slug": "ai-better-why-do-it-yourself",
+    "title": "AI 能做得更好，为什么还要自己做",
+    "date": "2026-11-18",
+    "summary": "AI 编程能把功能跑通，写代码的人却未必会修。3Blue1Brown 的讨论与 Anthropic 的 Trio 实验讲清了练习与乐趣的价值，而排期里能不能练，还得先算清时间归谁。",
+    "tags": [
+      "AI编程",
+      "学习",
+      "工程师成长"
+    ]
+  },
+  {
+    "slug": "agent-codemode-tools",
+    "title": "Code Mode：为什么 Coding Agent 开始让模型写代码调工具",
+    "date": "2026-11-16",
+    "summary": "Code Mode 让 Coding Agent 把工具依赖、容错与筛选放进脚本，省去中间 JSON 开销。对照 Codex、Pi、OpenCode 与 Claude Code，说明它与 Bash 的宿主边界、接口变化及写入不回滚的代价。",
+    "tags": [
+      "Coding Agent",
+      "MCP",
+      "上下文工程"
+    ]
+  },
+  {
     "slug": "agent-horizontal-plans",
     "title": "Agent 的开发计划从数据库写起，你要等到最后一层才能试",
     "date": "2026-11-13",
