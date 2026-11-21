@@ -315,7 +315,7 @@ export function AgentShell({ featuredSlug }: AgentShellProps) {
                   void runCommand(item.cmd);
                   inputRef.current?.focus();
                 }}
-                className="rounded-[5px] border border-line bg-paper px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:border-accent hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:opacity-50"
+                className="rounded-[6px] border border-line bg-paper px-2.5 py-1 text-[11px] text-ink-600 transition-colors hover:border-accent hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:opacity-50"
               >
                 {item.label}
               </button>

@@ -28,7 +28,7 @@ export function DialogContent({
       />
       <DialogPrimitive.Popup
         className={cn(
-          "dialog-popup fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[14px] border border-line bg-surface p-5 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.5)]",
+          "dialog-popup fixed left-1/2 top-1/2 z-50 max-h-[min(88dvh,780px)] w-[min(92vw,840px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[16px] border border-line bg-surface p-5 shadow-[0_30px_80px_-42px_rgba(0,0,0,0.5)]",
           className,
         )}
         {...props}

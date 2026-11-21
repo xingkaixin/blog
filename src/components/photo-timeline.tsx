@@ -111,7 +111,7 @@ export function PhotoTimeline({
               <button
                 type="button"
                 onClick={onReturn}
-                className="inline-flex min-h-11 items-center rounded-[5px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                className="inline-flex min-h-11 items-center rounded-[6px] transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
               >
                 {t.backToRolls}
               </button>
@@ -233,7 +233,7 @@ export function PhotoTimeline({
                 <button
                   type="button"
                   onClick={onReturn}
-                  className="mt-1 min-h-10 rounded-[5px] text-[13px] font-medium text-ink-800 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                  className="mt-1 min-h-10 rounded-[6px] text-[13px] font-medium text-ink-800 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                 >
                   {t.backToWall}
                 </button>

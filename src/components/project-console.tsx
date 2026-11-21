@@ -54,7 +54,7 @@ function ProjectLinks({ project, visitLabel }: { project: Project; visitLabel: s
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] font-medium text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors duration-(--duration-quick) hover:text-accent hover:decoration-accent focus-visible:rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] font-medium text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors duration-(--duration-quick) hover:text-accent hover:decoration-accent focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
         >
           {link.label}
           <ArrowUpRightIcon aria-hidden="true" className="h-3 w-3" />
@@ -274,7 +274,7 @@ export function ProjectConsole({ projects, locale }: ProjectConsoleProps) {
           </h1>
         </div>
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
-          <label className="flex h-9 w-full items-center gap-2 rounded-[7px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
+          <label className="flex h-9 w-full items-center gap-2 rounded-[6px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
             <MagnifyingGlassIcon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-400" />
             <span className="sr-only">{t.searchLabel}</span>
             <input

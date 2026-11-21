@@ -152,6 +152,13 @@ samp {
   text-autospace: no-autospace;
 }
 
+@supports (corner-shape: superellipse(1.25)) {
+  :where([class*="rounded-"]):not(.rounded-full, .rounded-none),
+  .article-prose :where(pre, img) {
+    corner-shape: superellipse(1.25);
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

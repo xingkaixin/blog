@@ -339,7 +339,7 @@ export function SearchPanel({
       >
         <div
           style={{ transform: "translate3d(0, calc(var(--keyboard-inset, 0px) * -1), 0)" }}
-          className="pointer-events-auto flex max-h-[min(82dvh,calc(100dvh-var(--keyboard-inset)-3rem))] w-full flex-col overflow-hidden rounded-t-[18px] border border-line bg-surface shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:rounded-[14px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
+          className="pointer-events-auto flex max-h-[min(82dvh,calc(100dvh-var(--keyboard-inset)-3rem))] w-full flex-col overflow-hidden rounded-t-[16px] border border-line bg-surface shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.55)] sm:rounded-[16px] sm:shadow-[0_30px_70px_-34px_rgba(20,21,26,0.55)]"
         >
           <div className="flex shrink-0 justify-center pb-1 pt-2 sm:hidden" aria-hidden="true">
             <span className="h-1 w-9 rounded-full bg-ink-200" />

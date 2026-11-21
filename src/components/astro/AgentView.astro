@@ -22,10 +22,10 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
     data-agent-toggle
     aria-pressed="false"
     aria-controls="agent-pane"
-    class="relative inline-flex items-center gap-1.5 rounded-[3px] text-ink-500 transition-colors duration-(--duration-quick) before:absolute before:-inset-x-2 before:-inset-y-3.5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:text-accent"
+    class="relative inline-flex items-center gap-1.5 rounded-[4px] text-ink-500 transition-colors duration-(--duration-quick) before:absolute before:-inset-x-2 before:-inset-y-3.5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:text-accent"
   >
     Agent 视角
-    <kbd class="hidden rounded-[3px] border border-line px-1 font-mono text-[10px] lg:inline">{siteShortcuts.agentView.hint}</kbd>
+    <kbd class="hidden rounded-[4px] border border-line px-1 font-mono text-[10px] lg:inline">{siteShortcuts.agentView.hint}</kbd>
   </button>
 
   <section id="agent-pane" data-agent-pane data-theme="dark" aria-label="Agent 视角：这一页的 Markdown" hidden class="agent-pane">

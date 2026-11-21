@@ -392,7 +392,7 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
               href={selectedItem.href}
               target={selectedItem.kind === "sticker" ? "_blank" : undefined}
               rel={selectedItem.kind === "sticker" ? "noopener noreferrer" : undefined}
-              className="inline-flex items-center gap-1 font-mono text-[11px] font-medium text-accent underline underline-offset-4 hover:opacity-80 focus-visible:rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              className="inline-flex items-center gap-1 font-mono text-[11px] font-medium text-accent underline underline-offset-4 hover:opacity-80 focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
             >
               <span>{selectedItem.kind === "polaroid" ? "进入暗房相册" : "打开项目"}</span>
               <ArrowUpRightIcon aria-hidden="true" className="h-3 w-3" />
