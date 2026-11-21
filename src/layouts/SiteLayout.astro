@@ -412,21 +412,10 @@ const pageTransition = {
           event.target instanceof Element
             ? event.target.closest<HTMLButtonElement>("[data-compact-toc]")
             : null;
-        if (!button) {
-          return;
-        }
-        const toc = document.querySelector<HTMLElement>("[data-post-toc]");
-        if (!toc) {
+        if (!button || !document.querySelector("[data-post-toc]")) {
           return;
         }
         document.dispatchEvent(new CustomEvent("site:open-toc"));
-        const reduced =
-          typeof window.matchMedia === "function" &&
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        toc.scrollIntoView({
-          behavior: reduced ? "auto" : "smooth",
-          block: "start",
-        });
       });
 
       function setupSmartHeader() {

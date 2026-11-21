@@ -61,6 +61,54 @@ const { items } = Astro.props;
           ))}
         </nav>
       </details>
+      <dialog
+        data-toc-sheet
+        aria-labelledby="toc-sheet-title"
+        class="toc-sheet fixed inset-x-0 bottom-0 top-auto m-0 max-h-[75dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[16px] border-t border-line bg-surface p-0 text-ink-800 shadow-[0_-20px_60px_-32px_rgba(20,21,26,0.45)] lg:hidden"
+      >
+        <div class="flex shrink-0 justify-center pb-1 pt-2" aria-hidden="true">
+          <span class="h-1 w-9 rounded-full bg-ink-200" />
+        </div>
+        <div class="flex shrink-0 items-center justify-between border-b border-line px-5 pb-3 pt-1">
+          <h2 id="toc-sheet-title" class="font-mono text-xs uppercase tracking-[0.08em] text-ink-500">
+            目录
+          </h2>
+          <button
+            type="button"
+            data-toc-sheet-close
+            aria-label="关闭目录"
+            class="inline-flex size-8 items-center justify-center rounded-[6px] font-mono text-base text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 pointer-coarse:size-10"
+          >
+            ×
+          </button>
+        </div>
+        <div
+          data-toc-sheet-body
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+        >
+          <div data-toc-highlights hidden class="mb-3 border-b border-line pb-3">
+            <p class="mb-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-400">
+              我的划线 · <span data-toc-highlight-count>0</span>
+            </p>
+            <ul data-toc-highlight-list class="space-y-1"></ul>
+          </div>
+          <nav hidden={!items.length} class="space-y-0.5">
+            {items.map((item) => (
+              <a
+                data-astro-reload
+                data-toc-link={item.id}
+                href={`#${item.id}`}
+                class:list={[
+                  "toc-link block border-l-2 border-transparent px-2.5 py-2 text-[13px] leading-5 text-ink-500 transition-colors hover:text-ink-800",
+                  item.depth === 3 && "ml-3",
+                ]}
+              >
+                {item.text}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </dialog>
       <script>
         import {
           HIGHLIGHT_ATTR,
@@ -141,6 +189,20 @@ const { items } = Astro.props;
               }),
             );
           }
+          updateTocScrollMask();
+        }
+
+        function updateTocScrollMask() {
+          const container = document.querySelector<HTMLElement>("[data-toc-scroll]");
+          if (!container) {
+            return;
+          }
+          const overflow = container.scrollHeight - container.clientHeight;
+          container.toggleAttribute("data-more-above", overflow > 4 && container.scrollTop > 4);
+          container.toggleAttribute(
+            "data-more-below",
+            overflow > 4 && container.scrollTop + container.clientHeight < container.scrollHeight - 4,
+          );
         }
 
         function keepActiveLinkVisible(container: HTMLElement, link: HTMLElement) {
@@ -160,11 +222,14 @@ const { items } = Astro.props;
               link.clientHeight / 2,
             behavior: "auto",
           });
+          updateTocScrollMask();
         }
 
         const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
         let dotAnimation: Animation | undefined;
         let resizeObserver: ResizeObserver | undefined;
+        let tocScrollController: AbortController | undefined;
+        let sheetCloseTimer = 0;
         let navigationTimer = 0;
 
         function moveDot(link: HTMLElement, animate = true) {
@@ -285,6 +350,60 @@ const { items } = Astro.props;
           });
         }
 
+        function openTocSheet() {
+          const sheet = document.querySelector<HTMLDialogElement>("[data-toc-sheet]");
+          if (!sheet || typeof sheet.showModal !== "function") {
+            const details = document.querySelector<HTMLDetailsElement>("[data-toc-mobile-details]");
+            if (details) {
+              setTocDetailsOpen(details, true);
+            }
+            return;
+          }
+          clearTimeout(sheetCloseTimer);
+          sheetCloseTimer = 0;
+          sheet.removeAttribute("data-closing");
+          if (!sheet.open) {
+            sheet.showModal();
+          }
+          const body = sheet.querySelector<HTMLElement>("[data-toc-sheet-body]");
+          const activeLink = body?.querySelector<HTMLElement>('[aria-current="location"]');
+          if (body && activeLink) {
+            keepActiveLinkVisible(body, activeLink);
+          }
+        }
+
+        function closeTocSheet(immediate = false) {
+          const sheet = document.querySelector<HTMLDialogElement>("[data-toc-sheet]");
+          clearTimeout(sheetCloseTimer);
+          sheetCloseTimer = 0;
+          if (!sheet) {
+            return;
+          }
+          if (!sheet.open) {
+            sheet.removeAttribute("data-closing");
+            return;
+          }
+          if (immediate || reducedMotion.matches) {
+            sheet.removeAttribute("data-closing");
+            sheet.close();
+            return;
+          }
+          if (sheet.hasAttribute("data-closing")) {
+            return;
+          }
+          sheet.setAttribute("data-closing", "");
+          const finish = () => {
+            clearTimeout(sheetCloseTimer);
+            sheetCloseTimer = 0;
+            sheet.removeAttribute("data-closing");
+            if (sheet.open) {
+              sheet.close();
+            }
+          };
+          sheet.addEventListener("transitionend", finish, { once: true });
+          sheetCloseTimer = window.setTimeout(finish, 200);
+        }
+
         function initialize() {
           if (animationFrame) {
             cancelAnimationFrame(animationFrame);
@@ -294,10 +413,50 @@ const { items } = Astro.props;
           navigationTimer = 0;
           dotAnimation?.cancel();
           resizeObserver?.disconnect();
+          tocScrollController?.abort();
+          tocScrollController = new AbortController();
+          const { signal } = tocScrollController;
           const track = document.querySelector("[data-toc-track]");
-          if (track) {
-            resizeObserver = new ResizeObserver(alignDot);
-            resizeObserver.observe(track);
+          const scrollContainer = document.querySelector<HTMLElement>("[data-toc-scroll]");
+          if (track || scrollContainer) {
+            resizeObserver = new ResizeObserver(() => {
+              alignDot();
+              updateTocScrollMask();
+            });
+            if (track) {
+              resizeObserver.observe(track);
+            }
+            if (scrollContainer) {
+              resizeObserver.observe(scrollContainer);
+            }
+          }
+          if (scrollContainer) {
+            scrollContainer.addEventListener("scroll", updateTocScrollMask, {
+              passive: true,
+              signal,
+            });
+          }
+          const sheet = document.querySelector<HTMLDialogElement>("[data-toc-sheet]");
+          if (sheet) {
+            sheet.addEventListener(
+              "cancel",
+              (event) => {
+                if (!reducedMotion.matches) {
+                  event.preventDefault();
+                  closeTocSheet();
+                }
+              },
+              { signal },
+            );
+            sheet.addEventListener(
+              "close",
+              () => {
+                clearTimeout(sheetCloseTimer);
+                sheetCloseTimer = 0;
+                sheet.removeAttribute("data-closing");
+              },
+              { signal },
+            );
           }
           previousActiveId = null;
           renderHighlightBookmarks();
@@ -461,19 +620,32 @@ const { items } = Astro.props;
           navigationTimer = 0;
           dotAnimation?.cancel();
           resizeObserver?.disconnect();
+          tocScrollController?.abort();
+          tocScrollController = undefined;
+          closeTocSheet(true);
           clearTocDetailsAnimation(activeTocDetails);
           activeTocDetails = null;
         });
         document.addEventListener("site:open-toc", () => {
-          const details = document.querySelector<HTMLDetailsElement>("[data-toc-mobile-details]");
-          if (details) {
-            setTocDetailsOpen(details, true);
-          }
+          openTocSheet();
         });
         document.addEventListener("click", (event) => {
+          if (event.target instanceof HTMLDialogElement && event.target.hasAttribute("data-toc-sheet")) {
+            closeTocSheet();
+            return;
+          }
+
+          if (event.target instanceof Element && event.target.closest("[data-toc-sheet-close]")) {
+            closeTocSheet();
+            return;
+          }
+
           const jumpButton =
             event.target instanceof Element ? event.target.closest<HTMLElement>("[data-highlight-jump]") : null;
           if (jumpButton) {
+            if (jumpButton.closest("[data-toc-sheet]")) {
+              closeTocSheet(true);
+            }
             const id = jumpButton.dataset.highlightJump;
             const scope = document.querySelector<HTMLElement>("[data-quote-scope]");
             if (id && scope) {
@@ -538,6 +710,9 @@ const { items } = Astro.props;
           navigationTimer = window.setTimeout(finishNavigation, 150);
           previousActiveId = id;
           setActive(Array.from(document.querySelectorAll("[data-toc-link]")), id, event.detail > 0);
+          if (target.closest("[data-toc-sheet]")) {
+            closeTocSheet(true);
+          }
           const details = target.closest("details");
           if (details instanceof HTMLDetailsElement) {
             setTocDetailsOpen(details, false);
