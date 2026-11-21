@@ -140,6 +140,18 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root:lang(zh) {
+  text-autospace: normal;
+  text-spacing-trim: trim-start;
+}
+
+pre,
+code,
+kbd,
+samp {
+  text-autospace: no-autospace;
+}
+
 html {
   scroll-behavior: smooth;
 }
