@@ -52,6 +52,41 @@
   align-content: start;
 }
 
+[data-photo-skeleton] {
+  background: linear-gradient(
+    90deg,
+    var(--ink-100) 0%,
+    color-mix(in srgb, var(--ink-200) 70%, var(--ink-100)) 50%,
+    var(--ink-100) 100%
+  );
+  background-size: 200% 100%;
+  animation: photo-skeleton-shimmer 1.2s linear infinite;
+}
+
+[data-photo-wall-ready] {
+  animation: page-fade-in var(--duration-quick) var(--ease-smooth-out) both;
+}
+
+@keyframes photo-skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-photo-skeleton] {
+    animation: none;
+    background: var(--ink-100);
+  }
+
+  [data-photo-wall-ready] {
+    animation: none;
+  }
+}
+
 .photo-lightbox {
   opacity: 1;
   transition: opacity var(--duration-fast) var(--ease-smooth-out);

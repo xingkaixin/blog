@@ -185,6 +185,14 @@ export function PhotoOverview({
   );
 }
 
+export function PhotoWallPending() {
+  return (
+    <div className={PAGE_CLASS_NAME}>
+      <PhotoArchiveHeader />
+    </div>
+  );
+}
+
 export function PhotoWallLoading() {
   const t = usePhotoMessages();
   return (
@@ -193,13 +201,22 @@ export function PhotoWallLoading() {
       <div role="status" aria-label={t.loadingAlbums}>
         <span
           aria-hidden="true"
-          className="mt-12 block h-[260px] rounded-[6px] bg-ink-100 sm:h-[360px]"
+          data-photo-skeleton
+          className="mt-12 block h-[260px] rounded-[6px] sm:h-[360px]"
         />
         <div className="mt-16 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }, (_, index) => (
             <div key={index}>
-              <span aria-hidden="true" className="block h-[200px] rounded-[6px] bg-ink-100" />
-              <span aria-hidden="true" className="mt-3.5 block h-6 w-24 bg-ink-100" />
+              <span
+                aria-hidden="true"
+                data-photo-skeleton
+                className="block h-[200px] rounded-[6px]"
+              />
+              <span
+                aria-hidden="true"
+                data-photo-skeleton
+                className="mt-3.5 block h-6 w-24 rounded-[4px]"
+              />
             </div>
           ))}
         </div>

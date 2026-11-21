@@ -3,9 +3,15 @@ import "@/assets/fonts/noto-serif.css";
 import "@/components/photo-background.css";
 import "@/components/photo-wall.css";
 import { PhotoLightbox, PhotoThumbnailRegistryProvider } from "@/components/photo-lightbox";
-import { PhotoOverview, PhotoWallError, PhotoWallLoading } from "@/components/photo-overview";
+import {
+  PhotoOverview,
+  PhotoWallError,
+  PhotoWallLoading,
+  PhotoWallPending,
+} from "@/components/photo-overview";
 import { PhotoTimeline } from "@/components/photo-timeline";
 import { useActivePhotoMonth } from "@/hooks/use-active-photo-month";
+import { useDeferredLoading } from "@/hooks/use-deferred-loading";
 import { usePhotoBrowsingSession } from "@/hooks/use-photo-browsing-session";
 import { usePhotoCatalogSession } from "@/hooks/use-photo-catalog-session";
 import { PhotoLocaleContext } from "@/hooks/use-photo-messages";
@@ -163,8 +169,13 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
     [catalogModel.overviewPeriods, monthErrors],
   );
 
+  const showSkeleton = useDeferredLoading(catalogState.status === "loading");
+  const isContentReady = catalogState.status === "ready" && !showSkeleton;
+  const isErrorVisible = catalogState.status === "error" && !showSkeleton;
+  const isPending = catalogState.status === "loading" && !showSkeleton;
+
   const currentSnapshot = useMemo<ViewSnapshot | null>(() => {
-    if (catalogState.status !== "ready") {
+    if (!isContentReady) {
       return null;
     }
     if (photoView.mode === "overview") {
@@ -187,8 +198,8 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
   }, [
     activeMonth,
     catalogModel,
-    catalogState.status,
     failedOverviewPeriods,
+    isContentReady,
     monthCatalogs,
     monthErrors,
     overviewItems,
@@ -196,7 +207,7 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
   ]);
 
   const modeSwitched =
-    catalogState.status === "ready" &&
+    isContentReady &&
     lastSettledModeRef.current !== null &&
     lastSettledModeRef.current !== photoView.mode;
   const enterFrom: "overview" | "timeline" | null = modeSwitched
@@ -206,7 +217,7 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
     : settledEnterFromRef.current;
 
   useLayoutEffect(() => {
-    if (catalogState.status !== "ready" || !currentSnapshot) {
+    if (!isContentReady || !currentSnapshot) {
       return;
     }
 
@@ -262,7 +273,7 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
       leaving: prevSnapshot,
       leavingScrollY: typeof window !== "undefined" ? window.scrollY : 0,
     });
-  }, [catalogState.status, currentSnapshot, photoView.mode, selectedAlbumId]);
+  }, [currentSnapshot, isContentReady, photoView.mode, selectedAlbumId]);
 
   useLayoutEffect(() => {
     if (!crossTransition) {
@@ -341,13 +352,14 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
     <PhotoLocaleContext value={locale}>
       <PhotoThumbnailRegistryProvider active>
         <section data-photo-darkroom className="relative min-h-[calc(100svh-160px)] pb-20">
-          {catalogState.status === "loading" && <PhotoWallLoading />}
-          {catalogState.status === "error" && (
+          {showSkeleton && <PhotoWallLoading />}
+          {isPending && <PhotoWallPending />}
+          {isErrorVisible && (
             <PhotoWallError message={catalogState.message} onRetry={() => void loadCatalog()} />
           )}
 
-          {catalogState.status === "ready" && (
-            <div ref={activeViewRef}>
+          {isContentReady && (
+            <div ref={activeViewRef} data-photo-wall-ready>
               {photoView.mode === "overview" && (
                 <PhotoOverview
                   baseUrl={normalizedBaseUrl}
