@@ -1,13 +1,14 @@
 ---
-title: '为了拿一个布尔值，大模型在后台吐了八百个 Token'
+title: 'TypeSafe Jev 实测：拿一个布尔值，别让大模型吐八百个 Token'
 date: '2026-09-18'
-summary: TypeSafe Jev 放弃了自回归生成，只输出选择、评分与校准概率。它在机制上消除了生成式幻觉，但并不代表判断永远正确。依靠真实的概率校准与极低延迟，它替代通用大模型跑分类路由，让代码在确定性的防御带里接管业务分支。
+updated: '2026-11-22'
+summary: 用通用大模型跑 Structured Outputs 分类路由，为了一个布尔值常耗时近两秒。实测 TypeSafe Jev 放弃自回归生成、只输出选择与校准概率的方案，拆解 80ms 延迟、概率校准和官方 193 倍提速背后的真实边界。
 tags:
   - AI
   - 大模型
   - 性能优化
 cover: typesafe-jev.png
-coverAlt: 为了拿一个布尔值，大模型在后台吐了八百个 Token
+coverAlt: TypeSafe Jev 实测：拿一个布尔值，别让大模型吐八百个 Token
 ---
 
 你在 APM 链路监控里抓过大模型接口的耗时，大概都看过这种让人血压升高的调用栈。
