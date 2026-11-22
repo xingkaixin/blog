@@ -26,16 +26,31 @@ describe("post catalog", () => {
     ).toBeNull();
   });
 
+  it("rejects updated dates earlier than date", () => {
+    const source = publishedSource.replace(
+      "date: '2026-07-11'",
+      "date: '2026-07-11'\nupdated: '2026-07-10'",
+    );
+    expect(() => parsePublishedPost("stale-updated", source)).toThrow("updated");
+  });
+
   it("builds sitemap and legacy redirects from the same catalog", () => {
     const posts = [
       { slug: "new-post", date: "2026-07-11", tags: ["shared", "single"] },
-      { slug: "older-post", date: "2026-07-10", tags: ["shared", "archive-only"] },
+      {
+        slug: "older-post",
+        date: "2026-07-10",
+        updated: "2026-07-15",
+        tags: ["shared", "archive-only"],
+      },
       { slug: "oldest-post", date: "2026-07-09", tags: ["archive-only"] },
     ];
     const sitemap = buildSitemap(posts);
-    for (const pathname of ["/", "/tags/", "/tags/archive-only/", "/posts/new-post/", "/photos/"]) {
+    for (const pathname of ["/", "/tags/", "/tags/archive-only/", "/photos/"]) {
       expect(sitemapEntry(sitemap, pathname)).not.toContain("<lastmod>");
     }
+    expect(sitemapEntry(sitemap, "/posts/new-post/")).toContain("<lastmod>2026-07-11</lastmod>");
+    expect(sitemapEntry(sitemap, "/posts/older-post/")).toContain("<lastmod>2026-07-15</lastmod>");
     expect(sitemap).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });

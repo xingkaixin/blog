@@ -224,6 +224,11 @@ const pageTransition = {
       )
     }
     {
+      meta.type === "article" && meta.modifiedTime && (
+        <meta property="article:modified_time" content={meta.modifiedTime} />
+      )
+    }
+    {
       meta.type === "article" &&
         meta.tags?.map((tag) => <meta property="article:tag" content={tag} />)
     }

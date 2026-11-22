@@ -57,6 +57,7 @@ const meta = {
   image: `${siteConfig.url}/og/${postMeta.slug}.png`,
   type: "article" as const,
   publishedTime: postMeta.date,
+  ...(postMeta.updated ? { modifiedTime: postMeta.updated } : {}),
   tags: postMeta.tags,
   breadcrumb: [
     { name: "首页", url: `${siteConfig.url}/` },

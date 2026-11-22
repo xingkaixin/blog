@@ -19,6 +19,7 @@ type BasePageMeta = {
 type WebsiteMeta = BasePageMeta & {
   type: "website";
   publishedTime?: never;
+  modifiedTime?: never;
   tags?: never;
   breadcrumb?: never;
 };
@@ -26,6 +27,7 @@ type WebsiteMeta = BasePageMeta & {
 type WebpageMeta = BasePageMeta & {
   type: "webpage";
   publishedTime?: never;
+  modifiedTime?: never;
   tags?: never;
   breadcrumb?: BreadcrumbItem[];
 };
@@ -33,6 +35,7 @@ type WebpageMeta = BasePageMeta & {
 type ArticleMeta = BasePageMeta & {
   type: "article";
   publishedTime: string;
+  modifiedTime?: string;
   tags: string[];
   breadcrumb?: BreadcrumbItem[];
 };
@@ -131,6 +134,7 @@ function buildGraph(meta: PageMeta, locale: Locale) {
     description: meta.description,
     inLanguage: siteConfig.language,
     datePublished: meta.publishedTime,
+    ...(meta.modifiedTime ? { dateModified: meta.modifiedTime } : {}),
     author: { "@id": `${siteConfig.url}/#person` },
     publisher: { "@id": `${siteConfig.url}/#person` },
     image: {

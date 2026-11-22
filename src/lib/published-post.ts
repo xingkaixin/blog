@@ -4,6 +4,7 @@ export type PublishedPost = {
   slug: string;
   title: string;
   date: string;
+  updated?: string;
   summary: string;
   tags: string[];
   cover: string;
@@ -32,6 +33,7 @@ export function toPublishedPost(slug: string, post: PublishablePost): PublishedP
     slug: parsePostSlug(slug),
     title: post.title,
     date: post.date,
+    ...(post.updated ? { updated: post.updated } : {}),
     summary: post.summary,
     tags: post.tags,
     cover: post.cover,

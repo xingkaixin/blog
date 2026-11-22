@@ -5,11 +5,14 @@ import { siteConfig } from "@/lib/site";
 import { sitemapNavigation } from "@/lib/site-navigation";
 import { escapeXml } from "@/lib/xml-escaping";
 
-export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "tags">>) {
-  const urlEntry = (loc: string, changefreq: string, priority: string) =>
+export function buildSitemap(
+  posts: Array<Pick<PublishedPost, "slug" | "date" | "tags" | "updated">>,
+) {
+  const urlEntry = (loc: string, changefreq: string, priority: string, lastmod?: string) =>
     [
       "  <url>",
       `    <loc>${escapeXml(loc)}</loc>`,
+      ...(lastmod ? [`    <lastmod>${lastmod}</lastmod>`] : []),
       `    <changefreq>${changefreq}</changefreq>`,
       `    <priority>${priority}</priority>`,
       "  </url>",
@@ -25,7 +28,14 @@ export function buildSitemap(posts: Array<Pick<PublishedPost, "slug" | "tags">>)
     ...buildPostTaxonomy(posts).archives.map(({ href }) =>
       urlEntry(`${siteConfig.url}${href}`, "weekly", "0.6"),
     ),
-    ...posts.map((post) => urlEntry(`${siteConfig.url}${postHref(post.slug)}`, "monthly", "0.8")),
+    ...posts.map((post) =>
+      urlEntry(
+        `${siteConfig.url}${postHref(post.slug)}`,
+        "monthly",
+        "0.8",
+        post.updated ?? post.date,
+      ),
+    ),
   ];
 
   return [

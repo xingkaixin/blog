@@ -20,6 +20,7 @@ const tagsSchema = z
 const postFrontmatterFieldsSchema = z.object({
   title: z.string().trim().min(1),
   date: calendarDateSchema,
+  updated: calendarDateSchema.optional(),
   summary: z.string().trim().min(1),
   tags: tagsSchema,
   cover: z.string().trim().regex(COVER_FILENAME_PATTERN, "cover must be an image filename"),
@@ -31,13 +32,15 @@ export type PostFrontmatter = z.infer<typeof postFrontmatterFieldsSchema>;
 export type PostFrontmatterSchema = ReturnType<typeof createPostFrontmatterSchema>;
 
 export function createPostFrontmatterSchema(coverDirectory: string) {
-  return postFrontmatterFieldsSchema.refine(
-    ({ cover }) => fs.existsSync(path.join(coverDirectory, cover)),
-    {
+  return postFrontmatterFieldsSchema
+    .refine(({ date, updated }) => !updated || updated >= date, {
+      message: "updated must be on or after date",
+      path: ["updated"],
+    })
+    .refine(({ cover }) => fs.existsSync(path.join(coverDirectory, cover)), {
       message: COVER_MISSING_MESSAGE,
       path: ["cover"],
-    },
-  );
+    });
 }
 
 type FrontmatterIssue = {
