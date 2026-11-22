@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
-
 export type WebpVariant = {
   width: number | null;
   quality: number;
@@ -9,8 +6,12 @@ export type WebpVariant = {
 // 固定可移植后端，使本地与 Linux CI 的缩放结果一致。
 Bun.Image.backend = "bun";
 
-export function bunImageRendererFingerprintParts(): Array<string | Buffer> {
-  return [fs.readFileSync(fileURLToPath(import.meta.url)), `bun-image@${Bun.version}`];
+// 显式版本，避免 Bun 升级或脚本重构导致未改动图片的文件名 hash 失效；
+// 仅在调整缩放或编码策略、需要全站重出图片时递增。
+const RENDERER_VERSION = "v1";
+
+export function bunImageRendererFingerprintParts(): string[] {
+  return [`bun-image@${RENDERER_VERSION}`];
 }
 
 export async function writeWebpVariants(
