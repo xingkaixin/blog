@@ -49,6 +49,8 @@ const deferredSprites = await Promise.all(
 
 <home-story>
   <div class="backdrop" aria-hidden="true">
+    <canvas class="sky" data-story-sky></canvas>
+    <canvas class="sky-life" data-story-sky-life></canvas>
     <div class="floor"></div>
     <div class="masthead" data-story-masthead>
       <SignatureAnimation eager className="mt-0 justify-start text-ink-800" fontSize="inherit" />
@@ -206,8 +208,18 @@ const deferredSprites = await Promise.all(
     background-image: radial-gradient(color-mix(in srgb, var(--ink-800) 8%, transparent) 1px, transparent 1.4px);
     background-size: 20px 20px;
   }
-  .floor { position: absolute; inset: auto 0 0; height: 15cqh; border-top: 1px solid var(--line); background: var(--ink-50); }
-  :global([data-theme="dark"]) .floor { background: #101412; }
+  .sky, .sky-life { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sky { image-rendering: pixelated; image-rendering: crisp-edges; }
+  .floor {
+    position: absolute;
+    inset: auto 0 0;
+    height: 15cqh;
+    border-top: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+    background: color-mix(in srgb, var(--ink-50) 68%, transparent);
+    backdrop-filter: blur(2px);
+    opacity: calc(1 - var(--night-amount, 0));
+  }
+  :global([data-theme="dark"]) .floor { background: color-mix(in srgb, #0e1412 72%, transparent); }
   .masthead {
     position: absolute;
     top: var(--masthead-top);
@@ -227,6 +239,7 @@ const deferredSprites = await Promise.all(
     background-size: 173px 131px, 251px 197px;
     background-position: 13px 29px, 97px 61px;
   }
+  home-story[data-sky-ready] .night { display: none; }
   .season { position: absolute; inset: 0; width: 100%; height: 100%; }
 
   .cast { z-index: 2; pointer-events: none; }
@@ -374,6 +387,7 @@ const deferredSprites = await Promise.all(
 
 <script>
   import { bindPondEnding } from "@/lib/pond-ending";
+  import type { ForestSkyBackdrop } from "@/lib/forest-sky-backdrop";
   import type { RecordNote } from "@/lib/home-score";
   import { isSeason, seasonAt } from "@/lib/season";
   import type { SeasonBackdrop } from "@/lib/season-backdrop";
@@ -480,6 +494,9 @@ const deferredSprites = await Promise.all(
       const feifeiButton = cast.find(({ element }) => element.dataset.sprite === "feifei")?.element;
       const masthead = this.querySelector<HTMLElement>("[data-story-masthead]")!;
       const art = this.querySelector<HTMLElement>("[data-story-art]")!;
+      const backdropLayer = this.querySelector<HTMLElement>(".backdrop")!;
+      const skyCanvas = this.querySelector<HTMLCanvasElement>("[data-story-sky]")!;
+      const skyLifeCanvas = this.querySelector<HTMLCanvasElement>("[data-story-sky-life]")!;
       const night = this.querySelector<HTMLElement>("[data-story-night]")!;
       const seasonCanvas = this.querySelector<HTMLCanvasElement>("[data-story-season]")!;
       const seasonChip = this.querySelector<HTMLElement>("[data-season-chip]")!;
@@ -504,6 +521,8 @@ const deferredSprites = await Promise.all(
       );
       const keyTimers = new Map<HTMLElement, number>();
       let backdrop: SeasonBackdrop | null = null;
+      let sky: ForestSkyBackdrop | null = null;
+      let currentProgress = 0;
       let tap: { x: number; y: number } | null = null;
       let floatingNotes = 0;
       let floatingPaws = 0;
@@ -575,8 +594,11 @@ const deferredSprites = await Promise.all(
         art.style.setProperty("--art-fade", String(artFade));
         art.inert = artFade < 0.05;
         nightAmount = smooth(1.3, 1.75, p);
+        currentProgress = p;
+        this.style.setProperty("--night-amount", String(nightAmount));
         night.style.opacity = String(nightAmount);
         backdrop?.setNight(nightAmount);
+        sky?.setProgress(p);
 
         const reveal = (copy: HTMLElement, from: number, to: number, leaveFrom?: number, leaveTo?: number) => {
           const enter = smooth(from, to, p);
@@ -614,8 +636,35 @@ const deferredSprites = await Promise.all(
 
       const syncSeasonMotion = () => {
         seasonToggle.setAttribute("aria-pressed", String(seasonPaused));
-        backdrop?.setPaused(seasonPaused || reducedMotion.matches);
+        const frozen = seasonPaused || reducedMotion.matches;
+        backdrop?.setPaused(frozen);
+        sky?.setPaused(frozen);
       };
+
+      const lensQuietSelector =
+        "a, button, input, .room-copy, .bubble, .contacts, .credits-copy, .pond-copy, [data-pond-ending], travel-window, .season-chip, .rail";
+      this.addEventListener(
+        "pointermove",
+        (event) => {
+          if (event.pointerType !== "mouse" || !sky) {
+            return;
+          }
+          const box = backdropLayer.getBoundingClientRect();
+          if (box.width === 0 || box.height === 0) {
+            return;
+          }
+          const overForeground = event.target instanceof Element && Boolean(event.target.closest(lensQuietSelector));
+          sky.setPointer((event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height, !overForeground);
+        },
+        { passive: true, signal: events.signal },
+      );
+      this.addEventListener(
+        "pointerleave",
+        () => {
+          sky?.setPointer(0.5, 0.5, false);
+        },
+        { passive: true, signal: events.signal },
+      );
 
       addEventListener("scroll", schedule, { passive: true, signal: events.signal });
       reducedMotion.addEventListener("change", schedule, { signal: events.signal });
@@ -855,6 +904,16 @@ const deferredSprites = await Promise.all(
       measure();
       render();
       this.setAttribute("data-ready", "");
+      void import("@/lib/forest-sky-backdrop").then(({ createForestSkyBackdrop }) => {
+        if (events.signal.aborted) {
+          return;
+        }
+        sky = createForestSkyBackdrop(skyCanvas, skyLifeCanvas, seasonPaused || reducedMotion.matches);
+        if (sky) {
+          sky.setProgress(currentProgress);
+          this.setAttribute("data-sky-ready", "");
+        }
+      });
       void import("@/lib/season-backdrop").then(({ createSeasonBackdrop }) => {
         if (events.signal.aborted) {
           return;
@@ -871,6 +930,8 @@ const deferredSprites = await Promise.all(
         resizeObserver.disconnect();
         cancelAnimationFrame(frame);
         keyTimers.forEach((timer) => clearTimeout(timer));
+        sky?.destroy();
+        sky = null;
         backdrop?.destroy();
         backdrop = null;
       };
