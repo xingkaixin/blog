@@ -185,6 +185,14 @@
         "a6aee1f8a3d115309c5f2485594797046911a9291c49bc75a8061b1e45a056a7"
       ]
     },
+    "agent-harness-tax.png": {
+      "fingerprint": "bc8b638323e8d4e74981ebb8f7b2c4c6832135ea3b36f1ece0a1851664c841e3",
+      "outputFingerprints": [
+        "35d07c01b1b4b3e7315acad810f7e79660d92d461ab28fd378016d4356790a8d",
+        "20d297063dbe9720a39468d5f413932dc85bc5296a88bb3ebdaf278d6f9d9650",
+        "602e8c29b8207c740e1c2ded6171fdeea5ab4507263db7cd6b035723cbc58a5f"
+      ]
+    },
     "agent-horizontal-plans.png": {
       "fingerprint": "a4b89ca08c777c6bc2bc8101707fa83937c42e773102db43c0e2ece8f3cea952",
       "outputFingerprints": [

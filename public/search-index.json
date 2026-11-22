@@ -1,5 +1,22 @@
 [
   {
+    "slug": "agent-harness-tax",
+    "title": "同一模型换套 Harness，Coding Agent 账单最高差 5 倍",
+    "date": "2026-11-23",
+    "summary": "Coding Agent 中途降档会触发 Prompt Cache 重算并静默丢弃高档思考块。7 个模型与 3 套 Harness 实测显示，按单次解决成本选型并在新会话换档才省钱。",
+    "tags": [
+      "Coding Agent",
+      "上下文工程",
+      "Claude Code",
+      "AI编程"
+    ],
+    "headings": [
+      "差价来自 Harness 税，不只是模型单价",
+      "长会话中途直接降档会撞上两条硬约束",
+      "选型算单次解决成本，换档留在会话边界"
+    ]
+  },
+  {
     "slug": "ai-bug-reports-patch-window",
     "title": "AI 报的 79 个内核 bug 只认下 10 个，漏洞利用却平均比补丁早 7 天",
     "date": "2026-11-20",
