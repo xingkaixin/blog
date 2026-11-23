@@ -131,6 +131,26 @@ export function rehypeBlogContent() {
           type: "element",
           tagName: "source",
           properties: {
+            srcSet: responsive.mobileAvif,
+            media: "(max-width: 767px)",
+            type: "image/avif",
+          },
+          children: [],
+        },
+        {
+          type: "element",
+          tagName: "source",
+          properties: {
+            srcSet: responsive.desktopAvif,
+            media: "(min-width: 768px)",
+            type: "image/avif",
+          },
+          children: [],
+        },
+        {
+          type: "element",
+          tagName: "source",
+          properties: {
             srcSet: responsive.mobile,
             media: "(max-width: 767px)",
             type: "image/webp",
@@ -157,6 +177,7 @@ export function rehypeBlogContent() {
             width: responsive.width,
             height: responsive.height,
             loading: "lazy",
+            decoding: "async",
             className: ["block", "w-full", "rounded-2xl"],
           },
           children: [],

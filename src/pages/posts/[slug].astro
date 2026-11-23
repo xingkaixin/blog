@@ -15,6 +15,7 @@ import {
   toPostListItem,
   type BlogPostEntry,
 } from "@/lib/astro-posts";
+import { buildCoverSrcSet, POST_COVER_SIZES, resolveCover } from "@/lib/covers";
 import { formatCalendarDate } from "@/lib/calendar-date";
 import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
@@ -44,6 +45,12 @@ const readingMetrics = estimateReadingMetrics(post.body ?? "");
 const { Content, headings } = await render(post);
 const postMeta = toPostDetail(post, headings);
 const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
+const cover = resolveCover(postMeta.cover);
+const coverAvifSrcSet = buildCoverSrcSet(cover, {
+  mobile: cover.mobileAvif,
+  desktop: cover.desktopAvif,
+  full: cover.fullAvif,
+});
 const cssString = (value: string) => JSON.stringify(value).replaceAll("<", "\\3c ");
 const printPageStyle = `@page {
   @top-left { content: ${cssString(canonicalPostUrl.replace(/^https:\/\//, ""))}; }
@@ -75,6 +82,15 @@ const meta = {
     hasToc: postMeta.toc.length > 0,
   }}
 >
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    type="image/avif"
+    imagesrcset={coverAvifSrcSet}
+    imagesizes={POST_COVER_SIZES}
+    fetchpriority="high"
+  />
   <style is:inline set:html={printPageStyle}></style>
   <section class="mx-auto max-w-320 px-3 pb-20 pt-7 sm:px-5 lg:px-8 lg:pt-9">
     <div

@@ -172,13 +172,86 @@ function findForwardSourceElements(
   return { title: null, cover: null };
 }
 
+type CompactConsoleTuple = readonly [
+  slug: string,
+  date: string,
+  tags: string[],
+  summary: string,
+  coverAlt: string,
+  coverMobile: string,
+  coverDesktop: string,
+  coverWidth: number,
+  coverHeight: number,
+  wordCount: number,
+  readingMinutes: number,
+  coverDesktopAvif?: string,
+  coverMobileAvif?: string,
+];
+
+function readReturningRowMeta(newDoc: Document, row: HTMLElement, slug: string) {
+  const titleText = row.querySelector("[data-post-title]")?.textContent?.trim() ?? "";
+  const script = newDoc.querySelector<HTMLScriptElement>("script[data-post-console-data]");
+  if (script?.textContent) {
+    const tuples = JSON.parse(script.textContent) as CompactConsoleTuple[];
+    const tuple = tuples.find((entry) => entry[0] === slug);
+    if (tuple) {
+      let summary = tuple[3];
+      if (!summary) {
+        const template = newDoc.querySelector<HTMLTemplateElement>("template[data-agent-content]");
+        const href = postHref(slug);
+        if (template) {
+          for (const item of template.content.querySelectorAll("li")) {
+            if (item.querySelector("a")?.getAttribute("href") === href) {
+              summary = item.querySelector("p")?.textContent?.trim() ?? "";
+              break;
+            }
+          }
+        }
+      }
+      const coverDesktop = tuple[6];
+      const coverDesktopAvif = tuple[11] ?? "";
+      return {
+        date: tuple[1],
+        tags: tuple[2],
+        summary,
+        titleText,
+        coverAlt: tuple[4] || titleText,
+        coverMobile: tuple[5] || coverDesktop.replace("-800.", "-400."),
+        coverDesktop,
+        coverMobileAvif: tuple[12] || coverDesktopAvif.replace("-800.", "-400."),
+        coverDesktopAvif,
+        coverWidth: tuple[7],
+        coverHeight: tuple[8],
+        wordCount: tuple[9],
+        readingMinutes: tuple[10],
+      };
+    }
+  }
+  return {
+    date: row.dataset.postDate ?? "",
+    tags: JSON.parse(row.dataset.postTags ?? "[]") as string[],
+    summary: row.dataset.postSummary ?? "",
+    titleText,
+    coverAlt: row.dataset.postCoverAlt ?? "",
+    coverMobile: row.dataset.postCoverMobile ?? "",
+    coverDesktop: row.dataset.postCoverDesktop ?? "",
+    coverMobileAvif: row.dataset.postCoverMobileAvif ?? "",
+    coverDesktopAvif: row.dataset.postCoverDesktopAvif ?? "",
+    coverWidth: Number(row.dataset.postCoverWidth),
+    coverHeight: Number(row.dataset.postCoverHeight),
+    wordCount: Number(row.dataset.postWordCount),
+    readingMinutes: Number(row.dataset.postReadingMinutes),
+  };
+}
+
 function syncReturningPostConsole(newDoc: Document, slug: string): void {
   const row = newDoc.querySelector<HTMLElement>(`[data-post-row="${cssEscape(slug)}"]`);
   if (!row) {
     return;
   }
+  const meta = readReturningRowMeta(newDoc, row, slug);
 
-  const postYear = row.dataset.postDate?.slice(0, 4) ?? "";
+  const postYear = meta.date.slice(0, 4);
   const activeYearBtn = newDoc.querySelector<HTMLElement>(
     '[data-filter-kind="year"][aria-pressed="true"]',
   );
@@ -207,16 +280,17 @@ function syncReturningPostConsole(newDoc: Document, slug: string): void {
     return;
   }
 
-  const tags = JSON.parse(row.dataset.postTags ?? "[]") as string[];
   const content = postPreviewContent(
     {
-      wordCount: Number(row.dataset.postWordCount),
-      readingMinutes: Number(row.dataset.postReadingMinutes),
-      tags,
+      wordCount: meta.wordCount,
+      readingMinutes: meta.readingMinutes,
+      tags: meta.tags,
     },
     {
-      mobile: row.dataset.postCoverMobile ?? "",
-      desktop: row.dataset.postCoverDesktop ?? "",
+      mobile: meta.coverMobile,
+      desktop: meta.coverDesktop,
+      mobileAvif: meta.coverMobileAvif,
+      desktopAvif: meta.coverDesktopAvif,
     },
   );
   const href = postHref(slug);
@@ -225,24 +299,31 @@ function syncReturningPostConsole(newDoc: Document, slug: string): void {
   }
   const image = preview.querySelector<HTMLImageElement>("[data-preview-image]");
   if (image) {
-    image.src = row.dataset.postCoverDesktop ?? "";
-    image.alt = row.dataset.postCoverAlt ?? "";
-    image.width = Number(row.dataset.postCoverWidth);
-    image.height = Number(row.dataset.postCoverHeight);
+    image.src = meta.coverDesktop;
+    image.alt = meta.coverAlt;
+    image.width = meta.coverWidth;
+    image.height = meta.coverHeight;
+  }
+  const avifSource = preview.querySelector<HTMLSourceElement>("[data-preview-source-avif]");
+  if (avifSource) {
+    if (content.coverAvifSrcSet) {
+      avifSource.srcset = content.coverAvifSrcSet;
+    } else {
+      avifSource.removeAttribute("srcset");
+    }
   }
   const source = preview.querySelector<HTMLSourceElement>("[data-preview-source]");
   if (source) {
     source.srcset = content.coverSrcSet;
   }
-  const titleText = row.querySelector("[data-post-title]")?.textContent?.trim() ?? "";
   const setText = (selector: string, value: string) => {
     const element = preview.querySelector<HTMLElement>(selector);
     if (element) {
       element.textContent = value;
     }
   };
-  setText("[data-preview-title]", titleText);
-  setText("[data-preview-summary]", row.dataset.postSummary ?? "");
+  setText("[data-preview-title]", meta.titleText);
+  setText("[data-preview-summary]", meta.summary);
   setText("[data-preview-word-count]", content.wordCount);
   setText("[data-preview-reading-minutes]", content.readingMinutes);
   setText("[data-preview-tags]", content.tags);

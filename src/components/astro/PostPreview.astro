@@ -22,7 +22,8 @@ const content = postPreviewContent(post, cover);
     class="block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
   >
     <picture class="block">
-      <source data-preview-source srcset={content.coverSrcSet} />
+      <source data-preview-source-avif type="image/avif" srcset={content.coverAvifSrcSet} />
+      <source data-preview-source type="image/webp" srcset={content.coverSrcSet} />
       <img
         data-preview-image
         src={cover.desktop}

@@ -1,5 +1,10 @@
 ---
-import { resolveCover, type ResponsiveCover } from "@/lib/covers";
+import {
+  buildCoverSrcSet,
+  POST_COVER_SIZES,
+  resolveCover,
+  type ResponsiveCover,
+} from "@/lib/covers";
 
 type Props = {
   cover: string;
@@ -18,24 +23,30 @@ const {
 } = Astro.props;
 const responsive: ResponsiveCover = resolveCover(cover);
 const imageClassName = ["block h-auto w-full max-w-full", imageClass].filter(Boolean).join(" ");
+const webpSrcSet = buildCoverSrcSet(responsive, {
+  mobile: responsive.mobile,
+  desktop: responsive.desktop,
+  full: responsive.full,
+});
+const avifSrcSet = buildCoverSrcSet(responsive, {
+  mobile: responsive.mobileAvif,
+  desktop: responsive.desktopAvif,
+  full: responsive.fullAvif,
+});
 ---
 
 <div class:list={["w-full max-w-full overflow-hidden", className]}>
-  <picture>
-    <source
-      srcset={`${responsive.mobile} 1x, ${responsive.desktop} 2x`}
-      media="(max-width: 639px)"
-    />
-    <source
-      srcset={`${responsive.desktop} 1x, ${responsive.full} 2x`}
-      media="(max-width: 1023px)"
-    />
+  <picture class="block">
+    <source type="image/avif" srcset={avifSrcSet} sizes={POST_COVER_SIZES} />
     <img
-      src={responsive.full}
+      src={responsive.desktop}
+      srcset={webpSrcSet}
+      sizes={POST_COVER_SIZES}
       alt={alt}
       width={responsive.width}
       height={responsive.height}
       loading={priority ? "eager" : "lazy"}
+      decoding={priority ? "sync" : "async"}
       fetchpriority={priority ? "high" : undefined}
       class={imageClassName}
     />

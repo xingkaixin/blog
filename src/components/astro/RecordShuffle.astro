@@ -7,15 +7,18 @@ type Props = {
 };
 
 const firstPost = Astro.props.posts[0];
-const first = firstPost
-  ? {
-      href: postHref(firstPost.slug),
-      title: firstPost.title,
-      date: firstPost.date,
-      summary: firstPost.summary,
-      cover: resolveCover(firstPost.cover).desktop,
-    }
-  : undefined;
+const firstCover = firstPost ? resolveCover(firstPost.cover) : undefined;
+const first =
+  firstPost && firstCover
+    ? {
+        href: postHref(firstPost.slug),
+        title: firstPost.title,
+        date: firstPost.date,
+        summary: firstPost.summary,
+        cover: firstCover.desktop,
+        coverAvif: firstCover.desktopAvif,
+      }
+    : undefined;
 ---
 
 {
@@ -25,7 +28,10 @@ const first = firstPost
         class="mx-auto grid max-w-5xl items-center gap-8 md:grid-cols-[minmax(0,440px)_minmax(0,1fr)] md:gap-14"
       >
         <div class="deck" aria-hidden="true">
-          <img class="sleeve" data-record-cover src={first.cover} alt="" width="260" height="260" loading="lazy" decoding="async" />
+          <picture>
+            <source data-record-cover-avif type="image/avif" srcset={first.coverAvif} />
+            <img class="sleeve" data-record-cover src={first.cover} alt="" width="260" height="260" loading="lazy" decoding="async" />
+          </picture>
           <svg class="turntable" viewBox="0 0 160 132" fill="none">
             <defs>
               <linearGradient id="shuffle-wood" x1="10" y1="20" x2="150" y2="120" gradientUnits="userSpaceOnUse">
@@ -136,21 +142,67 @@ const first = firstPost
 <script>
   import { elapsedSince, pickRandom, shuffleablePosts } from "@/lib/record-shuffle";
 
-  type ShuffleRecord = { href: string; title: string; date: string; summary: string; cover: string };
+  type ShuffleRecord = {
+    href: string;
+    title: string;
+    date: string;
+    summary: string;
+    cover: string;
+    coverAvif?: string;
+  };
 
   // 唱臂抬起和文字淡出都在这段时间内完成，之后再换内容
   const LIFT_MS = 420;
 
   function collectRecordsFromConsole(): ShuffleRecord[] {
+    const script = document.querySelector<HTMLScriptElement>("script[data-post-console-data]");
+    const tuples = script?.textContent
+      ? new Map(
+          (
+            JSON.parse(script.textContent) as Array<
+              [
+                string,
+                string,
+                string[],
+                string,
+                string,
+                string,
+                string,
+                number,
+                number,
+                number,
+                number,
+                string?,
+              ]
+            >
+          ).map((entry) => [entry[0], entry]),
+        )
+      : null;
+    const summaries = new Map<string, string>();
+    const agentTemplate = document.querySelector<HTMLTemplateElement>("template[data-agent-content]");
+    if (agentTemplate) {
+      for (const item of agentTemplate.content.querySelectorAll("li")) {
+        const href = item.querySelector("a")?.getAttribute("href") ?? "";
+        const summary = item.querySelector("p")?.textContent?.trim();
+        if (href && summary) {
+          summaries.set(href, summary);
+        }
+      }
+    }
     const rows = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-post-row]"));
     return shuffleablePosts(
-      rows.map((row) => ({
-        href: row.getAttribute("href") ?? "",
-        title: row.querySelector("[data-post-title]")?.textContent?.trim() ?? "",
-        date: row.dataset.postDate ?? "",
-        summary: row.dataset.postSummary ?? "",
-        cover: row.dataset.postCoverDesktop ?? "",
-      })),
+      rows.map((row) => {
+        const href = row.getAttribute("href") ?? "";
+        const tuple = tuples?.get(row.dataset.postRow ?? "");
+        return {
+          href,
+          title: row.querySelector("[data-post-title]")?.textContent?.trim() ?? "",
+          date: tuple?.[1] ?? row.dataset.postDate ?? "",
+          summary: tuple?.[3] || summaries.get(href) || row.dataset.postSummary || "",
+          cover: tuple?.[6] ?? row.dataset.postCoverDesktop ?? "",
+          coverAvif: tuple?.[11] ?? row.dataset.postCoverDesktopAvif ?? "",
+        };
+      }),
     ).filter((record) => record.href && record.title && record.cover);
   }
 
@@ -161,6 +213,7 @@ const first = firstPost
       const records = this.dataset.records
         ? (JSON.parse(this.dataset.records) as ShuffleRecord[])
         : collectRecordsFromConsole();
+      const coverAvif = this.querySelector<HTMLSourceElement>("[data-record-cover-avif]");
       const cover = this.querySelector<HTMLImageElement>("[data-record-cover]")!;
       const vinyl = this.querySelector<SVGGElement>("[data-record-vinyl]")!;
       const year = this.querySelector<SVGTextElement>("[data-record-year]")!;
@@ -170,11 +223,24 @@ const first = firstPost
       const summary = this.querySelector<HTMLElement>("[data-record-summary]")!;
       const link = this.querySelector<HTMLAnchorElement>("[data-record-link]")!;
       const next = this.querySelector<HTMLButtonElement>("[data-record-next]")!;
-      let current = pickRandom(records);
+      const initialHref = link.getAttribute("href") ?? "";
+      let current = records.find((record) => record.href === initialHref) ?? pickRandom(records);
       let spin = 0;
 
       const show = (record: ShuffleRecord) => {
-        cover.src = record.cover;
+        if (coverAvif) {
+          const nextAvif = record.coverAvif ?? "";
+          if ((coverAvif.getAttribute("srcset") ?? "") !== nextAvif) {
+            if (nextAvif) {
+              coverAvif.srcset = nextAvif;
+            } else {
+              coverAvif.removeAttribute("srcset");
+            }
+          }
+        }
+        if (cover.getAttribute("src") !== record.cover) {
+          cover.src = record.cover;
+        }
         year.textContent = record.date.slice(0, 4);
         date.textContent = record.date;
         date.dateTime = record.date;

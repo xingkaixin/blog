@@ -15,6 +15,8 @@ type PostConsoleRow = {
   coverAlt: string;
   coverMobile: string;
   coverDesktop: string;
+  coverMobileAvif: string;
+  coverDesktopAvif: string;
   coverWidth: number;
   coverHeight: number;
   wordCount: number;
@@ -69,7 +71,8 @@ export function initializePostConsole(root: HTMLElement): void {
   initializedRoots.add(root);
 
   const rows = [...root.querySelectorAll<HTMLElement>("[data-post-row]")];
-  const posts = rows.map(readPostConsoleRow);
+  const compactData = readPostConsolePayload(root);
+  const posts = rows.map((row) => readPostConsoleRow(row, compactData));
   const postsBySlug = new Map(posts.map((post) => [post.slug, post]));
   const months = [...root.querySelectorAll<HTMLDetailsElement>("[data-post-month]")];
   const monthsToggle = root.querySelector<HTMLButtonElement>("[data-post-months-toggle]");
@@ -211,6 +214,8 @@ export function initializePostConsole(root: HTMLElement): void {
     const content = postPreviewContent(post, {
       mobile: post.coverMobile,
       desktop: post.coverDesktop,
+      mobileAvif: post.coverMobileAvif,
+      desktopAvif: post.coverDesktopAvif,
     });
     for (const link of preview.querySelectorAll<HTMLAnchorElement>("[data-preview-link]")) {
       link.href = postHref(post.slug);
@@ -221,6 +226,14 @@ export function initializePostConsole(root: HTMLElement): void {
       image.alt = post.coverAlt;
       image.width = post.coverWidth;
       image.height = post.coverHeight;
+    }
+    const avifSource = preview.querySelector<HTMLSourceElement>("[data-preview-source-avif]");
+    if (avifSource) {
+      if (content.coverAvifSrcSet) {
+        avifSource.srcset = content.coverAvifSrcSet;
+      } else {
+        avifSource.removeAttribute("srcset");
+      }
     }
     const source = preview.querySelector<HTMLSourceElement>("[data-preview-source]");
     if (source) {
@@ -422,16 +435,108 @@ function setText(root: ParentNode, selector: string, value: string): void {
   }
 }
 
-function readPostConsoleRow(row: HTMLElement): PostConsoleRow {
+type PostConsoleTuple = readonly [
+  slug: string,
+  date: string,
+  tags: string[],
+  summary: string,
+  coverAlt: string,
+  coverMobile: string,
+  coverDesktop: string,
+  coverWidth: number,
+  coverHeight: number,
+  wordCount: number,
+  readingMinutes: number,
+  coverDesktopAvif?: string,
+  coverMobileAvif?: string,
+];
+
+function readAgentSummaries(): Map<string, string> {
+  const summaries = new Map<string, string>();
+  const template = document.querySelector<HTMLTemplateElement>("template[data-agent-content]");
+  if (!template) {
+    return summaries;
+  }
+  for (const item of template.content.querySelectorAll("li")) {
+    const href = item.querySelector("a")?.getAttribute("href") ?? "";
+    const match = href.match(/^\/posts\/([^/]+)\/?$/);
+    const summary = item.querySelector("p")?.textContent?.trim();
+    if (match && summary) {
+      summaries.set(match[1], summary);
+    }
+  }
+  return summaries;
+}
+
+function readPostConsolePayload(root: HTMLElement): Map<string, PostConsoleTuple> | null {
+  const script = root.querySelector<HTMLScriptElement>("script[data-post-console-data]");
+  if (!script?.textContent) {
+    return null;
+  }
+  const tuples = JSON.parse(script.textContent) as PostConsoleTuple[];
+  const agentSummaries = readAgentSummaries();
+  return new Map(
+    tuples.map((tuple) => [
+      tuple[0],
+      tuple[3]
+        ? tuple
+        : ([
+            tuple[0],
+            tuple[1],
+            tuple[2],
+            agentSummaries.get(tuple[0]) ?? "",
+            tuple[4],
+            tuple[5],
+            tuple[6],
+            tuple[7],
+            tuple[8],
+            tuple[9],
+            tuple[10],
+            tuple[11],
+            tuple[12],
+          ] as const),
+    ]),
+  );
+}
+
+function readPostConsoleRow(
+  row: HTMLElement,
+  compactData: Map<string, PostConsoleTuple> | null,
+): PostConsoleRow {
+  const slug = row.dataset.postRow ?? "";
+  const title = row.querySelector("[data-post-title]")?.textContent?.trim() ?? "";
+  const tuple = compactData?.get(slug);
+  if (tuple) {
+    const coverDesktop = tuple[6];
+    const coverDesktopAvif = tuple[11] ?? "";
+    return {
+      slug,
+      title,
+      date: tuple[1],
+      tags: tuple[2],
+      summary: tuple[3],
+      coverAlt: tuple[4] || title,
+      coverMobile: tuple[5] || coverDesktop.replace("-800.", "-400."),
+      coverDesktop,
+      coverMobileAvif: tuple[12] || coverDesktopAvif.replace("-800.", "-400."),
+      coverDesktopAvif,
+      coverWidth: tuple[7],
+      coverHeight: tuple[8],
+      wordCount: tuple[9],
+      readingMinutes: tuple[10],
+    };
+  }
   return {
-    slug: row.dataset.postRow ?? "",
-    title: row.querySelector("[data-post-title]")?.textContent?.trim() ?? "",
+    slug,
+    title,
     summary: row.dataset.postSummary ?? "",
     date: row.dataset.postDate ?? "",
     tags: JSON.parse(row.dataset.postTags ?? "[]") as string[],
     coverAlt: row.dataset.postCoverAlt ?? "",
     coverMobile: row.dataset.postCoverMobile ?? "",
     coverDesktop: row.dataset.postCoverDesktop ?? "",
+    coverMobileAvif: row.dataset.postCoverMobileAvif ?? "",
+    coverDesktopAvif: row.dataset.postCoverDesktopAvif ?? "",
     coverWidth: Number(row.dataset.postCoverWidth),
     coverHeight: Number(row.dataset.postCoverHeight),
     wordCount: Number(row.dataset.postWordCount),

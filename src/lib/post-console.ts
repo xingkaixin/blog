@@ -10,10 +10,14 @@ export type PostConsoleFilter = {
 
 export function postPreviewContent(
   post: Pick<PostConsoleItem, "wordCount" | "readingMinutes" | "tags">,
-  cover: { mobile: string; desktop: string },
+  cover: { mobile: string; desktop: string; mobileAvif?: string; desktopAvif?: string },
 ) {
   return {
     coverSrcSet: `${cover.mobile} 1x, ${cover.desktop} 2x`,
+    coverAvifSrcSet:
+      cover.mobileAvif && cover.desktopAvif
+        ? `${cover.mobileAvif} 1x, ${cover.desktopAvif} 2x`
+        : "",
     wordCount: `${post.wordCount.toLocaleString("zh-CN")} 字`,
     readingMinutes: `${post.readingMinutes} min`,
     tags: post.tags.join(" · "),

@@ -2,7 +2,7 @@
 import PostFilter from "@/components/astro/PostFilter.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
 import PostPreview from "@/components/astro/PostPreview.astro";
-import { ProjectStickers } from "@/components/project-stickers";
+import ProjectStickers from "@/components/astro/ProjectStickers.astro";
 import { resolveCover } from "@/lib/covers";
 import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
@@ -25,6 +25,27 @@ const popularTags = buildPostTaxonomy(posts).tags
   .toSorted((left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"))
   .slice(0, 9);
 const previewPost = posts[0];
+const consolePayload = posts.map((post) => {
+  const cover = resolveCover(post.cover);
+  const derivedMobile = cover.desktop.replace("-800.", "-400.");
+  const derivedMobileAvif = cover.desktopAvif.replace("-800.", "-400.");
+  return [
+    post.slug,
+    post.date,
+    post.tags,
+    "",
+    post.coverAlt === post.title ? "" : post.coverAlt,
+    cover.mobile === derivedMobile ? "" : cover.mobile,
+    cover.desktop,
+    cover.width,
+    cover.height,
+    post.wordCount,
+    post.readingMinutes,
+    cover.desktopAvif,
+    cover.mobileAvif === derivedMobileAvif ? "" : cover.mobileAvif,
+  ] as const;
+});
+const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c");
 ---
 
 <section data-post-console class="relative isolate mx-auto max-w-320">
@@ -73,11 +94,12 @@ const previewPost = posts[0];
 
         <div class="mt-auto h-20"></div>
 
-        <ProjectStickers client:media="(min-width: 1024px)" />
+        <ProjectStickers />
       </div>
     </aside>
 
     <div class="min-w-0 py-2.5">
+      <script type="application/json" data-post-console-data set:html={consoleDataJson}></script>
       <div class="flex items-center justify-between gap-3 border-b border-line px-3 pb-2.5 lg:px-5">
         <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
           <span data-post-console-heading>全部文章</span>
@@ -98,77 +120,40 @@ const previewPost = posts[0];
       >
         {
           months.map((month, monthIndex) => (
-            <details data-post-month={month.key} open={monthIndex === 0} class="group/month">
-              <summary class="flex cursor-pointer list-none items-center gap-2 border-b border-line bg-paper px-3 py-2 font-mono text-[11px] text-ink-500 transition-colors hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 lg:px-5 [&::-webkit-details-marker]:hidden">
-                <svg
-                  aria-hidden="true"
-                  class="h-3 w-3 shrink-0 transition-transform duration-(--duration-quick) group-open/month:rotate-90"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="m9 6 6 6-6 6" />
-                </svg>
+            <details
+              data-post-month={month.key}
+              open={monthIndex === 0}
+              hidden={Boolean(latestYear && !month.key.startsWith(latestYear))}
+              class="pc-m"
+            >
+              <summary class="pc-sum">
                 <span>{month.label}</span>
                 <span data-post-month-count class="ml-auto">{month.posts.length} 篇</span>
               </summary>
               {
-                month.posts.map((post) => {
-                  const cover = resolveCover(post.cover);
-                  return (
-                    <a
-                      data-post-row={post.slug}
-                      data-post-date={post.date}
-                      data-post-summary={post.summary}
-                      data-post-tags={JSON.stringify(post.tags)}
-                      data-post-cover-alt={post.coverAlt}
-                      data-post-cover-mobile={cover.mobile}
-                      data-post-cover-desktop={cover.desktop}
-                      data-post-cover-width={cover.width}
-                      data-post-cover-height={cover.height}
-                      data-post-word-count={post.wordCount}
-                      data-post-reading-minutes={post.readingMinutes}
-                      data-active={post === posts[0] ? "" : undefined}
-                      href={postHref(post.slug)}
-                      class="post-row block border-b border-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/40 data-active:bg-surface"
-                    >
-                      <span class="flex flex-col gap-1 px-3 py-3.5 lg:flex-row lg:items-center lg:gap-3 lg:px-5 lg:py-2.5">
-                        <span class="flex items-center gap-2 font-mono text-[11px] text-ink-500 lg:w-[80px] lg:shrink-0">
-                          <span>{post.date}</span>
-                          {post.tags[0] && (
-                            <>
-                              <span class="text-ink-200 lg:hidden">·</span>
-                              <span class="text-accent lg:hidden">{post.tags[0]}</span>
-                            </>
-                          )}
-                        </span>
-                        <span data-post-title class="min-w-0 flex-1 text-[15px] leading-6 text-ink-800 lg:text-[14px]">
-                          {post.title}
-                        </span>
+                month.posts.map((post) => (
+                  <a
+                    data-post-row={post.slug}
+                    data-active={post === posts[0] ? "" : undefined}
+                    href={postHref(post.slug)}
+                    class="post-row"
+                  >
+                    <span class="pc-in">
+                      <span class="pc-meta">
+                        <span>{post.date}</span>
                         {post.tags[0] && (
-                          <span class="hidden shrink-0 rounded-[4px] border border-line bg-surface px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-ink-500 2xl:inline-flex">
-                            {post.tags[0]}
-                          </span>
+                          <>
+                            <span class="pc-dot">·</span>
+                            <span class="pc-mtag">{post.tags[0]}</span>
+                          </>
                         )}
-                        <svg
-                          aria-hidden="true"
-                          class="post-open-arrow hidden h-4 w-4 shrink-0 text-ink-500 lg:block"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path d="M5 12h14m-6-6 6 6-6 6" />
-                        </svg>
                       </span>
-                    </a>
-                  );
-                })
+                      <span data-post-title class="pc-t">{post.title}</span>
+                      {post.tags[0] && <span class="pc-g">{post.tags[0]}</span>}
+                      <span aria-hidden="true" class="post-open-arrow">→</span>
+                    </span>
+                  </a>
+                ))
               }
             </details>
           ))
@@ -197,33 +182,174 @@ const previewPost = posts[0];
   </div>
 </section>
 
-<style>
-  .post-open-arrow {
+<style is:global>
+  [data-post-console] .pc-sum {
+    display: flex;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500);
+    transition: color var(--duration-quick);
+  }
+
+  [data-post-console] .pc-sum::-webkit-details-marker {
+    display: none;
+  }
+
+  [data-post-console] .pc-sum::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    flex-shrink: 0;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform var(--duration-quick);
+  }
+
+  [data-post-console] .pc-m[open] > .pc-sum::before {
+    transform: rotate(45deg);
+  }
+
+  [data-post-console] .pc-sum:hover {
+    color: var(--ink-800);
+  }
+
+  [data-post-console] .pc-sum:focus-visible,
+  [data-post-console] .post-row:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--accent) 40%, transparent);
+  }
+
+  [data-post-console] .post-row {
+    display: block;
+    border-bottom: 1px solid var(--ink-100);
+  }
+
+  [data-post-console] .post-row[data-active] {
+    background: var(--surface);
+  }
+
+  [data-post-console] .pc-in {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 0.75rem;
+  }
+
+  [data-post-console] .pc-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-500);
+  }
+
+  [data-post-console] .pc-dot {
+    color: var(--ink-200);
+  }
+
+  [data-post-console] .pc-mtag {
+    color: var(--accent);
+  }
+
+  [data-post-console] .pc-t {
+    min-width: 0;
+    flex: 1 1 0%;
+    font-size: 15px;
+    line-height: 1.5rem;
+    color: var(--ink-800);
+  }
+
+  [data-post-console] .pc-g {
+    display: none;
+    flex-shrink: 0;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-500);
+  }
+
+  [data-post-console] .post-open-arrow {
+    display: none;
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1;
+    color: var(--ink-500);
     opacity: 0;
   }
 
+  @media (min-width: 64rem) {
+    [data-post-console] .pc-sum {
+      padding-inline: 1.25rem;
+    }
+
+    [data-post-console] .pc-in {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 1.25rem;
+    }
+
+    [data-post-console] .pc-meta {
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    [data-post-console] .pc-dot,
+    [data-post-console] .pc-mtag {
+      display: none;
+    }
+
+    [data-post-console] .pc-t {
+      font-size: 14px;
+    }
+
+    [data-post-console] .post-open-arrow {
+      display: block;
+    }
+  }
+
+  @media (min-width: 96rem) {
+    [data-post-console] .pc-g {
+      display: inline-flex;
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
-    .post-open-arrow {
+    [data-post-console] .post-open-arrow {
       transform: translateX(-4px);
       transition:
         opacity 140ms ease,
         transform 140ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .post-row:hover .post-open-arrow {
+    [data-post-console] .post-row:hover .post-open-arrow {
       opacity: 1;
       transform: translateX(0);
     }
   }
 
-  .post-row:focus-visible .post-open-arrow {
+  [data-post-console] .post-row:focus-visible .post-open-arrow {
     opacity: 1;
     transform: none;
     transition: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .post-open-arrow {
+    [data-post-console] .post-open-arrow {
       transform: none;
       transition: none;
     }

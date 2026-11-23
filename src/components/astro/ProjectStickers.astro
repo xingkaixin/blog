@@ -1,0 +1,147 @@
+---
+import { projects } from "@/lib/projects";
+
+const logos = [...new Set(projects.map((project) => project.logo))];
+---
+
+<div
+  data-project-stickers={JSON.stringify(logos)}
+  aria-hidden="true"
+  class="project-stickers pointer-events-none absolute inset-0 hidden lg:block"
+></div>
+
+<script>
+  import type { GravityWorldHandle } from "@/lib/gravity-world";
+  import { THEME_TOGGLE_EVENT } from "@/lib/site-events";
+
+  const SIZE = 26;
+  const STICKER_FILTER =
+    "drop-shadow(1px 0px 0 #fff) drop-shadow(-1px 0px 0 #fff) drop-shadow(0px 1px 0 #fff) drop-shadow(0px -1px 0 #fff) drop-shadow(1px 1px 0 #fff) drop-shadow(-1px -1px 0 #fff) drop-shadow(1px -1px 0 #fff) drop-shadow(-1px 1px 0 #fff) drop-shadow(0 2px 3px rgba(31,24,18,0.2))";
+  const cleanups = new Set<() => void>();
+
+  function teardown() {
+    for (const cleanup of cleanups) {
+      cleanup();
+    }
+    cleanups.clear();
+  }
+
+  function mountContainer(container: HTMLElement) {
+    if (!matchMedia("(min-width: 1024px)").matches) {
+      return;
+    }
+    const raw = container.dataset.projectStickers;
+    if (!raw) {
+      return;
+    }
+    const logos = JSON.parse(raw) as string[];
+    const { width, height } = container.getBoundingClientRect();
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    const inverted = document.documentElement.dataset.theme === "dark";
+    const perRow = Math.max(Math.floor(width / (SIZE + 6)), 1);
+    const elements: HTMLDivElement[] = [];
+    const fragment = document.createDocumentFragment();
+    const specs = logos.map((logo, index) => {
+      const row = Math.floor(index / perRow);
+      const column = index % perRow;
+      const x = (column + 0.5) * (width / perRow) + (((index * 37) % 11) - 5) * 0.6;
+      const y = inverted ? 20 + row * (SIZE + 6) : height - 20 - row * (SIZE + 6);
+      const angle = (((index * 23) % 13) - 6) * 0.05;
+
+      const el = document.createElement("div");
+      el.style.width = `${SIZE}px`;
+      el.style.height = `${SIZE}px`;
+      el.style.transform = `translate3d(${(x - SIZE / 2).toFixed(1)}px, ${(y - SIZE / 2).toFixed(1)}px, 0) rotate(${angle.toFixed(2)}rad)`;
+      el.className =
+        "project-sticker pointer-events-auto absolute left-0 top-0 cursor-grab touch-none will-change-transform active:cursor-grabbing";
+
+      const img = document.createElement("img");
+      img.src = logo;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.draggable = false;
+      img.style.filter = STICKER_FILTER;
+      img.className = "h-full w-full select-none rounded-[22%] object-contain";
+      el.append(img);
+
+      elements.push(el);
+      fragment.append(el);
+
+      return { x, y, width: SIZE, height: SIZE, restitution: 0.15, angle };
+    });
+
+    container.replaceChildren(fragment);
+    container.setAttribute("data-ready", "");
+
+    let cancelled = false;
+    let physicsStarted = false;
+    let world: GravityWorldHandle | null = null;
+    const events = new AbortController();
+
+    const bootPhysics = (grabIndex?: number, grabEvent?: PointerEvent) => {
+      if (physicsStarted || cancelled || !container.isConnected) {
+        if (grabIndex !== undefined && grabEvent && world) {
+          world.grab(grabEvent, grabIndex);
+        }
+        return;
+      }
+      physicsStarted = true;
+      void import("@/lib/gravity-world").then(({ mountGravityWorld }) => {
+        if (cancelled || !container.isConnected) {
+          return;
+        }
+        world = mountGravityWorld({
+          container,
+          specs,
+          getElement: (index) => elements[index] ?? null,
+        });
+        if (grabIndex !== undefined && grabEvent) {
+          world.grab(grabEvent, grabIndex);
+        }
+      });
+    };
+
+    elements.forEach((el, index) => {
+      el.addEventListener("pointerenter", () => bootPhysics(), { once: true, signal: events.signal });
+      el.addEventListener(
+        "pointerdown",
+        (event) => {
+          if (world) {
+            world.grab(event, index);
+          } else {
+            bootPhysics(index, event);
+          }
+        },
+        { signal: events.signal },
+      );
+    });
+    window.addEventListener(THEME_TOGGLE_EVENT, () => bootPhysics(), {
+      once: true,
+      signal: events.signal,
+    });
+
+    cleanups.add(() => {
+      cancelled = true;
+      events.abort();
+      world?.destroy();
+      world = null;
+      container.removeAttribute("data-ready");
+      container.replaceChildren();
+    });
+  }
+
+  function setup() {
+    teardown();
+    for (const container of document.querySelectorAll<HTMLElement>("[data-project-stickers]")) {
+      mountContainer(container);
+    }
+  }
+
+  setup();
+  document.addEventListener("astro:page-load", setup);
+  document.addEventListener("astro:before-swap", teardown);
+</script>
