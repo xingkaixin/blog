@@ -2,11 +2,7 @@ export type HeadExpression = "smile" | "surprised" | "ouch";
 
 type Point = { x: number; y: number };
 
-export async function createElasticHead(
-  canvas: HTMLCanvasElement,
-  art: SVGGElement,
-  outline: SVGClipPathElement,
-) {
+export async function createElasticHead(canvas: HTMLCanvasElement, art: SVGGElement) {
   const gl = canvas.getContext("webgl", {
     alpha: true,
     antialias: true,
@@ -88,7 +84,8 @@ export async function createElasticHead(
     gl.uniform2f(gl.getUniformLocation(program, "size"), width + padding * 2, height + padding * 2);
     gl.uniform1i(gl.getUniformLocation(program, "face"), 0);
     gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
     const columns = 28;
     const rows = 32;
@@ -124,8 +121,11 @@ export async function createElasticHead(
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(triangles), gl.STATIC_DRAW);
 
+    const sheetImage = art.querySelector("image")!;
+    const sheetWidth = sheetImage.width.baseVal.value;
+    const sheetHeight = sheetImage.height.baseVal.value;
     const sheet = new Image();
-    sheet.src = art.querySelector("image")!.href.baseVal;
+    sheet.src = sheetImage.href.baseVal;
     const face = art.querySelector<SVGGElement>("[data-face]")!.cloneNode(true) as SVGGElement;
     face.removeAttribute("style");
     face.querySelector("[data-pupils]")!.removeAttribute("style");
@@ -142,14 +142,8 @@ export async function createElasticHead(
     source.width = width;
     source.height = height;
     const paint = source.getContext("2d")!;
-    paint.translate(-sourceX, -sourceY);
-    for (let i = 0; i < outline.transform.baseVal.numberOfItems; i++) {
-      const m = outline.transform.baseVal.getItem(i).matrix;
-      paint.transform(m.a, m.b, m.c, m.d, m.e, m.f);
-    }
-    paint.clip(new Path2D(outline.querySelector("path")!.getAttribute("d")!));
-    paint.setTransform(1, 0, 0, 1, -sourceX, -sourceY);
-    paint.drawImage(sheet, 0, 0);
+    // Astro downscales the delivered sheet; draw into the SVG's full 1536×1024 coordinate space so sourceX/sourceY stay aligned.
+    paint.drawImage(sheet, -sourceX, -sourceY, sheetWidth, sheetHeight);
     for (const { expression, image } of faces) {
       const composite = document.createElement("canvas");
       composite.width = width;

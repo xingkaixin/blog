@@ -4,28 +4,20 @@ import characterSheet from "@/assets/about/sofa-character.png";
 import { localeFromPath } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
 
-const sheet = await getImage({ src: characterSheet, format: "avif", quality: 52, width: 1024 });
+const sheet = await getImage({ src: characterSheet, format: "avif", quality: 55, width: 1024 });
 const t = homeMessages[localeFromPath(Astro.url.pathname)];
 ---
 
 <about-character data-expression="smile">
   <svg class="scene" viewBox="0 -20 1160 970" role="group" aria-label={t.character}>
-    <defs>
-      <clipPath id="about-body-outline">
-        <path d="M397 224 Q424 216 454 226 L457 255 Q509 258 552 282 L816 282 Q875 279 882 335 L886 417 Q984 420 1013 455 Q1028 477 1019 526 L1003 733 Q1000 759 979 765 L963 769 L955 831 Q946 838 936 831 L924 772 L716 781 L714 797 L694 806 Q696 812 707 821 L719 842 Q747 861 753 886 L753 898 Q723 920 657 901 Q617 888 620 862 L626 836 L637 814 L615 810 L609 781 L241 783 L229 846 Q216 853 203 846 L194 780 Q172 779 157 759 L149 788 Q137 796 128 788 L122 731 Q101 719 99 702 L87 491 Q78 508 69 481 Q54 453 69 424 Q89 392 118 375 L121 322 Q125 279 177 276 L283 274 Q342 257 384 261 L395 249Z" />
-      </clipPath>
-      <clipPath id="about-head-outline" transform="translate(1260 380) scale(.987) translate(-1260 -380)">
-        <path d="M1095 365 Q1077 357 1074 341 Q1050 329 1057 296 Q1057 276 1071 264 Q1060 239 1082 223 Q1092 215 1113 217 Q1110 180 1144 173 Q1165 165 1186 177 Q1212 143 1243 154 Q1274 155 1292 179 Q1321 159 1350 175 Q1378 188 1384 222 Q1398 227 1405 249 Q1435 242 1451 265 Q1463 281 1456 298 Q1480 325 1464 350 Q1460 374 1430 389 L1408 470 Q1433 478 1428 512 Q1424 543 1391 557 Q1377 565 1360 555 Q1320 597 1261 606 Q1193 618 1142 581 Q1100 551 1098 516 Q1073 510 1065 482 Q1055 459 1071 441 Q1080 432 1094 439Z" />
-      </clipPath>
-    </defs>
     <svg width="1040" height="950" viewBox="0 0 1040 950" aria-hidden="true">
-      <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-body-outline)" />
+      <image href={sheet.src} width="1536" height="1024" />
     </svg>
     <g transform="translate(335 4) scale(.5)">
       <g data-head aria-hidden="true">
         <g data-head-art>
           <svg width="440" height="500" viewBox="1050 140 440 500">
-            <image href={sheet.src} width="1536" height="1024" clip-path="url(#about-head-outline)" />
+            <image href={sheet.src} width="1536" height="1024" />
           </svg>
           <g data-face>
             <g fill="#ed9b83" opacity=".38">
@@ -114,7 +106,6 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
       const pupils = this.querySelector<SVGGElement>("[data-pupils]")!;
       const scene = this.querySelector<SVGSVGElement>(".scene")!;
       const art = this.querySelector<SVGGElement>("[data-head-art]")!;
-      const outline = this.querySelector<SVGClipPathElement>("#about-head-outline")!;
       const canvas = this.querySelector("canvas")!;
       const hit = this.querySelector<SVGRectElement>("[data-head-hit]")!;
       const sprite = this.closest<HTMLElement>("[data-sprite]");
@@ -163,7 +154,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
           return;
         }
         preparation = import("@/lib/elastic-head")
-          .then(({ createElasticHead }) => createElasticHead(canvas, art, outline))
+          .then(({ createElasticHead }) => createElasticHead(canvas, art))
           .then((result) => {
             if (events.signal.aborted) {
               result?.dispose();
