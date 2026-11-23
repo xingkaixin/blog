@@ -108,13 +108,12 @@ async function fetch(request: Request, env: { ASSETS: AssetFetcher }) {
       const markdown =
         request.method === "HEAD" || markdownResponse.status === 304
           ? null
-          : await markdownResponse.text();
+          : await markdownResponse.arrayBuffer();
       const headers = new Headers(markdownResponse.headers);
       headers.set("Content-Type", "text/markdown; charset=utf-8");
       headers.set("Content-Signal", contentSignal);
       if (markdown !== null) {
-        const byteLength = new TextEncoder().encode(markdown).byteLength;
-        headers.set("X-Markdown-Tokens", String(estimateMarkdownTokens(byteLength)));
+        headers.set("X-Markdown-Tokens", String(estimateMarkdownTokens(markdown.byteLength)));
       }
       headers.append("Link", canonicalLink(requestUrl.pathname));
       addVary(headers, "Accept");

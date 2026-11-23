@@ -1,6 +1,6 @@
 import { dayPartAt, type DayPart } from "./day-part";
-import { holidayDateAt, holidayOn } from "./holiday-logo-calendar";
-import { holidayLogoUrl, type HolidayLogoId } from "./holiday-logos";
+import { holidayDateAt, holidayIdOn, holidayLogoUrl } from "./holiday-logo-lookup";
+import type { HolidayLogoId } from "./holiday-logos";
 
 export type LogoPreviewTarget = HolidayLogoId | "seal" | null;
 
@@ -44,7 +44,7 @@ export function refreshHolidayLogo(): void {
   const id =
     preview === "seal"
       ? undefined
-      : ((preview as HolidayLogoId | undefined) ?? holidayOn(holidayDateAt())?.id);
+      : ((preview as HolidayLogoId | undefined) ?? holidayIdOn(holidayDateAt()));
   brand.toggleAttribute("data-holiday-active", Boolean(id));
   if (!id) {
     return;

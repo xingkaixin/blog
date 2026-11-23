@@ -28,7 +28,7 @@ export function generateSearchIndex(
     console.log(`⚠️  在 ${postsDirectory} 中没有找到已发布文章`);
   }
 
-  fs.writeFileSync(outputFile, JSON.stringify(searchIndex, null, 2), "utf8");
+  fs.writeFileSync(outputFile, JSON.stringify(searchIndex), "utf8");
 
   console.log(`✅ 成功生成搜索索引: ${outputFile}`);
   console.log(`   - 包含 ${searchIndex.length} 篇文章`);

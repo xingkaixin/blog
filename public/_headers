@@ -14,6 +14,27 @@
 /posts/images/*
   Cache-Control: public, max-age=31536000, immutable
 
+/projects/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/holiday-logos/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/avatar.webp
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/logo.svg
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/f1-car.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/finish-flag.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+/search-index.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+
 /analytics/*
   X-Robots-Tag: noindex
 

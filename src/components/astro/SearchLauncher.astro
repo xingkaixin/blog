@@ -49,17 +49,3 @@ const t = chromeMessages[localeFromPath(Astro.url.pathname)];
     </div>
   </div>
 </div>
-
-<script>
-  import { openSearch } from "@/lib/search-launcher";
-
-  document.addEventListener("click", (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    const button = target?.closest<HTMLElement>("[data-search-trigger]");
-    if (button) {
-      void openSearch({ source: "pointer", triggerElement: button });
-    } else if (target?.closest("[data-search-reload]")) {
-      window.location.reload();
-    }
-  });
-</script>

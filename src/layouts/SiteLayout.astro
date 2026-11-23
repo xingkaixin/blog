@@ -384,74 +384,9 @@ const pageTransition = {
     <StampBook />
 
     <script>
-      import { LOCALE_COOKIE } from "@/lib/i18n";
-      import { installPostTransitions } from "@/lib/post-transition";
-      import { attachSmartHeader, type SmartHeaderController } from "@/lib/smart-header";
-      import { installSiteShortcuts } from "@/lib/site-shortcuts";
-      import { skipToContent } from "@/lib/skip-to-content";
-      import { registerBlogWebMcpTools } from "@/lib/webmcp";
+      import { installSiteShell } from "@/lib/site-shell";
 
-      document.addEventListener("click", skipToContent, true);
-      document.addEventListener("click", (event) => {
-        const link =
-          event.target instanceof Element
-            ? event.target.closest<HTMLElement>("[data-language-switch]")
-            : null;
-        if (link) {
-          document.cookie = `${LOCALE_COOKIE}=${link.dataset.languageSwitch}; path=/; max-age=31536000; samesite=lax`;
-        }
-      });
-
-      registerBlogWebMcpTools(document).catch((error) => {
-        console.error("Failed to register WebMCP tools", error);
-      });
-
-      installPostTransitions();
-
-      installSiteShortcuts(window);
-
-      let headerController: SmartHeaderController | null = null;
-
-      document.addEventListener("click", (event) => {
-        const button =
-          event.target instanceof Element
-            ? event.target.closest<HTMLButtonElement>("[data-compact-toc]")
-            : null;
-        if (!button || !document.querySelector("[data-post-toc]")) {
-          return;
-        }
-        document.dispatchEvent(new CustomEvent("site:open-toc"));
-      });
-
-      function setupSmartHeader() {
-        headerController?.destroy();
-        headerController = null;
-
-        const header = document.querySelector<HTMLElement>("header[data-smart-header]");
-        if (!header) {
-          return;
-        }
-
-        const thresholdTarget = document.querySelector<HTMLElement>("[data-post-header]");
-        headerController = attachSmartHeader({
-          header,
-          thresholdTarget,
-          isLocked: () =>
-            document.documentElement.hasAttribute("data-agent-view") ||
-            Boolean(header.querySelector('.t-dropdown.is-open, button[aria-expanded="true"]')),
-        });
-      }
-
-      document.addEventListener("astro:page-load", setupSmartHeader);
-      document.addEventListener("astro:before-swap", () => {
-        headerController?.destroy();
-        headerController = null;
-      });
-    </script>
-    <script>
-      import { installAnalytics } from "@/lib/analytics";
-
-      installAnalytics();
+      installSiteShell();
     </script>
   </body>
 </html>

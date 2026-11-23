@@ -18,6 +18,12 @@ export default defineConfig({
   site: siteConfig.url,
   output: "static",
   trailingSlash: "always",
+  build: {
+    inlineStylesheets: "always",
+  },
+  prefetch: {
+    defaultStrategy: "hover",
+  },
   integrations: [
     react(),
     agentMarkdown({
@@ -31,7 +37,45 @@ export default defineConfig({
     processor: unified({ rehypePlugins: [rehypeBlogContent] }),
   },
   vite: {
-    plugins: [tailwindcss(), photoPreviewPlugin(previewDirectory)],
+    plugins: [
+      tailwindcss(),
+      photoPreviewPlugin(previewDirectory),
+      {
+        name: "client-chunk-consolidation",
+        configEnvironment(name) {
+          if (name !== "client") {
+            return undefined;
+          }
+          return {
+            build: {
+              rolldownOptions: {
+                output: {
+                  codeSplitting: {
+                    groups: [
+                      {
+                        name: "site-shell",
+                        test: /src\/lib\/(?:site-shell|site-shortcuts|holiday-logo-browser|holiday-logo-lookup|search-launcher|site|stamps|published-post|i18n|site-events|day-part|analytics|smart-header|post-transition|skip-to-content|article-engagement|post-console)\.ts|config\/holiday-logos\.json/,
+                        priority: 20,
+                      },
+                      {
+                        name: "astro-router",
+                        test: /astro\/dist\/(?:transitions|prefetch)/,
+                        priority: 15,
+                      },
+                      {
+                        name: "react-vendor",
+                        test: /node_modules\/(?:react|react-dom|scheduler)\//,
+                        priority: 10,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          };
+        },
+      },
+    ],
     build: {
       // 字体保持独立文件，才能按 unicode-range 按需下载并被预加载；小于 4 KB 的子集默认会被内联进 CSS。
       assetsInlineLimit: (file) => (file.endsWith(".woff2") ? false : undefined),
