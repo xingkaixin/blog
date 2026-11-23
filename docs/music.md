@@ -9,8 +9,15 @@
 需要本机装有 ffmpeg：
 
 ```bash
+# 纯钢琴版
 bun run music:render /tmp/home-score.mp3
+
+# 叠加 Lyria 3.5 氛围底轨混音（当前线上版本）
+gemini-api music "Minimalist static ambient tape drone in the key of F, sustained warm analog synthesizer pad holding only a soft open fifth on F2, C3, and F3 with gentle low-pass warmth, cozy faint vinyl record crackle and quiet room air, ultra-slow subtle volume breathing, completely beatless, no rhythm, no percussion, no chord changes, no harmonic progression, no arpeggios, no solo instruments, no vocals, tranquil, intimate, soft dark-warm background texture" -m lyria-3.5 --out /tmp/lyria-bed.mp3
+bun run music:render /tmp/home-score.mp3 --bed /tmp/lyria-bed.mp3 --bed-pitch 1.05823986
 ```
+
+`--bed` 会把氛围底轨与无损钢琴 WAV 在一次 ffmpeg 混音中合成，并对底轨做高通、中频让位 EQ、轻微压缩与渐入渐出，保持钢琴时间轴与 `home-score.ts` 完全一致。若生成的底轨中心音高偏移 F 大调（例如落在 E 大调），用 `--bed-pitch` 传入移调倍率即可精确对齐到 F 大调。
 
 脚本输出时长、归一化增益和 SHA-256。峰值统一归一到 -1 dBFS。混响和击弦噪声带随机成分，每次渲染的文件哈希都不同。
 
@@ -19,7 +26,7 @@ bun run music:render /tmp/home-score.mp3
 音频托管在现有公开 R2 bucket（`R2_PHOTO_BUCKET`）的独立 `audio/` 路径：
 
 ```text
-https://photos.xingkaixin.me/audio/seasons-from-the-sofa/54744e54d4bd1c7f.mp3
+https://photos.xingkaixin.me/audio/seasons-from-the-sofa/3a29c298faf3c76e.mp3
 ```
 
 文件名取 SHA-256 前 16 位。文件为 `audio/mpeg`，使用 `public, max-age=31536000, immutable` 缓存。重新渲染时上传到新路径，再改 `RecordPlayer.astro` 里的地址，不要覆盖已缓存的旧文件。
