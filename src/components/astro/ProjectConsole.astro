@@ -1,0 +1,228 @@
+---
+import "@/components/project-console.css";
+import type { Locale } from "@/lib/i18n";
+import { projectFilters, projectMessages, type ProjectFilter } from "@/lib/messages/projects";
+import { localizeProject, type Project } from "@/lib/projects";
+
+type Props = {
+  projects: Project[];
+  locale: Locale;
+};
+
+const { projects, locale } = Astro.props;
+const t = projectMessages[locale];
+
+const filterMatchers: Record<ProjectFilter, (project: Project) => boolean> = {
+  all: () => true,
+  ai: (project) => project.tags.includes("AI"),
+  ios: (project) => project.tags.includes("iOS"),
+  cli: (project) => project.kind.includes("CLI") || project.tags.includes("CLI"),
+  extension: (project) => project.kind.includes("扩展") || project.tags.includes("浏览器扩展"),
+  database: (project) => project.tags.includes("数据库"),
+};
+
+const localized = projects.map((project) => ({
+  source: project,
+  view: localizeProject(project, locale),
+  filters: projectFilters.filter((filter) => filter !== "all" && filterMatchers[filter](project)),
+}));
+
+const searchPayload = JSON.stringify(
+  localized.map(({ view, filters }) => ({
+    id: view.id,
+    filters,
+    name: view.name,
+    kind: view.kind,
+    description: view.description,
+    tags: view.tags,
+  })),
+).replaceAll("<", "\\u003c");
+
+const showingTemplate =
+  locale === "en" ? "Showing {shown} of {total} projects" : "当前显示 {shown} / {total} 个项目";
+---
+
+<section
+  data-project-console
+  data-showing-template={showingTemplate}
+  class="mx-auto max-w-320 px-3 pb-14 pt-6 sm:px-5 lg:pb-20 lg:pt-10"
+>
+  <script type="application/json" data-project-console-data set:html={searchPayload}></script>
+  <svg aria-hidden="true" class="hidden">
+    <symbol id="proj-arrow-up-right" viewBox="0 0 256 256" fill="currentColor">
+      <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z" />
+    </symbol>
+  </svg>
+
+  <header class="flex flex-col gap-5 border-b border-line pb-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">
+        {t.maintained(projects.length)}
+      </p>
+      <h1 class="mt-2 flex items-center gap-2 text-3xl font-medium tracking-[-0.04em] text-ink-800 sm:text-4xl">
+        {t.title}{" "}
+        <span aria-hidden="true" class="font-mono text-xl text-accent">
+          :)
+        </span>
+      </h1>
+    </div>
+    <div class="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+      <label class="flex h-9 w-full items-center gap-2 rounded-[6px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
+        <svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor" class="h-3.5 w-3.5 shrink-0 text-ink-400">
+          <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z" />
+        </svg>
+        <span class="sr-only">{t.searchLabel}</span>
+        <input
+          type="search"
+          data-project-search
+          placeholder={t.searchPlaceholder}
+          class="min-w-0 flex-1 bg-transparent font-mono text-xs text-ink-800 outline-none placeholder:text-ink-400 [&::-webkit-search-cancel-button]:hidden"
+        />
+        <button
+          type="button"
+          data-project-clear
+          hidden
+          aria-label={t.clearSearch}
+          class="text-ink-400 transition-colors hover:text-ink-700 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          <svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor" class="h-3.5 w-3.5">
+            <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
+          </svg>
+        </button>
+      </label>
+      <div
+        data-project-filter-track
+        role="group"
+        aria-label={t.filterLabel}
+        class="relative isolate flex max-w-full gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <span
+          data-project-filter-pill
+          aria-hidden="true"
+          class="sliding-pill absolute left-0 top-0 z-10 origin-center rounded-[6px] bg-ink-800 opacity-0"
+        />
+        {
+          projectFilters.map((filter) => (
+            <button
+              type="button"
+              data-project-filter={filter}
+              aria-pressed={filter === "all" ? "true" : "false"}
+              class="shrink-0 rounded-[6px] border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] text-ink-500 transition-colors hover:border-ink-300 hover:text-ink-800 aria-pressed:border-ink-800 aria-pressed:bg-ink-800 aria-pressed:text-paper pointer-coarse:min-h-9"
+            >
+              <span class="relative z-20">{t.filters[filter]}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </header>
+
+  <div data-project-grid class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-3.5">
+    {
+      localized.map(({ view }, index) => {
+        const links = view.links ?? [{ label: t.visit, url: view.url }];
+        return (
+          <article
+            data-project-card={view.id}
+            data-column={(index % 4) + 1}
+            class="project-card focus-within:outline-none sm:min-h-64 lg:min-h-68"
+          >
+            <div aria-hidden="true" class="project-card-surface">
+              <img
+                data-src={view.background}
+                alt=""
+                width="640"
+                height="427"
+                decoding="async"
+                class="project-card-art"
+              />
+              <div class="project-card-scrim" />
+            </div>
+
+            <div class="relative z-1 flex flex-col p-5 sm:min-h-64 lg:min-h-68">
+              <div class="flex items-start justify-between gap-4">
+                <span data-project-logo class="project-logo">
+                  <img
+                    src={view.logo}
+                    alt=""
+                    width="48"
+                    height="48"
+                    loading={index < 4 ? "eager" : "lazy"}
+                    decoding="async"
+                  />
+                  <canvas data-logo-outline aria-hidden="true" width="112" height="112" />
+                  <canvas data-logo-crt aria-hidden="true" width="112" height="112" />
+                </span>
+                <span class="font-mono text-[11px] text-ink-500">{view.kind}</span>
+              </div>
+
+              <div class="mt-6 sm:mt-auto sm:pt-8">
+                <h2 class="text-xl font-medium tracking-[-0.025em] text-ink-800">{view.name}</h2>
+                <p class="mt-1.5 max-w-60 text-[13px] leading-5 text-ink-600">{view.summary}</p>
+                <div class="mt-5 flex flex-wrap gap-x-3 gap-y-2">
+                  {links.map((link) => (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] font-medium text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors duration-(--duration-quick) hover:text-accent hover:decoration-accent focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                    >
+                      {link.label}
+                      <svg aria-hidden="true" class="h-3 w-3"><use href="#proj-arrow-up-right" /></svg>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <div
+    data-project-empty
+    hidden
+    class="mt-5 flex min-h-48 items-center justify-center rounded-[12px] border border-line bg-surface px-6 text-center"
+  >
+    <div>
+      <p class="text-sm font-medium text-ink-800">{t.empty}</p>
+      <p class="mt-1.5 text-xs leading-6 text-ink-500">{t.emptyHint}</p>
+    </div>
+  </div>
+
+  <p data-project-live aria-live="polite" class="sr-only">
+    {t.showing(projects.length, projects.length)}
+  </p>
+</section>
+
+<style>
+  [data-project-filter-track][data-pill-ready] [data-project-filter][aria-pressed="true"] {
+    background-color: transparent;
+    border-color: transparent;
+  }
+</style>
+
+<script>
+  import { initializeProjectConsole } from "@/lib/project-console-browser";
+
+  const cleanups = new Set<() => void>();
+
+  function teardown() {
+    for (const cleanup of cleanups) {
+      cleanup();
+    }
+    cleanups.clear();
+  }
+
+  function setup() {
+    teardown();
+    for (const root of document.querySelectorAll<HTMLElement>("[data-project-console]")) {
+      cleanups.add(initializeProjectConsole(root));
+    }
+  }
+
+  setup();
+  document.addEventListener("astro:page-load", setup);
+  document.addEventListener("astro:before-swap", teardown);
+</script>

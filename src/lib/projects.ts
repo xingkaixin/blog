@@ -35,7 +35,7 @@ export const projects: Project[] = [
     summary: "把照片里的喜欢，做成透明贴纸。",
     description:
       "一款 iPhone 与 iPad 贴纸制作应用。在设备上提取照片主体，支持批量制作、圈选、多种质感与文字组合，导出透明 PNG 或通过系统贴纸扩展使用。用合集、地图和日历整理收藏，照片全程在本机处理。",
-    logo: "/projects/snipjoy.png",
+    logo: "/projects/snipjoy.webp",
     background: "/projects/backgrounds/snipjoy.webp",
     url: "https://snipjoy.xingkaixin.me/",
     tags: ["iOS", "工具", "贴纸", "照片", "图片编辑"],
@@ -55,7 +55,7 @@ export const projects: Project[] = [
     summary: "转动旋钮设好时间，松手继续做饭。",
     description:
       "一款 iPhone 厨房计时器。转动机械旋钮设定倒计时，松手即开始，用橙色时间环查看剩余时间。支持系统到时提醒、锁屏实时活动与灵动岛，无需账号，离线可用。",
-    logo: "/projects/simmerdial.png",
+    logo: "/projects/simmerdial.webp",
     background: "/projects/backgrounds/simmerdial.webp",
     url: "https://simmerdial.xingkaixin.me/",
     tags: ["iOS", "工具", "厨房计时器", "倒计时"],
@@ -74,7 +74,7 @@ export const projects: Project[] = [
     summary: "轻松算小费，清楚分摊每个人的账单。",
     description:
       "一款 iPhone 小费计算与分账工具。输入账单、调整小费比例，即可计算 1–20 人的分摊金额。支持 15 种币种，以及账单文字和图片分享，无需账号，离线可用。",
-    logo: "/projects/tipnook.png",
+    logo: "/projects/tipnook.webp",
     background: "/projects/backgrounds/tipnook.webp",
     url: "https://tipnook.xingkaixin.me/",
     tags: ["iOS", "工具", "小费计算", "分账"],
@@ -93,7 +93,7 @@ export const projects: Project[] = [
     summary: "用百分比、年与周，看见走过的时间。",
     description:
       "一款 iPhone 人生进度应用。填写生日并选择人生尺度，以百分比、年与周查看已经走过的时间。支持主屏幕与锁屏小组件，以及独立的年进度日历；无需账号，资料保存在本机。",
-    logo: "/projects/spanlet.png",
+    logo: "/projects/spanlet.webp",
     background: "/projects/backgrounds/spanlet.webp",
     url: "https://spanlet.xingkaixin.me/",
     tags: ["iOS", "工具", "人生进度", "小组件"],
@@ -112,7 +112,7 @@ export const projects: Project[] = [
     summary: "把阅读、批注和 AI 讨论放在一起。",
     description:
       "Yomitomo 是面向深度阅读的本地阅读伙伴，把网页阅读、文本批注、讨论线程和 AI 助手放进同一个阅读现场。它的目标是让用户在阅读时直接留下判断、追问和上下文，并让 AI 助手围绕原文参与批注。",
-    logo: "/projects/yomitomo.png",
+    logo: "/projects/yomitomo.webp",
     background: "/projects/backgrounds/yomitomo.webp",
     url: "https://yomitomo.app",
     tags: ["AI", "阅读工具"],
@@ -131,7 +131,7 @@ export const projects: Project[] = [
     summary: "把随手说的话整理成一篇笔记。",
     description:
       "一款 iOS 原生语音笔记应用。点击即可开始录音，后台自动完成语音转写和大语言模型润色，保存为包含原始音频与整理文本的笔记。",
-    logo: "/projects/voicen.png",
+    logo: "/projects/voicen.webp",
     background: "/projects/backgrounds/voicen.webp",
     url: "https://voicen.xingkaixin.me/",
     tags: ["AI", "iOS", "语音笔记"],
@@ -236,7 +236,7 @@ export const projects: Project[] = [
     summary: "用表单生成多种数据库的建表语句。",
     description:
       "多数据库建表语句生成器。通过表单实时生成 MySQL、PostgreSQL、Oracle 等九种数据库的 DDL，支持分区表、索引、权限配置与 SQL 导入解析。",
-    logo: "/projects/ddlbuilder.png",
+    logo: "/projects/ddlbuilder.webp",
     background: "/projects/backgrounds/ddlbuilder.webp",
     url: "https://ddl.xingkaixin.me",
     tags: ["工具", "数据库"],
@@ -255,7 +255,7 @@ export const projects: Project[] = [
     summary: "用截图和 Logo 生成产品发布短片。",
     description:
       "在浏览器中把产品 Logo、截图、名称、版本与发布信息生成 5 秒产品发布短片，支持实时预览、1080p/4K 与 MP4 本地导出。",
-    logo: "/projects/shipit.png",
+    logo: "/projects/shipit.webp",
     background: "/projects/backgrounds/shipit.webp",
     url: "https://shipit.xingkaixin.me/",
     tags: ["工具", "Web", "视频"],

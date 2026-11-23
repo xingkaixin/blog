@@ -23,6 +23,7 @@ export default {
         "!/projects/*.png",
         "!/projects/*.svg",
         "!/projects/*.webp",
+        "!/projects/backgrounds/*.webp",
         "!/agent-routes.json",
         "!/avatar.webp",
         "!/f1-car.png",

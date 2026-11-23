@@ -1,5 +1,5 @@
 ---
-import { ProjectConsole } from "@/components/project-console";
+import ProjectConsole from "@/components/astro/ProjectConsole.astro";
 import PageArtwork from "@/components/astro/PageArtwork.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
@@ -22,6 +22,6 @@ const meta = {
 <SiteLayout meta={meta}>
   <div class="relative isolate overflow-hidden">
     <PageArtwork scene="building" />
-    <ProjectConsole projects={projects} locale={locale} client:load />
+    <ProjectConsole projects={projects} locale={locale} />
   </div>
 </SiteLayout>

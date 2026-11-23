@@ -43,11 +43,17 @@ export function mountProjectLogoEffects(root: HTMLElement): (() => void) | undef
     }
     lastPaint = now;
     let pending = false;
+    let uploadsThisFrame = 0;
     for (const [element, entry] of entries) {
       if (!entry.visible || !entry.image.complete || !entry.image.naturalWidth) {
         continue;
       }
       if (!element.hasAttribute("data-ready")) {
+        if (uploadsThisFrame >= 2) {
+          pending = true;
+          continue;
+        }
+        uploadsThisFrame++;
         entry.texture ??= renderer.upload(entry.image);
         if (renderer.draw(entry.texture, entry.outline, null)) {
           element.dataset.ready = "";
