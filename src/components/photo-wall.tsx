@@ -1,8 +1,21 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import "@/assets/fonts/noto-serif.css";
 import "@/components/photo-background.css";
 import "@/components/photo-wall.css";
-import { PhotoLightbox, PhotoThumbnailRegistryProvider } from "@/components/photo-lightbox";
+import { PhotoThumbnailRegistryProvider } from "@/components/photo-thumbnail-registry";
+
+const loadPhotoLightbox = () =>
+  import("@/components/photo-lightbox").then((module) => ({ default: module.PhotoLightbox }));
+const PhotoLightbox = lazy(loadPhotoLightbox);
 import {
   PhotoOverview,
   PhotoWallError,
@@ -461,18 +474,20 @@ export function PhotoWall({ baseUrl, locale }: PhotoWallProps) {
           )}
 
           {displayPhoto && index && browsing.navigation && (
-            <PhotoLightbox
-              baseUrl={normalizedBaseUrl}
-              open={selectedPhoto !== null}
-              photo={displayPhoto}
-              navigation={browsing.navigation}
-              albums={index.albums}
-              triggerElement={triggerElement}
-              onClose={browsing.closePhoto}
-              onCloseComplete={handleCloseComplete}
-              onSelect={browsing.selectPhoto}
-              onRetryNavigation={browsing.retryNavigation}
-            />
+            <Suspense fallback={null}>
+              <PhotoLightbox
+                baseUrl={normalizedBaseUrl}
+                open={selectedPhoto !== null}
+                photo={displayPhoto}
+                navigation={browsing.navigation}
+                albums={index.albums}
+                triggerElement={triggerElement}
+                onClose={browsing.closePhoto}
+                onCloseComplete={handleCloseComplete}
+                onSelect={browsing.selectPhoto}
+                onRetryNavigation={browsing.retryNavigation}
+              />
+            </Suspense>
           )}
         </section>
       </PhotoThumbnailRegistryProvider>

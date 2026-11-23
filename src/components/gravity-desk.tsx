@@ -316,6 +316,8 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                     <img
                       src={item.src}
                       alt={item.label}
+                      loading="lazy"
+                      decoding="async"
                       draggable={false}
                       className="aspect-[4/3] w-full rounded-[2px] object-cover"
                     />
@@ -361,6 +363,8 @@ export function GravityDesk({ photoCards }: { photoCards: readonly DeskPhotoCard
                   <img
                     src={item.logo}
                     alt={item.name}
+                    loading="lazy"
+                    decoding="async"
                     draggable={false}
                     style={{ filter: STICKER_FILTER }}
                     className={cn(

@@ -1,6 +1,6 @@
 import { ShuffleIcon } from "@phosphor-icons/react/dist/csr/Shuffle";
 import type { CSSProperties, ReactNode } from "react";
-import { useRegisterPhotoThumbnail } from "@/components/photo-lightbox";
+import { useRegisterPhotoThumbnail } from "@/components/photo-thumbnail-registry";
 import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatCaptureMonth } from "@/lib/photo-captured-at";
 import {

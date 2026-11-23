@@ -38,7 +38,7 @@ export type GravityBodySpec = {
 };
 
 export type GravityWorldHandle = {
-  grab: (event: React.PointerEvent, index: number) => void;
+  grab: (event: PointerEvent | React.PointerEvent, index: number) => void;
   shake: () => void;
   reset: (positions: readonly { x: number; y: number; angle?: number }[]) => void;
   destroy: () => void;
@@ -200,12 +200,14 @@ export function mountGravityWorld({
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
 
-  const grab = (event: React.PointerEvent, index: number) => {
+  const grab = (event: PointerEvent | React.PointerEvent, index: number) => {
     const item = items[index];
     if (drag || !item) {
       return;
     }
-    event.currentTarget.setPointerCapture(event.pointerId);
+    if (event.currentTarget instanceof Element) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
     const point = toWorld(event);
     const constraint = Constraint.create({
       pointA: point,

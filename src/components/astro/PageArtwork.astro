@@ -14,10 +14,13 @@ const images = { writing, building };
   aria-hidden="true"
   class="page-artwork"
   data-scene={scene}
-  widths={[320, 640, 960]}
+  widths={[320, 640]}
   sizes={scene === "writing" ? "184px" : "(max-width: 640px) 240px, 300px"}
-  width={440}
-  format="webp"
+  width={320}
+  format="avif"
+  quality={52}
+  loading="lazy"
+  decoding="async"
 />
 
 <style>

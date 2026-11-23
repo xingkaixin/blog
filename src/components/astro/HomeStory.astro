@@ -42,7 +42,7 @@ const deferredSprites = await Promise.all(
   ].map(async ({ name, image, widths, sizes }) => ({
     name,
     sizes,
-    image: await getImage({ src: image, widths, format: "webp" }),
+    image: await getImage({ src: image, widths, format: "avif", quality: 52 }),
   })),
 );
 ---
@@ -76,7 +76,7 @@ const deferredSprites = await Promise.all(
       />
     ))}
     <button type="button" class="sprite sprite-feifei" data-sprite="feifei" aria-label={t.feifeiAction}>
-      <Image src={feifei} alt="" class="feifei-img" widths={[240, 480]} sizes="(max-width: 47.999rem) 8vh, 22vh" format="webp" loading="eager" />
+      <Image src={feifei} alt="" class="feifei-img" widths={[240, 480]} width={480} sizes="(max-width: 47.999rem) 8vh, 22vh" format="avif" quality={52} loading="eager" fetchpriority="high" />
     </button>
     <nav class="rail story-rail" aria-label={t.railLabel}>
       {scenes.map((scene, index) => (
@@ -904,27 +904,43 @@ const deferredSprites = await Promise.all(
       measure();
       render();
       this.setAttribute("data-ready", "");
-      void import("@/lib/forest-sky-backdrop").then(({ createForestSkyBackdrop }) => {
+      let skyIdleId = 0;
+      const mountBackdrops = () => {
         if (events.signal.aborted) {
           return;
         }
-        sky = createForestSkyBackdrop(skyCanvas, skyLifeCanvas, seasonPaused || reducedMotion.matches);
-        if (sky) {
-          sky.setProgress(currentProgress);
-          this.setAttribute("data-sky-ready", "");
-        }
-      });
-      void import("@/lib/season-backdrop").then(({ createSeasonBackdrop }) => {
-        if (events.signal.aborted) {
-          return;
-        }
-        backdrop = createSeasonBackdrop(seasonCanvas, season, seasonPaused || reducedMotion.matches);
-        if (backdrop) {
-          backdrop.setNight(nightAmount);
-          seasonChip.hidden = false;
-        }
-      });
+        void import("@/lib/forest-sky-backdrop").then(({ createForestSkyBackdrop }) => {
+          if (events.signal.aborted) {
+            return;
+          }
+          sky = createForestSkyBackdrop(skyCanvas, skyLifeCanvas, seasonPaused || reducedMotion.matches);
+          if (sky) {
+            sky.setProgress(currentProgress);
+            this.setAttribute("data-sky-ready", "");
+          }
+        });
+        void import("@/lib/season-backdrop").then(({ createSeasonBackdrop }) => {
+          if (events.signal.aborted) {
+            return;
+          }
+          backdrop = createSeasonBackdrop(seasonCanvas, season, seasonPaused || reducedMotion.matches);
+          if (backdrop) {
+            backdrop.setNight(nightAmount);
+            seasonChip.hidden = false;
+          }
+        });
+      };
+      if (typeof window.requestIdleCallback === "function") {
+        skyIdleId = window.requestIdleCallback(mountBackdrops, { timeout: 600 });
+      } else {
+        skyIdleId = Number(globalThis.setTimeout(mountBackdrops, 0));
+      }
       this.cleanup = () => {
+        if (typeof window.cancelIdleCallback === "function") {
+          window.cancelIdleCallback(skyIdleId);
+        } else {
+          clearTimeout(skyIdleId);
+        }
         events.abort();
         themeObserver.disconnect();
         resizeObserver.disconnect();

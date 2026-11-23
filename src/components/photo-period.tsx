@@ -1,5 +1,5 @@
 import { memo, useEffect, useEffectEvent, useMemo, useRef, type CSSProperties } from "react";
-import { useRegisterPhotoThumbnail } from "@/components/photo-lightbox";
+import { useRegisterPhotoThumbnail } from "@/components/photo-thumbnail-registry";
 import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {

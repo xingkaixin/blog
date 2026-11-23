@@ -4,7 +4,7 @@ import characterSheet from "@/assets/about/sofa-character.png";
 import { localeFromPath } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
 
-const sheet = await getImage({ src: characterSheet, format: "webp", width: 1536 });
+const sheet = await getImage({ src: characterSheet, format: "avif", quality: 52, width: 1024 });
 const t = homeMessages[localeFromPath(Astro.url.pathname)];
 ---
 
@@ -101,7 +101,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
 </style>
 
 <script>
-  import { createElasticHead, type ElasticHead, type HeadExpression } from "@/lib/elastic-head";
+  import type { ElasticHead, HeadExpression } from "@/lib/elastic-head";
   import { collectStamp } from "@/lib/stamps";
 
   class AboutCharacter extends HTMLElement {
@@ -162,14 +162,16 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
         if (preparation || !canAnimate()) {
           return;
         }
-        preparation = createElasticHead(canvas, art, outline).then((result) => {
-          if (events.signal.aborted) {
-            result?.dispose();
-            return;
-          }
-          renderer = result;
-          resizeRenderer();
-        });
+        preparation = import("@/lib/elastic-head")
+          .then(({ createElasticHead }) => createElasticHead(canvas, art, outline))
+          .then((result) => {
+            if (events.signal.aborted) {
+              result?.dispose();
+              return;
+            }
+            renderer = result;
+            resizeRenderer();
+          });
       };
 
       function wake() {
@@ -251,7 +253,6 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
           paint();
           return;
         }
-        prepare();
         const bounds = scene.getBoundingClientRect();
         // Use the resting head position so its own movement cannot feed back into the target.
         const centerX = bounds.left + bounds.width * (430 / 1160);
@@ -271,7 +272,9 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)];
         update();
       }
 
+      hit.addEventListener("pointerenter", prepare, options);
       hit.addEventListener("pointerdown", (event) => {
+        prepare();
         if (!shown() || dragging !== null || (event.pointerType === "mouse" && event.button !== 0)) {
           return;
         }

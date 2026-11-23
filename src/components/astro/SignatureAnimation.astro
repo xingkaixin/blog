@@ -55,11 +55,11 @@ const characters = Array.from(text)
         const first = stroke.p[0];
         const commands =
           stroke.p.length === 1
-            ? `M${(x + padLeft + first[0]).toFixed(1)} ${(ascender + first[1]).toFixed(1)}l0.1 0`
+            ? `M${Math.round(x + padLeft + first[0])} ${Math.round(ascender + first[1])}l.1 0`
             : stroke.p
                 .map(
                   (point, pointIndex) =>
-                    `${pointIndex === 0 ? "M" : "L"}${(x + padLeft + point[0]).toFixed(1)} ${(ascender + point[1]).toFixed(1)}`,
+                    `${pointIndex === 0 ? "M" : "L"}${Math.round(x + padLeft + point[0])} ${Math.round(ascender + point[1])}`,
                 )
                 .join("");
 

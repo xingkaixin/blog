@@ -15,7 +15,7 @@ const photoCards = await Promise.all(
     { id: "hong-kong", label: "HONG KONG", image: hongKong },
     { id: "chiang-mai", label: "CHIANG MAI", image: chiangMai },
   ].map(async ({ id, label, image }) => {
-    const rendered = await getImage({ src: image, width: 320, format: "webp" });
+    const rendered = await getImage({ src: image, width: 320, format: "avif", quality: 65 });
     return { id, label, src: rendered.src, href: `/photos/#album=${id}` };
   }),
 );

@@ -1,12 +1,28 @@
 import type { KeyboardEvent, PointerEvent, Ref } from "react";
 import type { LogoNode, LogoNodeId } from "@/lib/logo-orrery";
 
-const DAY_TICKS = Array.from({ length: 365 }, (_, day) => {
-  const deg = (day / 365) * 360;
-  const kind = day % 30 === 0 ? "major" : day % 5 === 0 ? "mid" : "minor";
-  const r1 = kind === "major" ? 246 : kind === "mid" ? 252 : 256;
-  return { day, deg, kind, r1 };
-});
+const DAY_TICK_PATHS: ReadonlyArray<{ kind: "major" | "mid" | "minor"; d: string }> = (() => {
+  const groups: Record<"major" | "mid" | "minor", string[]> = { major: [], mid: [], minor: [] };
+  const cx = 281;
+  const cy = 281;
+  const r2 = 262;
+  for (let day = 0; day < 365; day++) {
+    const rad = (day / 365) * Math.PI * 2;
+    const kind = day % 30 === 0 ? "major" : day % 5 === 0 ? "mid" : "minor";
+    const r1 = kind === "major" ? 246 : kind === "mid" ? 252 : 256;
+    const sin = Math.sin(rad);
+    const cos = Math.cos(rad);
+    const x1 = (cx + r1 * sin).toFixed(1);
+    const y1 = (cy - r1 * cos).toFixed(1);
+    const x2 = (cx + r2 * sin).toFixed(1);
+    const y2 = (cy - r2 * cos).toFixed(1);
+    groups[kind].push(`M${x1} ${y1}L${x2} ${y2}`);
+  }
+  return (["major", "mid", "minor"] as const).map((kind) => ({
+    kind,
+    d: groups[kind].join(""),
+  }));
+})();
 
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
 
@@ -108,16 +124,8 @@ export function HolidayLogoDial({
         <svg viewBox="0 0 562 562" fill="none" aria-hidden="true">
           <circle data-wheel-track="outer" cx="281" cy="281" r="262" />
           <circle data-wheel-track="inner" cx="281" cy="281" r="218" />
-          {DAY_TICKS.map(({ day, deg, kind, r1 }) => (
-            <line
-              key={day}
-              data-wheel-tick={kind}
-              x1="281"
-              y1={281 - r1}
-              x2="281"
-              y2="19"
-              transform={`rotate(${deg.toFixed(2)} 281 281)`}
-            />
+          {DAY_TICK_PATHS.map(({ kind, d }) => (
+            <path key={kind} data-wheel-tick={kind} d={d} />
           ))}
           {MONTH_MARKS.map(({ label, deg }) => (
             <text

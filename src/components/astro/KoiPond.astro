@@ -323,11 +323,8 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
 <script>
   import type { PondHandle } from "@/lib/koi-pond/pond";
   import type { FishingStatus } from "@/lib/koi-pond/fishing";
+  import type { SearchIndexItem } from "@/lib/search";
   import { localeFromLang } from "@/lib/i18n";
-  import { homeMessages } from "@/lib/messages/home";
-  import { postHref } from "@/lib/published-post";
-  import { pickRandom } from "@/lib/record-shuffle";
-  import { loadSearchIndex, type SearchIndexItem } from "@/lib/search";
   import { collectStamp } from "@/lib/stamps";
 
   let pond: PondHandle | null = null;
@@ -359,12 +356,23 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
     const bottleRelease = stage.querySelector<HTMLButtonElement>("[data-pond-bottle-release]");
     if (!hint || !overlay || !dock || !button || !label || !count || !bottle || !bottleOpen || !bottleRelease) {return;}
     const mine = generation;
-    const t = homeMessages[localeFromLang(document.documentElement.lang)].koi;
-    const [{ createPond }, { FishingPhase }] = await Promise.all([
+    const [
+      { createPond },
+      { FishingPhase },
+      { homeMessages },
+      { postHref },
+      { pickRandom },
+      { loadSearchIndex },
+    ] = await Promise.all([
       import("@/lib/koi-pond/pond"),
       import("@/lib/koi-pond/fishing"),
+      import("@/lib/messages/home"),
+      import("@/lib/published-post"),
+      import("@/lib/record-shuffle"),
+      import("@/lib/search"),
     ]);
     if (mine !== generation) {return;}
+    const t = homeMessages[localeFromLang(document.documentElement.lang)].koi;
 
     let bottledPost: Promise<SearchIndexItem | undefined> | null = null;
     const showBottle = async (post: Promise<SearchIndexItem | undefined>) => {

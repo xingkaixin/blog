@@ -13,7 +13,7 @@ const { comicAlt, caption } = homeMessages[localeFromPath(Astro.url.pathname)].p
     <div class="shot">
       <div class="water"><KoiPond /></div>
       <figure>
-        <Image src={comic} alt={comicAlt} widths={[480, 800, 1200, 1536]} sizes="(max-width: 767px) 100vw, min(100vw, 150vh)" loading="lazy" decoding="async" />
+        <Image src={comic} alt={comicAlt} widths={[480, 800, 1200]} width={800} sizes="(max-width: 767px) 100vw, min(100vw, 150vh)" format="avif" quality={52} loading="lazy" decoding="async" />
         <figcaption>{caption}</figcaption>
       </figure>
       <svg class="waterline" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">

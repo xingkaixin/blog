@@ -24,7 +24,7 @@ const sceneImages = {
 } as const;
 const scenes = await Promise.all(
   TRAVEL_STOPS.map(async ({ id, km }) => {
-    const image = await getImage({ src: sceneImages[id], widths: [360, 720], format: "webp" });
+    const image = await getImage({ src: sceneImages[id], widths: [320, 600], format: "avif", quality: 52 });
     return {
       id,
       name: t.places[id],
@@ -35,8 +35,8 @@ const scenes = await Promise.all(
     };
   }),
 );
-const frameImage = await getImage({ src: frame, widths: [420, 840], format: "webp" });
-const curtainImage = await getImage({ src: curtain, width: 400, format: "webp" });
+const frameImage = await getImage({ src: frame, widths: [380, 760], format: "avif", quality: 52 });
+const curtainImage = await getImage({ src: curtain, width: 320, format: "avif", quality: 52 });
 const [first] = scenes;
 const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" : "zh-CN");
 ---
@@ -198,11 +198,9 @@ const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" 
 </style>
 
 <script>
-  import { createCurtains, type TravelCurtains } from "@/lib/travel-curtains";
-  import { createTravelScenery, type TravelScenery } from "@/lib/travel-scenery";
+  import type { TravelCurtains } from "@/lib/travel-curtains";
+  import type { TravelScenery } from "@/lib/travel-scenery";
   import { HOLD_DURATION_MS, RIDE_DURATION_MS, sampleTravelRide } from "@/lib/travel-window-motion";
-  import { homeMessages } from "@/lib/messages/home";
-  import type { Locale } from "@/lib/i18n";
 
   type Scene = { id: string; name: string; km: number; albumHref: string; src: string; srcset: string };
 
@@ -212,8 +210,10 @@ const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" 
     connectedCallback() {
       this.cleanup?.();
       const scenes = JSON.parse(this.dataset.scenes!) as Scene[];
-      const locale = (this.dataset.locale === "en" ? "en" : "zh") as Locale;
-      const tTravel = homeMessages[locale].travel;
+      const locale = this.dataset.locale === "en" ? "en" : "zh";
+      const routePrefix = this.dataset.routePrefix ?? (locale === "en" ? "Shanghai →" : "上海 →");
+      const formatStops = (visited: number, total: number) =>
+        locale === "en" ? `${visited}/${total} stops` : `${visited}/${total} 站`;
       const trigger = this.querySelector<HTMLButtonElement>(".window-trigger")!;
       const view = this.querySelector<HTMLImageElement>(".view")!;
       const sceneryCanvas = this.querySelector<HTMLCanvasElement>(".scenery")!;
@@ -267,10 +267,10 @@ const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" 
           name.hidden = stop !== index;
         });
         if (ticketRoute) {
-          ticketRoute.textContent = `${tTravel.routePrefix} ${current.name} · ${current.km.toLocaleString(locale === "en" ? "en-US" : "zh-CN")} km`;
+          ticketRoute.textContent = `${routePrefix} ${current.name} · ${current.km.toLocaleString(locale === "en" ? "en-US" : "zh-CN")} km`;
         }
         if (ticketProgress) {
-          ticketProgress.textContent = tTravel.stops(visited.size, scenes.length);
+          ticketProgress.textContent = formatStops(visited.size, scenes.length);
         }
         if (ticketLink) {
           ticketLink.href = current.albumHref;
@@ -344,19 +344,37 @@ const formattedKm = (km: number) => km.toLocaleString(locale === "en" ? "en-US" 
           image.src = image.dataset.src!;
           image.removeAttribute("data-src");
         }
-        curtains ??= createCurtains(curtainsCanvas, curtainsCanvas.dataset.src!);
         if (!sceneryInitialized) {
           sceneryInitialized = true;
-          scenery = createTravelScenery(sceneryCanvas);
-          if (scenery) {
-            void view
-              .decode()
-              .catch(() => undefined)
-              .then(() => {
-                if (!stopped && scenery?.setInitial(view)) {
-                  this.setAttribute("data-scenery-ready", "");
-                }
-              });
+          const initCanvas = () => {
+            if (stopped || !wide.matches) {
+              return;
+            }
+            void Promise.all([
+              import("@/lib/travel-curtains"),
+              import("@/lib/travel-scenery"),
+            ]).then(([{ createCurtains }, { createTravelScenery }]) => {
+              if (stopped) {
+                return;
+              }
+              curtains ??= createCurtains(curtainsCanvas, curtainsCanvas.dataset.src!);
+              scenery = createTravelScenery(sceneryCanvas);
+              if (scenery) {
+                void view
+                  .decode()
+                  .catch(() => undefined)
+                  .then(() => {
+                    if (!stopped && scenery?.setInitial(view)) {
+                      this.setAttribute("data-scenery-ready", "");
+                    }
+                  });
+              }
+            });
+          };
+          if (typeof window.requestIdleCallback === "function") {
+            window.requestIdleCallback(initCanvas, { timeout: 800 });
+          } else {
+            globalThis.setTimeout(initCanvas, 50);
           }
         }
       };

@@ -5,7 +5,7 @@ import { homeMessages } from "@/lib/messages/home";
 const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
 ---
 
-<record-player>
+<record-player data-messages={JSON.stringify(t)}>
   <button class="turntable" type="button" aria-label={t.play} aria-pressed="false" disabled>
     <svg viewBox="0 0 160 132" fill="none" aria-hidden="true">
       <defs>
@@ -70,15 +70,41 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
 </style>
 
 <script>
-  import { buildInvertedVariation, pushPianoHistory } from "@/lib/home-playground";
-  import { homeSong, type RecordNote, type ScoreNote } from "@/lib/home-score";
-  import { localeFromLang } from "@/lib/i18n";
-  import { homeMessages } from "@/lib/messages/home";
+  import type { RecordNote, ScoreNote } from "@/lib/home-score";
   import type { Piano, createPiano as CreatePiano } from "@/lib/piano-synth";
   import { collectStamp } from "@/lib/stamps";
 
-  const melody = homeSong.notes.filter((note) => note.hand === "melody");
-  const invertedVariation = buildInvertedVariation(homeSong.notes);
+  type RecordMessages = {
+    play: string;
+    pause: string;
+    toPlay: string;
+    toResume: string;
+    toPause: string;
+    preparing: string;
+    failed: string;
+  };
+
+  let songBundlePromise:
+    | Promise<{
+        homeSong: typeof import("@/lib/home-score").homeSong;
+        melody: ScoreNote[];
+        invertedVariation: ScoreNote[];
+        pushPianoHistory: typeof import("@/lib/home-playground").pushPianoHistory;
+      }>
+    | undefined;
+
+  function loadSongBundle() {
+    songBundlePromise ??= Promise.all([
+      import("@/lib/home-score"),
+      import("@/lib/home-playground"),
+    ]).then(([{ homeSong }, { buildInvertedVariation, pushPianoHistory }]) => ({
+      homeSong,
+      melody: homeSong.notes.filter((note) => note.hand === "melody"),
+      invertedVariation: buildInvertedVariation(homeSong.notes),
+      pushPianoHistory,
+    }));
+    return songBundlePromise;
+  }
 
   class RecordPlayer extends HTMLElement {
     private cleanup?: () => void;
@@ -90,7 +116,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       const status = this.querySelector<HTMLElement>(".status")!;
       const events = new AbortController();
       const options = { signal: events.signal };
-      const t = homeMessages[localeFromLang(document.documentElement.lang)].record;
+      const t = JSON.parse(this.dataset.messages ?? "{}") as RecordMessages;
       let requested = false;
       let bSideActive = false;
       let attempt = 0;
@@ -107,6 +133,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       let pianoPromise: Promise<void> | undefined;
       let piano: Piano | undefined;
       let pianoContext: AudioContext | undefined;
+      let songData: Awaited<ReturnType<typeof loadSongBundle>> | undefined;
       button.disabled = false;
 
       const announce = (type: string, detail: unknown) => {
@@ -127,12 +154,14 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         piano ??= createPiano(pianoContext, 0.32);
         return { piano, context: pianoContext };
       };
-      // 按播放进度对照乐谱，把旋律音和拍点派发给页面上的动画
       const follow = () => {
+        if (!songData) {
+          return;
+        }
+        const { melody, homeSong } = songData;
         const time = audio.currentTime;
         while (cue < melody.length && melody[cue].time <= time) {
           const { midi, velocity, duration, time: at } = melody[cue++];
-          // 切回标签页时跳过积压的音，不让粒子一次涌出
           if (time - at < 0.25) {
             announce("record-note", { midi, velocity, duration, jam: false } satisfies RecordNote);
           }
@@ -145,6 +174,10 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         followFrame = requestAnimationFrame(follow);
       };
       const startFollowing = () => {
+        if (!songData) {
+          return;
+        }
+        const { melody, homeSong } = songData;
         cancelAnimationFrame(followFrame);
         cue = melody.findIndex((note) => note.time >= audio.currentTime);
         cue = cue === -1 ? melody.length : cue;
@@ -179,10 +212,12 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       };
 
       const startBSide = async () => {
-        const synth = await ensurePiano();
+        const [synth, bundle] = await Promise.all([ensurePiano(), loadSongBundle()]);
+        songData = bundle;
         if (!synth || events.signal.aborted) {
           return;
         }
+        const { invertedVariation, homeSong } = bundle;
         requested = false;
         attempt++;
         cancelAnimationFrame(fadeFrame);
@@ -242,9 +277,10 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
         }
         audio.volume = 0;
         show(false, t.preparing, false);
+        const bundlePromise = loadSongBundle();
         try {
-          // Start within the click gesture; fade in after the arm reaches the record.
           await audio.play();
+          songData = await bundlePromise;
           if (currentAttempt !== attempt) {
             return;
           }
@@ -268,14 +304,13 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
           }
         }
       }, options);
-      // 访客轻点画面时弹一个当前和弦内的音，height 为 0–1，越高音越高
       this.addEventListener("record-jam", (event) => {
-        if (!requested || !createPiano) {
+        if (!requested || !createPiano || !songData) {
           return;
         }
+        const { homeSong } = songData;
         pianoContext ??= new AudioContext();
         void pianoContext.resume();
-        // 与录音在 35% 音量下的响度大致相当
         piano ??= createPiano(pianoContext, 0.3);
         const { height } = (event as CustomEvent<{ height: number }>).detail;
         const beat = homeSong.beatOf(audio.currentTime);
@@ -289,7 +324,8 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
       }, options);
       this.addEventListener("record-play-key", (event) => {
         const { midi } = (event as CustomEvent<{ midi: number }>).detail;
-        void ensurePiano().then((synth) => {
+        void Promise.all([ensurePiano(), loadSongBundle()]).then(([synth, bundle]) => {
+          songData = bundle;
           if (!synth || events.signal.aborted) {
             return;
           }
@@ -301,7 +337,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].record;
             jam: true,
             bSide: bSideActive,
           } satisfies RecordNote);
-          const next = pushPianoHistory(motifHistory, midi);
+          const next = bundle.pushPianoHistory(motifHistory, midi);
           motifHistory = next.history;
           if (next.matched) {
             void startBSide();

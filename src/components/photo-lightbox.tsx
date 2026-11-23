@@ -2,7 +2,6 @@ import { CaretLeftIcon } from "@phosphor-icons/react/dist/csr/CaretLeft";
 import { CaretRightIcon } from "@phosphor-icons/react/dist/csr/CaretRight";
 import { XIcon } from "@phosphor-icons/react/dist/csr/X";
 import {
-  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -12,9 +11,13 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent,
-  type ReactNode,
   type Ref,
 } from "react";
+import {
+  cssEscape,
+  PhotoThumbnailRegistryContext,
+  type PhotoThumbnailRegistry,
+} from "@/components/photo-thumbnail-registry";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { PhotoBrowsingNavigation } from "@/hooks/use-photo-browsing-session";
 import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
@@ -43,152 +46,6 @@ const DRAG_MIN_SCALE = 0.82;
 const DRAG_MAX_RADIUS = 14;
 const DRAG_PROGRESS_SPAN = 280;
 const CHROME_FADE_DELAY_MS = 60;
-
-type PhotoThumbnailRegistry = {
-  register: (photoId: string, element: HTMLElement) => () => void;
-  findVisible: (photoId: string) => HTMLElement | null;
-  findAny: (photoId: string) => HTMLElement | null;
-};
-
-const NOOP_REGISTRY: PhotoThumbnailRegistry = {
-  register: () => () => {},
-  findVisible: () => null,
-  findAny: () => null,
-};
-
-const PhotoThumbnailRegistryContext = createContext<PhotoThumbnailRegistry>(NOOP_REGISTRY);
-
-function cssEscape(value: string): string {
-  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
-    return CSS.escape(value);
-  }
-  return value.replaceAll('"', '\\"');
-}
-
-function isThumbnailVisible(element: HTMLElement): boolean {
-  if (!element.isConnected || element.closest("[inert]")) {
-    return false;
-  }
-  const style = getComputedStyle(element);
-  if (style.display === "none" || style.visibility === "hidden") {
-    return false;
-  }
-  const rect = element.getBoundingClientRect();
-  if (rect.width <= 0 || rect.height <= 0) {
-    return false;
-  }
-  return (
-    rect.bottom > 8 &&
-    rect.top < window.innerHeight - 8 &&
-    rect.right > 0 &&
-    rect.left < window.innerWidth
-  );
-}
-
-function queryFallbackThumbnails(photoId: string): HTMLElement[] {
-  if (typeof document === "undefined") {
-    return [];
-  }
-  return [...document.querySelectorAll<HTMLElement>(`[data-photo-id="${cssEscape(photoId)}"]`)];
-}
-
-export function PhotoThumbnailRegistryProvider({
-  active = true,
-  children,
-}: {
-  active?: boolean;
-  children: ReactNode;
-}) {
-  const tilesRef = useRef(new Map<string, Set<HTMLElement>>());
-  const registry = useMemo<PhotoThumbnailRegistry>(() => {
-    if (!active) {
-      return NOOP_REGISTRY;
-    }
-    return {
-      register: (photoId, element) => {
-        let bucket = tilesRef.current.get(photoId);
-        if (!bucket) {
-          bucket = new Set();
-          tilesRef.current.set(photoId, bucket);
-        }
-        bucket.add(element);
-        return () => {
-          const current = tilesRef.current.get(photoId);
-          if (!current) {
-            return;
-          }
-          current.delete(element);
-          if (current.size === 0) {
-            tilesRef.current.delete(photoId);
-          }
-        };
-      },
-      findVisible: (photoId) => {
-        const candidates = tilesRef.current.get(photoId);
-        if (candidates) {
-          for (const candidate of candidates) {
-            if (isThumbnailVisible(candidate)) {
-              return candidate;
-            }
-          }
-        }
-        for (const candidate of queryFallbackThumbnails(photoId)) {
-          if (isThumbnailVisible(candidate)) {
-            return candidate;
-          }
-        }
-        return null;
-      },
-      findAny: (photoId) => {
-        const candidates = tilesRef.current.get(photoId);
-        if (candidates) {
-          for (const candidate of candidates) {
-            if (candidate.isConnected && !candidate.closest("[inert]")) {
-              return candidate;
-            }
-          }
-        }
-        for (const candidate of queryFallbackThumbnails(photoId)) {
-          if (candidate.isConnected && !candidate.closest("[inert]")) {
-            return candidate;
-          }
-        }
-        return null;
-      },
-    };
-  }, [active]);
-
-  return <PhotoThumbnailRegistryContext value={registry}>{children}</PhotoThumbnailRegistryContext>;
-}
-
-export function useRegisterPhotoThumbnail(photoId: string | undefined) {
-  const registry = useContext(PhotoThumbnailRegistryContext);
-  const cleanupRef = useRef<(() => void) | null>(null);
-
-  const setRef = useCallback(
-    (node: HTMLElement | null) => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = null;
-      }
-      if (node && photoId) {
-        cleanupRef.current = registry.register(photoId, node);
-      }
-    },
-    [photoId, registry],
-  );
-
-  useLayoutEffect(() => {
-    return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = null;
-      }
-    };
-  }, [setRef]);
-
-  return setRef;
-}
 
 type PhotoLightboxProps = {
   baseUrl: string;
