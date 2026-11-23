@@ -31,11 +31,19 @@ describe("image generators", () => {
       webp: expect.stringMatching(/^\/posts\/images\/post\/demo\.[a-f0-9]{8}\.webp$/),
       mobile: expect.stringMatching(/^\/posts\/images\/post\/demo-800w\.[a-f0-9]{8}\.webp$/),
       desktop: expect.stringMatching(/^\/posts\/images\/post\/demo-1200w\.[a-f0-9]{8}\.webp$/),
+      avif: expect.stringMatching(/^\/posts\/images\/post\/demo\.[a-f0-9]{8}\.avif$/),
+      mobileAvif: expect.stringMatching(/^\/posts\/images\/post\/demo-800w\.[a-f0-9]{8}\.avif$/),
+      desktopAvif: expect.stringMatching(/^\/posts\/images\/post\/demo-1200w\.[a-f0-9]{8}\.avif$/),
       width: 24,
       height: 16,
     });
     const full = path.join(options.outputDirectory, mapping.webp.replace(/^\/posts\/images\//, ""));
+    const fullAvif = path.join(
+      options.outputDirectory,
+      mapping.avif.replace(/^\/posts\/images\//, ""),
+    );
     expect((await sharp(full).metadata()).format).toBe("webp");
+    expect((await sharp(fullAvif).metadata()).format).toBe("heif");
     expect(
       fs.existsSync(
         path.join(options.outputDirectory, mapping.mobile.replace(/^\/posts\/images\//, "")),
@@ -46,22 +54,35 @@ describe("image generators", () => {
         path.join(options.outputDirectory, mapping.desktop.replace(/^\/posts\/images\//, "")),
       ),
     ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(options.outputDirectory, mapping.mobileAvif.replace(/^\/posts\/images\//, "")),
+      ),
+    ).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(options.outputDirectory, mapping.desktopAvif.replace(/^\/posts\/images\//, "")),
+      ),
+    ).toBe(true);
 
-    const orphan = path.join(options.outputDirectory, "post", "orphan.webp");
-    fs.writeFileSync(orphan, "orphan");
-    expect(await generatePostImages(options)).toEqual({ generated: 0, reused: 1, removed: 1 });
+    const orphanWebp = path.join(options.outputDirectory, "post", "orphan.webp");
+    const orphanAvif = path.join(options.outputDirectory, "post", "orphan.avif");
+    fs.writeFileSync(orphanWebp, "orphan");
+    fs.writeFileSync(orphanAvif, "orphan");
+    expect(await generatePostImages(options)).toEqual({ generated: 0, reused: 1, removed: 2 });
     expect(
       JSON.parse(fs.readFileSync(options.dataFile, "utf8"))["/posts/images/post/demo.jpg"],
-    ).toMatchObject({ width: 24, height: 16 });
+    ).toEqual(mapping);
 
     await writeFixture(source, "#0000ff", "jpeg", { width: 16, height: 24 });
     fs.utimesSync(source, new Date(0), new Date(0));
-    expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 3 });
+    expect(await generatePostImages(options)).toEqual({ generated: 1, reused: 0, removed: 6 });
     const updatedMapping = JSON.parse(fs.readFileSync(options.dataFile, "utf8"))[
       "/posts/images/post/demo.jpg"
     ];
     expect(updatedMapping).toMatchObject({ width: 16, height: 24 });
     expect(updatedMapping.webp).not.toBe(mapping.webp);
+    expect(updatedMapping.avif).not.toBe(mapping.avif);
 
     fs.writeFileSync(path.join(options.outputDirectory, "leaked.jpg"), "source");
     await expect(generatePostImages(options)).rejects.toThrow("非生成文件");
@@ -86,10 +107,15 @@ describe("image generators", () => {
     await writeFixture(path.join(options.sourceDirectory, "demo.png"), "#00ff00", "png");
     expect(await generateCovers(options)).toEqual({ generated: 1, reused: 0, removed: 0 });
     const coverFiles = fs.readdirSync(options.outputDirectory).toSorted();
-    expect(coverFiles).toHaveLength(3);
-    expect(coverFiles[0]).toMatch(/^demo-400\.[a-f0-9]{8}\.webp$/);
-    expect(coverFiles[1]).toMatch(/^demo-800\.[a-f0-9]{8}\.webp$/);
-    expect(coverFiles[2]).toMatch(/^demo\.[a-f0-9]{8}\.webp$/);
+    expect(coverFiles).toHaveLength(6);
+    expect(coverFiles[0]).toMatch(/^demo-400\.[a-f0-9]{8}\.avif$/);
+    expect(coverFiles[1]).toMatch(/^demo-400\.[a-f0-9]{8}\.webp$/);
+    expect(coverFiles[2]).toMatch(/^demo-800\.[a-f0-9]{8}\.avif$/);
+    expect(coverFiles[3]).toMatch(/^demo-800\.[a-f0-9]{8}\.webp$/);
+    expect(coverFiles[4]).toMatch(/^demo\.[a-f0-9]{8}\.avif$/);
+    expect(coverFiles[5]).toMatch(/^demo\.[a-f0-9]{8}\.webp$/);
+    expect(await generateCovers(options)).toEqual({ generated: 0, reused: 1, removed: 0 });
+    expect(fs.readdirSync(options.outputDirectory).toSorted()).toEqual(coverFiles);
   });
 
   it("detects regenerated outputs missing from Git while ignoring unrelated files", async () => {

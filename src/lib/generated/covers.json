@@ -3,6 +3,9 @@
     "mobile": "/cover/2025-review-400.dff5cbb8.webp",
     "desktop": "/cover/2025-review-800.dff5cbb8.webp",
     "full": "/cover/2025-review.dff5cbb8.webp",
+    "mobileAvif": "/cover/2025-review-400.c92c066b.avif",
+    "desktopAvif": "/cover/2025-review-800.c92c066b.avif",
+    "fullAvif": "/cover/2025-review.c92c066b.avif",
     "width": 2048,
     "height": 1143
   },
@@ -10,6 +13,9 @@
     "mobile": "/cover/2026-chiangmai-trip-400.152e3181.webp",
     "desktop": "/cover/2026-chiangmai-trip-800.152e3181.webp",
     "full": "/cover/2026-chiangmai-trip.152e3181.webp",
+    "mobileAvif": "/cover/2026-chiangmai-trip-400.d06da907.avif",
+    "desktopAvif": "/cover/2026-chiangmai-trip-800.d06da907.avif",
+    "fullAvif": "/cover/2026-chiangmai-trip.d06da907.avif",
     "width": 1672,
     "height": 941
   },
@@ -17,6 +23,9 @@
     "mobile": "/cover/315-geo-ai-poisoning-400.cdd5c5db.webp",
     "desktop": "/cover/315-geo-ai-poisoning-800.cdd5c5db.webp",
     "full": "/cover/315-geo-ai-poisoning.cdd5c5db.webp",
+    "mobileAvif": "/cover/315-geo-ai-poisoning-400.16b96b36.avif",
+    "desktopAvif": "/cover/315-geo-ai-poisoning-800.16b96b36.avif",
+    "fullAvif": "/cover/315-geo-ai-poisoning.16b96b36.avif",
     "width": 1536,
     "height": 864
   },
@@ -24,6 +33,9 @@
     "mobile": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-400.d3d10bbd.webp",
     "desktop": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-800.d3d10bbd.webp",
     "full": "/cover/ALS-Ice-Bucket-Challenge-and-Charity.d3d10bbd.webp",
+    "mobileAvif": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-400.97234503.avif",
+    "desktopAvif": "/cover/ALS-Ice-Bucket-Challenge-and-Charity-800.97234503.avif",
+    "fullAvif": "/cover/ALS-Ice-Bucket-Challenge-and-Charity.97234503.avif",
     "width": 2048,
     "height": 1143
   },
@@ -31,6 +43,9 @@
     "mobile": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-400.ed79f940.webp",
     "desktop": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-800.ed79f940.webp",
     "full": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.ed79f940.webp",
+    "mobileAvif": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-400.7311631f.avif",
+    "desktopAvif": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong-800.7311631f.avif",
+    "fullAvif": "/cover/Attempt-to-communicate-with-Taiwanese-politicians-about-the-violent-protests-in-Hong-Kong.7311631f.avif",
     "width": 2048,
     "height": 1143
   },
@@ -38,6 +53,9 @@
     "mobile": "/cover/Follow-or-break-the-rules-400.051fc784.webp",
     "desktop": "/cover/Follow-or-break-the-rules-800.051fc784.webp",
     "full": "/cover/Follow-or-break-the-rules.051fc784.webp",
+    "mobileAvif": "/cover/Follow-or-break-the-rules-400.6c780eb1.avif",
+    "desktopAvif": "/cover/Follow-or-break-the-rules-800.6c780eb1.avif",
+    "fullAvif": "/cover/Follow-or-break-the-rules.6c780eb1.avif",
     "width": 2048,
     "height": 1143
   },
@@ -45,6 +63,9 @@
     "mobile": "/cover/Infuse-subscription-migration-400.717b6544.webp",
     "desktop": "/cover/Infuse-subscription-migration-800.717b6544.webp",
     "full": "/cover/Infuse-subscription-migration.717b6544.webp",
+    "mobileAvif": "/cover/Infuse-subscription-migration-400.03126d7c.avif",
+    "desktopAvif": "/cover/Infuse-subscription-migration-800.03126d7c.avif",
+    "fullAvif": "/cover/Infuse-subscription-migration.03126d7c.avif",
     "width": 2048,
     "height": 1143
   },
@@ -52,6 +73,9 @@
     "mobile": "/cover/Memories-make-people-grow-old-400.c41fef95.webp",
     "desktop": "/cover/Memories-make-people-grow-old-800.c41fef95.webp",
     "full": "/cover/Memories-make-people-grow-old.c41fef95.webp",
+    "mobileAvif": "/cover/Memories-make-people-grow-old-400.b6c8da81.avif",
+    "desktopAvif": "/cover/Memories-make-people-grow-old-800.b6c8da81.avif",
+    "fullAvif": "/cover/Memories-make-people-grow-old.b6c8da81.avif",
     "width": 2048,
     "height": 1143
   },
@@ -59,6 +83,9 @@
     "mobile": "/cover/Ted-Lasso-400.07e147ef.webp",
     "desktop": "/cover/Ted-Lasso-800.07e147ef.webp",
     "full": "/cover/Ted-Lasso.07e147ef.webp",
+    "mobileAvif": "/cover/Ted-Lasso-400.a757758e.avif",
+    "desktopAvif": "/cover/Ted-Lasso-800.a757758e.avif",
+    "fullAvif": "/cover/Ted-Lasso.a757758e.avif",
     "width": 2048,
     "height": 1143
   },
@@ -66,6 +93,9 @@
     "mobile": "/cover/The-Last-of-Us-review-400.ff4b768d.webp",
     "desktop": "/cover/The-Last-of-Us-review-800.ff4b768d.webp",
     "full": "/cover/The-Last-of-Us-review.ff4b768d.webp",
+    "mobileAvif": "/cover/The-Last-of-Us-review-400.778a7ec4.avif",
+    "desktopAvif": "/cover/The-Last-of-Us-review-800.778a7ec4.avif",
+    "fullAvif": "/cover/The-Last-of-Us-review.778a7ec4.avif",
     "width": 2048,
     "height": 1143
   },
@@ -73,6 +103,9 @@
     "mobile": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-400.ff2ca75c.webp",
     "desktop": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-800.ff2ca75c.webp",
     "full": "/cover/The-requirements-and-design-ideas-of-the-strategy-team.ff2ca75c.webp",
+    "mobileAvif": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-400.86c34b6c.avif",
+    "desktopAvif": "/cover/The-requirements-and-design-ideas-of-the-strategy-team-800.86c34b6c.avif",
+    "fullAvif": "/cover/The-requirements-and-design-ideas-of-the-strategy-team.86c34b6c.avif",
     "width": 2048,
     "height": 1143
   },
@@ -80,6 +113,9 @@
     "mobile": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-400.fa0d3c70.webp",
     "desktop": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-800.fa0d3c70.webp",
     "full": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.fa0d3c70.webp",
+    "mobileAvif": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-400.f75b5eff.avif",
+    "desktopAvif": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers-800.f75b5eff.avif",
+    "fullAvif": "/cover/Why-do-people-from-Shanghai-always-speak-Shanghainese-first-when-talking-to-strangers.f75b5eff.avif",
     "width": 2048,
     "height": 1143
   },
@@ -87,6 +123,9 @@
     "mobile": "/cover/agent-blast-radius-400.5c0a025c.webp",
     "desktop": "/cover/agent-blast-radius-800.5c0a025c.webp",
     "full": "/cover/agent-blast-radius.5c0a025c.webp",
+    "mobileAvif": "/cover/agent-blast-radius-400.d6f42d7d.avif",
+    "desktopAvif": "/cover/agent-blast-radius-800.d6f42d7d.avif",
+    "fullAvif": "/cover/agent-blast-radius.d6f42d7d.avif",
     "width": 1880,
     "height": 800
   },
@@ -94,6 +133,9 @@
     "mobile": "/cover/agent-blindspot-pass-400.bd8ccbf3.webp",
     "desktop": "/cover/agent-blindspot-pass-800.bd8ccbf3.webp",
     "full": "/cover/agent-blindspot-pass.bd8ccbf3.webp",
+    "mobileAvif": "/cover/agent-blindspot-pass-400.9e66c9e4.avif",
+    "desktopAvif": "/cover/agent-blindspot-pass-800.9e66c9e4.avif",
+    "fullAvif": "/cover/agent-blindspot-pass.9e66c9e4.avif",
     "width": 1916,
     "height": 821
   },
@@ -101,6 +143,9 @@
     "mobile": "/cover/agent-browser-self-check-400.a6613fa6.webp",
     "desktop": "/cover/agent-browser-self-check-800.a6613fa6.webp",
     "full": "/cover/agent-browser-self-check.a6613fa6.webp",
+    "mobileAvif": "/cover/agent-browser-self-check-400.df9e314d.avif",
+    "desktopAvif": "/cover/agent-browser-self-check-800.df9e314d.avif",
+    "fullAvif": "/cover/agent-browser-self-check.df9e314d.avif",
     "width": 1923,
     "height": 818
   },
@@ -108,6 +153,9 @@
     "mobile": "/cover/agent-codemode-tools-400.ce7f3719.webp",
     "desktop": "/cover/agent-codemode-tools-800.ce7f3719.webp",
     "full": "/cover/agent-codemode-tools.ce7f3719.webp",
+    "mobileAvif": "/cover/agent-codemode-tools-400.2232081c.avif",
+    "desktopAvif": "/cover/agent-codemode-tools-800.2232081c.avif",
+    "fullAvif": "/cover/agent-codemode-tools.2232081c.avif",
     "width": 1927,
     "height": 820
   },
@@ -115,6 +163,9 @@
     "mobile": "/cover/agent-context-compaction-400.2e550cc5.webp",
     "desktop": "/cover/agent-context-compaction-800.2e550cc5.webp",
     "full": "/cover/agent-context-compaction.2e550cc5.webp",
+    "mobileAvif": "/cover/agent-context-compaction-400.f38a7786.avif",
+    "desktopAvif": "/cover/agent-context-compaction-800.f38a7786.avif",
+    "fullAvif": "/cover/agent-context-compaction.f38a7786.avif",
     "width": 1880,
     "height": 800
   },
@@ -122,6 +173,9 @@
     "mobile": "/cover/agent-daily-log-patrol-400.3de32240.webp",
     "desktop": "/cover/agent-daily-log-patrol-800.3de32240.webp",
     "full": "/cover/agent-daily-log-patrol.3de32240.webp",
+    "mobileAvif": "/cover/agent-daily-log-patrol-400.7bc11c61.avif",
+    "desktopAvif": "/cover/agent-daily-log-patrol-800.7bc11c61.avif",
+    "fullAvif": "/cover/agent-daily-log-patrol.7bc11c61.avif",
     "width": 1923,
     "height": 818
   },
@@ -129,6 +183,9 @@
     "mobile": "/cover/agent-first-action-layer-400.7aa5b30d.webp",
     "desktop": "/cover/agent-first-action-layer-800.7aa5b30d.webp",
     "full": "/cover/agent-first-action-layer.7aa5b30d.webp",
+    "mobileAvif": "/cover/agent-first-action-layer-400.73a85c54.avif",
+    "desktopAvif": "/cover/agent-first-action-layer-800.73a85c54.avif",
+    "fullAvif": "/cover/agent-first-action-layer.73a85c54.avif",
     "width": 1880,
     "height": 800
   },
@@ -136,6 +193,9 @@
     "mobile": "/cover/agent-fix-only-adds-code-400.e710c5bc.webp",
     "desktop": "/cover/agent-fix-only-adds-code-800.e710c5bc.webp",
     "full": "/cover/agent-fix-only-adds-code.e710c5bc.webp",
+    "mobileAvif": "/cover/agent-fix-only-adds-code-400.55d5d9f0.avif",
+    "desktopAvif": "/cover/agent-fix-only-adds-code-800.55d5d9f0.avif",
+    "fullAvif": "/cover/agent-fix-only-adds-code.55d5d9f0.avif",
     "width": 1880,
     "height": 800
   },
@@ -143,6 +203,9 @@
     "mobile": "/cover/agent-friendly-tool-400.05747687.webp",
     "desktop": "/cover/agent-friendly-tool-800.05747687.webp",
     "full": "/cover/agent-friendly-tool.05747687.webp",
+    "mobileAvif": "/cover/agent-friendly-tool-400.487a8333.avif",
+    "desktopAvif": "/cover/agent-friendly-tool-800.487a8333.avif",
+    "fullAvif": "/cover/agent-friendly-tool.487a8333.avif",
     "width": 1921,
     "height": 819
   },
@@ -150,6 +213,9 @@
     "mobile": "/cover/agent-guesses-not-debug-400.556793c0.webp",
     "desktop": "/cover/agent-guesses-not-debug-800.556793c0.webp",
     "full": "/cover/agent-guesses-not-debug.556793c0.webp",
+    "mobileAvif": "/cover/agent-guesses-not-debug-400.440c700b.avif",
+    "desktopAvif": "/cover/agent-guesses-not-debug-800.440c700b.avif",
+    "fullAvif": "/cover/agent-guesses-not-debug.440c700b.avif",
     "width": 1536,
     "height": 864
   },
@@ -157,6 +223,9 @@
     "mobile": "/cover/agent-harness-not-model-400.b5a68af1.webp",
     "desktop": "/cover/agent-harness-not-model-800.b5a68af1.webp",
     "full": "/cover/agent-harness-not-model.b5a68af1.webp",
+    "mobileAvif": "/cover/agent-harness-not-model-400.f37c4634.avif",
+    "desktopAvif": "/cover/agent-harness-not-model-800.f37c4634.avif",
+    "fullAvif": "/cover/agent-harness-not-model.f37c4634.avif",
     "width": 1921,
     "height": 819
   },
@@ -164,6 +233,9 @@
     "mobile": "/cover/agent-harness-tax-400.bc8b6383.webp",
     "desktop": "/cover/agent-harness-tax-800.bc8b6383.webp",
     "full": "/cover/agent-harness-tax.bc8b6383.webp",
+    "mobileAvif": "/cover/agent-harness-tax-400.af903db6.avif",
+    "desktopAvif": "/cover/agent-harness-tax-800.af903db6.avif",
+    "fullAvif": "/cover/agent-harness-tax.af903db6.avif",
     "width": 1880,
     "height": 800
   },
@@ -171,6 +243,9 @@
     "mobile": "/cover/agent-horizontal-plans-400.a4b89ca0.webp",
     "desktop": "/cover/agent-horizontal-plans-800.a4b89ca0.webp",
     "full": "/cover/agent-horizontal-plans.a4b89ca0.webp",
+    "mobileAvif": "/cover/agent-horizontal-plans-400.05e486da.avif",
+    "desktopAvif": "/cover/agent-horizontal-plans-800.05e486da.avif",
+    "fullAvif": "/cover/agent-horizontal-plans.05e486da.avif",
     "width": 1880,
     "height": 800
   },
@@ -178,6 +253,9 @@
     "mobile": "/cover/agent-needs-git-400.cc216085.webp",
     "desktop": "/cover/agent-needs-git-800.cc216085.webp",
     "full": "/cover/agent-needs-git.cc216085.webp",
+    "mobileAvif": "/cover/agent-needs-git-400.42a3b6d7.avif",
+    "desktopAvif": "/cover/agent-needs-git-800.42a3b6d7.avif",
+    "fullAvif": "/cover/agent-needs-git.42a3b6d7.avif",
     "width": 1880,
     "height": 800
   },
@@ -185,6 +263,9 @@
     "mobile": "/cover/agent-proposer-reviewer-400.72725ed6.webp",
     "desktop": "/cover/agent-proposer-reviewer-800.72725ed6.webp",
     "full": "/cover/agent-proposer-reviewer.72725ed6.webp",
+    "mobileAvif": "/cover/agent-proposer-reviewer-400.dd81bb1e.avif",
+    "desktopAvif": "/cover/agent-proposer-reviewer-800.dd81bb1e.avif",
+    "fullAvif": "/cover/agent-proposer-reviewer.dd81bb1e.avif",
     "width": 1880,
     "height": 800
   },
@@ -192,6 +273,9 @@
     "mobile": "/cover/agent-restates-goal-400.3be9d1a4.webp",
     "desktop": "/cover/agent-restates-goal-800.3be9d1a4.webp",
     "full": "/cover/agent-restates-goal.3be9d1a4.webp",
+    "mobileAvif": "/cover/agent-restates-goal-400.391d0d4b.avif",
+    "desktopAvif": "/cover/agent-restates-goal-800.391d0d4b.avif",
+    "fullAvif": "/cover/agent-restates-goal.391d0d4b.avif",
     "width": 1923,
     "height": 818
   },
@@ -199,6 +283,9 @@
     "mobile": "/cover/agent-scale-git-400.5dba02e7.webp",
     "desktop": "/cover/agent-scale-git-800.5dba02e7.webp",
     "full": "/cover/agent-scale-git.5dba02e7.webp",
+    "mobileAvif": "/cover/agent-scale-git-400.e340d8db.avif",
+    "desktopAvif": "/cover/agent-scale-git-800.e340d8db.avif",
+    "fullAvif": "/cover/agent-scale-git.e340d8db.avif",
     "width": 1880,
     "height": 800
   },
@@ -206,6 +293,9 @@
     "mobile": "/cover/agent-status-bar-400.d7233fe0.webp",
     "desktop": "/cover/agent-status-bar-800.d7233fe0.webp",
     "full": "/cover/agent-status-bar.d7233fe0.webp",
+    "mobileAvif": "/cover/agent-status-bar-400.d9cd2086.avif",
+    "desktopAvif": "/cover/agent-status-bar-800.d9cd2086.avif",
+    "fullAvif": "/cover/agent-status-bar.d9cd2086.avif",
     "width": 1880,
     "height": 800
   },
@@ -213,6 +303,9 @@
     "mobile": "/cover/agent-stop-conditions-400.22d4ea2a.webp",
     "desktop": "/cover/agent-stop-conditions-800.22d4ea2a.webp",
     "full": "/cover/agent-stop-conditions.22d4ea2a.webp",
+    "mobileAvif": "/cover/agent-stop-conditions-400.c60cb48c.avif",
+    "desktopAvif": "/cover/agent-stop-conditions-800.c60cb48c.avif",
+    "fullAvif": "/cover/agent-stop-conditions.c60cb48c.avif",
     "width": 1923,
     "height": 818
   },
@@ -220,6 +313,9 @@
     "mobile": "/cover/agent-swarm-collusion-400.6be5450c.webp",
     "desktop": "/cover/agent-swarm-collusion-800.6be5450c.webp",
     "full": "/cover/agent-swarm-collusion.6be5450c.webp",
+    "mobileAvif": "/cover/agent-swarm-collusion-400.8e357618.avif",
+    "desktopAvif": "/cover/agent-swarm-collusion-800.8e357618.avif",
+    "fullAvif": "/cover/agent-swarm-collusion.8e357618.avif",
     "width": 1880,
     "height": 800
   },
@@ -227,6 +323,9 @@
     "mobile": "/cover/agent-swarm-context-400.06d11784.webp",
     "desktop": "/cover/agent-swarm-context-800.06d11784.webp",
     "full": "/cover/agent-swarm-context.06d11784.webp",
+    "mobileAvif": "/cover/agent-swarm-context-400.afb347b7.avif",
+    "desktopAvif": "/cover/agent-swarm-context-800.afb347b7.avif",
+    "fullAvif": "/cover/agent-swarm-context.afb347b7.avif",
     "width": 1923,
     "height": 818
   },
@@ -234,6 +333,9 @@
     "mobile": "/cover/agent-team-babel-400.ad9ce9a2.webp",
     "desktop": "/cover/agent-team-babel-800.ad9ce9a2.webp",
     "full": "/cover/agent-team-babel.ad9ce9a2.webp",
+    "mobileAvif": "/cover/agent-team-babel-400.69827ae5.avif",
+    "desktopAvif": "/cover/agent-team-babel-800.69827ae5.avif",
+    "fullAvif": "/cover/agent-team-babel.69827ae5.avif",
     "width": 1923,
     "height": 818
   },
@@ -241,6 +343,9 @@
     "mobile": "/cover/agentic-workflow-waiting-revalued-400.80d02f6b.webp",
     "desktop": "/cover/agentic-workflow-waiting-revalued-800.80d02f6b.webp",
     "full": "/cover/agentic-workflow-waiting-revalued.80d02f6b.webp",
+    "mobileAvif": "/cover/agentic-workflow-waiting-revalued-400.8f67af39.avif",
+    "desktopAvif": "/cover/agentic-workflow-waiting-revalued-800.8f67af39.avif",
+    "fullAvif": "/cover/agentic-workflow-waiting-revalued.8f67af39.avif",
     "width": 1536,
     "height": 864
   },
@@ -248,6 +353,9 @@
     "mobile": "/cover/ai-better-why-do-it-yourself-400.34a8ff82.webp",
     "desktop": "/cover/ai-better-why-do-it-yourself-800.34a8ff82.webp",
     "full": "/cover/ai-better-why-do-it-yourself.34a8ff82.webp",
+    "mobileAvif": "/cover/ai-better-why-do-it-yourself-400.1212ef3f.avif",
+    "desktopAvif": "/cover/ai-better-why-do-it-yourself-800.1212ef3f.avif",
+    "fullAvif": "/cover/ai-better-why-do-it-yourself.1212ef3f.avif",
     "width": 1927,
     "height": 820
   },
@@ -255,6 +363,9 @@
     "mobile": "/cover/ai-bug-reports-patch-window-400.ba78f00f.webp",
     "desktop": "/cover/ai-bug-reports-patch-window-800.ba78f00f.webp",
     "full": "/cover/ai-bug-reports-patch-window.ba78f00f.webp",
+    "mobileAvif": "/cover/ai-bug-reports-patch-window-400.c0a44e2f.avif",
+    "desktopAvif": "/cover/ai-bug-reports-patch-window-800.c0a44e2f.avif",
+    "fullAvif": "/cover/ai-bug-reports-patch-window.c0a44e2f.avif",
     "width": 1880,
     "height": 800
   },
@@ -262,6 +373,9 @@
     "mobile": "/cover/ai-code-5-checkpoints-400.236b8589.webp",
     "desktop": "/cover/ai-code-5-checkpoints-800.236b8589.webp",
     "full": "/cover/ai-code-5-checkpoints.236b8589.webp",
+    "mobileAvif": "/cover/ai-code-5-checkpoints-400.09e98848.avif",
+    "desktopAvif": "/cover/ai-code-5-checkpoints-800.09e98848.avif",
+    "fullAvif": "/cover/ai-code-5-checkpoints.09e98848.avif",
     "width": 1536,
     "height": 864
   },
@@ -269,6 +383,9 @@
     "mobile": "/cover/ai-code-responsibility-gap-400.1cbbaafa.webp",
     "desktop": "/cover/ai-code-responsibility-gap-800.1cbbaafa.webp",
     "full": "/cover/ai-code-responsibility-gap.1cbbaafa.webp",
+    "mobileAvif": "/cover/ai-code-responsibility-gap-400.2eac1cd8.avif",
+    "desktopAvif": "/cover/ai-code-responsibility-gap-800.2eac1cd8.avif",
+    "fullAvif": "/cover/ai-code-responsibility-gap.2eac1cd8.avif",
     "width": 1536,
     "height": 864
   },
@@ -276,6 +393,9 @@
     "mobile": "/cover/ai-code-review-expensive-testing-400.366c0cc9.webp",
     "desktop": "/cover/ai-code-review-expensive-testing-800.366c0cc9.webp",
     "full": "/cover/ai-code-review-expensive-testing.366c0cc9.webp",
+    "mobileAvif": "/cover/ai-code-review-expensive-testing-400.ef31709a.avif",
+    "desktopAvif": "/cover/ai-code-review-expensive-testing-800.ef31709a.avif",
+    "fullAvif": "/cover/ai-code-review-expensive-testing.ef31709a.avif",
     "width": 1536,
     "height": 864
   },
@@ -283,6 +403,9 @@
     "mobile": "/cover/ai-code-volume-not-outcome-400.748bb130.webp",
     "desktop": "/cover/ai-code-volume-not-outcome-800.748bb130.webp",
     "full": "/cover/ai-code-volume-not-outcome.748bb130.webp",
+    "mobileAvif": "/cover/ai-code-volume-not-outcome-400.508a3548.avif",
+    "desktopAvif": "/cover/ai-code-volume-not-outcome-800.508a3548.avif",
+    "fullAvif": "/cover/ai-code-volume-not-outcome.508a3548.avif",
     "width": 1921,
     "height": 819
   },
@@ -290,6 +413,9 @@
     "mobile": "/cover/ai-design-options-taste-400.4270d5e5.webp",
     "desktop": "/cover/ai-design-options-taste-800.4270d5e5.webp",
     "full": "/cover/ai-design-options-taste.4270d5e5.webp",
+    "mobileAvif": "/cover/ai-design-options-taste-400.1c906735.avif",
+    "desktopAvif": "/cover/ai-design-options-taste-800.1c906735.avif",
+    "fullAvif": "/cover/ai-design-options-taste.1c906735.avif",
     "width": 1880,
     "height": 800
   },
@@ -297,6 +423,9 @@
     "mobile": "/cover/ai-engineering-total-cost-400.e62b5207.webp",
     "desktop": "/cover/ai-engineering-total-cost-800.e62b5207.webp",
     "full": "/cover/ai-engineering-total-cost.e62b5207.webp",
+    "mobileAvif": "/cover/ai-engineering-total-cost-400.2355f8c6.avif",
+    "desktopAvif": "/cover/ai-engineering-total-cost-800.2355f8c6.avif",
+    "fullAvif": "/cover/ai-engineering-total-cost.2355f8c6.avif",
     "width": 1927,
     "height": 820
   },
@@ -304,6 +433,9 @@
     "mobile": "/cover/ai-frontend-design-system-handoff-400.f258571e.webp",
     "desktop": "/cover/ai-frontend-design-system-handoff-800.f258571e.webp",
     "full": "/cover/ai-frontend-design-system-handoff.f258571e.webp",
+    "mobileAvif": "/cover/ai-frontend-design-system-handoff-400.a4339305.avif",
+    "desktopAvif": "/cover/ai-frontend-design-system-handoff-800.a4339305.avif",
+    "fullAvif": "/cover/ai-frontend-design-system-handoff.a4339305.avif",
     "width": 1921,
     "height": 819
   },
@@ -311,6 +443,9 @@
     "mobile": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-400.c8c4efe3.webp",
     "desktop": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-800.c8c4efe3.webp",
     "full": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.c8c4efe3.webp",
+    "mobileAvif": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-400.d340c5c9.avif",
+    "desktopAvif": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution-800.d340c5c9.avif",
+    "fullAvif": "/cover/ai-memory-systems-from-log-retrieval-to-knowledge-evolution.d340c5c9.avif",
     "width": 1536,
     "height": 1024
   },
@@ -318,6 +453,9 @@
     "mobile": "/cover/ai-native-organization-400.4c0ed59d.webp",
     "desktop": "/cover/ai-native-organization-800.4c0ed59d.webp",
     "full": "/cover/ai-native-organization.4c0ed59d.webp",
+    "mobileAvif": "/cover/ai-native-organization-400.cd095416.avif",
+    "desktopAvif": "/cover/ai-native-organization-800.cd095416.avif",
+    "fullAvif": "/cover/ai-native-organization.cd095416.avif",
     "width": 1880,
     "height": 800
   },
@@ -325,6 +463,9 @@
     "mobile": "/cover/ai-products-revenue-odds-400.58554b32.webp",
     "desktop": "/cover/ai-products-revenue-odds-800.58554b32.webp",
     "full": "/cover/ai-products-revenue-odds.58554b32.webp",
+    "mobileAvif": "/cover/ai-products-revenue-odds-400.cd8225fa.avif",
+    "desktopAvif": "/cover/ai-products-revenue-odds-800.cd8225fa.avif",
+    "fullAvif": "/cover/ai-products-revenue-odds.cd8225fa.avif",
     "width": 1880,
     "height": 800
   },
@@ -332,6 +473,9 @@
     "mobile": "/cover/ai-provider-research-competitor-400.3af92231.webp",
     "desktop": "/cover/ai-provider-research-competitor-800.3af92231.webp",
     "full": "/cover/ai-provider-research-competitor.3af92231.webp",
+    "mobileAvif": "/cover/ai-provider-research-competitor-400.c78f254a.avif",
+    "desktopAvif": "/cover/ai-provider-research-competitor-800.c78f254a.avif",
+    "fullAvif": "/cover/ai-provider-research-competitor.c78f254a.avif",
     "width": 1880,
     "height": 800
   },
@@ -339,6 +483,9 @@
     "mobile": "/cover/ai-review-ai-400.2efb3050.webp",
     "desktop": "/cover/ai-review-ai-800.2efb3050.webp",
     "full": "/cover/ai-review-ai.2efb3050.webp",
+    "mobileAvif": "/cover/ai-review-ai-400.4975c4f9.avif",
+    "desktopAvif": "/cover/ai-review-ai-800.4975c4f9.avif",
+    "fullAvif": "/cover/ai-review-ai.4975c4f9.avif",
     "width": 1536,
     "height": 864
   },
@@ -346,6 +493,9 @@
     "mobile": "/cover/ai-review-find-bug-prompt-400.48820188.webp",
     "desktop": "/cover/ai-review-find-bug-prompt-800.48820188.webp",
     "full": "/cover/ai-review-find-bug-prompt.48820188.webp",
+    "mobileAvif": "/cover/ai-review-find-bug-prompt-400.d3f9aa60.avif",
+    "desktopAvif": "/cover/ai-review-find-bug-prompt-800.d3f9aa60.avif",
+    "fullAvif": "/cover/ai-review-find-bug-prompt.d3f9aa60.avif",
     "width": 1880,
     "height": 800
   },
@@ -353,6 +503,9 @@
     "mobile": "/cover/ai-slop-battle-400.0ea3efd0.webp",
     "desktop": "/cover/ai-slop-battle-800.0ea3efd0.webp",
     "full": "/cover/ai-slop-battle.0ea3efd0.webp",
+    "mobileAvif": "/cover/ai-slop-battle-400.6c6fd085.avif",
+    "desktopAvif": "/cover/ai-slop-battle-800.6c6fd085.avif",
+    "fullAvif": "/cover/ai-slop-battle.6c6fd085.avif",
     "width": 1536,
     "height": 864
   },
@@ -360,6 +513,9 @@
     "mobile": "/cover/ai-slop-quality-metrics-400.ffe4c15f.webp",
     "desktop": "/cover/ai-slop-quality-metrics-800.ffe4c15f.webp",
     "full": "/cover/ai-slop-quality-metrics.ffe4c15f.webp",
+    "mobileAvif": "/cover/ai-slop-quality-metrics-400.8bda6b59.avif",
+    "desktopAvif": "/cover/ai-slop-quality-metrics-800.8bda6b59.avif",
+    "fullAvif": "/cover/ai-slop-quality-metrics.8bda6b59.avif",
     "width": 1880,
     "height": 800
   },
@@ -367,6 +523,9 @@
     "mobile": "/cover/ai-tests-closed-loop-400.8b53502a.webp",
     "desktop": "/cover/ai-tests-closed-loop-800.8b53502a.webp",
     "full": "/cover/ai-tests-closed-loop.8b53502a.webp",
+    "mobileAvif": "/cover/ai-tests-closed-loop-400.2c20607a.avif",
+    "desktopAvif": "/cover/ai-tests-closed-loop-800.2c20607a.avif",
+    "fullAvif": "/cover/ai-tests-closed-loop.2c20607a.avif",
     "width": 1536,
     "height": 864
   },
@@ -374,6 +533,9 @@
     "mobile": "/cover/ai-travel-talk-vs-act-400.be8eb1c7.webp",
     "desktop": "/cover/ai-travel-talk-vs-act-800.be8eb1c7.webp",
     "full": "/cover/ai-travel-talk-vs-act.be8eb1c7.webp",
+    "mobileAvif": "/cover/ai-travel-talk-vs-act-400.5ff398d0.avif",
+    "desktopAvif": "/cover/ai-travel-talk-vs-act-800.5ff398d0.avif",
+    "fullAvif": "/cover/ai-travel-talk-vs-act.5ff398d0.avif",
     "width": 1536,
     "height": 864
   },
@@ -381,6 +543,9 @@
     "mobile": "/cover/ai-wont-tire-but-you-will-400.af08940b.webp",
     "desktop": "/cover/ai-wont-tire-but-you-will-800.af08940b.webp",
     "full": "/cover/ai-wont-tire-but-you-will.af08940b.webp",
+    "mobileAvif": "/cover/ai-wont-tire-but-you-will-400.9743f191.avif",
+    "desktopAvif": "/cover/ai-wont-tire-but-you-will-800.9743f191.avif",
+    "fullAvif": "/cover/ai-wont-tire-but-you-will.9743f191.avif",
     "width": 1536,
     "height": 864
   },
@@ -388,6 +553,9 @@
     "mobile": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-400.4f60f5ec.webp",
     "desktop": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-800.4f60f5ec.webp",
     "full": "/cover/assuming-x-agentic-era-engineers-survival-coordinates.4f60f5ec.webp",
+    "mobileAvif": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-400.d636fb8b.avif",
+    "desktopAvif": "/cover/assuming-x-agentic-era-engineers-survival-coordinates-800.d636fb8b.avif",
+    "fullAvif": "/cover/assuming-x-agentic-era-engineers-survival-coordinates.d636fb8b.avif",
     "width": 1536,
     "height": 864
   },
@@ -395,6 +563,9 @@
     "mobile": "/cover/benchmark-noise-400.a0834cd3.webp",
     "desktop": "/cover/benchmark-noise-800.a0834cd3.webp",
     "full": "/cover/benchmark-noise.a0834cd3.webp",
+    "mobileAvif": "/cover/benchmark-noise-400.47c77fa8.avif",
+    "desktopAvif": "/cover/benchmark-noise-800.47c77fa8.avif",
+    "fullAvif": "/cover/benchmark-noise.47c77fa8.avif",
     "width": 1921,
     "height": 819
   },
@@ -402,6 +573,9 @@
     "mobile": "/cover/best-ai-users-need-it-least-400.2f8d8151.webp",
     "desktop": "/cover/best-ai-users-need-it-least-800.2f8d8151.webp",
     "full": "/cover/best-ai-users-need-it-least.2f8d8151.webp",
+    "mobileAvif": "/cover/best-ai-users-need-it-least-400.958e5477.avif",
+    "desktopAvif": "/cover/best-ai-users-need-it-least-800.958e5477.avif",
+    "fullAvif": "/cover/best-ai-users-need-it-least.958e5477.avif",
     "width": 1536,
     "height": 864
   },
@@ -409,6 +583,9 @@
     "mobile": "/cover/beyond-the-3-day-clone-400.8034c153.webp",
     "desktop": "/cover/beyond-the-3-day-clone-800.8034c153.webp",
     "full": "/cover/beyond-the-3-day-clone.8034c153.webp",
+    "mobileAvif": "/cover/beyond-the-3-day-clone-400.cd01160c.avif",
+    "desktopAvif": "/cover/beyond-the-3-day-clone-800.cd01160c.avif",
+    "fullAvif": "/cover/beyond-the-3-day-clone.cd01160c.avif",
     "width": 1536,
     "height": 864
   },
@@ -416,6 +593,9 @@
     "mobile": "/cover/claude-text-watermark-400.27b8d263.webp",
     "desktop": "/cover/claude-text-watermark-800.27b8d263.webp",
     "full": "/cover/claude-text-watermark.27b8d263.webp",
+    "mobileAvif": "/cover/claude-text-watermark-400.3d9e2b06.avif",
+    "desktopAvif": "/cover/claude-text-watermark-800.3d9e2b06.avif",
+    "fullAvif": "/cover/claude-text-watermark.3d9e2b06.avif",
     "width": 1922,
     "height": 818
   },
@@ -423,6 +603,9 @@
     "mobile": "/cover/code-was-never-the-easy-part-400.1e621ccc.webp",
     "desktop": "/cover/code-was-never-the-easy-part-800.1e621ccc.webp",
     "full": "/cover/code-was-never-the-easy-part.1e621ccc.webp",
+    "mobileAvif": "/cover/code-was-never-the-easy-part-400.24134ef9.avif",
+    "desktopAvif": "/cover/code-was-never-the-easy-part-800.24134ef9.avif",
+    "fullAvif": "/cover/code-was-never-the-easy-part.24134ef9.avif",
     "width": 1880,
     "height": 800
   },
@@ -430,6 +613,9 @@
     "mobile": "/cover/codesesh-ai-coding-sessions-disappearing-400.e8325d0b.webp",
     "desktop": "/cover/codesesh-ai-coding-sessions-disappearing-800.e8325d0b.webp",
     "full": "/cover/codesesh-ai-coding-sessions-disappearing.e8325d0b.webp",
+    "mobileAvif": "/cover/codesesh-ai-coding-sessions-disappearing-400.eaf08257.avif",
+    "desktopAvif": "/cover/codesesh-ai-coding-sessions-disappearing-800.eaf08257.avif",
+    "fullAvif": "/cover/codesesh-ai-coding-sessions-disappearing.eaf08257.avif",
     "width": 1672,
     "height": 941
   },
@@ -437,6 +623,9 @@
     "mobile": "/cover/coding-agent-almost-1-year-400.e7f51550.webp",
     "desktop": "/cover/coding-agent-almost-1-year-800.e7f51550.webp",
     "full": "/cover/coding-agent-almost-1-year.e7f51550.webp",
+    "mobileAvif": "/cover/coding-agent-almost-1-year-400.b062fd24.avif",
+    "desktopAvif": "/cover/coding-agent-almost-1-year-800.b062fd24.avif",
+    "fullAvif": "/cover/coding-agent-almost-1-year.b062fd24.avif",
     "width": 1536,
     "height": 864
   },
@@ -444,6 +633,9 @@
     "mobile": "/cover/coding-joy-stolen-400.5ffaa4ba.webp",
     "desktop": "/cover/coding-joy-stolen-800.5ffaa4ba.webp",
     "full": "/cover/coding-joy-stolen.5ffaa4ba.webp",
+    "mobileAvif": "/cover/coding-joy-stolen-400.f0384879.avif",
+    "desktopAvif": "/cover/coding-joy-stolen-800.f0384879.avif",
+    "fullAvif": "/cover/coding-joy-stolen.f0384879.avif",
     "width": 1916,
     "height": 821
   },
@@ -451,6 +643,9 @@
     "mobile": "/cover/control-ideas-not-code-400.da7b8d58.webp",
     "desktop": "/cover/control-ideas-not-code-800.da7b8d58.webp",
     "full": "/cover/control-ideas-not-code.da7b8d58.webp",
+    "mobileAvif": "/cover/control-ideas-not-code-400.8738183a.avif",
+    "desktopAvif": "/cover/control-ideas-not-code-800.8738183a.avif",
+    "fullAvif": "/cover/control-ideas-not-code.8738183a.avif",
     "width": 1880,
     "height": 800
   },
@@ -458,6 +653,9 @@
     "mobile": "/cover/cot-distillation-thinking-block-400.3e58cbda.webp",
     "desktop": "/cover/cot-distillation-thinking-block-800.3e58cbda.webp",
     "full": "/cover/cot-distillation-thinking-block.3e58cbda.webp",
+    "mobileAvif": "/cover/cot-distillation-thinking-block-400.f64c076b.avif",
+    "desktopAvif": "/cover/cot-distillation-thinking-block-800.f64c076b.avif",
+    "fullAvif": "/cover/cot-distillation-thinking-block.f64c076b.avif",
     "width": 1922,
     "height": 818
   },
@@ -465,6 +663,9 @@
     "mobile": "/cover/deepinfer-vs-vllm-llamacpp-400.002a7469.webp",
     "desktop": "/cover/deepinfer-vs-vllm-llamacpp-800.002a7469.webp",
     "full": "/cover/deepinfer-vs-vllm-llamacpp.002a7469.webp",
+    "mobileAvif": "/cover/deepinfer-vs-vllm-llamacpp-400.8ff7b089.avif",
+    "desktopAvif": "/cover/deepinfer-vs-vllm-llamacpp-800.8ff7b089.avif",
+    "fullAvif": "/cover/deepinfer-vs-vllm-llamacpp.8ff7b089.avif",
     "width": 1880,
     "height": 800
   },
@@ -472,6 +673,9 @@
     "mobile": "/cover/deepseek-harness-133-plugins-400.8e7423d8.webp",
     "desktop": "/cover/deepseek-harness-133-plugins-800.8e7423d8.webp",
     "full": "/cover/deepseek-harness-133-plugins.8e7423d8.webp",
+    "mobileAvif": "/cover/deepseek-harness-133-plugins-400.cce83a56.avif",
+    "desktopAvif": "/cover/deepseek-harness-133-plugins-800.cce83a56.avif",
+    "fullAvif": "/cover/deepseek-harness-133-plugins.cce83a56.avif",
     "width": 1922,
     "height": 818
   },
@@ -479,6 +683,9 @@
     "mobile": "/cover/developer-optimism-agent-code-400.7aadd243.webp",
     "desktop": "/cover/developer-optimism-agent-code-800.7aadd243.webp",
     "full": "/cover/developer-optimism-agent-code.7aadd243.webp",
+    "mobileAvif": "/cover/developer-optimism-agent-code-400.f73ba92f.avif",
+    "desktopAvif": "/cover/developer-optimism-agent-code-800.f73ba92f.avif",
+    "fullAvif": "/cover/developer-optimism-agent-code.f73ba92f.avif",
     "width": 1880,
     "height": 800
   },
@@ -486,6 +693,9 @@
     "mobile": "/cover/enjoying-ai-too-much-scares-me-400.14fcaa7c.webp",
     "desktop": "/cover/enjoying-ai-too-much-scares-me-800.14fcaa7c.webp",
     "full": "/cover/enjoying-ai-too-much-scares-me.14fcaa7c.webp",
+    "mobileAvif": "/cover/enjoying-ai-too-much-scares-me-400.ad3b6f42.avif",
+    "desktopAvif": "/cover/enjoying-ai-too-much-scares-me-800.ad3b6f42.avif",
+    "fullAvif": "/cover/enjoying-ai-too-much-scares-me.ad3b6f42.avif",
     "width": 1536,
     "height": 864
   },
@@ -493,6 +703,9 @@
     "mobile": "/cover/evaluating-agent-skills-400.5fe453c9.webp",
     "desktop": "/cover/evaluating-agent-skills-800.5fe453c9.webp",
     "full": "/cover/evaluating-agent-skills.5fe453c9.webp",
+    "mobileAvif": "/cover/evaluating-agent-skills-400.3b1ab83c.avif",
+    "desktopAvif": "/cover/evaluating-agent-skills-800.3b1ab83c.avif",
+    "fullAvif": "/cover/evaluating-agent-skills.3b1ab83c.avif",
     "width": 1880,
     "height": 800
   },
@@ -500,6 +713,9 @@
     "mobile": "/cover/free-capacity-creates-demand-400.153e06d9.webp",
     "desktop": "/cover/free-capacity-creates-demand-800.153e06d9.webp",
     "full": "/cover/free-capacity-creates-demand.153e06d9.webp",
+    "mobileAvif": "/cover/free-capacity-creates-demand-400.4e92a5ca.avif",
+    "desktopAvif": "/cover/free-capacity-creates-demand-800.4e92a5ca.avif",
+    "fullAvif": "/cover/free-capacity-creates-demand.4e92a5ca.avif",
     "width": 1880,
     "height": 800
   },
@@ -507,6 +723,9 @@
     "mobile": "/cover/friction-as-a-feature-400.e4d368f8.webp",
     "desktop": "/cover/friction-as-a-feature-800.e4d368f8.webp",
     "full": "/cover/friction-as-a-feature.e4d368f8.webp",
+    "mobileAvif": "/cover/friction-as-a-feature-400.f36dba68.avif",
+    "desktopAvif": "/cover/friction-as-a-feature-800.f36dba68.avif",
+    "fullAvif": "/cover/friction-as-a-feature.f36dba68.avif",
     "width": 1880,
     "height": 800
   },
@@ -514,6 +733,9 @@
     "mobile": "/cover/from-writing-code-to-reviewing-code-400.723250ac.webp",
     "desktop": "/cover/from-writing-code-to-reviewing-code-800.723250ac.webp",
     "full": "/cover/from-writing-code-to-reviewing-code.723250ac.webp",
+    "mobileAvif": "/cover/from-writing-code-to-reviewing-code-400.4041b3ad.avif",
+    "desktopAvif": "/cover/from-writing-code-to-reviewing-code-800.4041b3ad.avif",
+    "fullAvif": "/cover/from-writing-code-to-reviewing-code.4041b3ad.avif",
     "width": 1536,
     "height": 864
   },
@@ -521,6 +743,9 @@
     "mobile": "/cover/frontier-models-developer-fit-400.e7a4246d.webp",
     "desktop": "/cover/frontier-models-developer-fit-800.e7a4246d.webp",
     "full": "/cover/frontier-models-developer-fit.e7a4246d.webp",
+    "mobileAvif": "/cover/frontier-models-developer-fit-400.0f32b5df.avif",
+    "desktopAvif": "/cover/frontier-models-developer-fit-800.0f32b5df.avif",
+    "fullAvif": "/cover/frontier-models-developer-fit.0f32b5df.avif",
     "width": 1880,
     "height": 800
   },
@@ -528,6 +753,9 @@
     "mobile": "/cover/harness-kv-cache-prefix-400.373fecac.webp",
     "desktop": "/cover/harness-kv-cache-prefix-800.373fecac.webp",
     "full": "/cover/harness-kv-cache-prefix.373fecac.webp",
+    "mobileAvif": "/cover/harness-kv-cache-prefix-400.d1eb5daa.avif",
+    "desktopAvif": "/cover/harness-kv-cache-prefix-800.d1eb5daa.avif",
+    "fullAvif": "/cover/harness-kv-cache-prefix.d1eb5daa.avif",
     "width": 1880,
     "height": 800
   },
@@ -535,6 +763,9 @@
     "mobile": "/cover/judgment-needs-a-deadline-400.a2abc7b1.webp",
     "desktop": "/cover/judgment-needs-a-deadline-800.a2abc7b1.webp",
     "full": "/cover/judgment-needs-a-deadline.a2abc7b1.webp",
+    "mobileAvif": "/cover/judgment-needs-a-deadline-400.ece6a2da.avif",
+    "desktopAvif": "/cover/judgment-needs-a-deadline-800.ece6a2da.avif",
+    "fullAvif": "/cover/judgment-needs-a-deadline.ece6a2da.avif",
     "width": 1921,
     "height": 819
   },
@@ -542,6 +773,9 @@
     "mobile": "/cover/karpathy-join-anthropic-400.8c25748b.webp",
     "desktop": "/cover/karpathy-join-anthropic-800.8c25748b.webp",
     "full": "/cover/karpathy-join-anthropic.8c25748b.webp",
+    "mobileAvif": "/cover/karpathy-join-anthropic-400.d885327f.avif",
+    "desktopAvif": "/cover/karpathy-join-anthropic-800.d885327f.avif",
+    "fullAvif": "/cover/karpathy-join-anthropic.d885327f.avif",
     "width": 1536,
     "height": 864
   },
@@ -549,6 +783,9 @@
     "mobile": "/cover/kv-cache-why-ai-replies-get-faster-400.b2fe2418.webp",
     "desktop": "/cover/kv-cache-why-ai-replies-get-faster-800.b2fe2418.webp",
     "full": "/cover/kv-cache-why-ai-replies-get-faster.b2fe2418.webp",
+    "mobileAvif": "/cover/kv-cache-why-ai-replies-get-faster-400.b3510f67.avif",
+    "desktopAvif": "/cover/kv-cache-why-ai-replies-get-faster-800.b3510f67.avif",
+    "fullAvif": "/cover/kv-cache-why-ai-replies-get-faster.b3510f67.avif",
     "width": 1536,
     "height": 864
   },
@@ -556,6 +793,9 @@
     "mobile": "/cover/llm-only-getting-average-400.d094de46.webp",
     "desktop": "/cover/llm-only-getting-average-800.d094de46.webp",
     "full": "/cover/llm-only-getting-average.d094de46.webp",
+    "mobileAvif": "/cover/llm-only-getting-average-400.2d0c7889.avif",
+    "desktopAvif": "/cover/llm-only-getting-average-800.2d0c7889.avif",
+    "fullAvif": "/cover/llm-only-getting-average.2d0c7889.avif",
     "width": 1536,
     "height": 864
   },
@@ -563,6 +803,9 @@
     "mobile": "/cover/llm-react-prompt-400.01570c30.webp",
     "desktop": "/cover/llm-react-prompt-800.01570c30.webp",
     "full": "/cover/llm-react-prompt.01570c30.webp",
+    "mobileAvif": "/cover/llm-react-prompt-400.ced0179a.avif",
+    "desktopAvif": "/cover/llm-react-prompt-800.ced0179a.avif",
+    "fullAvif": "/cover/llm-react-prompt.ced0179a.avif",
     "width": 2048,
     "height": 1143
   },
@@ -570,6 +813,9 @@
     "mobile": "/cover/log-lock-in-400.e595e89b.webp",
     "desktop": "/cover/log-lock-in-800.e595e89b.webp",
     "full": "/cover/log-lock-in.e595e89b.webp",
+    "mobileAvif": "/cover/log-lock-in-400.538ed5a7.avif",
+    "desktopAvif": "/cover/log-lock-in-800.538ed5a7.avif",
+    "fullAvif": "/cover/log-lock-in.538ed5a7.avif",
     "width": 1880,
     "height": 800
   },
@@ -577,6 +823,9 @@
     "mobile": "/cover/macOS-now-supports-Netflix-Dolby-Vision-400.2996bcfb.webp",
     "desktop": "/cover/macOS-now-supports-Netflix-Dolby-Vision-800.2996bcfb.webp",
     "full": "/cover/macOS-now-supports-Netflix-Dolby-Vision.2996bcfb.webp",
+    "mobileAvif": "/cover/macOS-now-supports-Netflix-Dolby-Vision-400.021fd4a2.avif",
+    "desktopAvif": "/cover/macOS-now-supports-Netflix-Dolby-Vision-800.021fd4a2.avif",
+    "fullAvif": "/cover/macOS-now-supports-Netflix-Dolby-Vision.021fd4a2.avif",
     "width": 2048,
     "height": 1143
   },
@@ -584,6 +833,9 @@
     "mobile": "/cover/mcp-cli-skill-evolution-400.75df4237.webp",
     "desktop": "/cover/mcp-cli-skill-evolution-800.75df4237.webp",
     "full": "/cover/mcp-cli-skill-evolution.75df4237.webp",
+    "mobileAvif": "/cover/mcp-cli-skill-evolution-400.a13f2cbb.avif",
+    "desktopAvif": "/cover/mcp-cli-skill-evolution-800.a13f2cbb.avif",
+    "fullAvif": "/cover/mcp-cli-skill-evolution.a13f2cbb.avif",
     "width": 1536,
     "height": 864
   },
@@ -591,6 +843,9 @@
     "mobile": "/cover/mcp-vs-a2a-protocol-comparison-400.c0c3b2f7.webp",
     "desktop": "/cover/mcp-vs-a2a-protocol-comparison-800.c0c3b2f7.webp",
     "full": "/cover/mcp-vs-a2a-protocol-comparison.c0c3b2f7.webp",
+    "mobileAvif": "/cover/mcp-vs-a2a-protocol-comparison-400.b4e926d7.avif",
+    "desktopAvif": "/cover/mcp-vs-a2a-protocol-comparison-800.b4e926d7.avif",
+    "fullAvif": "/cover/mcp-vs-a2a-protocol-comparison.b4e926d7.avif",
     "width": 1536,
     "height": 864
   },
@@ -598,6 +853,9 @@
     "mobile": "/cover/model-core-tools-shell-400.94beeff1.webp",
     "desktop": "/cover/model-core-tools-shell-800.94beeff1.webp",
     "full": "/cover/model-core-tools-shell.94beeff1.webp",
+    "mobileAvif": "/cover/model-core-tools-shell-400.9ef2ac6b.avif",
+    "desktopAvif": "/cover/model-core-tools-shell-800.9ef2ac6b.avif",
+    "fullAvif": "/cover/model-core-tools-shell.9ef2ac6b.avif",
     "width": 1536,
     "height": 864
   },
@@ -605,6 +863,9 @@
     "mobile": "/cover/model-downshift-point-400.ae0c683c.webp",
     "desktop": "/cover/model-downshift-point-800.ae0c683c.webp",
     "full": "/cover/model-downshift-point.ae0c683c.webp",
+    "mobileAvif": "/cover/model-downshift-point-400.8eee185e.avif",
+    "desktopAvif": "/cover/model-downshift-point-800.8eee185e.avif",
+    "fullAvif": "/cover/model-downshift-point.8eee185e.avif",
     "width": 1880,
     "height": 800
   },
@@ -612,6 +873,9 @@
     "mobile": "/cover/musk-vs-altman-400.80b0a906.webp",
     "desktop": "/cover/musk-vs-altman-800.80b0a906.webp",
     "full": "/cover/musk-vs-altman.80b0a906.webp",
+    "mobileAvif": "/cover/musk-vs-altman-400.aa58603a.avif",
+    "desktopAvif": "/cover/musk-vs-altman-800.aa58603a.avif",
+    "fullAvif": "/cover/musk-vs-altman.aa58603a.avif",
     "width": 1536,
     "height": 864
   },
@@ -619,6 +883,9 @@
     "mobile": "/cover/one-person-software-factory-400.8d9e7ffa.webp",
     "desktop": "/cover/one-person-software-factory-800.8d9e7ffa.webp",
     "full": "/cover/one-person-software-factory.8d9e7ffa.webp",
+    "mobileAvif": "/cover/one-person-software-factory-400.a89378d8.avif",
+    "desktopAvif": "/cover/one-person-software-factory-800.a89378d8.avif",
+    "fullAvif": "/cover/one-person-software-factory.a89378d8.avif",
     "width": 1880,
     "height": 800
   },
@@ -626,6 +893,9 @@
     "mobile": "/cover/only-click-merge-400.23b6d308.webp",
     "desktop": "/cover/only-click-merge-800.23b6d308.webp",
     "full": "/cover/only-click-merge.23b6d308.webp",
+    "mobileAvif": "/cover/only-click-merge-400.0168241c.avif",
+    "desktopAvif": "/cover/only-click-merge-800.0168241c.avif",
+    "fullAvif": "/cover/only-click-merge.0168241c.avif",
     "width": 1922,
     "height": 818
   },
@@ -633,6 +903,9 @@
     "mobile": "/cover/persona-distillation-400.7347ffe2.webp",
     "desktop": "/cover/persona-distillation-800.7347ffe2.webp",
     "full": "/cover/persona-distillation.7347ffe2.webp",
+    "mobileAvif": "/cover/persona-distillation-400.991e74ac.avif",
+    "desktopAvif": "/cover/persona-distillation-800.991e74ac.avif",
+    "fullAvif": "/cover/persona-distillation.991e74ac.avif",
     "width": 1536,
     "height": 864
   },
@@ -640,6 +913,9 @@
     "mobile": "/cover/personal-agent-after-subsidies-400.b8a5d249.webp",
     "desktop": "/cover/personal-agent-after-subsidies-800.b8a5d249.webp",
     "full": "/cover/personal-agent-after-subsidies.b8a5d249.webp",
+    "mobileAvif": "/cover/personal-agent-after-subsidies-400.bec66a97.avif",
+    "desktopAvif": "/cover/personal-agent-after-subsidies-800.bec66a97.avif",
+    "fullAvif": "/cover/personal-agent-after-subsidies.bec66a97.avif",
     "width": 1927,
     "height": 820
   },
@@ -647,6 +923,9 @@
     "mobile": "/cover/recursive-self-improvement-evidence-400.bcd2f828.webp",
     "desktop": "/cover/recursive-self-improvement-evidence-800.bcd2f828.webp",
     "full": "/cover/recursive-self-improvement-evidence.bcd2f828.webp",
+    "mobileAvif": "/cover/recursive-self-improvement-evidence-400.9b02e2de.avif",
+    "desktopAvif": "/cover/recursive-self-improvement-evidence-800.9b02e2de.avif",
+    "fullAvif": "/cover/recursive-self-improvement-evidence.9b02e2de.avif",
     "width": 1880,
     "height": 800
   },
@@ -654,6 +933,9 @@
     "mobile": "/cover/review-bottleneck-pipeline-400.0a88b54a.webp",
     "desktop": "/cover/review-bottleneck-pipeline-800.0a88b54a.webp",
     "full": "/cover/review-bottleneck-pipeline.0a88b54a.webp",
+    "mobileAvif": "/cover/review-bottleneck-pipeline-400.4df4dc2b.avif",
+    "desktopAvif": "/cover/review-bottleneck-pipeline-800.4df4dc2b.avif",
+    "fullAvif": "/cover/review-bottleneck-pipeline.4df4dc2b.avif",
     "width": 1880,
     "height": 800
   },
@@ -661,6 +943,9 @@
     "mobile": "/cover/rhythm-in-ai-coding-400.98f46329.webp",
     "desktop": "/cover/rhythm-in-ai-coding-800.98f46329.webp",
     "full": "/cover/rhythm-in-ai-coding.98f46329.webp",
+    "mobileAvif": "/cover/rhythm-in-ai-coding-400.57f2deb0.avif",
+    "desktopAvif": "/cover/rhythm-in-ai-coding-800.57f2deb0.avif",
+    "fullAvif": "/cover/rhythm-in-ai-coding.57f2deb0.avif",
     "width": 1536,
     "height": 864
   },
@@ -668,6 +953,9 @@
     "mobile": "/cover/sdk-is-dying-400.2ff9291a.webp",
     "desktop": "/cover/sdk-is-dying-800.2ff9291a.webp",
     "full": "/cover/sdk-is-dying.2ff9291a.webp",
+    "mobileAvif": "/cover/sdk-is-dying-400.8e5e065c.avif",
+    "desktopAvif": "/cover/sdk-is-dying-800.8e5e065c.avif",
+    "fullAvif": "/cover/sdk-is-dying.8e5e065c.avif",
     "width": 1880,
     "height": 800
   },
@@ -675,6 +963,9 @@
     "mobile": "/cover/search-before-create-400.ad4cf52e.webp",
     "desktop": "/cover/search-before-create-800.ad4cf52e.webp",
     "full": "/cover/search-before-create.ad4cf52e.webp",
+    "mobileAvif": "/cover/search-before-create-400.658e02b6.avif",
+    "desktopAvif": "/cover/search-before-create-800.658e02b6.avif",
+    "fullAvif": "/cover/search-before-create.658e02b6.avif",
     "width": 1923,
     "height": 818
   },
@@ -682,6 +973,9 @@
     "mobile": "/cover/session-as-asset-400.729d6fbf.webp",
     "desktop": "/cover/session-as-asset-800.729d6fbf.webp",
     "full": "/cover/session-as-asset.729d6fbf.webp",
+    "mobileAvif": "/cover/session-as-asset-400.7a75cbde.avif",
+    "desktopAvif": "/cover/session-as-asset-800.7a75cbde.avif",
+    "fullAvif": "/cover/session-as-asset.7a75cbde.avif",
     "width": 1536,
     "height": 864
   },
@@ -689,6 +983,9 @@
     "mobile": "/cover/shadow-api-fake-models-400.080697f0.webp",
     "desktop": "/cover/shadow-api-fake-models-800.080697f0.webp",
     "full": "/cover/shadow-api-fake-models.080697f0.webp",
+    "mobileAvif": "/cover/shadow-api-fake-models-400.b40ad1af.avif",
+    "desktopAvif": "/cover/shadow-api-fake-models-800.b40ad1af.avif",
+    "fullAvif": "/cover/shadow-api-fake-models.b40ad1af.avif",
     "width": 1923,
     "height": 818
   },
@@ -696,6 +993,9 @@
     "mobile": "/cover/skill-is-a-folder-400.494c6167.webp",
     "desktop": "/cover/skill-is-a-folder-800.494c6167.webp",
     "full": "/cover/skill-is-a-folder.494c6167.webp",
+    "mobileAvif": "/cover/skill-is-a-folder-400.71e3ec14.avif",
+    "desktopAvif": "/cover/skill-is-a-folder-800.71e3ec14.avif",
+    "fullAvif": "/cover/skill-is-a-folder.71e3ec14.avif",
     "width": 1536,
     "height": 864
   },
@@ -703,6 +1003,9 @@
     "mobile": "/cover/skills-over-mcp-400.081fa826.webp",
     "desktop": "/cover/skills-over-mcp-800.081fa826.webp",
     "full": "/cover/skills-over-mcp.081fa826.webp",
+    "mobileAvif": "/cover/skills-over-mcp-400.6c6209f2.avif",
+    "desktopAvif": "/cover/skills-over-mcp-800.6c6209f2.avif",
+    "fullAvif": "/cover/skills-over-mcp.6c6209f2.avif",
     "width": 1880,
     "height": 800
   },
@@ -710,6 +1013,9 @@
     "mobile": "/cover/spec-as-new-fig-leaf-400.10992616.webp",
     "desktop": "/cover/spec-as-new-fig-leaf-800.10992616.webp",
     "full": "/cover/spec-as-new-fig-leaf.10992616.webp",
+    "mobileAvif": "/cover/spec-as-new-fig-leaf-400.5a614557.avif",
+    "desktopAvif": "/cover/spec-as-new-fig-leaf-800.5a614557.avif",
+    "fullAvif": "/cover/spec-as-new-fig-leaf.5a614557.avif",
     "width": 1536,
     "height": 864
   },
@@ -717,6 +1023,9 @@
     "mobile": "/cover/spec-tell-ai-what-not-to-do-400.3f4afc33.webp",
     "desktop": "/cover/spec-tell-ai-what-not-to-do-800.3f4afc33.webp",
     "full": "/cover/spec-tell-ai-what-not-to-do.3f4afc33.webp",
+    "mobileAvif": "/cover/spec-tell-ai-what-not-to-do-400.9a5d25ae.avif",
+    "desktopAvif": "/cover/spec-tell-ai-what-not-to-do-800.9a5d25ae.avif",
+    "fullAvif": "/cover/spec-tell-ai-what-not-to-do.9a5d25ae.avif",
     "width": 1536,
     "height": 864
   },
@@ -724,6 +1033,9 @@
     "mobile": "/cover/spec-unwritten-assumptions-400.a3015e2f.webp",
     "desktop": "/cover/spec-unwritten-assumptions-800.a3015e2f.webp",
     "full": "/cover/spec-unwritten-assumptions.a3015e2f.webp",
+    "mobileAvif": "/cover/spec-unwritten-assumptions-400.bd03d883.avif",
+    "desktopAvif": "/cover/spec-unwritten-assumptions-800.bd03d883.avif",
+    "fullAvif": "/cover/spec-unwritten-assumptions.bd03d883.avif",
     "width": 1536,
     "height": 864
   },
@@ -731,6 +1043,9 @@
     "mobile": "/cover/stack-choice-constraints-400.f660f0c3.webp",
     "desktop": "/cover/stack-choice-constraints-800.f660f0c3.webp",
     "full": "/cover/stack-choice-constraints.f660f0c3.webp",
+    "mobileAvif": "/cover/stack-choice-constraints-400.4300d731.avif",
+    "desktopAvif": "/cover/stack-choice-constraints-800.4300d731.avif",
+    "fullAvif": "/cover/stack-choice-constraints.4300d731.avif",
     "width": 1880,
     "height": 800
   },
@@ -738,6 +1053,9 @@
     "mobile": "/cover/state-of-ai-400.e661bca6.webp",
     "desktop": "/cover/state-of-ai-800.e661bca6.webp",
     "full": "/cover/state-of-ai.e661bca6.webp",
+    "mobileAvif": "/cover/state-of-ai-400.626aeb63.avif",
+    "desktopAvif": "/cover/state-of-ai-800.626aeb63.avif",
+    "fullAvif": "/cover/state-of-ai.626aeb63.avif",
     "width": 2048,
     "height": 1143
   },
@@ -745,6 +1063,9 @@
     "mobile": "/cover/stay-in-the-loop-400.b4582f11.webp",
     "desktop": "/cover/stay-in-the-loop-800.b4582f11.webp",
     "full": "/cover/stay-in-the-loop.b4582f11.webp",
+    "mobileAvif": "/cover/stay-in-the-loop-400.edd7636d.avif",
+    "desktopAvif": "/cover/stay-in-the-loop-800.edd7636d.avif",
+    "fullAvif": "/cover/stay-in-the-loop.edd7636d.avif",
     "width": 1536,
     "height": 864
   },
@@ -752,6 +1073,9 @@
     "mobile": "/cover/taste-is-a-muscle-predict-before-output-400.71f377c8.webp",
     "desktop": "/cover/taste-is-a-muscle-predict-before-output-800.71f377c8.webp",
     "full": "/cover/taste-is-a-muscle-predict-before-output.71f377c8.webp",
+    "mobileAvif": "/cover/taste-is-a-muscle-predict-before-output-400.0da20334.avif",
+    "desktopAvif": "/cover/taste-is-a-muscle-predict-before-output-800.0da20334.avif",
+    "fullAvif": "/cover/taste-is-a-muscle-predict-before-output.0da20334.avif",
     "width": 1923,
     "height": 818
   },
@@ -759,6 +1083,9 @@
     "mobile": "/cover/the-chicken-or-the-egg-400.f4e6d61c.webp",
     "desktop": "/cover/the-chicken-or-the-egg-800.f4e6d61c.webp",
     "full": "/cover/the-chicken-or-the-egg.f4e6d61c.webp",
+    "mobileAvif": "/cover/the-chicken-or-the-egg-400.cfd2f69f.avif",
+    "desktopAvif": "/cover/the-chicken-or-the-egg-800.cfd2f69f.avif",
+    "fullAvif": "/cover/the-chicken-or-the-egg.cfd2f69f.avif",
     "width": 2048,
     "height": 1143
   },
@@ -766,6 +1093,9 @@
     "mobile": "/cover/the-newsroom-time-tested-masterpieces-400.eade2ba5.webp",
     "desktop": "/cover/the-newsroom-time-tested-masterpieces-800.eade2ba5.webp",
     "full": "/cover/the-newsroom-time-tested-masterpieces.eade2ba5.webp",
+    "mobileAvif": "/cover/the-newsroom-time-tested-masterpieces-400.027cc88d.avif",
+    "desktopAvif": "/cover/the-newsroom-time-tested-masterpieces-800.027cc88d.avif",
+    "fullAvif": "/cover/the-newsroom-time-tested-masterpieces.027cc88d.avif",
     "width": 2048,
     "height": 1143
   },
@@ -773,6 +1103,9 @@
     "mobile": "/cover/the-state-of-enterprise-ai_2025-report-400.52139855.webp",
     "desktop": "/cover/the-state-of-enterprise-ai_2025-report-800.52139855.webp",
     "full": "/cover/the-state-of-enterprise-ai_2025-report.52139855.webp",
+    "mobileAvif": "/cover/the-state-of-enterprise-ai_2025-report-400.edfe1e2c.avif",
+    "desktopAvif": "/cover/the-state-of-enterprise-ai_2025-report-800.edfe1e2c.avif",
+    "fullAvif": "/cover/the-state-of-enterprise-ai_2025-report.edfe1e2c.avif",
     "width": 2048,
     "height": 1143
   },
@@ -780,6 +1113,9 @@
     "mobile": "/cover/three-small-prototypes-400.05b64793.webp",
     "desktop": "/cover/three-small-prototypes-800.05b64793.webp",
     "full": "/cover/three-small-prototypes.05b64793.webp",
+    "mobileAvif": "/cover/three-small-prototypes-400.6a2355be.avif",
+    "desktopAvif": "/cover/three-small-prototypes-800.6a2355be.avif",
+    "fullAvif": "/cover/three-small-prototypes.6a2355be.avif",
     "width": 1923,
     "height": 818
   },
@@ -787,6 +1123,9 @@
     "mobile": "/cover/typesafe-jev-400.652e1ea2.webp",
     "desktop": "/cover/typesafe-jev-800.652e1ea2.webp",
     "full": "/cover/typesafe-jev.652e1ea2.webp",
+    "mobileAvif": "/cover/typesafe-jev-400.1a8d40ec.avif",
+    "desktopAvif": "/cover/typesafe-jev-800.1a8d40ec.avif",
+    "fullAvif": "/cover/typesafe-jev.1a8d40ec.avif",
     "width": 1922,
     "height": 818
   },
@@ -794,6 +1133,9 @@
     "mobile": "/cover/vibe-coding-ai-code-backlash-openclaw-400.e9675611.webp",
     "desktop": "/cover/vibe-coding-ai-code-backlash-openclaw-800.e9675611.webp",
     "full": "/cover/vibe-coding-ai-code-backlash-openclaw.e9675611.webp",
+    "mobileAvif": "/cover/vibe-coding-ai-code-backlash-openclaw-400.6be6571e.avif",
+    "desktopAvif": "/cover/vibe-coding-ai-code-backlash-openclaw-800.6be6571e.avif",
+    "fullAvif": "/cover/vibe-coding-ai-code-backlash-openclaw.6be6571e.avif",
     "width": 1536,
     "height": 864
   },
@@ -801,6 +1143,9 @@
     "mobile": "/cover/vibe-coding-to-agentic-engineering-400.7a03101b.webp",
     "desktop": "/cover/vibe-coding-to-agentic-engineering-800.7a03101b.webp",
     "full": "/cover/vibe-coding-to-agentic-engineering.7a03101b.webp",
+    "mobileAvif": "/cover/vibe-coding-to-agentic-engineering-400.8d218e51.avif",
+    "desktopAvif": "/cover/vibe-coding-to-agentic-engineering-800.8d218e51.avif",
+    "fullAvif": "/cover/vibe-coding-to-agentic-engineering.8d218e51.avif",
     "width": 1536,
     "height": 864
   },
@@ -808,6 +1153,9 @@
     "mobile": "/cover/webmcp-agent-web-interface-400.0538e987.webp",
     "desktop": "/cover/webmcp-agent-web-interface-800.0538e987.webp",
     "full": "/cover/webmcp-agent-web-interface.0538e987.webp",
+    "mobileAvif": "/cover/webmcp-agent-web-interface-400.635ef64e.avif",
+    "desktopAvif": "/cover/webmcp-agent-web-interface-800.635ef64e.avif",
+    "fullAvif": "/cover/webmcp-agent-web-interface.635ef64e.avif",
     "width": 1927,
     "height": 820
   },
@@ -815,6 +1163,9 @@
     "mobile": "/cover/when-ai-bypasses-all-pitfalls-400.8a965681.webp",
     "desktop": "/cover/when-ai-bypasses-all-pitfalls-800.8a965681.webp",
     "full": "/cover/when-ai-bypasses-all-pitfalls.8a965681.webp",
+    "mobileAvif": "/cover/when-ai-bypasses-all-pitfalls-400.0b5e02a6.avif",
+    "desktopAvif": "/cover/when-ai-bypasses-all-pitfalls-800.0b5e02a6.avif",
+    "fullAvif": "/cover/when-ai-bypasses-all-pitfalls.0b5e02a6.avif",
     "width": 1536,
     "height": 864
   },
@@ -822,6 +1173,9 @@
     "mobile": "/cover/why-i-pay-400.50648c60.webp",
     "desktop": "/cover/why-i-pay-800.50648c60.webp",
     "full": "/cover/why-i-pay.50648c60.webp",
+    "mobileAvif": "/cover/why-i-pay-400.474162f7.avif",
+    "desktopAvif": "/cover/why-i-pay-800.474162f7.avif",
+    "fullAvif": "/cover/why-i-pay.474162f7.avif",
     "width": 2048,
     "height": 1143
   },
@@ -829,6 +1183,9 @@
     "mobile": "/cover/yomitomo-ai-reading-companion-400.2a4308e8.webp",
     "desktop": "/cover/yomitomo-ai-reading-companion-800.2a4308e8.webp",
     "full": "/cover/yomitomo-ai-reading-companion.2a4308e8.webp",
+    "mobileAvif": "/cover/yomitomo-ai-reading-companion-400.25277cb4.avif",
+    "desktopAvif": "/cover/yomitomo-ai-reading-companion-800.25277cb4.avif",
+    "fullAvif": "/cover/yomitomo-ai-reading-companion.25277cb4.avif",
     "width": 1672,
     "height": 941
   }

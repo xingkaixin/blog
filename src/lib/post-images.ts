@@ -4,6 +4,9 @@ export type ResponsivePostImage = {
   webp: string;
   mobile: string;
   desktop: string;
+  avif: string;
+  mobileAvif: string;
+  desktopAvif: string;
   width: number;
   height: number;
 };

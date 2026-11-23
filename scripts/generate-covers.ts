@@ -9,11 +9,18 @@ import {
 } from "./lib/responsive-image-generator";
 
 type CoverVariantKey = "mobile" | "desktop" | "full";
+type CoverAvifVariantKey = "mobileAvif" | "desktopAvif" | "fullAvif";
 
 const VARIANTS: Array<ResponsiveImageVariant<CoverVariantKey>> = [
   { key: "mobile", suffix: "-400", width: 400, quality: 82 },
   { key: "desktop", suffix: "-800", width: 800, quality: 82 },
   { key: "full", suffix: "", width: null, quality: 85 },
+];
+
+const AVIF_VARIANTS: Array<ResponsiveImageVariant<CoverAvifVariantKey>> = [
+  { key: "mobileAvif", suffix: "-400", width: 400, quality: 55 },
+  { key: "desktopAvif", suffix: "-800", width: 800, quality: 55 },
+  { key: "fullAvif", suffix: "", width: null, quality: 55 },
 ];
 
 export type GenerateCoversOptions = ResponsiveImageSetOptions;
@@ -28,6 +35,7 @@ export function generateCovers(
   return generateResponsiveImageSet(options, {
     assetName: "封面",
     variants: VARIANTS,
+    avifVariants: AVIF_VARIANTS,
     metadataVariant: "full",
     recursive: false,
     source: (file) => {

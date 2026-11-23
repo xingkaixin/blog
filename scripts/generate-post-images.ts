@@ -9,11 +9,18 @@ import {
 } from "./lib/responsive-image-generator";
 
 type PostImageVariantKey = "webp" | "mobile" | "desktop";
+type PostImageAvifVariantKey = "avif" | "mobileAvif" | "desktopAvif";
 
 const VARIANTS: Array<ResponsiveImageVariant<PostImageVariantKey>> = [
   { key: "webp", suffix: "", width: null, quality: 85 },
   { key: "mobile", suffix: "-800w", width: 800, quality: 80 },
   { key: "desktop", suffix: "-1200w", width: 1200, quality: 80 },
+];
+
+const AVIF_VARIANTS: Array<ResponsiveImageVariant<PostImageAvifVariantKey>> = [
+  { key: "avif", suffix: "", width: null, quality: 55 },
+  { key: "mobileAvif", suffix: "-800w", width: 800, quality: 55 },
+  { key: "desktopAvif", suffix: "-1200w", width: 1200, quality: 55 },
 ];
 
 export type GeneratePostImagesOptions = ResponsiveImageSetOptions;
@@ -28,6 +35,7 @@ export function generatePostImages(
   return generateResponsiveImageSet(options, {
     assetName: "文章插图",
     variants: VARIANTS,
+    avifVariants: AVIF_VARIANTS,
     metadataVariant: "webp",
     recursive: true,
     source: (file) => {

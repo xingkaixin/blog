@@ -26,7 +26,7 @@ export type ArtifactPlan = {
 export type ReconcileArtifactsOptions = {
   outputDirectory: string;
   manifestFile: string;
-  artifactExtension: `.${string}`;
+  artifactExtension: `.${string}` | ReadonlyArray<`.${string}`>;
   plans: ArtifactPlan[];
   recursive?: boolean;
   concurrency?: number;
@@ -119,10 +119,13 @@ export async function reconcileArtifacts(
     },
   );
 
+  const extensions = Array.isArray(options.artifactExtension)
+    ? options.artifactExtension
+    : [options.artifactExtension];
   const removed = removeUnexpectedArtifacts(
     options.outputDirectory,
     expectedOutputs,
-    options.artifactExtension,
+    extensions,
     options.recursive ?? false,
   );
   writeManifest(options.manifestFile, nextManifest);
@@ -173,7 +176,7 @@ function validatePlans(outputDirectory: string, plans: ArtifactPlan[]): Set<stri
 function removeUnexpectedArtifacts(
   directory: string,
   expected: Set<string>,
-  extension: string,
+  extensions: readonly string[],
   recursive: boolean,
 ): number {
   let removed = 0;
@@ -183,7 +186,7 @@ function removeUnexpectedArtifacts(
       if (!recursive) {
         throw new Error(`生成目录包含嵌套目录: ${entryPath}`);
       }
-      removed += removeUnexpectedArtifacts(entryPath, expected, extension, recursive);
+      removed += removeUnexpectedArtifacts(entryPath, expected, extensions, recursive);
       if (fs.readdirSync(entryPath).length === 0) {
         fs.rmdirSync(entryPath);
       }
@@ -192,15 +195,13 @@ function removeUnexpectedArtifacts(
     if (!entry.isFile()) {
       throw new Error(`生成目录包含非文件条目: ${entryPath}`);
     }
-    if (
-      entry.name === ".DS_Store" ||
-      (entry.name.endsWith(extension) && !expected.has(path.resolve(entryPath)))
-    ) {
+    const isManaged = extensions.some((extension) => entry.name.endsWith(extension));
+    if (entry.name === ".DS_Store" || (isManaged && !expected.has(path.resolve(entryPath)))) {
       fs.rmSync(entryPath);
       removed += 1;
       continue;
     }
-    if (!entry.name.endsWith(extension)) {
+    if (!isManaged) {
       throw new Error(`生成目录包含非生成文件: ${entryPath}`);
     }
   }
