@@ -496,6 +496,17 @@
         "5168bac18701f5c1fde76103a9b1686ab70d62a5b58c81cf2c34bd74e4b8f073"
       ]
     },
+    "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01.png": {
+      "fingerprint": "5cb8af6c407229f6880b7b41c417444cba235a4948f7a4b7c5c452b1003ecbce",
+      "outputFingerprints": [
+        "9125eb64d2399c2a4795bcf7c0717404d6a954657b0e36438d10ac26302a69df",
+        "5b7cf12c6d648873c62dcdd3efd7209cde0fe0983c0dba0c1180e52a350078cf",
+        "8ce2e562755a63e0578c830c9c7bec0285c5e365d5122c738693666f90b76c27",
+        "6ca9109d194bfbb0d504f9adc0c8a4f6be694b11a84f53652ea87094c284f280",
+        "d99d02bc2f57ff3decf688ee5ce95468f9bf8ee011020894a854253462ca4e37",
+        "8b9bc9c412c9782ae1cbbfcf9706ea4ba1e2c007db6e1230b6ad17e2642aa617"
+      ]
+    },
     "/posts/images/agent-needs-git/agent-needs-git-01.png": {
       "fingerprint": "5a40a4e879bda2d6f9bf61b1a72a2fc5999ceba2b397376817dad0f482bacde7",
       "outputFingerprints": [

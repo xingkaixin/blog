@@ -249,6 +249,16 @@
     "width": 1880,
     "height": 800
   },
+  "agent-memory-poisoning.png": {
+    "mobile": "/cover/agent-memory-poisoning-400.778c41f4.webp",
+    "desktop": "/cover/agent-memory-poisoning-800.778c41f4.webp",
+    "full": "/cover/agent-memory-poisoning.778c41f4.webp",
+    "mobileAvif": "/cover/agent-memory-poisoning-400.a76d8417.avif",
+    "desktopAvif": "/cover/agent-memory-poisoning-800.a76d8417.avif",
+    "fullAvif": "/cover/agent-memory-poisoning.a76d8417.avif",
+    "width": 1880,
+    "height": 800
+  },
   "agent-needs-git.png": {
     "mobile": "/cover/agent-needs-git-400.cc216085.webp",
     "desktop": "/cover/agent-needs-git-800.cc216085.webp",

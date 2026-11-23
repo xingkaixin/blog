@@ -276,6 +276,17 @@
         "bea99cabcbb741108a99eff3601f1a4e023cfd38e3dbbe0b14b0d6bd54b90d04"
       ]
     },
+    "agent-memory-poisoning.png": {
+      "fingerprint": "50df2439dddd09b639ca07e75ba3c35f38406735d27e83ded7f19330ce24c9c9",
+      "outputFingerprints": [
+        "1e97769cc6a7114ace44f7bf9f166cadb5d1188f96a29e6dcf64fe3ff9e8c51d",
+        "c0dc47aaa7b5ef4fbeb7133c26027745b23aa35eee5ce2ddcc4e57efb491b670",
+        "406c32def88f4561610ddf24ac91ff0aee738a38b9f2b21e9e34f22d05849efd",
+        "af2c43396fe25360171cccfe350b04d7fbb75967305cf2ddd897c0545ddc0c4d",
+        "64732285a2b9cb627d7e8254ad704899b3cfef438784d480bc08659b5bb3f75b",
+        "f4be89f6c430ba63c70fac2d561515e5fb48c11c388f3d250107e8da45340412"
+      ]
+    },
     "agent-needs-git.png": {
       "fingerprint": "4c69ba48cbb78360c0577d889712dee9ee2299e263e1da60e057b35c66bf9fa8",
       "outputFingerprints": [

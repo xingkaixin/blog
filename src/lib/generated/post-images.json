@@ -449,6 +449,16 @@
     "width": 1600,
     "height": 900
   },
+  "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01.png": {
+    "webp": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01.e24d6f6c.webp",
+    "mobile": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01-800w.e24d6f6c.webp",
+    "desktop": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01-1200w.e24d6f6c.webp",
+    "avif": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01.c55fca60.avif",
+    "mobileAvif": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01-800w.c55fca60.avif",
+    "desktopAvif": "/posts/images/agent-memory-poisoning/agent-memory-poisoning-01-1200w.c55fca60.avif",
+    "width": 1600,
+    "height": 900
+  },
   "/posts/images/agent-needs-git/agent-needs-git-01.png": {
     "webp": "/posts/images/agent-needs-git/agent-needs-git-01.a7e29d01.webp",
     "mobile": "/posts/images/agent-needs-git/agent-needs-git-01-800w.a7e29d01.webp",
