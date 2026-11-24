@@ -439,6 +439,16 @@
     "width": 1927,
     "height": 820
   },
+  "ai-formal-verification.png": {
+    "mobile": "/cover/ai-formal-verification-400.eaa752a1.webp",
+    "desktop": "/cover/ai-formal-verification-800.eaa752a1.webp",
+    "full": "/cover/ai-formal-verification.eaa752a1.webp",
+    "mobileAvif": "/cover/ai-formal-verification-400.45e8a3e8.avif",
+    "desktopAvif": "/cover/ai-formal-verification-800.45e8a3e8.avif",
+    "fullAvif": "/cover/ai-formal-verification.45e8a3e8.avif",
+    "width": 1880,
+    "height": 800
+  },
   "ai-frontend-design-system-handoff.png": {
     "mobile": "/cover/ai-frontend-design-system-handoff-400.f258571e.webp",
     "desktop": "/cover/ai-frontend-design-system-handoff-800.f258571e.webp",

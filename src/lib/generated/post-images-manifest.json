@@ -958,6 +958,17 @@
         "2eae74a2dfc8fb99376bc070c3294fe7a9e3747c6ae2acc57a097c32bfc2c264"
       ]
     },
+    "/posts/images/ai-formal-verification/ai-formal-verification-01.png": {
+      "fingerprint": "22a31f9a47349d7165b612f3cde6ff00d069d06443f2c2d9d5dc1f35e7bec690",
+      "outputFingerprints": [
+        "32d0a1d24d8a0006850afa6104ac011fdd8747e16b700c98c2b204198ba87064",
+        "be2969fa3b64076ee2c3cd14668ad76950ac26d3a8b4427e546b13ea64a28dad",
+        "9ca98610a78bb04b5068189965f1a28feb37e81b911a1d4dac4ca4b92734a10b",
+        "03e193d60245f44ca1f1169ee4f33953f7e1d5b074d572f8de3bb1cee58dbead",
+        "e3093079462f85c22bfe3f932b12af9ced45190c96ba4e447c729f06223c58e5",
+        "ac6cf81582da2a7da91945ef25a7d92f42b23aeaa00857f61e013af71bba3eb4"
+      ]
+    },
     "/posts/images/ai-frontend-design-system-handoff/ai-frontend-design-system-handoff-01.png": {
       "fingerprint": "6d388d26d558f031fa00c7bc1685012e0efec8280bbdd3078bfa55abd005b2d7",
       "outputFingerprints": [

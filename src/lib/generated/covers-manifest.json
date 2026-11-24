@@ -485,6 +485,17 @@
         "79782b894ccd099acc2f00c41d18a62daefb6f23c3a713d56cdf09e7407dcdfc"
       ]
     },
+    "ai-formal-verification.png": {
+      "fingerprint": "ec040982926653c29f0e307f80a507fea4cab38094606f151b76c16f4e047c21",
+      "outputFingerprints": [
+        "9abedb9fa697a9d12e8019b7f55a3dc11955973264e3e5534b6821196263ae59",
+        "778b9dc84c68965986320c78b3613477232b20735952f92adb4e00b7a083e91d",
+        "f4d7033f7af152baa237ea6a2ee11b36fb848de7e270686d39c9d3ad0cd4502b",
+        "17a87122a8188766e2dfe3a246ecb28f6d037ce5f2477f974b99092dc665aeb4",
+        "248aef76d057ead4ce93291783ed082e8048a1e75a9acae6162d78273458c3e5",
+        "6b26f4caa7df705bbde21912cd59733a91238b091f1441c1666082c3df6a103b"
+      ]
+    },
     "ai-frontend-design-system-handoff.png": {
       "fingerprint": "8a1d9c84baeed0534faf887b58006eb737174718fc76b7673919739781b41f1a",
       "outputFingerprints": [
