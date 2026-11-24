@@ -29,6 +29,25 @@ export type Project = ProjectDetails &
 
 export const projects: Project[] = [
   {
+    id: "lime",
+    name: "Lime",
+    kind: "桌面应用",
+    summary: "沿用 Sublime Text 快捷键的原生纯文本编辑器。",
+    description:
+      "一款纯 Go 编写的原生纯文本编辑器，支持 macOS 与 Windows，提供与 Sublime Text 一致的命令与快捷键体验。内置多标签、分栏布局、Goto Anything、多光标编辑、命令面板、对比视图与侧边栏 Git 集成，也可在浏览器中直接体验 WebAssembly 版本。",
+    logo: "/projects/lime.webp",
+    background: "/projects/backgrounds/lime.webp",
+    url: "https://lime.xingkaixin.me/",
+    tags: ["编辑器", "Go", "开发者工具"],
+    en: {
+      kind: "Desktop app",
+      summary: "A native plain text editor on Sublime Text's keys.",
+      description:
+        "A native plain text editor for macOS and Windows written in pure Go, built around Sublime Text's commands and keybindings. Includes tabs, split-pane groups, Goto Anything, multiple carets, command palette, diff views and sidebar Git integration, with a live WebAssembly demo in the browser.",
+      tags: ["Editor", "Go", "Developer tools"],
+    },
+  },
+  {
     id: "snipjoy",
     name: "Snipjoy · 贴集",
     kind: "iOS 应用",
