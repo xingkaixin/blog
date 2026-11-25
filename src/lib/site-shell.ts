@@ -1,5 +1,9 @@
 import { installAnalytics } from "@/lib/analytics";
 import { observeArticleEngagement } from "@/lib/article-engagement";
+import {
+  ARTICLE_FOOTER_REVEAL_THRESHOLD,
+  shouldTriggerArticleFooterReveal,
+} from "@/lib/article-footer-trigger";
 import { dayPartAt, nextDayPartDelayMs } from "@/lib/day-part";
 import type { FooterScene } from "@/lib/footer-scene";
 import { refreshHolidayLogo, refreshSiteBrandDayPart } from "@/lib/holiday-logo-browser";
@@ -418,16 +422,13 @@ function installBrandScheduler() {
 }
 
 function installSceneFooter() {
-  let handle: { setActive(on: boolean): void; destroy(): void } | null = null;
-  let observer: IntersectionObserver | null = null;
+  let cleanup: (() => void) | null = null;
   let generation = 0;
 
   function teardown() {
     generation++;
-    observer?.disconnect();
-    observer = null;
-    handle?.destroy();
-    handle = null;
+    cleanup?.();
+    cleanup = null;
   }
 
   document.addEventListener("astro:page-load", () => {
@@ -438,10 +439,107 @@ function installSceneFooter() {
       return;
     }
     const mounting = generation;
+
+    if (footer.dataset.footerArtwork === "ink-wash") {
+      let handle: {
+        triggerReveal(): void;
+        setVisible(on: boolean): void;
+        destroy(): void;
+      } | null = null;
+      let visible = false;
+      let revealed = false;
+      let loading = false;
+
+      const checkReveal = () => {
+        if (revealed) {
+          return;
+        }
+        const rect = footer.getBoundingClientRect();
+        if (
+          shouldTriggerArticleFooterReveal({
+            top: rect.top,
+            bottom: rect.bottom,
+            height: rect.height,
+            viewportHeight: window.innerHeight,
+            scrollY: window.scrollY,
+            scrollHeight: document.documentElement.scrollHeight,
+          })
+        ) {
+          revealed = true;
+          handle?.triggerReveal();
+        }
+      };
+
+      const ensureLoaded = () => {
+        if (handle || loading) {
+          return;
+        }
+        loading = true;
+        void import("@/lib/article-footer-scene").then(({ mountArticleFooterScene }) => {
+          if (mounting !== generation) {
+            return;
+          }
+          const animate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+          handle = mountArticleFooterScene(canvas, animate);
+          handle.setVisible(visible);
+          if (revealed) {
+            handle.triggerReveal();
+          } else {
+            checkReveal();
+          }
+        });
+      };
+
+      // 提前 200px 预加载 WebGL 与压缩纹理，保证滑过 50% 时零等待起播
+      const preloadObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry?.isIntersecting) {
+            ensureLoaded();
+            preloadObserver.disconnect();
+          }
+        },
+        { rootMargin: "200px 0px" },
+      );
+
+      const revealObserver = new IntersectionObserver(
+        ([entry]) => {
+          visible = entry?.isIntersecting ?? false;
+          handle?.setVisible(visible);
+          if (visible) {
+            ensureLoaded();
+            if ((entry?.intersectionRatio ?? 0) >= ARTICLE_FOOTER_REVEAL_THRESHOLD) {
+              revealed = true;
+              handle?.triggerReveal();
+            } else {
+              checkReveal();
+            }
+          }
+        },
+        { threshold: [0, 0.25, ARTICLE_FOOTER_REVEAL_THRESHOLD, 0.75, 1] },
+      );
+
+      const events = new AbortController();
+      window.addEventListener("scroll", checkReveal, { passive: true, signal: events.signal });
+      window.addEventListener("resize", checkReveal, { passive: true, signal: events.signal });
+
+      preloadObserver.observe(footer);
+      revealObserver.observe(footer);
+
+      cleanup = () => {
+        events.abort();
+        preloadObserver.disconnect();
+        revealObserver.disconnect();
+        handle?.destroy();
+        handle = null;
+      };
+      return;
+    }
+
     const scene = footer.dataset.scene as FooterScene;
+    let handle: { setActive(on: boolean): void; destroy(): void } | null = null;
     let visible = false;
     let loading = false;
-    observer = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([entry]) => {
         visible = entry?.isIntersecting ?? false;
         handle?.setActive(visible);
@@ -461,6 +559,11 @@ function installSceneFooter() {
       { rootMargin: "200px 0px" },
     );
     observer.observe(footer);
+    cleanup = () => {
+      observer.disconnect();
+      handle?.destroy();
+      handle = null;
+    };
   });
   document.addEventListener("astro:before-swap", teardown);
 }

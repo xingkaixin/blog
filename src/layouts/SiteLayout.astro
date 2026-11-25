@@ -378,7 +378,7 @@ const pageTransition = {
         <slot />
       </main>
 
-      <SceneFooter currentPath={currentPath} stage={footerStage} />
+      <SceneFooter currentPath={currentPath} stage={footerStage} article={meta.type === "article"} />
     </div>
     {meta.type !== "article" && <Screensaver />}
     <StampBook />

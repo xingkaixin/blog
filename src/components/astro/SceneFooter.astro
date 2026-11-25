@@ -5,8 +5,8 @@ import { chromeMessages } from "@/lib/messages/chrome";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 import { stamps } from "@/lib/stamps";
 
-type Props = { currentPath: string; stage?: boolean };
-const { currentPath, stage = true } = Astro.props;
+type Props = { currentPath: string; stage?: boolean; article?: boolean };
+const { currentPath, stage = true, article = false } = Astro.props;
 const t = chromeMessages[localeFromPath(currentPath)];
 const basePath = translatedPath(currentPath, "zh") ?? currentPath;
 const scene: FooterScene = basePath.startsWith("/photos")
@@ -19,7 +19,12 @@ const scene: FooterScene = basePath.startsWith("/photos")
 const content = t.footer[scene];
 ---
 
-<footer class="scene-footer print:hidden" data-scene={scene} data-stage={stage ? "" : undefined}>
+<footer
+  class="scene-footer print:hidden"
+  data-scene={scene}
+  data-stage={stage ? "" : undefined}
+  data-footer-artwork={article ? "ink-wash" : undefined}
+>
   {
     stage && (
       <div class="footer-stage">
