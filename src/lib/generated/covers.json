@@ -549,6 +549,16 @@
     "width": 1536,
     "height": 864
   },
+  "ai-thinking-effort.png": {
+    "mobile": "/cover/ai-thinking-effort-400.4550997b.webp",
+    "desktop": "/cover/ai-thinking-effort-800.4550997b.webp",
+    "full": "/cover/ai-thinking-effort.4550997b.webp",
+    "mobileAvif": "/cover/ai-thinking-effort-400.236426fc.avif",
+    "desktopAvif": "/cover/ai-thinking-effort-800.236426fc.avif",
+    "fullAvif": "/cover/ai-thinking-effort.236426fc.avif",
+    "width": 1880,
+    "height": 800
+  },
   "ai-travel-talk-vs-act.png": {
     "mobile": "/cover/ai-travel-talk-vs-act-400.be8eb1c7.webp",
     "desktop": "/cover/ai-travel-talk-vs-act-800.be8eb1c7.webp",
