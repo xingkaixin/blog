@@ -892,6 +892,17 @@
         "accbc577171e173e6cabada62b2e4f501b3c42737ad7c1f963351b448d04a0bd"
       ]
     },
+    "kv-cache-storage-evolution.png": {
+      "fingerprint": "c973abb4316e308123c80e2a8c7c51ff42c7c38e2ac95bb25424456dac42c691",
+      "outputFingerprints": [
+        "01ddf30428191457f690c078f66a660948b45c2b70ce8e6cb27d8baeec1b557c",
+        "04a02d1108826d0993a33c598632772ebecf816f7cbf1862cd89964cd2125af0",
+        "a2bdc74863d9c9b1200d2679327d6b3d473d445508cfae020c8de7dec0b3a865",
+        "5974ac41cca003c86d8eac3472255e0b91530af83ed8d1ca861ff42e8a5f09fe",
+        "12f08793abf7135915d006b5e0f8acf88f4baf509d7521a810c6924f452bc405",
+        "9a15f1f3691b4310377d707a46b0eb70ea54d1963ea5f93a7a579dd8b6000432"
+      ]
+    },
     "kv-cache-why-ai-replies-get-faster.png": {
       "fingerprint": "2086da770514274c87051f493007b6daf244c8463de5f6d8f6c0427262a661fd",
       "outputFingerprints": [
