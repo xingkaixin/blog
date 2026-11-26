@@ -26,12 +26,13 @@ metadata:
 | 源文章根目录 | `/Users/Kevin/workspace/projects/personal/mp-wexin/2026` |
 | 博客根目录   | `/Users/Kevin/workspace/projects/personal/blog`          |
 | 博客文章     | `content/posts/<slug>.md`                                |
+| 英文译文     | `content/posts-en/<slug>.md`                             |
 | 封面图       | `src/assets/cover/<slug>.png`                            |
 | 插图母版     | `src/assets/post-images/<slug>/<filename>`               |
 
 frontmatter 中 `cover` 只写封面文件名：`<slug>.png`。正文插图 URL 写成 `/posts/images/<slug>/<filename>`。
 
-`public/cover/`、`public/posts/images/`、`public/search-index.json` 和 `src/lib/generated/` 是生成产物，不要直接复制或编辑。
+`public/cover/`、`public/posts/images/`、`public/search-index.json`、`public/search-index-en.json` 和 `src/lib/generated/` 是生成产物，不要直接复制或编辑。
 
 ## 工作流
 
@@ -143,9 +144,17 @@ coverAlt: <文章中文标题>
 - 除上述标题处理、移除重复封面引用和更新插图路径外，README.md 内容直接复制
 - `date` 使用 `published_date`，不是 `created`
 
+#### 步骤 9：生成英文 AI 翻译版本
+
+按照 `docs/post-translation.md` 的翻译准则，由当前执行迁移的 Agent 同步生成 `content/posts-en/<slug>.md`：
+
+1. 用 `bun scripts/validate-post-translations.ts hash <slug>` 获取中文文件的 `sourceHash`。
+2. 翻译 `title`、`summary`、`coverAlt` 与正文，保留全部图片 URL 和代码块结构。
+3. 运行 `bun scripts/validate-post-translations.ts check <slug>` 验证通过。
+
 ### 阶段 2：生成并验证
 
-所有文章处理完成后运行 `bun run build`，由现有脚本生成封面、插图和搜索索引，并验证 frontmatter 与文章构建。
+所有文章处理完成后运行 `bun run build`，由现有脚本校验英文翻译、生成封面、插图和双语搜索索引，并验证 frontmatter 与文章构建。
 
 逐篇核对迁移后的正文：重复标题和封面引用已移除，其余插图都有对应母版，除上述迁移变更外与源文一致。检查构建日志没有文章渲染错误，并确认生成页面正文完整、只在页面封面位置展示封面。
 

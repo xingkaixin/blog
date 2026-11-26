@@ -7,7 +7,9 @@
 
 - `CONTEXT.md`：文章、项目与照片的领域术语唯一真源；修改相关领域代码前先读
 - `docs/photo-wall.md`：照片发布、删除、回收与迁移流程；执行 `photos:*` 命令前先读
+- `docs/post-translation.md`：文章英文 AI 翻译规范；新增或修改中文文章时必须先读
 - `src/lib/post-schema.ts`：frontmatter 契约唯一真源，content collection、构建脚本与测试共用
+- `src/lib/post-translation-schema.ts`：英文译文 frontmatter 契约唯一真源
 - `src/lib/rehype-blog-content.ts`：正文渲染增强，包括标题锚点、外链属性、插图转响应式 picture
 
 ## 文章
@@ -31,10 +33,11 @@ draft: true # 可选，草稿不发布
 - 封面图片放在 `src/assets/cover/`。
 - 插图母版放在 `src/assets/post-images/<文章 slug>/`，Markdown 里写
   `/posts/images/<文章 slug>/<文件名>`。
+- **英文翻译**：每篇已发布中文文章必须在 `content/posts-en/<slug>.md` 提供一份 AI 翻译英文版本（封面与插图不变）。新增或修改中文文章时，未特别指定即由当前负责写作或迁移的 Agent 同步按 `docs/post-translation.md` 生成/更新英文版，并运行 `bun scripts/validate-post-translations.ts check <slug>` 校验通过。
 
 ## 生成产物
 
-`public/search-index.json`、`public/cover/`、`public/posts/images/` 和 `src/lib/generated/`
+`public/search-index.json`、`public/search-index-en.json`、`public/cover/`、`public/posts/images/` 和 `src/lib/generated/`
 是生成产物。不要直接编辑；修改母版或生成逻辑后运行对应生成命令，并提交结果。
 封面与插图数据通过 `src/lib/covers.ts`、`src/lib/post-images.ts` 读取。
 
@@ -44,7 +47,7 @@ draft: true # 可选，草稿不发布
 
 ## 双语页面
 
-只有首页、工具箱、照片墙和 RSS 页有英文版。新增双语页面要同步三处：
+首页、文章列表与详情页、工具箱、照片墙和 RSS 页有英文版。新增双语页面要同步三处：
 
 - 页面放在 `src/pages/[...lang]/`，导出 `getStaticPaths = bilingualStaticPaths`
 - 路径加入 `src/lib/i18n.ts` 的 `bilingualPaths`
