@@ -1,4 +1,5 @@
 import type { OpenSearchOptions } from "@/components/search-dialog-entry";
+import { localeFromLang } from "@/lib/i18n";
 
 export type { OpenSearchOptions };
 
@@ -26,8 +27,9 @@ export async function openSearch(options?: OpenSearchOptions): Promise<void> {
     errorMessage.hidden = true;
   }
   // 索引不依赖面板代码，提前请求；面板挂载后复用同一个请求。
+  const locale = localeFromLang(document.documentElement.lang);
   void import("@/lib/search")
-    .then(({ loadSearchIndex }) => loadSearchIndex())
+    .then(({ loadSearchIndex }) => loadSearchIndex(locale))
     .catch(() => undefined);
   try {
     const { openSearchDialog } = await import("@/components/search-dialog-entry");

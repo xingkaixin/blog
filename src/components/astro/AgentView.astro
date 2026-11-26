@@ -3,14 +3,17 @@
  * Agent 视角：把这一页经内容协商返回的 Markdown 摆在正文旁边。
  * 宽屏下正文收到左半边、Markdown 占右半边；窄屏下 Markdown 盖住整页。
  */
+import { localeFromPath, type Locale } from "@/lib/i18n";
 import { markdownPathForPage } from "@/lib/markdown-negotiation";
+import { postsMessages } from "@/lib/messages/posts";
 import { parsePostDetailSlug } from "@/lib/site-navigation";
 import { siteConfig } from "@/lib/site";
 import { siteShortcuts } from "@/lib/site-shortcuts";
 
-type Props = { path: string };
+type Props = { path: string; locale?: Locale };
 
-const { path } = Astro.props;
+const { path, locale = localeFromPath(Astro.url.pathname) } = Astro.props;
+const t = postsMessages[locale].agentView;
 const host = new URL(siteConfig.url).host;
 const postSlug = parsePostDetailSlug(path);
 const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` : "/lab/shell/";
@@ -24,29 +27,29 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
     aria-controls="agent-pane"
     class="relative inline-flex items-center gap-1.5 rounded-[4px] text-ink-500 transition-colors duration-(--duration-quick) before:absolute before:-inset-x-2 before:-inset-y-3.5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 aria-pressed:text-accent"
   >
-    Agent 视角
+    {t.toggle}
     <kbd class="hidden rounded-[4px] border border-line px-1 font-mono text-[10px] lg:inline">{siteShortcuts.agentView.hint}</kbd>
   </button>
 
-  <section id="agent-pane" data-agent-pane data-theme="dark" aria-label="Agent 视角：这一页的 Markdown" hidden class="agent-pane">
+  <section id="agent-pane" data-agent-pane data-theme="dark" aria-label={t.paneAria} hidden class="agent-pane">
     <div class="agent-head">
       <p class="agent-command"><span aria-hidden="true">$</span> curl -H "Accept: text/markdown" {host}{path}</p>
-      <button type="button" data-agent-close aria-label="关闭 Agent 视角" class="agent-close">
+      <button type="button" data-agent-close aria-label={t.closeAria} class="agent-close">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
       </button>
     </div>
-    <pre class="agent-body" data-agent-body tabindex="0">正在取这一页的 Markdown…</pre>
+    <pre class="agent-body" data-agent-body tabindex="0">{t.loading}</pre>
     <div class="agent-foot">
       <span data-agent-meta>text/markdown</span>
       <div class="agent-foot-actions">
-        <a href={shellHref} class="agent-shell-link">在终端打开 →</a>
+        <a href={shellHref} class="agent-shell-link">{t.openInShell}</a>
         <button type="button" data-agent-copy disabled class="agent-copy">
           <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
           </svg>
-          <span data-agent-copy-label>复制 Markdown</span>
+          <span data-agent-copy-label>{t.copyMarkdown}</span>
         </button>
       </div>
     </div>
@@ -246,7 +249,9 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
 </style>
 
 <script>
+  import { localeFromLang } from "@/lib/i18n";
   import { estimateMarkdownTokens } from "@/lib/markdown-negotiation";
+  import { postsMessages } from "@/lib/messages/posts";
   import { AGENT_VIEW_TOGGLE_EVENT } from "@/lib/site-events";
 
   function renderMarkdown(target: HTMLElement, markdown: string) {
@@ -289,6 +294,8 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
       this.controller = new AbortController();
       const { signal } = this.controller;
       const root = document.documentElement;
+      const locale = localeFromLang(root.lang);
+      const t = postsMessages[locale].agentView;
 
       const load = () => {
         this.markdown ??= fetch(source, { signal }).then((response) => {
@@ -301,13 +308,13 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
           (markdown) => {
             renderMarkdown(body, markdown);
             const bytes = new TextEncoder().encode(markdown).byteLength;
-            meta.textContent = `text/markdown · ${(bytes / 1024).toFixed(1)} KB · ≈ ${estimateMarkdownTokens(bytes).toLocaleString("zh-CN")} tokens`;
+            meta.textContent = `text/markdown · ${(bytes / 1024).toFixed(1)} KB · ≈ ${estimateMarkdownTokens(bytes).toLocaleString(locale === "en" ? "en-US" : "zh-CN")} tokens`;
             copy.disabled = false;
           },
           () => {
             if (!signal.aborted) {
               this.markdown = null;
-              body.textContent = "这一页的 Markdown 暂时取不到，稍后再试。";
+              body.textContent = t.loadFailed;
             }
           },
         );
@@ -409,9 +416,9 @@ const shellHref = postSlug ? `/lab/shell/?slug=${encodeURIComponent(postSlug)}` 
           void this.markdown
             ?.then((markdown) => navigator.clipboard.writeText(markdown))
             .then(() => {
-              copyLabel.textContent = "已复制";
+              copyLabel.textContent = t.copied;
               setTimeout(() => {
-                copyLabel.textContent = "复制 Markdown";
+                copyLabel.textContent = t.copyMarkdown;
               }, 1500);
             });
         },

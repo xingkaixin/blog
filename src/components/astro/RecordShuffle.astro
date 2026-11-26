@@ -1,17 +1,22 @@
 ---
 import { resolveCover } from "@/lib/covers";
+import { localeFromPath, type Locale } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
 import { postHref, type PublishedPost } from "@/lib/published-post";
 
 type Props = {
   posts: PublishedPost[];
+  locale?: Locale;
 };
 
+const locale = Astro.props.locale ?? localeFromPath(Astro.url.pathname);
+const t = postsMessages[locale].shuffle;
 const firstPost = Astro.props.posts[0];
 const firstCover = firstPost ? resolveCover(firstPost.cover) : undefined;
 const first =
   firstPost && firstCover
     ? {
-        href: postHref(firstPost.slug),
+        href: postHref(firstPost.slug, locale),
         title: firstPost.title,
         date: firstPost.date,
         summary: firstPost.summary,
@@ -85,7 +90,7 @@ const first =
               href={first.href}
               class="inline-flex h-10 items-center rounded-[6px] bg-ink-800 px-[18px] font-mono text-xs text-paper transition-colors hover:bg-accent hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2"
             >
-              读这一篇 →
+              {t.readThis}
             </a>
             <button
               type="button"
@@ -96,7 +101,7 @@ const first =
               <svg aria-hidden="true" class="h-[15px] w-[15px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 7h3.5c2.3 0 3.8 1.2 5 3.2l1 1.6c1.2 2 2.7 3.2 5 3.2H21M18 12l3 3-3 3M3 17h3.5c1.4 0 2.5-.4 3.4-1.2M14.1 8.2c.9-.8 2-1.2 3.4-1.2H21M18 4l3 3-3 3" />
               </svg>
-              换一张
+              {t.next}
             </button>
           </div>
         </div>
@@ -140,6 +145,7 @@ const first =
 </style>
 
 <script>
+  import { localeFromLang } from "@/lib/i18n";
   import { elapsedSince, pickRandom, shuffleablePosts } from "@/lib/record-shuffle";
 
   type ShuffleRecord = {
@@ -244,7 +250,7 @@ const first =
         year.textContent = record.date.slice(0, 4);
         date.textContent = record.date;
         date.dateTime = record.date;
-        elapsed.textContent = ` · ${elapsedSince(record.date, new Date())}`;
+        elapsed.textContent = ` · ${elapsedSince(record.date, new Date(), localeFromLang(document.documentElement.lang))}`;
         title.textContent = record.title;
         summary.textContent = record.summary;
         link.href = record.href;

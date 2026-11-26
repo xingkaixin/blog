@@ -28,12 +28,14 @@ export function buildSitemap(
     ...buildPostTaxonomy(posts).archives.map(({ href }) =>
       urlEntry(`${siteConfig.url}${href}`, "weekly", "0.6"),
     ),
-    ...posts.map((post) =>
-      urlEntry(
-        `${siteConfig.url}${postHref(post.slug)}`,
-        "monthly",
-        "0.8",
-        post.updated ?? post.date,
+    ...posts.flatMap((post) =>
+      (["zh", "en"] as const).map((locale) =>
+        urlEntry(
+          `${siteConfig.url}${postHref(post.slug, locale)}`,
+          "monthly",
+          "0.8",
+          post.updated ?? post.date,
+        ),
       ),
     ),
   ];

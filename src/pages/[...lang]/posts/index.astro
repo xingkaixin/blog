@@ -1,0 +1,57 @@
+---
+import PostConsole from "@/components/astro/PostConsole.astro";
+import RecordShuffle from "@/components/astro/RecordShuffle.astro";
+import SiteLayout from "@/layouts/SiteLayout.astro";
+import { getLocalizedPublishedPosts } from "@/lib/astro-posts";
+import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
+import type { PostConsoleItem } from "@/lib/post-console";
+import { postHref } from "@/lib/published-post";
+import { estimateReadingMetrics } from "@/lib/reading-metrics";
+import { shuffleablePosts } from "@/lib/record-shuffle";
+import { siteConfig } from "@/lib/site";
+
+export const getStaticPaths = bilingualStaticPaths;
+
+const locale = localeFromPath(Astro.url.pathname);
+const t = postsMessages[locale].index;
+const entries = await getLocalizedPublishedPosts(locale);
+const posts: PostConsoleItem[] = entries.map((entry) => ({
+  ...entry.post,
+  ...estimateReadingMetrics(entry.body),
+}));
+const postsUrl = `${siteConfig.url}${localizedHref("/posts/", locale)}`;
+const homeUrl = `${siteConfig.url}${localizedHref("/", locale)}`;
+const meta = {
+  title: t.title,
+  description: t.description,
+  url: postsUrl,
+  type: "webpage" as const,
+  breadcrumb: [
+    { name: t.home, url: homeUrl },
+    { name: t.title, url: postsUrl },
+  ],
+};
+---
+
+<SiteLayout meta={meta}>
+  <h1 class="sr-only">{t.title}</h1>
+  <template data-agent-content>
+    <h1>{t.title}</h1>
+    <p>{meta.description}</p>
+    <h2>{t.allPosts}</h2>
+    <ul>
+      {
+        posts.map((post) => (
+          <li>
+            <a href={postHref(post.slug, locale)}>{post.title}</a>
+            {" — "}<time datetime={post.date}>{post.date}</time>
+            <p>{post.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </template>
+  <PostConsole posts={posts} locale={locale} />
+  <RecordShuffle posts={shuffleablePosts(posts)} locale={locale} />
+</SiteLayout>

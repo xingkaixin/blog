@@ -1,17 +1,26 @@
 ---
+import { localeFromPath, type Locale } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
+
+type Props = {
+  locale?: Locale;
+};
+
+const { locale = localeFromPath(Astro.url.pathname) } = Astro.props;
+const t = postsMessages[locale].enhancements;
 ---
 
 <post-enhancements class="print:hidden">
   <dialog
     data-post-lightbox
-    aria-label="放大查看插图"
+    aria-label={t.lightboxAria}
     class="post-lightbox border-0 bg-transparent p-0 text-ink-800"
   >
     <div class="post-lightbox-stage" data-lightbox-backdrop>
       <button
         type="button"
         data-lightbox-close
-        aria-label="关闭大图"
+        aria-label={t.closeLightboxAria}
         class="post-lightbox-close"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="h-5 w-5">
@@ -173,6 +182,9 @@
 </style>
 
 <script>
+  import { localeFromLang } from "@/lib/i18n";
+  import { postsMessages } from "@/lib/messages/posts";
+
   const FEEDBACK_MS = 1600;
 
   const COPY_ICON =
@@ -248,6 +260,7 @@
     }
 
     private enhanceCodeBlocks(prose: HTMLElement, signal: AbortSignal) {
+      const t = postsMessages[localeFromLang(document.documentElement.lang)].enhancements;
       for (const pre of prose.querySelectorAll<HTMLPreElement>("pre")) {
         if (pre.parentElement?.classList.contains("code-block-shell")) {
           continue;
@@ -270,8 +283,8 @@
         const copyBtn = document.createElement("button");
         copyBtn.type = "button";
         copyBtn.className = "code-block-copy";
-        copyBtn.setAttribute("aria-label", "复制代码");
-        copyBtn.innerHTML = `${COPY_ICON}<span>复制</span>`;
+        copyBtn.setAttribute("aria-label", t.copyCodeAria);
+        copyBtn.innerHTML = `${COPY_ICON}<span>${t.copy}</span>`;
 
         let resetTimer = 0;
         copyBtn.addEventListener(
@@ -282,13 +295,13 @@
             try {
               await navigator.clipboard.writeText(code);
               copyBtn.dataset.copied = "";
-              copyBtn.innerHTML = `${CHECK_ICON}<span>已复制</span>`;
+              copyBtn.innerHTML = `${CHECK_ICON}<span>${t.copied}</span>`;
             } catch {
-              copyBtn.innerHTML = `${COPY_ICON}<span>复制失败</span>`;
+              copyBtn.innerHTML = `${COPY_ICON}<span>${t.copyFailed}</span>`;
             }
             resetTimer = window.setTimeout(() => {
               delete copyBtn.dataset.copied;
-              copyBtn.innerHTML = `${COPY_ICON}<span>复制</span>`;
+              copyBtn.innerHTML = `${COPY_ICON}<span>${t.copy}</span>`;
             }, FEEDBACK_MS);
           },
           { signal },
@@ -300,6 +313,7 @@
     }
 
     private enhanceHeadingAnchors(prose: HTMLElement, signal: AbortSignal) {
+      const t = postsMessages[localeFromLang(document.documentElement.lang)].enhancements;
       for (const heading of prose.querySelectorAll<HTMLElement>("h2[id], h3[id]")) {
         if (heading.querySelector("[data-heading-anchor]")) {
           continue;
@@ -312,8 +326,8 @@
         button.type = "button";
         button.className = "heading-anchor print:hidden";
         button.dataset.headingAnchor = id;
-        button.setAttribute("aria-label", "复制章节链接");
-        button.title = "复制章节链接";
+        button.setAttribute("aria-label", t.copyHeadingLink);
+        button.title = t.copyHeadingLink;
         button.innerHTML = ANCHOR_ICON;
 
         let resetTimer = 0;
@@ -401,6 +415,7 @@
         this.closeTimer = window.setTimeout(finishClose, 180);
       };
 
+      const t = postsMessages[localeFromLang(document.documentElement.lang)].enhancements;
       for (const img of prose.querySelectorAll<HTMLImageElement>("img")) {
         if (img.closest("a")) {
           continue;
@@ -409,7 +424,7 @@
         img.tabIndex = 0;
         img.setAttribute("role", "button");
         const altText = img.alt.trim();
-        img.setAttribute("aria-label", altText ? `放大查看图片：${altText}` : "放大查看图片");
+        img.setAttribute("aria-label", t.zoomImageAria(altText));
       }
 
       const openImage = (img: HTMLImageElement, restoreOnClose: boolean) => {

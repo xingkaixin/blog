@@ -101,7 +101,7 @@ export function buildSearchPalette(
             {
               id: "latest",
               label: t.latest,
-              items: posts.slice(0, 4).map((post) => postItem(post)),
+              items: posts.slice(0, 4).map((post) => postItem(post, "", locale)),
             },
           ]
         : []),
@@ -114,7 +114,7 @@ export function buildSearchPalette(
   const matchedPosts = posts
     ? rankPosts(posts, { query })
         .slice(0, 8)
-        .map((post) => postItem(post, query))
+        .map((post) => postItem(post, query, locale))
     : [];
   const matchedTags =
     taxonomy?.tags
@@ -148,7 +148,7 @@ export function buildSearchPalette(
   ].filter((group) => group.items.length > 0);
 }
 
-function postItem(post: SearchIndexItem, query = ""): SearchPaletteLink {
+function postItem(post: SearchIndexItem, query = "", locale: Locale = "zh"): SearchPaletteLink {
   const snippet = query ? matchPostSnippet(post, query) : undefined;
   return {
     id: `post-${post.slug}`,
@@ -157,7 +157,7 @@ function postItem(post: SearchIndexItem, query = ""): SearchPaletteLink {
     title: post.title,
     ...(snippet ? { snippet } : {}),
     hint: post.date,
-    href: postHref(post.slug),
+    href: postHref(post.slug, locale),
     reload: false,
   };
 }

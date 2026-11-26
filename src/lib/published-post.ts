@@ -1,3 +1,5 @@
+import type { Locale } from "./i18n";
+
 const POST_SLUG_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 export type PublishedPost = {
@@ -24,8 +26,9 @@ export function parsePostSlug(value: string, field = "slug"): string {
   return value;
 }
 
-export function postHref(slug: string): string {
-  return `/posts/${encodeURIComponent(parsePostSlug(slug))}/`;
+export function postHref(slug: string, locale: Locale = "zh"): string {
+  const path = `/posts/${encodeURIComponent(parsePostSlug(slug))}/`;
+  return locale === "en" ? `/en${path}` : path;
 }
 
 export function toPublishedPost(slug: string, post: PublishablePost): PublishedPost {

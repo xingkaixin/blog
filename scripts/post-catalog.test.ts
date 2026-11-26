@@ -50,7 +50,11 @@ describe("post catalog", () => {
       expect(sitemapEntry(sitemap, pathname)).not.toContain("<lastmod>");
     }
     expect(sitemapEntry(sitemap, "/posts/new-post/")).toContain("<lastmod>2026-07-11</lastmod>");
+    expect(sitemapEntry(sitemap, "/en/posts/new-post/")).toContain("<lastmod>2026-07-11</lastmod>");
     expect(sitemapEntry(sitemap, "/posts/older-post/")).toContain("<lastmod>2026-07-15</lastmod>");
+    expect(sitemapEntry(sitemap, "/en/posts/older-post/")).toContain(
+      "<lastmod>2026-07-15</lastmod>",
+    );
     expect(sitemap).not.toContain("/tags/single/");
     expect(buildRedirects(posts)).toContain("/new-post /posts/new-post/ 301");
   });

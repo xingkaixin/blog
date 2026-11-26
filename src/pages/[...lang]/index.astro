@@ -34,7 +34,7 @@ const meta = {
     </ul>
     <h2>{t.agent.sections}</h2>
     <ul>
-      <li><a href="/posts/">{t.agent.posts}</a></li>
+      <li><a href={localizedHref("/posts/", locale)}>{t.agent.posts}</a></li>
       <li><a href={localizedHref("/projects/", locale)}>{t.agent.projects}</a></li>
       <li><a href={localizedHref("/photos/", locale)}>{t.agent.photos}</a></li>
     </ul>

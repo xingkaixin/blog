@@ -21,6 +21,7 @@ describe("post slug", () => {
   it("preserves historical case and underscores", () => {
     expect(parsePostSlug("The_state-2025")).toBe("The_state-2025");
     expect(postHref("The_state-2025")).toBe("/posts/The_state-2025/");
+    expect(postHref("The_state-2025", "en")).toBe("/en/posts/The_state-2025/");
   });
 
   it.each(["two words"])("rejects unsafe slug %j", (slug) => {

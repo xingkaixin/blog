@@ -1,3 +1,5 @@
+import { localeFromLang } from "./i18n";
+import { postsMessages } from "./messages/posts";
 import {
   matchesPostConsoleFilter,
   postPreviewContent,
@@ -70,6 +72,8 @@ export function initializePostConsole(root: HTMLElement): void {
   }
   initializedRoots.add(root);
 
+  const locale = localeFromLang(document.documentElement.lang);
+  const t = postsMessages[locale].console;
   const rows = [...root.querySelectorAll<HTMLElement>("[data-post-row]")];
   const compactData = readPostConsolePayload(root);
   const posts = rows.map((row) => readPostConsoleRow(row, compactData));
@@ -119,7 +123,7 @@ export function initializePostConsole(root: HTMLElement): void {
     }
     const shown = visibleMonths();
     const expanded = shown.length > 0 && shown.every((month) => isMonthTargetOpen(month));
-    monthsToggle.textContent = expanded ? "全部收起" : "全部展开";
+    monthsToggle.textContent = expanded ? t.collapseAll : t.expandAll;
     monthsToggle.setAttribute("aria-expanded", String(expanded));
   };
 
@@ -211,14 +215,18 @@ export function initializePostConsole(root: HTMLElement): void {
       return;
     }
     preview.hidden = false;
-    const content = postPreviewContent(post, {
-      mobile: post.coverMobile,
-      desktop: post.coverDesktop,
-      mobileAvif: post.coverMobileAvif,
-      desktopAvif: post.coverDesktopAvif,
-    });
+    const content = postPreviewContent(
+      post,
+      {
+        mobile: post.coverMobile,
+        desktop: post.coverDesktop,
+        mobileAvif: post.coverMobileAvif,
+        desktopAvif: post.coverDesktopAvif,
+      },
+      locale,
+    );
     for (const link of preview.querySelectorAll<HTMLAnchorElement>("[data-preview-link]")) {
-      link.href = postHref(post.slug);
+      link.href = postHref(post.slug, locale);
     }
     const image = preview.querySelector<HTMLImageElement>("[data-preview-image]");
     if (image) {
@@ -254,7 +262,7 @@ export function initializePostConsole(root: HTMLElement): void {
       related.replaceChildren(
         ...recommendations.map((item) => {
           const link = linkTemplate.cloneNode(true) as HTMLAnchorElement;
-          link.href = postHref(item.slug);
+          link.href = postHref(item.slug, locale);
           link.textContent = item.title;
           return link;
         }),
@@ -325,11 +333,11 @@ export function initializePostConsole(root: HTMLElement): void {
       month.hidden = count === 0;
       month.open = count > 0 && (filter.tag !== null || !opened || month === initialActiveMonth);
       opened ||= count > 0;
-      setText(month, "[data-post-month-count]", `${count} 篇`);
+      setText(month, "[data-post-month-count]", t.monthCount(count));
     }
     syncMonthsToggle();
 
-    setText(root, "[data-post-console-heading]", filter.tag ?? "全部文章");
+    setText(root, "[data-post-console-heading]", filter.tag ?? t.headingAll);
     const empty = root.querySelector<HTMLElement>("[data-post-console-empty]");
     if (empty) {
       empty.hidden = visibleRows.length > 0;
@@ -459,7 +467,7 @@ function readAgentSummaries(): Map<string, string> {
   }
   for (const item of template.content.querySelectorAll("li")) {
     const href = item.querySelector("a")?.getAttribute("href") ?? "";
-    const match = href.match(/^\/posts\/([^/]+)\/?$/);
+    const match = href.match(/^\/(?:en\/)?posts\/([^/]+)\/?$/);
     const summary = item.querySelector("p")?.textContent?.trim();
     if (match && summary) {
       summaries.set(match[1], summary);

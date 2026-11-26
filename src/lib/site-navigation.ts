@@ -34,7 +34,7 @@ const routes: SiteRoute[] = [
     href: "/posts/",
     label: "文章",
     searchTitle: "文章日志",
-    en: { label: "Posts (Chinese)", searchTitle: "Posts (Chinese)" },
+    en: { label: "Posts", searchTitle: "Posts" },
     keywords: "文章 日志 归档 posts archive",
     reload: false,
     desktop: true,
@@ -129,7 +129,7 @@ export function isDarkroomTransition(fromPathname: string, toPathname: string): 
 
 export function parsePostDetailSlug(pathname: string): string | null {
   const path = normalizeSitePath(pathname);
-  const match = /^\/posts\/([^/]+)$/.exec(path);
+  const match = /^\/(?:en\/)?posts\/([^/]+)$/.exec(path);
   if (!match) {
     return null;
   }

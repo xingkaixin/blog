@@ -120,7 +120,7 @@ export function SearchPanel({
     }
 
     setStatus("loading");
-    void loadSearchIndex()
+    void loadSearchIndex(locale)
       .then((index) => {
         if (mountedRef.current) {
           setPosts(index);
@@ -132,7 +132,7 @@ export function SearchPanel({
           setStatus("failed");
         }
       });
-  }, [open, status]);
+  }, [locale, open, status]);
 
   useLayoutEffect(() => {
     const popup = popupRef.current;

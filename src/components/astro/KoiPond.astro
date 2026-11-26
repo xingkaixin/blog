@@ -372,7 +372,8 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
       import("@/lib/search"),
     ]);
     if (mine !== generation) {return;}
-    const t = homeMessages[localeFromLang(document.documentElement.lang)].koi;
+    const locale = localeFromLang(document.documentElement.lang);
+    const t = homeMessages[locale].koi;
 
     let bottledPost: Promise<SearchIndexItem | undefined> | null = null;
     const showBottle = async (post: Promise<SearchIndexItem | undefined>) => {
@@ -385,7 +386,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
       text("date", item.date);
       text("title", item.title);
       text("summary", item.summary);
-      bottleOpen.href = postHref(item.slug);
+      bottleOpen.href = postHref(item.slug, locale);
       bottle.hidden = false;
     };
 
@@ -407,7 +408,7 @@ const t = homeMessages[localeFromPath(Astro.url.pathname)].koi;
       if (status.catch?.kind === "bottle") {
         bottle.hidden = true;
         // 提竿的同时取一篇往年的文章，瓶子落进鱼篓时卡片正好能展开
-        bottledPost = loadSearchIndex().then((posts) => {
+        bottledPost = loadSearchIndex(locale).then((posts) => {
           const thisYear = new Date().getFullYear();
           const earlier = posts.filter((post) => Number(post.date.slice(0, 4)) < thisYear);
           return pickRandom(earlier.length > 0 ? earlier : posts);

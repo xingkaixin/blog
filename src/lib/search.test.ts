@@ -82,4 +82,13 @@ describe("loadSearchIndex", () => {
     await expect(loadSearchIndex()).resolves.toEqual(posts);
     expect(fetch).toHaveBeenCalledTimes(2);
   });
+
+  it("loads locale-specific search indexes independently", async () => {
+    const fetch = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValue({ ok: true, json: async () => posts } as Response);
+
+    await loadSearchIndex("en");
+    expect(fetch).toHaveBeenCalledWith("/search-index-en.json", { cache: "no-cache" });
+  });
 });

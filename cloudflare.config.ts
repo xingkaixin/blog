@@ -35,6 +35,7 @@ export default {
         "!/llms.txt",
         "!/robots.txt",
         "!/search-index.json",
+        "!/search-index-en.json",
         "!/sitemap.xml",
         "!/webmcp/*",
       ],

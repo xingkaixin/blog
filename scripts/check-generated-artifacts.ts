@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 
 const GENERATED_PATHS = [
   "public/search-index.json",
+  "public/search-index-en.json",
   "public/cover",
   "public/posts/images",
   "src/lib/generated",

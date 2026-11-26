@@ -10,41 +10,62 @@ import SignatureAnimation from "@/components/astro/SignatureAnimation.astro";
 import TocNav from "@/components/astro/TocNav.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import {
-  getPublishedPosts,
-  toPostDetail,
-  toPostListItem,
-  type BlogPostEntry,
+  getLocalizedPublishedPosts,
+  toLocalizedPostDetail,
+  type LocalizedBlogPostEntry,
 } from "@/lib/astro-posts";
-import { buildCoverSrcSet, POST_COVER_SIZES, resolveCover } from "@/lib/covers";
 import { formatCalendarDate } from "@/lib/calendar-date";
-import { estimateReadingMetrics } from "@/lib/reading-metrics";
+import { buildCoverSrcSet, POST_COVER_SIZES, resolveCover } from "@/lib/covers";
+import { htmlLang, locales, localizedHref, type Locale } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
 import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
 import { postHref, type PublishedPost } from "@/lib/published-post";
+import { estimateReadingMetrics } from "@/lib/reading-metrics";
 import { siteConfig } from "@/lib/site";
 import "@/styles/article.css";
 
 type Props = {
-  post: BlogPostEntry;
+  entry: LocalizedBlogPostEntry;
+  locale: Locale;
   archivedTags: string[];
   related: PublishedPost[];
 };
 
 export async function getStaticPaths() {
-  const posts = await getPublishedPosts();
-  const items = posts.map(toPostListItem);
-  const archivedTags = buildPostTaxonomy(items).archives.map(({ tag }) => tag);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post, archivedTags, related: relatedPosts(items, toPostListItem(post), 3) },
-  }));
+  const byLocale = await Promise.all(
+    locales.map(async (locale) => ({
+      locale,
+      entries: await getLocalizedPublishedPosts(locale),
+    })),
+  );
+
+  return byLocale.flatMap(({ locale, entries }) => {
+    const items = entries.map((entry) => entry.post);
+    const archivedTags = buildPostTaxonomy(items).archives.map(({ tag }) => tag);
+    return entries.map((entry) => ({
+      params: { lang: locale === "en" ? "en" : undefined, slug: entry.slug },
+      props: {
+        entry,
+        locale,
+        archivedTags,
+        related: relatedPosts(items, entry.post, 3),
+      },
+    }));
+  });
 }
 
-const { post, archivedTags, related } = Astro.props as Props;
+const { entry, locale, archivedTags, related } = Astro.props as Props;
+const t = postsMessages[locale].detail;
 const archivedTagSet = new Set(archivedTags);
-const readingMetrics = estimateReadingMetrics(post.body ?? "");
-const { Content, headings } = await render(post);
-const postMeta = toPostDetail(post, headings);
-const canonicalPostUrl = `${siteConfig.url}${postHref(postMeta.slug)}`;
+const readingMetrics = estimateReadingMetrics(entry.body);
+const { Content, headings } = await render(entry.contentEntry);
+const postMeta = toLocalizedPostDetail(entry, headings);
+const currentPostHref = postHref(postMeta.slug, locale);
+const canonicalPostUrl = `${siteConfig.url}${currentPostHref}`;
+const alternateLocale: Locale = locale === "en" ? "zh" : "en";
+const alternatePostHref = postHref(postMeta.slug, alternateLocale);
+const homeHref = localizedHref("/", locale);
+const postsListHref = localizedHref("/posts/", locale);
 const cover = resolveCover(postMeta.cover);
 const coverAvifSrcSet = buildCoverSrcSet(cover, {
   mobile: cover.mobileAvif,
@@ -67,8 +88,8 @@ const meta = {
   ...(postMeta.updated ? { modifiedTime: postMeta.updated } : {}),
   tags: postMeta.tags,
   breadcrumb: [
-    { name: "首页", url: `${siteConfig.url}/` },
-    { name: "文章", url: `${siteConfig.url}/posts/` },
+    { name: t.home, url: `${siteConfig.url}${homeHref}` },
+    { name: t.posts, url: `${siteConfig.url}${postsListHref}` },
     { name: postMeta.title, url: canonicalPostUrl },
   ],
 };
@@ -78,7 +99,8 @@ const meta = {
   meta={meta}
   compactHeader={{
     title: postMeta.title,
-    backHref: "/posts/",
+    backHref: postsListHref,
+    backLabel: t.posts,
     hasToc: postMeta.toc.length > 0,
   }}
 >
@@ -102,7 +124,8 @@ const meta = {
         data-post-header
       >
         <Breadcrumb
-          items={[{ name: "首页", url: "/" }, { name: "文章", url: "/posts/" }, { name: postMeta.title }]}
+          ariaLabel={t.breadcrumbAria}
+          items={[{ name: t.home, url: homeHref }, { name: t.posts, url: postsListHref }, { name: postMeta.title }]}
         />
         <h1
           data-post-title
@@ -115,11 +138,22 @@ const meta = {
           <div class="flex flex-wrap items-center gap-x-2 font-mono text-[11px] text-ink-500">
             <span>{formatCalendarDate(postMeta.date)}</span>
             <span class="text-ink-200">·</span>
-            <span>{readingMetrics.wordCount.toLocaleString("zh-CN")} 字</span>
+            <span>{t.wordCount(readingMetrics.wordCount)}</span>
             <span class="text-ink-200">·</span>
-            <span>{readingMetrics.readingMinutes} 分钟</span>
+            <span>{t.readingMinutes(readingMetrics.readingMinutes)}</span>
             <span class="text-ink-200 print:hidden" aria-hidden="true">·</span>
-            <AgentView path={postHref(postMeta.slug)} />
+            <AgentView path={currentPostHref} locale={locale} />
+            <span class="text-ink-200 print:hidden" aria-hidden="true">·</span>
+            <a
+              href={alternatePostHref}
+              hreflang={htmlLang[alternateLocale]}
+              lang={htmlLang[alternateLocale]}
+              data-language-switch={alternateLocale}
+              data-astro-reload
+              class="print:hidden text-ink-500 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            >
+              {locale === "en" ? t.switchToChineseOriginal : t.switchToEnglishAi}
+            </a>
           </div>
           <div class="flex flex-wrap gap-1.5 sm:justify-end">
             {
@@ -139,25 +173,51 @@ const meta = {
           <PostCover cover={postMeta.cover} alt={postMeta.coverAlt} priority />
         </figure>
 
+        {
+          locale === "en" && (
+            <aside
+              data-ai-translation-notice
+              class="flex flex-col gap-2 rounded-[10px] border border-line bg-surface/70 px-4 py-3.5 text-[13px] leading-6 text-ink-600 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+            >
+              <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span class="rounded-[4px] border border-accent/30 bg-accent-soft px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+                  {t.aiTranslationBadge}
+                </span>
+                <span>{t.aiTranslationNotice}</span>
+              </div>
+              <a
+                href={alternatePostHref}
+                hreflang={htmlLang.zh}
+                lang={htmlLang.zh}
+                data-language-switch="zh"
+                data-astro-reload
+                class="shrink-0 font-mono text-xs text-ink-800 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              >
+                {t.switchToChineseOriginal} →
+              </a>
+            </aside>
+          )
+        }
+
         <div class="border-y border-line py-8 sm:px-2 print:border-0 print:py-0">
           <div class="article-prose" data-quote-scope>
             <Content />
           </div>
-          <QuoteToolbar title={postMeta.title} date={postMeta.date} url={canonicalPostUrl} />
-          <PostEnhancements />
+          <QuoteToolbar title={postMeta.title} date={postMeta.date} url={canonicalPostUrl} locale={locale} />
+          <PostEnhancements locale={locale} />
         </div>
 
         {
           related.length > 0 && (
             <nav aria-labelledby="related-posts-heading" class="print:hidden">
               <h2 id="related-posts-heading" class="font-display text-2xl text-ink-800">
-                继续阅读
+                {t.relatedHeading}
               </h2>
               <ul class="mt-4 divide-y divide-line border-y border-line">
                 {related.map((item) => (
                   <li>
                     <a
-                      href={postHref(item.slug)}
+                      href={postHref(item.slug, locale)}
                       class="group block rounded-[6px] px-2 py-4 transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                     >
                       <span class="block text-balance text-[15px] leading-6 text-ink-800 group-hover:text-accent">
@@ -198,23 +258,23 @@ const meta = {
                 </text>
               </svg>
               <h2 class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">
-                版权声明
+                {t.copyrightHeading}
               </h2>
               <dl class="mt-5 grid gap-2.5 text-[13px] text-ink-600">
-                <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[11px] text-ink-500">作者</dt>
+                <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
+                  <dt class="font-mono text-[11px] text-ink-500">{t.copyrightAuthor}</dt>
                   <dd>{siteConfig.author}</dd>
                 </div>
-                <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[11px] text-ink-500">标题</dt>
+                <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
+                  <dt class="font-mono text-[11px] text-ink-500">{t.copyrightTitle}</dt>
                   <dd>{postMeta.title}</dd>
                 </div>
-                <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[11px] text-ink-500">发布时间</dt>
+                <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
+                  <dt class="font-mono text-[11px] text-ink-500">{t.copyrightDate}</dt>
                   <dd>{formatCalendarDate(postMeta.date)}</dd>
                 </div>
-                <div class="grid grid-cols-[64px_minmax(0,1fr)] gap-3">
-                  <dt class="font-mono text-[11px] text-ink-500">文章链接</dt>
+                <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
+                  <dt class="font-mono text-[11px] text-ink-500">{t.copyrightLink}</dt>
                   <dd class="min-w-0">
                     <a
                       href={canonicalPostUrl}
@@ -228,23 +288,23 @@ const meta = {
                 </div>
               </dl>
               <p class="mt-6 text-[13px] text-ink-500">
-                本作品采用
+                {t.licensePrefix}{" "}
                 <a
-                  href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans"
+                  href={t.licenseHref}
                   class="text-ink-800 underline decoration-line underline-offset-3 hover:text-accent"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   CC BY-NC-ND 4.0 DEED
                 </a>
-                许可。
+                {locale === "en" ? t.licenseSuffix : ` ${t.licenseSuffix}`}
               </p>
               <SignatureAnimation />
         </div>
       </article>
 
       <aside data-post-toc hidden={!postMeta.toc.length} class="order-2 print:hidden lg:sticky lg:top-20 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:z-10 lg:self-start">
-        <TocNav items={postMeta.toc} />
+        <TocNav items={postMeta.toc} locale={locale} />
       </aside>
     </div>
   </section>

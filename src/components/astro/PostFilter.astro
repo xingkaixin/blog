@@ -11,6 +11,7 @@ type Props = {
   layout: "mobile" | "desktop";
   kind: "year" | "tag";
   label: string;
+  ariaLabel?: string;
   options: FilterOption[];
   allLabel: string;
   totalCount?: number;
@@ -22,6 +23,7 @@ const {
   layout,
   kind,
   label,
+  ariaLabel,
   options,
   allLabel,
   totalCount,
@@ -34,7 +36,7 @@ const buttons = [{ value: "", label: allLabel, count: totalCount }, ...options];
 <div>
   <div
     role="group"
-    aria-label={`按${label}筛选文章`}
+    aria-label={ariaLabel ?? `按${label}筛选文章`}
     data-pill-track={kind === "tag" ? "" : undefined}
     class:list={[
       kind === "tag" && "relative isolate",

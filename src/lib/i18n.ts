@@ -7,7 +7,8 @@ export const ogLocale: Record<Locale, string> = { zh: "zh_CN", en: "en_US" };
 
 export const LOCALE_COOKIE = "lang";
 
-const bilingualPaths = new Set(["/", "/projects/", "/photos/", "/rss/"]);
+const bilingualPaths = new Set(["/", "/posts/", "/projects/", "/photos/", "/rss/"]);
+const postDetailPathPattern = /^\/posts\/[A-Za-z0-9_-]+\/$/;
 
 function withTrailingSlash(pathname: string) {
   return pathname.endsWith("/") ? pathname : `${pathname}/`;
@@ -26,10 +27,10 @@ export function localeFromLang(lang: string): Locale {
   return lang.toLowerCase().startsWith("en") ? "en" : "zh";
 }
 
-/** 页面在目标语言下的地址；只有首页、工具箱、照片墙和 RSS 页有英文版，其余返回 null。 */
+/** 页面在目标语言下的地址；首页、文章、工具箱、照片墙和 RSS 页有英文版，其余返回 null。 */
 export function translatedPath(pathname: string, locale: Locale): string | null {
   const base = basePath(pathname);
-  if (!bilingualPaths.has(base)) {
+  if (!bilingualPaths.has(base) && !postDetailPathPattern.test(base)) {
     return null;
   }
   return locale === "en" ? `/en${base}` : base;

@@ -1,6 +1,6 @@
 ---
 import SiteLayout from "@/layouts/SiteLayout.astro";
-import { getPublishedPosts, toPostListItem } from "@/lib/astro-posts";
+import { getLocalizedPublishedPosts } from "@/lib/astro-posts";
 import { feedChannels, filterFeedPosts } from "@/lib/feed";
 import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
 import { rssMessages } from "@/lib/messages/rss";
@@ -11,7 +11,7 @@ export const getStaticPaths = bilingualStaticPaths;
 
 const locale = localeFromPath(Astro.url.pathname);
 const t = rssMessages[locale];
-const allPosts = (await getPublishedPosts()).map(toPostListItem);
+const allPosts = (await getLocalizedPublishedPosts(locale)).map((entry) => entry.post);
 
 const channelItems = feedChannels.map((channel) => {
   const posts = filterFeedPosts(allPosts, channel.id);
@@ -28,7 +28,7 @@ const channelItems = feedChannels.map((channel) => {
     recent: posts.slice(0, 2).map((post) => ({
       title: post.title,
       date: post.date,
-      href: postHref(post.slug),
+      href: postHref(post.slug, locale),
     })),
   };
 });

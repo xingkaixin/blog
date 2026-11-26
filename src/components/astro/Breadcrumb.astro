@@ -6,13 +6,14 @@ type Crumb = {
 
 type Props = {
   items: Crumb[];
+  ariaLabel?: string;
 };
 
-const { items } = Astro.props;
+const { items, ariaLabel = "面包屑" } = Astro.props;
 ---
 
 <nav
-  aria-label="面包屑"
+  aria-label={ariaLabel}
   data-breadcrumb
   class="print:hidden font-mono text-[10px] tracking-[0.06em] text-ink-400"
 >

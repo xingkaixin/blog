@@ -1,24 +1,28 @@
 ---
 import { resolveCover } from "@/lib/covers";
 import PostPreviewLink from "@/components/astro/PostPreviewLink.astro";
+import type { Locale } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
 import { postHref } from "@/lib/published-post";
 import { postPreviewContent, type PostConsoleItem } from "@/lib/post-console";
 
 type Props = {
   post: PostConsoleItem;
   related: PostConsoleItem[];
+  locale?: Locale;
 };
 
-const { post, related } = Astro.props;
+const { post, related, locale = "zh" } = Astro.props;
+const t = postsMessages[locale].console;
 const cover = resolveCover(post.cover);
-const content = postPreviewContent(post, cover);
+const content = postPreviewContent(post, cover, locale);
 ---
 
 <aside data-post-preview class="hidden border-l border-line bg-surface p-[18px] xl:block">
   <a
     data-preview-link
     data-post-cover
-    href={postHref(post.slug)}
+    href={postHref(post.slug, locale)}
     class="block overflow-hidden rounded-[10px] border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
   >
     <picture class="block">
@@ -39,7 +43,7 @@ const content = postPreviewContent(post, cover);
       data-preview-link
       data-preview-title
       data-post-title
-      href={postHref(post.slug)}
+      href={postHref(post.slug, locale)}
       class="transition-colors hover:text-accent"
     >
       {post.title}
@@ -58,10 +62,10 @@ const content = postPreviewContent(post, cover);
   </p>
 
   <div data-preview-related-section hidden={related.length === 0} class="mt-4 border-t border-line pt-3.5">
-    <template data-preview-related-template><PostPreviewLink /></template>
-    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">同标签</p>
+    <template data-preview-related-template><PostPreviewLink locale={locale} /></template>
+    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-400">{t.sameTag}</p>
     <div data-preview-related class="mt-2 space-y-1.5">
-      {related.map((item) => <PostPreviewLink post={item} />)}
+      {related.map((item) => <PostPreviewLink post={item} locale={locale} />)}
     </div>
   </div>
 </aside>

@@ -132,7 +132,7 @@ function buildGraph(meta: PageMeta, locale: Locale) {
     name: meta.title,
     headline: meta.title,
     description: meta.description,
-    inLanguage: siteConfig.language,
+    inLanguage: htmlLang[locale],
     datePublished: meta.publishedTime,
     ...(meta.modifiedTime ? { dateModified: meta.modifiedTime } : {}),
     author: { "@id": `${siteConfig.url}/#person` },

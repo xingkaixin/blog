@@ -8,6 +8,7 @@ import {
   parseFrontmatter,
   POST_FILE_PATTERN,
 } from "../../src/lib/post-schema";
+import { parseTranslationFrontmatter } from "../../src/lib/post-translation-schema";
 import {
   comparePublishedPostsNewestFirst,
   parsePostSlug,
@@ -72,4 +73,39 @@ export function readPublishedPostDocuments(postsDirectory: string): PublishedPos
 
 export function readPublishedPosts(postsDirectory: string): PublishedPost[] {
   return readPublishedPostDocuments(postsDirectory).map(({ post }) => post);
+}
+
+export function readEnglishPublishedPostDocuments(
+  postsDirectory: string,
+  translationsDirectory: string,
+): PublishedPostDocument[] {
+  const sourceDocs = readPublishedPostDocuments(postsDirectory);
+  if (!fs.existsSync(translationsDirectory)) {
+    throw new Error(`English translations directory not found: ${translationsDirectory}`);
+  }
+  const entries = fs.readdirSync(translationsDirectory, { withFileTypes: true });
+  const directories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  if (directories.length > 0) {
+    throw new Error(
+      `Only flat .md files are supported under ${translationsDirectory}, found directories: ${directories.join(", ")}`,
+    );
+  }
+
+  return sourceDocs.map(({ post }) => {
+    const filePath = path.join(translationsDirectory, `${post.slug}.md`);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Missing English translation for published post "${post.slug}"`);
+    }
+    const parsed = parseAstroFrontmatter(fs.readFileSync(filePath, "utf8"));
+    const translation = parseTranslationFrontmatter(post.slug, parsed.frontmatter);
+    return {
+      post: {
+        ...post,
+        title: translation.title,
+        summary: translation.summary,
+        coverAlt: translation.coverAlt,
+      },
+      body: parsed.content,
+    };
+  });
 }

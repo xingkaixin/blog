@@ -4,15 +4,19 @@ import PageArtwork from "@/components/astro/PageArtwork.astro";
 import PostPreview from "@/components/astro/PostPreview.astro";
 import ProjectStickers from "@/components/astro/ProjectStickers.astro";
 import { resolveCover } from "@/lib/covers";
+import { localeFromPath, type Locale } from "@/lib/i18n";
+import { postsMessages } from "@/lib/messages/posts";
 import { buildPostTaxonomy, relatedPosts } from "@/lib/post-tags";
 import { postHref } from "@/lib/published-post";
 import { groupPostsByMonth, type PostConsoleItem } from "@/lib/post-console";
 
 type Props = {
   posts: PostConsoleItem[];
+  locale?: Locale;
 };
 
-const { posts } = Astro.props;
+const { posts, locale = localeFromPath(Astro.url.pathname) } = Astro.props;
+const t = postsMessages[locale].console;
 const yearCounts = new Map<string, number>();
 for (const post of posts) {
   const year = post.date.slice(0, 4);
@@ -20,7 +24,7 @@ for (const post of posts) {
 }
 const years = [...yearCounts].map(([year, count]) => ({ value: year, label: year, count }));
 const latestYear = years[0]?.value ?? "";
-const months = groupPostsByMonth(posts);
+const months = groupPostsByMonth(posts, locale);
 const popularTags = buildPostTaxonomy(posts).tags
   .toSorted((left, right) => right.count - left.count || left.tag.localeCompare(right.tag, "zh-CN"))
   .slice(0, 9);
@@ -53,9 +57,10 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
     <PostFilter
       layout="mobile"
       kind="year"
-      label="年份"
+      label={t.year}
+      ariaLabel={t.filterAria(t.year)}
       options={years}
-      allLabel="全部年份"
+      allLabel={t.yearAllMobile}
       totalCount={posts.length}
       selected={latestYear}
       showCounts
@@ -63,9 +68,10 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
     <PostFilter
       layout="mobile"
       kind="tag"
-      label="标签"
+      label={t.tag}
+      ariaLabel={t.filterAria(t.tag)}
       options={popularTags.slice(0, 6).map(({ tag }) => ({ value: tag, label: tag }))}
-      allLabel="全部"
+      allLabel={t.tagAll}
     />
   </div>
 
@@ -74,9 +80,10 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
       <PostFilter
         layout="desktop"
         kind="year"
-        label="年份"
+        label={t.year}
+        ariaLabel={t.filterAria(t.year)}
         options={years}
-        allLabel="全部"
+        allLabel={t.yearAllDesktop}
         totalCount={posts.length}
         selected={latestYear}
         showCounts
@@ -84,9 +91,10 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
       <PostFilter
         layout="desktop"
         kind="tag"
-        label="标签"
+        label={t.tag}
+        ariaLabel={t.filterAria(t.tag)}
         options={popularTags.map(({ tag }) => ({ value: tag, label: tag }))}
-        allLabel="全部"
+        allLabel={t.tagAll}
       />
 
       <div class="relative flex flex-1 flex-col gap-6">
@@ -102,7 +110,7 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
       <script type="application/json" data-post-console-data set:html={consoleDataJson}></script>
       <div class="flex items-center justify-between gap-3 border-b border-line px-3 pb-2.5 lg:px-5">
         <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
-          <span data-post-console-heading>全部文章</span>
+          <span data-post-console-heading>{t.headingAll}</span>
         </p>
         <button
           type="button"
@@ -110,13 +118,13 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
           aria-expanded="false"
           class="rounded-[6px] px-2 py-1 font-mono text-[11px] text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
         >
-          全部展开
+          {t.expandAll}
         </button>
       </div>
 
       <div
         data-post-console-list
-        aria-label="文章日志"
+        aria-label={t.listAria}
       >
         {
           months.map((month, monthIndex) => (
@@ -128,14 +136,14 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
             >
               <summary class="pc-sum">
                 <span>{month.label}</span>
-                <span data-post-month-count class="ml-auto">{month.posts.length} 篇</span>
+                <span data-post-month-count class="ml-auto">{t.monthCount(month.posts.length)}</span>
               </summary>
               {
                 month.posts.map((post) => (
                   <a
                     data-post-row={post.slug}
                     data-active={post === posts[0] ? "" : undefined}
-                    href={postHref(post.slug)}
+                    href={postHref(post.slug, locale)}
                     class="post-row"
                   >
                     <span class="pc-in">
@@ -162,13 +170,13 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
 
       <div data-post-console-empty hidden class="flex min-h-64 items-center justify-center px-6 text-center">
         <div>
-          <p class="text-base text-ink-800">没有符合条件的文章</p>
+          <p class="text-base text-ink-800">{t.emptyTitle}</p>
           <button
             data-clear-tag
             type="button"
             class="mt-3 rounded-[6px] border border-line bg-surface px-3 py-2 text-sm text-ink-600"
           >
-            清除标签筛选
+            {t.clearTag}
           </button>
         </div>
       </div>
@@ -176,7 +184,7 @@ const consoleDataJson = JSON.stringify(consolePayload).replaceAll("<", "\\u003c"
 
     {
       previewPost && (
-        <PostPreview post={previewPost} related={relatedPosts(posts, previewPost)} />
+        <PostPreview post={previewPost} related={relatedPosts(posts, previewPost)} locale={locale} />
       )
     }
   </div>

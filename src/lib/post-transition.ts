@@ -1,3 +1,4 @@
+import { localeFromPath, type Locale } from "./i18n";
 import { postPreviewContent } from "./post-console";
 import { postHref } from "./published-post";
 import {
@@ -99,9 +100,14 @@ function isPostReturnTrigger(sourceElement: Element | undefined, navigationType:
   return Boolean(sourceElement?.closest("[data-breadcrumb] a, [data-compact-back]"));
 }
 
+function isPostsIndexPath(pathname: string): boolean {
+  const path = normalizeSitePath(pathname);
+  return path === "/posts" || path === "/en/posts";
+}
+
 function isReturnTarget(pathname: string): boolean {
   const path = normalizeSitePath(pathname);
-  return path === "/posts" || path === "/" || isTagArchivePath(path);
+  return isPostsIndexPath(path) || path === "/" || path === "/en" || isTagArchivePath(path);
 }
 
 function pickVisiblePostTitle(container: ParentNode | null): HTMLElement | null {
@@ -134,7 +140,7 @@ function findForwardSourceElements(
   toPath: string,
   slug: string,
 ): { title: HTMLElement | null; cover: HTMLElement | null } {
-  if (fromPath === "/posts") {
+  if (isPostsIndexPath(fromPath)) {
     const preview = document.querySelector<HTMLElement>("[data-post-preview]");
     const clickedPreview = sourceElement?.closest("[data-post-preview]");
     const previewCover = preview?.querySelector<HTMLElement>("[data-post-cover]") ?? null;
@@ -188,7 +194,7 @@ type CompactConsoleTuple = readonly [
   coverMobileAvif?: string,
 ];
 
-function readReturningRowMeta(newDoc: Document, row: HTMLElement, slug: string) {
+function readReturningRowMeta(newDoc: Document, row: HTMLElement, slug: string, locale: Locale) {
   const titleText = row.querySelector("[data-post-title]")?.textContent?.trim() ?? "";
   const script = newDoc.querySelector<HTMLScriptElement>("script[data-post-console-data]");
   if (script?.textContent) {
@@ -198,7 +204,7 @@ function readReturningRowMeta(newDoc: Document, row: HTMLElement, slug: string) 
       let summary = tuple[3];
       if (!summary) {
         const template = newDoc.querySelector<HTMLTemplateElement>("template[data-agent-content]");
-        const href = postHref(slug);
+        const href = postHref(slug, locale);
         if (template) {
           for (const item of template.content.querySelectorAll("li")) {
             if (item.querySelector("a")?.getAttribute("href") === href) {
@@ -244,12 +250,12 @@ function readReturningRowMeta(newDoc: Document, row: HTMLElement, slug: string) 
   };
 }
 
-function syncReturningPostConsole(newDoc: Document, slug: string): void {
+function syncReturningPostConsole(newDoc: Document, slug: string, locale: Locale): void {
   const row = newDoc.querySelector<HTMLElement>(`[data-post-row="${cssEscape(slug)}"]`);
   if (!row) {
     return;
   }
-  const meta = readReturningRowMeta(newDoc, row, slug);
+  const meta = readReturningRowMeta(newDoc, row, slug, locale);
 
   const postYear = meta.date.slice(0, 4);
   const activeYearBtn = newDoc.querySelector<HTMLElement>(
@@ -292,8 +298,9 @@ function syncReturningPostConsole(newDoc: Document, slug: string): void {
       mobileAvif: meta.coverMobileAvif,
       desktopAvif: meta.coverDesktopAvif,
     },
+    locale,
   );
-  const href = postHref(slug);
+  const href = postHref(slug, locale);
   for (const link of preview.querySelectorAll<HTMLAnchorElement>("[data-preview-link]")) {
     link.href = href;
   }
@@ -330,7 +337,7 @@ function syncReturningPostConsole(newDoc: Document, slug: string): void {
 }
 
 function canExpectReturnCover(newDoc: Document, toPath: string, slug: string): boolean {
-  if (toPath !== "/posts") {
+  if (!isPostsIndexPath(toPath)) {
     return false;
   }
   const isXl =
@@ -369,7 +376,7 @@ export function installPostTransitions(): void {
     let slug: string | null = null;
     if (
       toSlug &&
-      (fromPath === "/posts" || (isTagArchivePath(fromPath) && fromPath !== "/tags")) &&
+      (isPostsIndexPath(fromPath) || (isTagArchivePath(fromPath) && fromPath !== "/tags")) &&
       (isPostEntryTrigger(event.sourceElement) || event.navigationType === "traverse")
     ) {
       direction = "forward";
@@ -458,8 +465,8 @@ export function installPostTransitions(): void {
       return;
     }
 
-    if (plan.direction === "back" && plan.toPath === "/posts" && plan.slug) {
-      syncReturningPostConsole(event.newDocument, plan.slug);
+    if (plan.direction === "back" && isPostsIndexPath(plan.toPath) && plan.slug) {
+      syncReturningPostConsole(event.newDocument, plan.slug, localeFromPath(plan.toPath));
     }
 
     applyRootAttributes(event.newDocument, plan.kind, plan.darkroom);
@@ -503,7 +510,8 @@ export function installPostTransitions(): void {
     }
 
     if (plan.direction === "back") {
-      if (plan.toPath === "/posts") {
+      if (isPostsIndexPath(plan.toPath)) {
+        const locale = localeFromPath(plan.toPath);
         const row = document.querySelector<HTMLElement>(
           `[data-post-row="${cssEscape(plan.slug)}"]`,
         );
@@ -517,7 +525,7 @@ export function installPostTransitions(): void {
         if (
           plan.hasSourceCover &&
           isRenderVisible(previewCover) &&
-          matchesDestinationPath(previewCover, `/posts/${encodeURIComponent(plan.slug)}`)
+          matchesDestinationPath(previewCover, normalizeSitePath(postHref(plan.slug, locale)))
         ) {
           previewCover.style.viewTransitionName = "post-cover";
         }

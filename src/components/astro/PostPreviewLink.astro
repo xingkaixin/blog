@@ -1,15 +1,17 @@
 ---
+import type { Locale } from "@/lib/i18n";
 import { postHref, type PublishedPost } from "@/lib/published-post";
 
 type Props = {
   post?: Pick<PublishedPost, "slug" | "title">;
+  locale?: Locale;
 };
 
-const { post } = Astro.props;
+const { post, locale = "zh" } = Astro.props;
 ---
 
 <a
-  href={post ? postHref(post.slug) : undefined}
+  href={post ? postHref(post.slug, locale) : undefined}
   class="line-clamp-2 text-[13px] leading-6 text-ink-600 transition-colors hover:text-accent"
 >
   {post?.title}

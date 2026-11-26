@@ -1,3 +1,5 @@
+import type { Locale } from "./i18n";
+import { postsMessages } from "./messages/posts";
 import type { PublishedPost } from "./published-post";
 import type { ReadingMetrics } from "./reading-metrics";
 
@@ -11,15 +13,17 @@ export type PostConsoleFilter = {
 export function postPreviewContent(
   post: Pick<PostConsoleItem, "wordCount" | "readingMinutes" | "tags">,
   cover: { mobile: string; desktop: string; mobileAvif?: string; desktopAvif?: string },
+  locale: Locale = "zh",
 ) {
+  const t = postsMessages[locale].console;
   return {
     coverSrcSet: `${cover.mobile} 1x, ${cover.desktop} 2x`,
     coverAvifSrcSet:
       cover.mobileAvif && cover.desktopAvif
         ? `${cover.mobileAvif} 1x, ${cover.desktopAvif} 2x`
         : "",
-    wordCount: `${post.wordCount.toLocaleString("zh-CN")} 字`,
-    readingMinutes: `${post.readingMinutes} min`,
+    wordCount: t.wordCount(post.wordCount),
+    readingMinutes: t.readingMinutesShort(post.readingMinutes),
     tags: post.tags.join(" · "),
   };
 }
@@ -34,7 +38,11 @@ export function matchesPostConsoleFilter(
   );
 }
 
-export function groupPostsByMonth<T extends Pick<PostConsoleItem, "date">>(posts: T[]) {
+export function groupPostsByMonth<T extends Pick<PostConsoleItem, "date">>(
+  posts: T[],
+  locale: Locale = "zh",
+) {
+  const t = postsMessages[locale].console;
   const months: Array<{ key: string; label: string; posts: T[] }> = [];
   for (const post of posts) {
     const key = post.date.slice(0, 7);
@@ -44,7 +52,7 @@ export function groupPostsByMonth<T extends Pick<PostConsoleItem, "date">>(posts
     } else {
       months.push({
         key,
-        label: `${key.slice(0, 4)} 年 ${Number(key.slice(5))} 月`,
+        label: t.monthLabel(key.slice(0, 4), Number(key.slice(5))),
         posts: [post],
       });
     }

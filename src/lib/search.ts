@@ -1,3 +1,4 @@
+import type { Locale } from "@/lib/i18n";
 import { parseSearchIndex, type SearchIndexItem } from "@/lib/search-index";
 import { normalizeSearchText, searchTerms } from "@/lib/search-text";
 
@@ -7,29 +8,32 @@ type SearchParams = {
   query: string;
 };
 
-let searchIndexRequest: Promise<SearchIndexItem[]> | null = null;
+const searchIndexRequests: Partial<Record<Locale, Promise<SearchIndexItem[]>>> = {};
 
 export function resetSearchCache(): void {
-  searchIndexRequest = null;
+  delete searchIndexRequests.zh;
+  delete searchIndexRequests.en;
 }
 
-export async function loadSearchIndex(): Promise<SearchIndexItem[]> {
-  if (searchIndexRequest) {
-    return searchIndexRequest;
+export async function loadSearchIndex(locale: Locale = "zh"): Promise<SearchIndexItem[]> {
+  const existing = searchIndexRequests[locale];
+  if (existing) {
+    return existing;
   }
 
-  const request = fetch("/search-index.json", { cache: "no-cache" }).then(async (response) => {
+  const indexPath = locale === "en" ? "/search-index-en.json" : "/search-index.json";
+  const request = fetch(indexPath, { cache: "no-cache" }).then(async (response) => {
     if (!response.ok) {
       throw new Error(`Failed to load search index: ${response.status}`);
     }
     return parseSearchIndex(await response.json());
   });
-  searchIndexRequest = request;
+  searchIndexRequests[locale] = request;
   try {
     return await request;
   } catch (error) {
-    if (searchIndexRequest === request) {
-      searchIndexRequest = null;
+    if (searchIndexRequests[locale] === request) {
+      delete searchIndexRequests[locale];
     }
     throw error;
   }

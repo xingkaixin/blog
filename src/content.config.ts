@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { glob } from "astro/loaders";
 import { defineCollection } from "astro:content";
 import { createPostFrontmatterSchema, POST_FILE_PATTERN } from "@/lib/post-schema";
+import { postTranslationFrontmatterSchema } from "@/lib/post-translation-schema";
 import { parsePostSlug } from "@/lib/published-post";
 
 const postFrontmatterSchema = createPostFrontmatterSchema(
@@ -18,4 +19,13 @@ const posts = defineCollection({
   schema: postFrontmatterSchema,
 });
 
-export const collections = { posts };
+const postsEn = defineCollection({
+  loader: glob({
+    pattern: POST_FILE_PATTERN,
+    base: "./content/posts-en",
+    generateId: ({ entry }) => parsePostSlug(entry.replace(/\.md$/, ""), "translation filename"),
+  }),
+  schema: postTranslationFrontmatterSchema,
+});
+
+export const collections = { posts, postsEn };
