@@ -133,27 +133,46 @@ const meta = {
         >
           {postMeta.title}
         </h1>
-        <p class="mt-4 max-w-[70ch] text-pretty text-[15px] leading-7 text-ink-500">{postMeta.summary}</p>
+        <p data-post-summary class="mt-4 max-w-[70ch] text-pretty text-[15px] leading-7 text-ink-500">{postMeta.summary}</p>
         <div class="mt-5 flex flex-col gap-3 border-t border-line pt-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="flex flex-wrap items-center gap-x-2 font-mono text-[11px] text-ink-500">
             <span>{formatCalendarDate(postMeta.date)}</span>
             <span class="text-ink-200">·</span>
-            <span>{t.wordCount(readingMetrics.wordCount)}</span>
+            <span data-post-word-count data-word-count={String(readingMetrics.wordCount)}>
+              {t.wordCount(readingMetrics.wordCount)}
+            </span>
             <span class="text-ink-200">·</span>
-            <span>{t.readingMinutes(readingMetrics.readingMinutes)}</span>
+            <span data-post-reading-minutes data-reading-minutes={String(readingMetrics.readingMinutes)}>
+              {t.readingMinutes(readingMetrics.readingMinutes)}
+            </span>
             <span class="text-ink-200 print:hidden" aria-hidden="true">·</span>
             <AgentView path={currentPostHref} locale={locale} />
             <span class="text-ink-200 print:hidden" aria-hidden="true">·</span>
-            <a
-              href={alternatePostHref}
-              hreflang={htmlLang[alternateLocale]}
-              lang={htmlLang[alternateLocale]}
-              data-language-switch={alternateLocale}
-              data-astro-reload
-              class="print:hidden text-ink-500 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-            >
-              {locale === "en" ? t.switchToChineseOriginal : t.switchToEnglishAi}
-            </a>
+            {
+              locale === "en" ? (
+                <a
+                  href={alternatePostHref}
+                  hreflang={htmlLang.zh}
+                  lang={htmlLang.zh}
+                  data-original-toggle-link
+                  aria-pressed="false"
+                  class="print:hidden text-ink-500 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                >
+                  {t.switchToChineseOriginal}
+                </a>
+              ) : (
+                <a
+                  href={alternatePostHref}
+                  hreflang={htmlLang[alternateLocale]}
+                  lang={htmlLang[alternateLocale]}
+                  data-language-switch={alternateLocale}
+                  data-astro-reload
+                  class="print:hidden text-ink-500 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                >
+                  {t.switchToEnglishAi}
+                </a>
+              )
+            }
           </div>
           <div class="flex flex-wrap gap-1.5 sm:justify-end">
             {
@@ -177,30 +196,59 @@ const meta = {
           locale === "en" && (
             <aside
               data-ai-translation-notice
-              class="flex flex-col gap-2 rounded-[10px] border border-line bg-surface/70 px-4 py-3.5 text-[13px] leading-6 text-ink-600 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+              data-post-original-switch
+              data-original-href={alternatePostHref}
+              data-current-href={currentPostHref}
+              data-ui-locale={locale}
+              data-content-lang="en"
+              class="translation-notice print:hidden flex flex-col gap-3 rounded-[10px] border border-line bg-surface/75 px-4 py-3 text-[13px] leading-6 text-ink-600 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
             >
-              <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                <span class="rounded-[4px] border border-accent/30 bg-accent-soft px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+              <div class="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                <span
+                  data-translation-badge
+                  class="translation-notice-badge rounded-[4px] border border-accent/30 bg-accent-soft px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-accent"
+                >
                   {t.aiTranslationBadge}
                 </span>
-                <span>{t.aiTranslationNotice}</span>
+                <span data-translation-status aria-live="polite">{t.aiTranslationNotice}</span>
               </div>
-              <a
-                href={alternatePostHref}
-                hreflang={htmlLang.zh}
-                lang={htmlLang.zh}
-                data-language-switch="zh"
-                data-astro-reload
-                class="shrink-0 font-mono text-xs text-ink-800 underline decoration-line underline-offset-3 transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+              <div
+                data-lang-segmented
+                data-active="en"
+                role="group"
+                aria-label={t.contentLanguageAria}
+                class="translation-segmented relative inline-grid shrink-0 grid-cols-2 items-center self-start rounded-[8px] border border-line bg-ink-50 p-[3px] sm:self-auto"
               >
-                {t.switchToChineseOriginal} →
-              </a>
+                <span aria-hidden="true" class="translation-segmented-thumb" />
+                <button
+                  type="button"
+                  data-content-lang-target="en"
+                  aria-pressed="true"
+                  class="translation-seg-btn"
+                >
+                  {t.switchToEnglishAi}
+                </button>
+                <button
+                  type="button"
+                  data-content-lang-target="zh"
+                  aria-pressed="false"
+                  lang={htmlLang.zh}
+                  class="translation-seg-btn"
+                >
+                  中文原文
+                </button>
+              </div>
             </aside>
           )
         }
 
         <div class="border-y border-line py-8 sm:px-2 print:border-0 print:py-0">
-          <div class="article-prose" data-quote-scope>
+          <div
+            class="article-prose"
+            data-quote-scope
+            data-highlight-path={currentPostHref}
+            lang={htmlLang[locale]}
+          >
             <Content />
           </div>
           <QuoteToolbar title={postMeta.title} date={postMeta.date} url={canonicalPostUrl} locale={locale} />
@@ -267,7 +315,7 @@ const meta = {
                 </div>
                 <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
                   <dt class="font-mono text-[11px] text-ink-500">{t.copyrightTitle}</dt>
-                  <dd>{postMeta.title}</dd>
+                  <dd data-copyright-title>{postMeta.title}</dd>
                 </div>
                 <div class="grid grid-cols-[72px_minmax(0,1fr)] gap-3">
                   <dt class="font-mono text-[11px] text-ink-500">{t.copyrightDate}</dt>
@@ -310,6 +358,24 @@ const meta = {
   </section>
 </SiteLayout>
 
+<script>
+  import { attachPostOriginalSwitch } from "@/lib/post-original-switch";
+
+  let detachOriginalSwitch: (() => void) | undefined;
+
+  function mountOriginalSwitch() {
+    detachOriginalSwitch?.();
+    detachOriginalSwitch = attachPostOriginalSwitch();
+  }
+
+  document.addEventListener("astro:before-swap", () => {
+    detachOriginalSwitch?.();
+    detachOriginalSwitch = undefined;
+  });
+  document.addEventListener("astro:page-load", mountOriginalSwitch);
+  mountOriginalSwitch();
+</script>
+
 <style>
   [data-post-grid]:has(> aside[hidden]) {
     margin-inline: auto;
@@ -319,6 +385,99 @@ const meta = {
   @media (min-width: 64rem) {
     :where([data-post-grid]:has(> aside:not([hidden]))) {
       grid-template-columns: minmax(0, 860px) 260px;
+    }
+  }
+
+  .translation-notice {
+    transition:
+      border-color 220ms var(--ease-smooth-out),
+      background-color 220ms var(--ease-smooth-out);
+  }
+
+  .translation-notice[data-content-lang="zh"] {
+    border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+    background: color-mix(in srgb, var(--accent-soft) 28%, var(--surface));
+  }
+
+  .translation-notice-badge {
+    transition:
+      background-color 200ms var(--ease-smooth-out),
+      border-color 200ms var(--ease-smooth-out),
+      color 200ms var(--ease-smooth-out);
+  }
+
+  .translation-notice[data-content-lang="zh"] .translation-notice-badge {
+    border-color: var(--ink-800);
+    background: var(--ink-800);
+    color: var(--bg);
+  }
+
+  .translation-segmented-thumb {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(20, 21, 26, 0.08);
+    transform: translateX(0%);
+    transition: transform 220ms var(--ease-smooth-out);
+    pointer-events: none;
+  }
+
+  .translation-segmented[data-active="zh"] .translation-segmented-thumb {
+    transform: translateX(100%);
+  }
+
+  .translation-seg-btn {
+    position: relative;
+    z-index: 1;
+    padding: 5px 11px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink-500);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color var(--duration-quick) var(--ease-smooth-out),
+      transform 130ms var(--ease-smooth-out);
+  }
+
+  .translation-seg-btn:active {
+    transform: scale(0.97);
+  }
+
+  .translation-seg-btn[aria-pressed="true"] {
+    color: var(--ink-800);
+  }
+
+  .translation-seg-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .translation-seg-btn:hover:not([aria-pressed="true"]) {
+      color: var(--ink-800);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .translation-notice,
+    .translation-notice-badge,
+    .translation-segmented-thumb,
+    .translation-seg-btn {
+      transition: none;
+    }
+
+    .translation-seg-btn:active {
+      transform: none;
     }
   }
 </style>

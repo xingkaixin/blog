@@ -356,7 +356,10 @@ const pageTransition = {
                 >
                   ← {compactHeader.backLabel ?? (locale === "en" ? "Posts" : "文章")}
                 </a>
-                <span class="min-w-0 flex-1 truncate text-center font-sans text-sm font-medium text-ink-800">
+                <span
+                  data-compact-title
+                  class="min-w-0 flex-1 truncate text-center font-sans text-sm font-medium text-ink-800"
+                >
                   {compactHeader.title}
                 </span>
                 <button

@@ -169,7 +169,9 @@ const dialogButton =
   } from "@/lib/article-highlights";
   import { localeFromLang } from "@/lib/i18n";
   import { postsMessages } from "@/lib/messages/posts";
+  import type { PostContentChangedDetail } from "@/lib/post-original-switch";
   import { quoteCitation, renderQuoteCard, textFragmentUrl, type SelectedText } from "@/lib/quote-card";
+  import { POST_CONTENT_CHANGED_EVENT } from "@/lib/site-events";
 
   function flashHighlightMarks(scope: HTMLElement, id: string) {
     const marks = scope.querySelectorAll<HTMLElement>(`mark[${HIGHLIGHT_ATTR}="${CSS.escape(id)}"]`);
@@ -232,16 +234,18 @@ const dialogButton =
       const preview = this.querySelector<HTMLImageElement>("[data-quote-preview]")!;
       const copyImage = this.querySelector<HTMLButtonElement>("[data-quote-copy-image]")!;
       const { title = "", date = "", url = "", path = "", author = "" } = this.dataset;
+      let activeTitle = title;
+      let activePath = scope.dataset.highlightPath || path;
       const t = postsMessages[localeFromLang(document.documentElement.lang)].quoteToolbar;
       this.events = new AbortController();
       const signal = this.events.signal;
-      syncHighlightsInScope(scope, path);
+      syncHighlightsInScope(scope, activePath);
       window.addEventListener(
         HIGHLIGHTS_CHANGED_EVENT,
         (event) => {
           const detailPath = (event as CustomEvent<{ path?: string }>).detail?.path;
-          if (!detailPath || detailPath === normalizeHighlightPath(path)) {
-            syncHighlightsInScope(scope, path);
+          if (!detailPath || detailPath === normalizeHighlightPath(activePath)) {
+            syncHighlightsInScope(scope, activePath);
           }
         },
         { signal },
@@ -429,6 +433,21 @@ const dialogButton =
         }
       };
 
+      document.addEventListener(
+        POST_CONTENT_CHANGED_EVENT,
+        (event) => {
+          const detail = (event as CustomEvent<PostContentChangedDetail>).detail;
+          if (!detail) {
+            return;
+          }
+          getSelection()?.removeAllRanges();
+          hide();
+          activeTitle = detail.title;
+          activePath = detail.highlightPath;
+          syncHighlightsInScope(scope, activePath);
+        },
+        { signal },
+      );
       document.addEventListener("pointerup", () => requestAnimationFrame(evaluate), { signal });
       document.addEventListener("keyup", evaluate, { signal });
       document.addEventListener(
@@ -454,13 +473,13 @@ const dialogButton =
           }
           const action = button.dataset.quoteAction;
           if (action === "copy") {
-            await copyText(button, quoteCitation({ quote, title, author }, url), t.copied);
+            await copyText(button, quoteCitation({ quote, title: activeTitle, author }, url), t.copied);
           } else if (action === "link") {
             await copyText(button, textFragmentUrl(url, range ? selectedBlocks(scope, range) : []), t.copiedLink);
           } else if (action === "highlight" && range) {
             const existingIds = findHighlightIdsInRange(scope, range);
             if (existingIds.length > 0) {
-              removeHighlights(path, existingIds);
+              removeHighlights(activePath, existingIds);
               getSelection()?.removeAllRanges();
               hide();
               return;
@@ -469,7 +488,7 @@ const dialogButton =
             if (!draft) {
               return;
             }
-            const created = addHighlight(path, draft);
+            const created = addHighlight(activePath, draft);
             getSelection()?.removeAllRanges();
             hide();
             flashHighlightMarks(scope, created.id);
@@ -478,7 +497,7 @@ const dialogButton =
             try {
               const theme = document.documentElement.dataset.theme === "dark" ? "night" : "day";
               const cardQuote = quote;
-              const canvas = await renderQuoteCard({ quote: cardQuote, title, date, path, author, theme });
+              const canvas = await renderQuoteCard({ quote: cardQuote, title: activeTitle, date, path: activePath, author, theme });
               // CSP 的 img-src 只放行 data:，预览和下载不能用 blob URL
               preview.src = canvas.toDataURL("image/png");
               card = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));

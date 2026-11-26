@@ -28,7 +28,11 @@ const { items, ariaLabel = "面包屑" } = Astro.props;
                 {item.name}
               </a>
             ) : (
-              <span class={isLast ? "text-ink-500" : ""} aria-current={isLast ? "page" : undefined}>
+              <span
+                class={isLast ? "text-ink-500" : ""}
+                aria-current={isLast ? "page" : undefined}
+                data-breadcrumb-current={isLast ? "" : undefined}
+              >
                 {item.name}
               </span>
             )}

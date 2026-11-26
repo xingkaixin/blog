@@ -184,6 +184,7 @@ const t = postsMessages[locale].enhancements;
 <script>
   import { localeFromLang } from "@/lib/i18n";
   import { postsMessages } from "@/lib/messages/posts";
+  import { POST_CONTENT_CHANGED_EVENT } from "@/lib/site-events";
 
   const FEEDBACK_MS = 1600;
 
@@ -236,6 +237,7 @@ const t = postsMessages[locale].enhancements;
 
   class PostEnhancements extends HTMLElement {
     private controller: AbortController | null = null;
+    private contentController: AbortController | null = null;
     private closeTimer = 0;
 
     connectedCallback() {
@@ -248,15 +250,46 @@ const t = postsMessages[locale].enhancements;
         return;
       }
 
-      this.enhanceCodeBlocks(prose, signal);
-      this.enhanceHeadingAnchors(prose, signal);
       this.setupImageLightbox(prose, signal);
+      this.enhanceContent(prose);
+      document.addEventListener(
+        POST_CONTENT_CHANGED_EVENT,
+        () => {
+          this.enhanceContent(prose);
+        },
+        { signal },
+      );
     }
 
     disconnectedCallback() {
       clearTimeout(this.closeTimer);
+      this.contentController?.abort();
+      this.contentController = null;
       this.controller?.abort();
       this.controller = null;
+    }
+
+    private enhanceContent(prose: HTMLElement) {
+      this.contentController?.abort();
+      this.contentController = new AbortController();
+      const { signal } = this.contentController;
+      this.enhanceCodeBlocks(prose, signal);
+      this.enhanceHeadingAnchors(prose, signal);
+      this.markZoomableImages(prose);
+    }
+
+    private markZoomableImages(prose: HTMLElement) {
+      const t = postsMessages[localeFromLang(document.documentElement.lang)].enhancements;
+      for (const img of prose.querySelectorAll<HTMLImageElement>("img")) {
+        if (img.closest("a")) {
+          continue;
+        }
+        img.dataset.zoomable = "";
+        img.tabIndex = 0;
+        img.setAttribute("role", "button");
+        const altText = img.alt.trim();
+        img.setAttribute("aria-label", t.zoomImageAria(altText));
+      }
     }
 
     private enhanceCodeBlocks(prose: HTMLElement, signal: AbortSignal) {
@@ -414,18 +447,6 @@ const t = postsMessages[locale].enhancements;
         );
         this.closeTimer = window.setTimeout(finishClose, 180);
       };
-
-      const t = postsMessages[localeFromLang(document.documentElement.lang)].enhancements;
-      for (const img of prose.querySelectorAll<HTMLImageElement>("img")) {
-        if (img.closest("a")) {
-          continue;
-        }
-        img.dataset.zoomable = "";
-        img.tabIndex = 0;
-        img.setAttribute("role", "button");
-        const altText = img.alt.trim();
-        img.setAttribute("aria-label", t.zoomImageAria(altText));
-      }
 
       const openImage = (img: HTMLImageElement, restoreOnClose: boolean) => {
         const fullSrc = img.getAttribute("src") || img.currentSrc;

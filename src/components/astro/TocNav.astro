@@ -28,6 +28,7 @@ const t = postsMessages[locale].toc;
             <a
               data-astro-reload
               data-toc-link={item.id}
+              data-toc-depth={String(item.depth)}
               href={`#${item.id}`}
               class:list={[
                 "toc-link block rounded-[6px] px-2.5 py-1.5 text-[12px] leading-5 text-ink-500 transition-[color,background-color] duration-(--duration-quick) hover:bg-ink-50 hover:text-ink-800",
@@ -49,11 +50,12 @@ const t = postsMessages[locale].toc;
           </p>
           <ul data-toc-highlight-list class="space-y-1"></ul>
         </div>
-        <nav hidden={!items.length} class="mt-3 space-y-0.5 border-t border-line pt-3">
+        <nav hidden={!items.length} data-toc-mobile-list class="mt-3 space-y-0.5 border-t border-line pt-3">
           {items.map((item) => (
             <a
               data-astro-reload
               data-toc-link={item.id}
+              data-toc-depth={String(item.depth)}
               href={`#${item.id}`}
               class:list={[
                 "toc-link block border-l-2 border-transparent px-2.5 py-1.5 text-[12px] leading-5 text-ink-500",
@@ -96,11 +98,12 @@ const t = postsMessages[locale].toc;
             </p>
             <ul data-toc-highlight-list class="space-y-1"></ul>
           </div>
-          <nav hidden={!items.length} class="space-y-0.5">
+          <nav hidden={!items.length} data-toc-sheet-list class="space-y-0.5">
             {items.map((item) => (
               <a
                 data-astro-reload
                 data-toc-link={item.id}
+                data-toc-depth={String(item.depth)}
                 href={`#${item.id}`}
                 class:list={[
                   "toc-link block border-l-2 border-transparent px-2.5 py-2 text-[13px] leading-5 text-ink-500 transition-colors hover:text-ink-800",
@@ -123,10 +126,18 @@ const t = postsMessages[locale].toc;
         } from "@/lib/article-highlights";
         import { localeFromLang } from "@/lib/i18n";
         import { postsMessages } from "@/lib/messages/posts";
+        import type { PostContentChangedDetail } from "@/lib/post-original-switch";
+        import type { TocItem } from "@/lib/post-toc";
+        import { POST_CONTENT_CHANGED_EVENT } from "@/lib/site-events";
         import { getTocActiveOffset, resolveActiveTocId } from "@/lib/toc-active";
 
+        function activeHighlightPath(): string {
+          const scope = document.querySelector<HTMLElement>("[data-quote-scope]");
+          return scope?.dataset.highlightPath || location.pathname;
+        }
+
         function orderedHighlightsForPage() {
-          const saved = readHighlights(location.pathname);
+          const saved = readHighlights(activeHighlightPath());
           if (saved.length <= 1) {
             return saved;
           }
@@ -492,10 +503,76 @@ const t = postsMessages[locale].toc;
         window.addEventListener("touchstart", finishNavigation, { passive: true });
         window.addEventListener("keydown", finishNavigation);
         reducedMotion.addEventListener("change", alignDot);
+        function buildTocAnchor(item: TocItem, baseClass: string): HTMLAnchorElement {
+          const a = document.createElement("a");
+          a.setAttribute("data-astro-reload", "");
+          a.setAttribute("data-toc-link", item.id);
+          a.setAttribute("data-toc-depth", String(item.depth));
+          a.href = `#${item.id}`;
+          a.className = item.depth === 3 ? `${baseClass} ml-3` : baseClass;
+          a.textContent = item.text;
+          return a;
+        }
+
+        function replaceTocNavItems(items: readonly TocItem[]) {
+          const desktopTrack = document.querySelector<HTMLElement>("[data-toc-track]");
+          if (desktopTrack) {
+            const dot = desktopTrack.querySelector<HTMLElement>("[data-toc-dot]");
+            const nodes: Node[] = [];
+            if (dot) {
+              nodes.push(dot);
+            }
+            for (const item of items) {
+              nodes.push(
+                buildTocAnchor(
+                  item,
+                  "toc-link block rounded-[6px] px-2.5 py-1.5 text-[12px] leading-5 text-ink-500 transition-[color,background-color] duration-(--duration-quick) hover:bg-ink-50 hover:text-ink-800",
+                ),
+              );
+            }
+            desktopTrack.replaceChildren(...nodes);
+            desktopTrack.hidden = items.length === 0;
+          }
+
+          const mobileList = document.querySelector<HTMLElement>("[data-toc-mobile-list]");
+          if (mobileList) {
+            mobileList.replaceChildren(
+              ...items.map((item) =>
+                buildTocAnchor(
+                  item,
+                  "toc-link block border-l-2 border-transparent px-2.5 py-1.5 text-[12px] leading-5 text-ink-500",
+                ),
+              ),
+            );
+            mobileList.hidden = items.length === 0;
+          }
+
+          const sheetList = document.querySelector<HTMLElement>("[data-toc-sheet-list]");
+          if (sheetList) {
+            sheetList.replaceChildren(
+              ...items.map((item) =>
+                buildTocAnchor(
+                  item,
+                  "toc-link block border-l-2 border-transparent px-2.5 py-2 text-[13px] leading-5 text-ink-500 transition-colors hover:text-ink-800",
+                ),
+              ),
+            );
+            sheetList.hidden = items.length === 0;
+          }
+        }
+
         document.addEventListener("astro:page-load", initialize);
+        document.addEventListener(POST_CONTENT_CHANGED_EVENT, (event) => {
+          const detail = (event as CustomEvent<PostContentChangedDetail>).detail;
+          if (!detail) {
+            return;
+          }
+          replaceTocNavItems(detail.tocItems);
+          initialize();
+        });
         window.addEventListener(HIGHLIGHTS_CHANGED_EVENT, (event) => {
           const detailPath = (event as CustomEvent<{ path?: string }>).detail?.path;
-          if (!detailPath || detailPath === normalizeHighlightPath(location.pathname)) {
+          if (!detailPath || detailPath === normalizeHighlightPath(activeHighlightPath())) {
             renderHighlightBookmarks();
           }
         });
@@ -686,7 +763,7 @@ const t = postsMessages[locale].toc;
           if (removeButton) {
             const id = removeButton.dataset.highlightRemove;
             if (id) {
-              removeHighlights(location.pathname, [id]);
+              removeHighlights(activeHighlightPath(), [id]);
             }
             return;
           }
