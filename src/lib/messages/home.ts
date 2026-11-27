@@ -55,6 +55,8 @@ const zh = {
   hello: {
     title: "Hey，来打个招呼？",
     text: "聊 AI、工具、摄影，或者只是来打个招呼。",
+    toolsHeading: "顺手在做的工具",
+    allTools: (count: number) => `全部 ${count} 个 →`,
   },
   pond: {
     title: "院子里的池塘",
@@ -186,6 +188,8 @@ const en: HomeMessages = {
   hello: {
     title: "Hey, want to say hi?",
     text: "Talk about AI, tools, photography, or just drop by to say hello.",
+    toolsHeading: "Tools I'm building",
+    allTools: (count: number) => `All ${count} →`,
   },
   pond: {
     title: "The pond in the yard",

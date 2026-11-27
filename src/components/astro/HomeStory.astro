@@ -12,13 +12,15 @@ import RecordPlayer from "./RecordPlayer.astro";
 import SignatureAnimation from "./SignatureAnimation.astro";
 import SiteCredits from "./SiteCredits.astro";
 import TravelWindow from "./TravelWindow.astro";
-import { localeFromPath } from "@/lib/i18n";
+import { localeFromPath, localizedHref } from "@/lib/i18n";
 import { homeMessages } from "@/lib/messages/home";
+import { featuredHomeProjects, primaryProjectUrl, projects } from "@/lib/projects";
 import { siteContacts, siteCopy } from "@/lib/site";
 
 const locale = localeFromPath(Astro.url.pathname);
 const t = homeMessages[locale];
 const contacts = Object.values(siteContacts);
+const featuredTools = featuredHomeProjects(locale);
 // 唱片旁的琴键：F4–F6 两个八度，黑键压在相邻白键的接缝上
 const keyRange = Array.from({ length: 25 }, (_, index) => 65 + index);
 const blackPitches = new Set([1, 3, 6, 8, 10]);
@@ -159,6 +161,29 @@ const deferredSprites = await Promise.all(
       <div class="contacts">
         {contacts.map((contact) => <ContactCard contact={contact} />)}
       </div>
+      <section class="contacts home-tools" aria-labelledby="home-tools-heading">
+        <div class="home-tools-head">
+          <h3 id="home-tools-heading">{t.hello.toolsHeading}</h3>
+          <a href={localizedHref("/projects/", locale)}>{t.hello.allTools(projects.length)}</a>
+        </div>
+        {featuredTools.map((project) => (
+          <a
+            class="home-tool-row"
+            href={primaryProjectUrl(project)}
+            target="_blank"
+            rel="noopener"
+            data-product-link={project.id}
+            data-product-source="home"
+          >
+            <img src={project.logo} alt="" width="20" height="20" loading="lazy" decoding="async" />
+            <span class="home-tool-copy">
+              <span class="home-tool-name">{project.name}</span>
+              <span class="home-tool-summary">{project.summary}</span>
+            </span>
+            <span class="home-tool-meta" aria-hidden="true">{project.kind} ↗</span>
+          </a>
+        ))}
+      </section>
     </div>
   </section>
 
@@ -332,12 +357,24 @@ const deferredSprites = await Promise.all(
   @keyframes nudge { 50% { translate: 0 4px; } }
 
   .hello, .credits { display: flex; align-items: center; }
-  .hello-copy { display: flex; flex-direction: column; gap: 18px; width: min(480px, 46%); margin-left: 46%; }
+  .hello-copy { display: flex; flex-direction: column; gap: 14px; width: min(480px, 46%); margin-left: 46%; }
   .bubble { position: relative; align-self: flex-start; padding: 18px 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: var(--shadow-card); }
   .bubble::before { content: ""; position: absolute; left: -8px; top: 26px; width: 14px; height: 14px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--surface); rotate: 45deg; }
   .bubble p { margin: 6px 0 0; font-size: 14px; line-height: 23px; color: var(--ink-500); }
   .contacts { padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-card); }
   .contacts > :global(:last-child) { border-bottom: 0; }
+  .home-tools-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0 8px; border-bottom: 1px solid var(--ink-100); font-family: var(--font-mono); font-size: 10px; }
+  .home-tools-head h3 { margin: 0; font-weight: 500; letter-spacing: .06em; color: var(--ink-400); }
+  .home-tools-head a { color: var(--accent); font-weight: 500; text-decoration: none; }
+  .home-tools-head a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .home-tools-head a:focus-visible, .home-tool-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .home-tool-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--ink-100); text-decoration: none; color: inherit; }
+  .home-tool-row img { width: 20px; height: 20px; border-radius: 5px; object-fit: contain; flex-shrink: 0; }
+  .home-tool-copy { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: 8px; }
+  .home-tool-name { font-size: 12px; font-weight: 500; color: var(--ink-700); white-space: nowrap; transition: color 150ms ease-out; }
+  .home-tool-summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--ink-400); }
+  .home-tool-meta { flex-shrink: 0; font-family: var(--font-mono); font-size: 10px; color: var(--ink-300); transition: color 150ms ease-out; }
+  .home-tool-row:hover .home-tool-name, .home-tool-row:hover .home-tool-meta { color: var(--accent); }
 
   .credits-copy { display: flex; flex-direction: column; gap: 12px; width: 40%; }
   home-story[data-rolling] :global(.roll) { animation-play-state: running; }
