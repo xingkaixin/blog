@@ -2,7 +2,7 @@
 title: "Code Mode: Why Coding Agents Are Letting Models Write Code to Call Tools"
 summary: "Code Mode lets coding agents put tool dependencies, error handling, and filtering into scripts, avoiding intermediate JSON overhead. Comparing Codex, Pi, OpenCode, and Claude Code, this post examines host boundaries with Bash, API stability, and the cost of non-rollback writes."
 coverAlt: "Code Mode: Why Coding Agents Are Letting Models Write Code to Call Tools"
-sourceHash: "d4deb5f65980d291"
+sourceHash: "3ca38a24817664e4"
 ---
 
 [Armin Ronacher's October 6 post](https://lucumr.pocoo.org/2026/10/6/codemode/) includes a real Pi session snippet where the task is to find Sentry organizations first and then list the projects under each one. With standard tool calling, the entire organization list comes back into the conversation context first; the model reads each organization's `slug` and `regionUrl`, then issues the next round of requests.
@@ -46,8 +46,8 @@ Claude Code's documentation doesn't disclose the `REPL`'s underlying JS engine o
 
 Once orchestration moves into scripts, tool API stability matters even more. Armin pointed out a pattern that easily breaks scripts: a tool returns one shape for small queries and switches to another at maximum batch size to save tokens. A script works when the model tests a few items, then crashes on field access when scaled up. When scripts read data by field, tools must keep their return structure consistent instead of forcing callers to guess whether they're getting text or an object.
 
-Nested calls are also brittle right now. Armin shared an example of an outer Code Mode calling an inner Code Mode: strings pick up an extra layer of escaping, and the inner layer can't reach the outer host's tools. Likewise, code running inside Cloudflare's MCP server can only access the APIs it exposes, not the outer host's Bash or image tools.
+Nested calls are also brittle right now. Armin shared an example of an outer Code Mode calling an inner Code Mode: strings pick up an extra layer of escaping (when debugging doubly escaped JSON/JSONL tool logs, I usually drop them into [Unquote](https://unquote.xingkaixin.me/agent-log-viewer/) to unwrap), and the inner layer can't reach the outer host's tools. Likewise, code running inside Cloudflare's MCP server can only access the APIs it exposes, not the outer host's Bash or image tools.
 
-**When adding Code Mode to an agent, start with read-only queries and keep write operations in a step-by-step confirmation flow.** Pick queries from your call logs that return large payloads when only a few fields are needed, filter them in a script, and track both the raw response size and the fields returned to the model to see how much intermediate data you actually save.
+**When adding Code Mode to an agent, start with read-only queries and keep write operations in a step-by-step confirmation flow.** Export a few local sessions with [Agent Dump](https://agent-dump.xingkaixin.me), pick queries from your call logs that return large payloads when only a few fields are needed, filter them in a script, and track both the raw response size and the fields returned to the model to see how much intermediate data you actually save.
 
 Mid-flight failures during writes carry a very different cost. If a script fires three writes in a row and the first two succeed before the third errors out, the completed writes won't roll back automatically just because the script aborted—you still have to check what already went through before retrying.

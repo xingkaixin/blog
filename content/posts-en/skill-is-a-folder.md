@@ -2,7 +2,7 @@
 title: "The Longer the Skill, the Worse the Agent Follows It"
 summary: "An agent skill isn't a manual; it's a folder. Only after I cut an agent-generated SKILL.md from 312 lines down to 40 did it finally work right: keep the judgment criteria at the entry point, split examples and templates into separate files, and write the description as trigger phrases. Plus three questions to ask before accepting a new skill."
 coverAlt: "The Longer the Skill, the Worse the Agent Follows It"
-sourceHash: "7f9152ed4d826dad"
+sourceHash: "6d429487f2451578"
 ---
 
 On Sunday night, I opened the `SKILL.md` that manages my topic selection, ready to add a few more rules. I scrolled to the bottom: 312 lines. When Claude first generated it three weeks ago, I remember clearly, it was 87 lines.
@@ -57,4 +57,4 @@ That `SKILL.md` now sits at forty-something lines and hasn't crept back up. Not 
 
 Next time an agent generates a skill for you, don't skim it and accept it. The more it writes, the harder you have to cut—that's the only way the agent will actually use it right.
 
-Once you're done writing, you can [use negative test cases to check whether a skill misfires](/en/posts/evaluating-agent-skills/) and verify that your `description` boundaries hold.
+Once you're done writing, you can [use negative test cases to check whether a skill misfires](/en/posts/evaluating-agent-skills/) and verify that your `description` boundaries hold; if you reuse skills across repos, you can also organize and sync them with [Agent Skills](https://skills.xingkaixin.me).

@@ -2,7 +2,7 @@
 title: "Skills Over MCP Is Useful, But Don't Rush to Move Your SKILL.md"
 summary: "Skills Over MCP keeps usage instructions in sync with remote services, but on-demand loading already exists and auto-updates still require trust checks. Here is which skills belong over the wire and which should stay in your repo."
 coverAlt: "The remote service has updated while the local Skill stays on an old version"
-sourceHash: "5023b4b43785b763"
+sourceHash: "b0c37d7dec6c871e"
 ---
 
 Last month I wired up a third-party scraping service to my Agent and copied its usage instructions into a local `SKILL.md`: how to split batch jobs, how long to wait after errors, and where to fetch results.
@@ -56,7 +56,7 @@ The best candidates for migration are third-party SaaS services whose APIs and p
 Complex internal enterprise workflows also benefit: the server can serve dynamic flows based on an employee's login credentials, so sales sees sales playbooks and legal gets compliance checklists.
 
 For most other cases, local files remain the better choice:
-- **Personal static skills and writing templates**: These have no external sync needs and are safest inside a local repo;
+- **Personal static skills and writing templates**: These have no external sync needs and are safest inside a local repo (I sync mine across repos with [Agent Skills](https://skills.xingkaixin.me));
 - **Team code style and architecture conventions**: The code repository itself is the single source of truth; spinning up a separate MCP service only adds a single point of failure;
 - **Strictly ordered operation chains**: If the call order takes two or three sentences to explain, put it straight into the tool definition; if it is deterministic logic that must be followed strictly, write it into the host code instead of leaving it to the model to improvise.
 

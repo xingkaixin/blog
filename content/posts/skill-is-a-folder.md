@@ -63,4 +63,4 @@ Claude Code 团队把内部几百个 skill 归成了九大类，从库参考、�
 
 下次 agent 给你生成一个 skill，别扫一眼就收下。它写得多，你删得狠，agent 才会真的用对它。
 
-写完后，可以用[负向用例检查 Skill 是否误触发](/posts/evaluating-agent-skills/)，确认 description 的边界是否有效。
+写完后，可以用[负向用例检查 Skill 是否误触发](/posts/evaluating-agent-skills/)，确认 description 的边界是否有效；如果要跨项目复用，也可以在 [Agent Skills](https://skills.xingkaixin.me) 里直接按分类整理和同步。
