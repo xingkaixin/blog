@@ -4,18 +4,24 @@ import PageArtwork from "@/components/astro/PageArtwork.astro";
 import SiteLayout from "@/layouts/SiteLayout.astro";
 import { bilingualStaticPaths, localeFromPath, localizedHref } from "@/lib/i18n";
 import { projectMessages } from "@/lib/messages/projects";
-import { projects } from "@/lib/projects";
-import { siteConfig } from "@/lib/site";
+import { localizedProjects, projects } from "@/lib/projects";
+import { siteConfig, siteCopy } from "@/lib/site";
 
 export const getStaticPaths = bilingualStaticPaths;
 
 const locale = localeFromPath(Astro.url.pathname);
 const t = projectMessages[locale];
+const pageUrl = `${siteConfig.url}${localizedHref("/projects/", locale)}`;
 const meta = {
   title: t.title,
   description: t.description,
-  url: `${siteConfig.url}${localizedHref("/projects/", locale)}`,
+  url: pageUrl,
   type: "webpage" as const,
+  projects: localizedProjects(locale),
+  breadcrumb: [
+    { name: siteCopy[locale].title, url: `${siteConfig.url}${localizedHref("/", locale)}` },
+    { name: t.title, url: pageUrl },
+  ],
 };
 ---
 

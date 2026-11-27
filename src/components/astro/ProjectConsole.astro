@@ -2,7 +2,7 @@
 import "@/components/project-console.css";
 import type { Locale } from "@/lib/i18n";
 import { projectFilters, projectMessages, type ProjectFilter } from "@/lib/messages/projects";
-import { localizeProject, type Project } from "@/lib/projects";
+import { isOwnedProductUrl, localizeProject, type Project } from "@/lib/projects";
 
 type Props = {
   projects: Project[];
@@ -65,6 +65,9 @@ const showingTemplate =
           :)
         </span>
       </h1>
+      <p class="mt-2 max-w-xl text-xs leading-6 text-ink-500 sm:text-[13px]">
+        {t.lead}
+      </p>
     </div>
     <div class="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
       <label class="flex h-9 w-full items-center gap-2 rounded-[6px] border border-line bg-surface px-2.5 focus-within:border-ink-300 focus-within:ring-2 focus-within:ring-accent/20 sm:w-72">
@@ -159,12 +162,30 @@ const showingTemplate =
               <div class="mt-6 sm:mt-auto sm:pt-8">
                 <h2 class="text-xl font-medium tracking-[-0.025em] text-ink-800">{view.name}</h2>
                 <p class="mt-1.5 max-w-60 text-[13px] leading-5 text-ink-600">{view.summary}</p>
-                <div class="mt-5 flex flex-wrap gap-x-3 gap-y-2">
+                <div class="mt-2.5 flex flex-wrap gap-1.5">
+                  {view.tags.slice(0, 3).map((tag) => (
+                    <span class="rounded-[4px] border border-line bg-ink-50 px-1.5 py-0.5 font-mono text-[10px] leading-none text-ink-500">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <details class="project-details mt-3">
+                  <summary class="inline-flex cursor-pointer list-none items-center gap-1 font-mono text-[10.5px] text-ink-400 transition-colors hover:text-ink-700 focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40">
+                    <span class="project-details-closed">{t.details} ▾</span>
+                    <span class="project-details-open">{t.collapseDetails} ▴</span>
+                  </summary>
+                  <p class="mt-2 border-t border-dashed border-line pt-2 text-[12px] leading-5 text-ink-500">
+                    {view.description}
+                  </p>
+                </details>
+                <div class="mt-4 flex flex-wrap gap-x-3 gap-y-2">
                   {links.map((link) => (
                     <a
                       href={link.url}
                       target="_blank"
-                      rel="noopener noreferrer"
+                      rel={isOwnedProductUrl(link.url) ? "noopener" : "noopener noreferrer"}
+                      data-product-link={view.id}
+                      data-product-source="projects"
                       class="inline-flex items-center gap-1 whitespace-nowrap font-mono text-[11px] font-medium text-ink-700 underline decoration-ink-300 underline-offset-4 transition-colors duration-(--duration-quick) hover:text-accent hover:decoration-accent focus-visible:rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
                     >
                       {link.label}

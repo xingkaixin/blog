@@ -1,4 +1,5 @@
 import { htmlLang, type Locale } from "@/lib/i18n";
+import { primaryProjectUrl, type Project } from "@/lib/projects";
 import { siteConfig, siteContacts, siteCopy } from "@/lib/site";
 
 const OG_WIDTH = 1200;
@@ -30,6 +31,7 @@ type WebpageMeta = BasePageMeta & {
   modifiedTime?: never;
   tags?: never;
   breadcrumb?: BreadcrumbItem[];
+  projects?: readonly Project[];
 };
 
 type ArticleMeta = BasePageMeta & {
@@ -88,6 +90,61 @@ function breadcrumbSchema(items: BreadcrumbItem[]) {
   };
 }
 
+function projectOperatingSystem(project: Project): string {
+  const kind = project.kind.toLowerCase();
+  if (kind.includes("ios")) {
+    return "iOS";
+  }
+  if (kind.includes("桌面") || kind.includes("desktop")) {
+    return "macOS, Windows";
+  }
+  if (kind.includes("cli")) {
+    return "macOS, Linux, Windows";
+  }
+  return "Web";
+}
+
+function projectApplicationCategory(project: Project): string {
+  const tags = project.tags.join(" ").toLowerCase();
+  if (
+    tags.includes("开发者") ||
+    tags.includes("developer") ||
+    tags.includes("cli") ||
+    tags.includes("数据库") ||
+    tags.includes("database")
+  ) {
+    return "DeveloperApplication";
+  }
+  return "UtilitiesApplication";
+}
+
+function projectCollectionSchemas(url: string, projects: readonly Project[], locale: Locale) {
+  const listId = `${url}#itemlist`;
+  return {
+    listId,
+    itemList: {
+      "@type": "ItemList",
+      "@id": listId,
+      numberOfItems: projects.length,
+      itemListElement: projects.map((project, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "SoftwareApplication",
+          name: project.name,
+          description: project.description,
+          url: primaryProjectUrl(project),
+          applicationCategory: projectApplicationCategory(project),
+          operatingSystem: projectOperatingSystem(project),
+          inLanguage: htmlLang[locale],
+          author: { "@id": `${siteConfig.url}/#person` },
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        },
+      })),
+    },
+  };
+}
+
 function buildGraph(meta: PageMeta, locale: Locale) {
   const graph: unknown[] = [personSchema(locale), websiteSchema()];
 
@@ -117,7 +174,17 @@ function buildGraph(meta: PageMeta, locale: Locale) {
   };
 
   if (meta.type === "webpage") {
-    graph.push(webpageNode);
+    if (meta.projects && meta.projects.length > 0) {
+      const { listId, itemList } = projectCollectionSchemas(meta.url, meta.projects, locale);
+      graph.push({
+        ...webpageNode,
+        "@type": "CollectionPage",
+        mainEntity: { "@id": listId },
+      });
+      graph.push(itemList);
+    } else {
+      graph.push(webpageNode);
+    }
     if (meta.breadcrumb) {
       graph.push(breadcrumbSchema(meta.breadcrumb));
     }

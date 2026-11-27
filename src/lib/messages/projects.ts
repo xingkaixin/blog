@@ -7,6 +7,7 @@ export type ProjectFilter = (typeof projectFilters)[number];
 const zh = {
   title: "工具箱",
   description: "XingKaiXin 发布和维护的 iOS 应用、AI、CLI、数据库与开发者工具。",
+  lead: "自己写、自己用的 AI 编程工具、本地桌面软件与 iOS 小应用，全部可免费体验。",
   maintained: (count: number) => `${count} 个在维护`,
   searchLabel: "搜索工具",
   searchPlaceholder: "搜索名称、类型或技术…",
@@ -24,6 +25,8 @@ const zh = {
   emptyHint: "换个关键词或选择其他分类。",
   showing: (visible: number, total: number) => `显示 ${visible} / ${total}`,
   visit: "访问产品",
+  details: "详情",
+  collapseDetails: "收起",
 };
 
 export type ProjectMessages = typeof zh;
@@ -32,6 +35,7 @@ const en: ProjectMessages = {
   title: "Projects",
   description:
     "iOS apps, AI tools, CLIs, database utilities and developer tools built and maintained by XingKaiXin.",
+  lead: "AI coding tools, local desktop apps, and small iOS utilities I build and use myself—free to try.",
   maintained: (count) => `${count} maintained`,
   searchLabel: "Search tools",
   searchPlaceholder: "Search by name, type or tech…",
@@ -49,6 +53,8 @@ const en: ProjectMessages = {
   emptyHint: "Try another keyword or pick a different category.",
   showing: (visible, total) => `Showing ${visible} / ${total}`,
   visit: "Visit",
+  details: "Details",
+  collapseDetails: "Hide",
 };
 
 export const projectMessages: Record<Locale, ProjectMessages> = { zh, en };

@@ -116,3 +116,21 @@
     transition: none !important;
   }
 }
+
+.project-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.project-details .project-details-open,
+.project-details[open] .project-details-closed {
+  display: none;
+}
+
+.project-details[open] .project-details-open {
+  display: inline;
+  color: var(--accent);
+}
+
+.project-card:has(.project-details[open]) .project-card-surface {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
