@@ -12,11 +12,14 @@ import { decodeHeicPhoto, requiresPhotoDecode } from "./photo-decoder";
 const SUPPORTED_EXTENSIONS = new Set([".dng", ".heic", ".heif", ".jpg", ".jpeg", ".png", ".webp"]);
 const WEBP_QUALITY = 82;
 const WEBP_EFFORT = 4;
+const AVIF_QUALITY = 62;
+const AVIF_EFFORT = 4;
 const MAX_SOURCE_BYTES = 256 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 100_000_000;
 
-export type ProcessedPhoto = Omit<PhotoRecord, "albumIds" | "mediaRevision"> & {
+export type ProcessedPhoto = Omit<PhotoRecord, "albumIds" | "mediaRevision" | "avifWidths"> & {
   variants: Map<PhotoVariantWidth, Uint8Array>;
+  avifVariants?: Map<PhotoVariantWidth, Uint8Array>;
 };
 
 export type PhotoSourceSnapshot = {
@@ -155,7 +158,7 @@ export async function processPhotoFile(
       throw new Error(`照片像素不能超过 ${MAX_IMAGE_PIXELS}`);
     }
 
-    const [placeholderColor, variants] = await settlePair(
+    const [placeholderColor, generated] = await settlePair(
       readPlaceholderColor(decodedSource),
       buildVariants(decodedSource),
     );
@@ -166,7 +169,8 @@ export async function processPhotoFile(
       width,
       height,
       placeholderColor,
-      variants,
+      variants: generated.webp,
+      avifVariants: generated.avif,
     };
   } finally {
     if (temporaryDirectory) {
@@ -191,10 +195,57 @@ async function readPlaceholderColor(source: string): Promise<string> {
   return `#${[red, green, blue].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
 }
 
-async function buildVariants(source: string): Promise<Map<PhotoVariantWidth, Uint8Array>> {
-  const variants = new Map<PhotoVariantWidth, Uint8Array>();
+async function buildVariants(source: string): Promise<{
+  webp: Map<PhotoVariantWidth, Uint8Array>;
+  avif: Map<PhotoVariantWidth, Uint8Array>;
+}> {
+  const webp = new Map<PhotoVariantWidth, Uint8Array>();
+  const avif = new Map<PhotoVariantWidth, Uint8Array>();
 
   for (const width of PHOTO_VARIANT_WIDTHS) {
+    const resized = sharp(source, {
+      autoOrient: true,
+      failOn: "warning",
+      limitInputPixels: MAX_IMAGE_PIXELS,
+    })
+      .resize({
+        width,
+        height: width,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .toColourspace("srgb");
+    const [webpData, avifData] = await Promise.all([
+      resized
+        .clone()
+        .webp({
+          quality: WEBP_QUALITY,
+          effort: WEBP_EFFORT,
+          smartSubsample: true,
+        })
+        .toBuffer(),
+      resized
+        .clone()
+        .avif({
+          quality: AVIF_QUALITY,
+          effort: AVIF_EFFORT,
+        })
+        .toBuffer(),
+    ]);
+    webp.set(width, webpData);
+    avif.set(width, avifData);
+  }
+
+  return { webp, avif };
+}
+
+export async function encodeAvifVariants(
+  source: string | Uint8Array,
+  widths: readonly PhotoVariantWidth[],
+): Promise<Map<PhotoVariantWidth, Uint8Array>> {
+  const variants = new Map<PhotoVariantWidth, Uint8Array>();
+
+  for (const width of widths) {
     const data = await sharp(source, {
       autoOrient: true,
       failOn: "warning",
@@ -207,10 +258,9 @@ async function buildVariants(source: string): Promise<Map<PhotoVariantWidth, Uin
         withoutEnlargement: true,
       })
       .toColourspace("srgb")
-      .webp({
-        quality: WEBP_QUALITY,
-        effort: WEBP_EFFORT,
-        smartSubsample: true,
+      .avif({
+        quality: AVIF_QUALITY,
+        effort: AVIF_EFFORT,
       })
       .toBuffer();
     variants.set(width, data);

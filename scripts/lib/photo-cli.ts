@@ -1,5 +1,6 @@
 import path from "node:path";
 import { mapWithConcurrency } from "./concurrency";
+import { backfillPhotoAvif } from "./photo-avif-backfill";
 import { migratePhotoCatalog } from "./photo-catalog-store";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
 import { assertPhotoDirectoryOutsidePublic } from "./photo-preview";
@@ -13,7 +14,7 @@ import {
   type PhotoObjectStore,
 } from "./photo-store";
 
-export type PhotoCommandName = "publish" | "delete" | "gc" | "migrate";
+export type PhotoCommandName = "publish" | "delete" | "gc" | "migrate" | "backfill-avif";
 
 type CommonOptions = {
   output?: string;
@@ -44,11 +45,17 @@ export type MigratePhotoCliOptions = CommonOptions & {
   confirm: boolean;
 };
 
+export type BackfillPhotoAvifCliOptions = CommonOptions & {
+  command: "backfill-avif";
+  confirm: boolean;
+};
+
 export type PhotoCliOptions =
   | PublishPhotoCliOptions
   | DeletePhotoCliOptions
   | GarbageCollectPhotoCliOptions
-  | MigratePhotoCliOptions;
+  | MigratePhotoCliOptions
+  | BackfillPhotoAvifCliOptions;
 
 export type PhotoCliProcessor = {
   process(file: string, id: string, timezone: string | undefined): Promise<ProcessedPhoto>;
@@ -114,6 +121,16 @@ R2 环境变量:
   --output <目录>         操作本地目录；省略时操作 R2
   --help                  显示帮助
 `,
+  "backfill-avif": `为存量照片从 2048.webp 下采样补齐 480/960 AVIF 版本
+
+用法:
+  bun run photos:backfill-avif -- --confirm [选项]
+
+选项:
+  --confirm               确认生成并上传存量照片的 480/960 AVIF 版本
+  --output <目录>         操作本地目录；省略时操作 R2
+  --help                  显示帮助
+`,
 };
 
 const defaultIo: PhotoCliIo = {
@@ -176,6 +193,10 @@ async function runCommand(
     await runGarbageCollectCommand(parsePhotoCliArguments(command, args), io);
     return;
   }
+  if (command === "backfill-avif") {
+    await runBackfillAvifCommand(parsePhotoCliArguments(command, args), io);
+    return;
+  }
   await runMigrateCommand(parsePhotoCliArguments(command, args), io);
 }
 
@@ -183,6 +204,10 @@ function parsePhotoCliArguments(command: "publish", args: string[]): PublishPhot
 function parsePhotoCliArguments(command: "delete", args: string[]): DeletePhotoCliOptions;
 function parsePhotoCliArguments(command: "gc", args: string[]): GarbageCollectPhotoCliOptions;
 function parsePhotoCliArguments(command: "migrate", args: string[]): MigratePhotoCliOptions;
+function parsePhotoCliArguments(
+  command: "backfill-avif",
+  args: string[],
+): BackfillPhotoAvifCliOptions;
 function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions;
 function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): PhotoCliOptions {
   const specification = COMMAND_ARGUMENTS[command];
@@ -223,6 +248,9 @@ function parsePhotoCliArguments(command: PhotoCommandName, args: string[]): Phot
       scan: parsed.flags.has("--scan"),
     };
   }
+  if (command === "backfill-avif") {
+    return { command, ...common, confirm: parsed.flags.has("--confirm") };
+  }
   return { command, ...common, confirm: parsed.flags.has("--confirm") };
 }
 
@@ -243,6 +271,7 @@ const COMMAND_ARGUMENTS = {
   delete: { valueOptions: [], flagOptions: ["--confirm"], rejectsPositional: false },
   gc: { valueOptions: [], flagOptions: ["--confirm", "--scan"], rejectsPositional: true },
   migrate: { valueOptions: [], flagOptions: ["--confirm"], rejectsPositional: true },
+  "backfill-avif": { valueOptions: [], flagOptions: ["--confirm"], rejectsPositional: true },
 } as const satisfies Record<
   PhotoCommandName,
   {
@@ -415,6 +444,43 @@ async function runMigrateCommand(options: MigratePhotoCliOptions, io: PhotoCliIo
     }
     const migrated = await migratePhotoCatalog(store);
     io.log(migrated ? "完成：Catalog 已迁移到当前格式" : "Catalog 已是当前格式，无需写入");
+  } finally {
+    store.close?.();
+  }
+}
+
+async function runBackfillAvifCommand(
+  options: BackfillPhotoAvifCliOptions,
+  io: PhotoCliIo,
+): Promise<void> {
+  if (options.help) {
+    io.write(HELP["backfill-avif"]);
+    return;
+  }
+  if (!options.confirm) {
+    throw new Error("补齐 AVIF 需要显式添加 --confirm；不执行任何修改");
+  }
+
+  const store = createStore(options.output, "补齐 AVIF", io);
+  try {
+    const result = await backfillPhotoAvif({
+      store,
+      onWarning: (message) => io.error(message),
+      onProgress(progress) {
+        if (progress.type === "processing") {
+          io.log(
+            `[${progress.month} ${progress.index}/${progress.total}] 生成 AVIF ${progress.photoId}`,
+          );
+        } else {
+          io.log(
+            `已补齐 ${progress.photoId} (${progress.widths.map((width) => `${width}.avif`).join(", ")})`,
+          );
+        }
+      },
+    });
+    io.log(
+      `完成：扫描 ${result.scannedPhotos} 张，补齐 ${result.backfilledPhotos} 张，跳过 ${result.skippedPhotos} 张，更新 ${result.updatedPeriods} 个月份`,
+    );
   } finally {
     store.close?.();
   }

@@ -45,6 +45,19 @@ describe("file photo store", () => {
     await store.put(key, "next", { ...options, expectedVersion: version });
     expect((await store.getText(key))?.text).toBe("next");
   }, 10_000);
+
+  it("reads binary media objects with getBytes", async () => {
+    const root = temporaryDirectory();
+    const store = new FilePhotoObjectStore(root);
+    const payload = new Uint8Array([0, 1, 2, 255]);
+    await store.put("media/sample/2048.webp", payload, {
+      contentType: "image/webp",
+      cacheControl: "immutable",
+      expectedVersion: null,
+    });
+    expect((await store.getBytes("media/sample/2048.webp"))?.bytes).toEqual(payload);
+    await expect(store.getBytes("media/sample/missing.webp")).resolves.toBeNull();
+  });
 });
 
 describe("R2 photo store", () => {
@@ -62,6 +75,21 @@ describe("R2 photo store", () => {
     });
     const buckets = send.mock.calls.map(([command]) => command.input.Bucket);
     expect(buckets).toEqual(["photo-control", "photo-control"]);
+  });
+
+  it("reads binary objects from the public bucket with getBytes", async () => {
+    const { store, send } = r2Store();
+    const payload = new Uint8Array([1, 2, 3]);
+    send.mockResolvedValueOnce({
+      ETag: '"v1"',
+      Body: { transformToByteArray: async () => payload },
+    });
+
+    await expect(store.getBytes("media/sample/2048.webp")).resolves.toEqual({
+      bytes: payload,
+      version: '"v1"',
+    });
+    expect(send.mock.calls[0][0].input.Bucket).toBe("photos");
   });
 
   it("requires a distinct private control bucket", () => {

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { photoMonthCatalogObjectKey } from "../../src/lib/photo-artifact";
+import { photoMonthCatalogObjectKey, type PhotoVariantWidth } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   PHOTO_CATALOG_INDEX_SCHEMA_VERSION,
@@ -83,6 +83,19 @@ export class PhotoCatalogEditor {
     return this.state.photoMonth(photoId) !== undefined;
   }
 
+  periods(): PhotoPeriod[] {
+    return [...this.state.periods().values()];
+  }
+
+  async readMonth(month: string): Promise<PhotoMonthCatalog | undefined> {
+    await loadPhotoCatalogMonths(this.store, this.state, [month]);
+    return this.state.monthForWrite(month);
+  }
+
+  assertArtifactsNotRetired(objectKeys: Iterable<string>): void {
+    this.state.assertArtifactsNotRetired(objectKeys);
+  }
+
   async putArtifact(
     key: string,
     body: PhotoObjectBody,
@@ -101,6 +114,25 @@ export class PhotoCatalogEditor {
     for (const photoId of photoIds) {
       this.state.addPhotoToAlbum(photoId, albumId);
     }
+  }
+
+  async addPhotoAvifWidths(
+    updates: ReadonlyMap<string, { mediaRevision?: string; widths: readonly PhotoVariantWidth[] }>,
+  ): Promise<number> {
+    const photoIds = [...updates.keys()].filter((photoId) => this.hasPhoto(photoId));
+    await loadPhotoCatalogMonths(
+      this.store,
+      this.state,
+      photoIds.flatMap((photoId) => this.state.photoMonth(photoId) ?? []),
+    );
+    let updated = 0;
+    for (const photoId of photoIds) {
+      const update = updates.get(photoId);
+      if (update && this.state.setPhotoAvifWidths(photoId, update.widths, update.mediaRevision)) {
+        updated += 1;
+      }
+    }
+    return updated;
   }
 
   async addPhotos(photos: PhotoRecord[]): Promise<void> {

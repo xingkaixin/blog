@@ -1,26 +1,25 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import sharp from "sharp";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  PHOTO_VARIANT_WIDTHS,
-  isPhotoArtifactKey,
-  photoMediaObjectKey,
-  type PhotoVariantWidth,
-} from "../../src/lib/photo-artifact";
+import { isPhotoArtifactKey, type PhotoVariantWidth } from "../../src/lib/photo-artifact";
 import {
   PHOTO_CATALOG_INDEX_KEY,
   parsePhotoCatalogIndex,
   parsePhotoMonthCatalog,
+  photoMediaObjectKeys,
 } from "../../src/lib/photo-catalog";
+import { backfillPhotoAvif } from "./photo-avif-backfill";
 import { PHOTO_CATALOG_CONTROL_KEY, parsePhotoCatalogControl } from "./photo-catalog-control";
 import { migratePhotoCatalog } from "./photo-catalog-store";
 import { collectPhotoGarbage } from "./photo-garbage-collector";
 import { publishPhotos } from "./photo-publisher";
 import { retirePhotos } from "./photo-retirement";
-import { hashPhotoFile, type ProcessedPhoto } from "./photo-source";
+import { encodeAvifVariants, hashPhotoFile, type ProcessedPhoto } from "./photo-source";
 import {
   PhotoStoreConflictError,
+  type PhotoBinaryObject,
   type PhotoObjectBody,
   type PhotoObjectStore,
   type PhotoTextObject,
@@ -50,6 +49,17 @@ class MemoryPhotoStore implements PhotoObjectStore {
     }
     return {
       text: typeof value === "string" ? value : new TextDecoder().decode(value),
+      version: this.versions.get(key)!,
+    };
+  }
+
+  async getBytes(key: string): Promise<PhotoBinaryObject | null> {
+    const value = this.objects.get(key);
+    if (value === undefined) {
+      return null;
+    }
+    return {
+      bytes: typeof value === "string" ? new TextEncoder().encode(value) : value,
       version: this.versions.get(key)!,
     };
   }
@@ -111,11 +121,7 @@ async function publishedObjectKeys(store: PhotoObjectStore): Promise<string[]> {
     keys.push(period.path);
     const month = parsePhotoMonthCatalog(JSON.parse((await store.getText(period.path))!.text));
     for (const photo of month.photos) {
-      keys.push(
-        ...PHOTO_VARIANT_WIDTHS.map((width) =>
-          photoMediaObjectKey(photo.id, width, photo.mediaRevision),
-        ),
-      );
+      keys.push(...photoMediaObjectKeys(photo));
     }
   }
   return keys;
@@ -688,6 +694,159 @@ describe("photo publisher", () => {
       expect(store.objects.has(key), key).toBe(true);
     }
     expect((await readControl(store)).retiredArtifacts).toEqual([]);
+  });
+
+  it("publishes and retires AVIF variants alongside WebP for new photos", async () => {
+    const file = await createSourceFile("new photo with avif");
+    const id = await hashPhotoFile(file);
+    const store = new MemoryPhotoStore();
+    const withAvif = (): ProcessedPhoto => ({
+      ...processedPhoto(id),
+      avifVariants: new Map<PhotoVariantWidth, Uint8Array>([
+        [480, new Uint8Array([1, 4, 8, 0])],
+        [960, new Uint8Array([1, 9, 6, 0])],
+        [2048, new Uint8Array([1, 2, 0, 4, 8])],
+      ]),
+    });
+
+    const publishedAt = new Date("2026-08-10T12:00:00.000Z");
+    await publishPhotos({
+      files: [file],
+      store,
+      processPhoto: async () => withAvif(),
+      now: () => publishedAt,
+    });
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const month = parsePhotoMonthCatalog(
+      JSON.parse((await store.getText(index.periods[0].path))!.text),
+    );
+    expect(month.photos[0]?.avifWidths).toEqual([480, 960, 2048]);
+    const liveKeys = await publishedObjectKeys(store);
+    expect(liveKeys.filter((key) => key.endsWith(".avif"))).toHaveLength(3);
+
+    await collectPhotoGarbage({
+      store,
+      scan: true,
+      now: () => new Date("2026-08-11T00:00:00.000Z"),
+    });
+    expect((await readControl(store)).retiredArtifacts).toEqual([]);
+
+    await retirePhotos({
+      photoIds: [id],
+      store,
+      now: () => new Date("2026-08-11T12:00:00.000Z"),
+    });
+    await collectPhotoGarbage({
+      store,
+      now: () => new Date("2026-08-12T14:00:00.000Z"),
+    });
+    expect(liveKeys.some((key) => store.objects.has(key))).toBe(false);
+    expect((await readControl(store)).retiredArtifacts).toEqual([]);
+  });
+
+  it("backfills 480 and 960 AVIF from existing 2048 WebP idempotently and safely", async () => {
+    const legacyFile = await createSourceFile("legacy photo");
+    const newFile = await createSourceFile("already avif photo");
+    const legacyId = await hashPhotoFile(legacyFile);
+    const newId = await hashPhotoFile(newFile);
+    const store = new MemoryPhotoStore();
+
+    const syntheticWebp = await sharp({
+      create: { width: 1600, height: 1200, channels: 3, background: { r: 64, g: 128, b: 192 } },
+    })
+      .webp({ quality: 82 })
+      .toBuffer();
+
+    await publishPhotos({
+      files: [legacyFile],
+      store,
+      processPhoto: async () => ({
+        ...processedPhoto(legacyId, "2026-04-10T12:00:00+08:00"),
+        width: 1600,
+        height: 1200,
+        variants: new Map<PhotoVariantWidth, Uint8Array>([
+          [480, new Uint8Array([4, 8, 0])],
+          [960, new Uint8Array([9, 6, 0])],
+          [2048, syntheticWebp],
+        ]),
+      }),
+      now: () => new Date("2026-08-01T12:00:00.000Z"),
+    });
+    await publishPhotos({
+      files: [newFile],
+      store,
+      processPhoto: async () => ({
+        ...processedPhoto(newId, "2026-05-10T12:00:00+08:00"),
+        avifVariants: new Map<PhotoVariantWidth, Uint8Array>([
+          [480, new Uint8Array([4])],
+          [960, new Uint8Array([9])],
+          [2048, new Uint8Array([2])],
+        ]),
+      }),
+      now: () => new Date("2026-08-02T12:00:00.000Z"),
+    });
+
+    const first = await backfillPhotoAvif({
+      store,
+      encodeAvif: encodeAvifVariants,
+      now: () => new Date("2026-08-03T12:00:00.000Z"),
+    });
+    expect(first).toEqual({
+      scannedPhotos: 2,
+      backfilledPhotos: 1,
+      skippedPhotos: 1,
+      updatedPeriods: 1,
+    });
+
+    const index = parsePhotoCatalogIndex(
+      JSON.parse((await store.getText(PHOTO_CATALOG_INDEX_KEY))!.text),
+    );
+    const aprilPeriod = index.periods.find((period) => period.month === "2026-04")!;
+    const aprilMonth = parsePhotoMonthCatalog(
+      JSON.parse((await store.getText(aprilPeriod.path))!.text),
+    );
+    const backfilledPhoto = aprilMonth.photos[0];
+    expect(backfilledPhoto.avifWidths).toEqual([480, 960]);
+
+    const avif480Key = `media/${legacyId}/${backfilledPhoto.mediaRevision}/480.avif`;
+    const avif960Key = `media/${legacyId}/${backfilledPhoto.mediaRevision}/960.avif`;
+    const avif2048Key = `media/${legacyId}/${backfilledPhoto.mediaRevision}/2048.avif`;
+    expect(store.objects.has(avif480Key)).toBe(true);
+    expect(store.objects.has(avif960Key)).toBe(true);
+    expect(store.objects.has(avif2048Key)).toBe(false);
+
+    const meta480 = await sharp((await store.getBytes(avif480Key))!.bytes).metadata();
+    const meta960 = await sharp((await store.getBytes(avif960Key))!.bytes).metadata();
+    expect(meta480.width).toBe(480);
+    expect(meta960.width).toBe(960);
+
+    // 二次执行应全部跳过，不写新对象；GC 扫描不误删补齐的 AVIF。
+    const writesBeforeRetry = store.writes.length;
+    const second = await backfillPhotoAvif({
+      store,
+      encodeAvif: async () => {
+        throw new Error("should not re-encode already backfilled photos");
+      },
+      now: () => new Date("2026-08-04T00:00:00.000Z"),
+    });
+    expect(second).toEqual({
+      scannedPhotos: 2,
+      backfilledPhotos: 0,
+      skippedPhotos: 2,
+      updatedPeriods: 0,
+    });
+    expect(store.writes).toHaveLength(writesBeforeRetry);
+
+    await collectPhotoGarbage({
+      store,
+      scan: true,
+      now: () => new Date("2026-08-06T00:00:00.000Z"),
+    });
+    expect(store.objects.has(avif480Key)).toBe(true);
+    expect(store.objects.has(avif960Key)).toBe(true);
   });
 });
 

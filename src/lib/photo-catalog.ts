@@ -3,8 +3,10 @@ import {
   isPhotoId,
   isPhotoMonth,
   isPhotoRevision,
+  isPhotoVariantWidth,
   monthFromPhotoMonthCatalogObjectKey,
   photoMediaObjectKey,
+  type PhotoMediaFormat,
   type PhotoVariantWidth,
 } from "./photo-artifact";
 import { isPhotoTimestamp } from "./photo-timestamp";
@@ -24,6 +26,7 @@ export type PhotoAlbum = {
 export type PhotoRecord = {
   id: string;
   mediaRevision?: string;
+  avifWidths?: PhotoVariantWidth[];
   capturedAt: string;
   width: number;
   height: number;
@@ -178,6 +181,24 @@ function readPhotoMonths(value: unknown, field: string): Record<string, string> 
   return output;
 }
 
+function readAvifWidths(value: unknown, field: string): PhotoVariantWidth[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error(`${field} 必须是非空数组`);
+  }
+  const widths = value.map((item, index) => {
+    if (!isPhotoVariantWidth(item)) {
+      throw new Error(`${field}[${index}] 不是有效的照片宽度`);
+    }
+    return item;
+  });
+  for (let index = 1; index < widths.length; index += 1) {
+    if (widths[index - 1] >= widths[index]) {
+      throw new Error(`${field} 必须按升序排列且不能重复`);
+    }
+  }
+  return widths;
+}
+
 function readPhoto(value: unknown, field: string): PhotoRecord {
   const photo = readRecord(value, field);
   const id = readString(photo.id, `${field}.id`);
@@ -185,6 +206,10 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
     photo.mediaRevision === undefined
       ? undefined
       : readString(photo.mediaRevision, `${field}.mediaRevision`);
+  const avifWidths =
+    photo.avifWidths === undefined
+      ? undefined
+      : readAvifWidths(photo.avifWidths, `${field}.avifWidths`);
   const capturedAt = readTimestamp(photo.capturedAt, `${field}.capturedAt`);
   const albumIds = readStringArray(photo.albumIds, `${field}.albumIds`);
   const placeholderColor = readString(photo.placeholderColor, `${field}.placeholderColor`);
@@ -206,6 +231,7 @@ function readPhoto(value: unknown, field: string): PhotoRecord {
   return {
     id,
     ...(mediaRevision === undefined ? {} : { mediaRevision }),
+    ...(avifWidths === undefined ? {} : { avifWidths }),
     capturedAt,
     width: readInteger(photo.width, `${field}.width`, 1, MAX_IMAGE_DIMENSION),
     height: readInteger(photo.height, `${field}.height`, 1, MAX_IMAGE_DIMENSION),
@@ -433,18 +459,40 @@ export function photoObjectUrl(baseUrl: string, key: string): string {
   return `${normalizedBaseUrl}/${normalizedKey}`;
 }
 
+export function photoMediaObjectKeys(
+  photo: Pick<PhotoRecord, "id" | "mediaRevision" | "avifWidths">,
+): string[] {
+  return [
+    ...PHOTO_VARIANT_WIDTHS.map((width) =>
+      photoMediaObjectKey(photo.id, width, photo.mediaRevision, "webp"),
+    ),
+    ...(photo.avifWidths ?? []).map((width) =>
+      photoMediaObjectKey(photo.id, width, photo.mediaRevision, "avif"),
+    ),
+  ];
+}
+
+export function photoHasAvifWidth(
+  photo: Pick<PhotoRecord, "avifWidths">,
+  width: PhotoVariantWidth,
+): boolean {
+  return photo.avifWidths?.includes(width) ?? false;
+}
+
 export function photoVariantUrl(
   baseUrl: string,
   photo: Pick<PhotoRecord, "id" | "mediaRevision">,
   width: PhotoVariantWidth,
+  format: PhotoMediaFormat = "webp",
 ): string {
-  return photoObjectUrl(baseUrl, photoMediaObjectKey(photo.id, width, photo.mediaRevision));
+  return photoObjectUrl(baseUrl, photoMediaObjectKey(photo.id, width, photo.mediaRevision, format));
 }
 
 export function photoVariantSrcSet(
   baseUrl: string,
   photo: Pick<PhotoRecord, "id" | "mediaRevision" | "width" | "height">,
   sizes: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
+  format: PhotoMediaFormat = "webp",
 ): string {
   const candidates = new Map<number, string>();
   for (const size of sizes) {
@@ -452,8 +500,25 @@ export function photoVariantSrcSet(
     const scale = Math.min(1, size / Math.max(photo.width, photo.height));
     const width = Math.max(1, Math.round(photo.width * scale));
     if (!candidates.has(width)) {
-      candidates.set(width, `${photoVariantUrl(baseUrl, photo, size)} ${width}w`);
+      candidates.set(width, `${photoVariantUrl(baseUrl, photo, size, format)} ${width}w`);
     }
   }
   return [...candidates.values()].join(", ");
+}
+
+export function photoAvifSrcSet(
+  baseUrl: string,
+  photo: Pick<PhotoRecord, "id" | "mediaRevision" | "width" | "height" | "avifWidths">,
+  sizes: readonly PhotoVariantWidth[] = PHOTO_VARIANT_WIDTHS,
+  requireAll = false,
+): string | undefined {
+  const available = photo.avifWidths;
+  if (!available || available.length === 0) {
+    return undefined;
+  }
+  const matched = sizes.filter((size) => available.includes(size));
+  if (matched.length === 0 || (requireAll && matched.length !== sizes.length)) {
+    return undefined;
+  }
+  return photoVariantSrcSet(baseUrl, photo, matched, "avif");
 }

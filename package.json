@@ -24,6 +24,7 @@
     "lint": "TSRS_LINT_RUN_EXTERNAL_CODE=1 oxlint --type-aware",
     "lint:fix": "TSRS_LINT_RUN_EXTERNAL_CODE=1 oxlint --type-aware --fix",
     "music:render": "bun scripts/render-home-score.ts",
+    "photos:backfill-avif": "bun scripts/backfill-photo-avif.ts",
     "photos:delete": "bun scripts/delete-photos.ts",
     "photos:gc": "bun scripts/collect-photo-garbage.ts",
     "photos:migrate": "bun scripts/migrate-photo-catalog.ts",

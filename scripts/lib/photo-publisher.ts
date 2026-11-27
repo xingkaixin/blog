@@ -74,7 +74,7 @@ export async function publishPhotos(options: PublishPhotosOptions): Promise<Publ
             throw new Error(`照片处理器返回了错误的内容 ID: ${photo.id}`);
           }
           const record = createPhotoRecord(photo, options.album?.id);
-          await uploadPhotoAssets(catalog, record, photo.variants);
+          await uploadPhotoAssets(catalog, record, photo.variants, photo.avifVariants);
           preparedPhotos.set(record.id, record);
         } finally {
           await snapshot.dispose();
@@ -129,9 +129,13 @@ async function publishPhotosOnce(
 }
 
 function createPhotoRecord(photo: ProcessedPhoto, albumId: string | undefined): PhotoRecord {
+  const avifWidths = photo.avifVariants?.size
+    ? [...photo.avifVariants.keys()].toSorted((left, right) => left - right)
+    : undefined;
   return parsePhotoRecord({
     id: photo.id,
     mediaRevision: randomBytes(12).toString("hex"),
+    ...(avifWidths ? { avifWidths } : {}),
     capturedAt: photo.capturedAt,
     width: photo.width,
     height: photo.height,
@@ -186,14 +190,35 @@ async function uploadPhotoAssets(
   catalog: PhotoCatalogEditor,
   photo: PhotoRecord,
   variants: ProcessedPhoto["variants"],
+  avifVariants?: ProcessedPhoto["avifVariants"],
 ): Promise<void> {
-  await mapWithConcurrency(PHOTO_VARIANT_WIDTHS, PROCESS_CONCURRENCY, async (width) => {
-    const body = variants.get(width);
-    if (!body) {
-      throw new Error(`照片 ${photo.id} 缺少 ${width}px 版本`);
-    }
-    await catalog.putArtifact(photoMediaObjectKey(photo.id, width, photo.mediaRevision), body, {
-      contentType: "image/webp",
+  const uploads = [
+    ...PHOTO_VARIANT_WIDTHS.map((width) => {
+      const body = variants.get(width);
+      if (!body) {
+        throw new Error(`照片 ${photo.id} 缺少 ${width}px WebP 版本`);
+      }
+      return {
+        key: photoMediaObjectKey(photo.id, width, photo.mediaRevision, "webp"),
+        body,
+        contentType: "image/webp",
+      };
+    }),
+    ...(photo.avifWidths ?? []).map((width) => {
+      const body = avifVariants?.get(width);
+      if (!body) {
+        throw new Error(`照片 ${photo.id} 缺少 ${width}px AVIF 版本`);
+      }
+      return {
+        key: photoMediaObjectKey(photo.id, width, photo.mediaRevision, "avif"),
+        body,
+        contentType: "image/avif",
+      };
+    }),
+  ];
+  await mapWithConcurrency(uploads, PROCESS_CONCURRENCY, async ({ key, body, contentType }) => {
+    await catalog.putArtifact(key, body, {
+      contentType,
       cacheControl: ASSET_CACHE_CONTROL,
     });
   });

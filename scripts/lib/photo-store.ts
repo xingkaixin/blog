@@ -24,11 +24,17 @@ export type PhotoTextObject = {
   version: string;
 };
 
+export type PhotoBinaryObject = {
+  bytes: Uint8Array;
+  version: string;
+};
+
 export type PhotoStoredObject = { key: string; lastModified: Date };
 
 export interface PhotoObjectStore {
   list(prefix: string): AsyncIterable<PhotoStoredObject>;
   getText(key: string): Promise<PhotoTextObject | null>;
+  getBytes(key: string): Promise<PhotoBinaryObject | null>;
   put(key: string, body: PhotoObjectBody, options: PutPhotoObjectOptions): Promise<string>;
   delete(key: string): Promise<void>;
   close?(): void;
@@ -131,6 +137,19 @@ export class FilePhotoObjectStore implements PhotoObjectStore {
       const target = await resolveSafeObjectPath(this.rootDirectory, key, false);
       const text = await fs.readFile(target, "utf8");
       return { text, version: objectVersion(text) };
+    } catch (error) {
+      if (isNodeError(error) && error.code === "ENOENT") {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async getBytes(key: string): Promise<PhotoBinaryObject | null> {
+    try {
+      const target = await resolveSafeObjectPath(this.rootDirectory, key, false);
+      const bytes = new Uint8Array(await fs.readFile(target));
+      return { bytes, version: objectVersion(bytes) };
     } catch (error) {
       if (isNodeError(error) && error.code === "ENOENT") {
         return null;
@@ -350,6 +369,32 @@ export class R2PhotoObjectStore implements PhotoObjectStore {
 
   async getText(key: string): Promise<PhotoTextObject | null> {
     return this.readText(this.bucketForKey(key), key);
+  }
+
+  async getBytes(key: string): Promise<PhotoBinaryObject | null> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucketForKey(key),
+          Key: key,
+        }),
+      );
+      if (!response.Body) {
+        throw new Error(`R2 对象 ${key} 没有响应内容`);
+      }
+      if (!response.ETag) {
+        throw new Error(`R2 对象 ${key} 没有 ETag`);
+      }
+      return {
+        bytes: await response.Body.transformToByteArray(),
+        version: response.ETag,
+      };
+    } catch (error) {
+      if (isMissingObject(error)) {
+        return null;
+      }
+      throw error;
+    }
   }
 
   private async readText(bucket: string, key: string): Promise<PhotoTextObject | null> {

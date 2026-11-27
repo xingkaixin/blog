@@ -1,12 +1,13 @@
 import {
-  PHOTO_VARIANT_WIDTHS,
   isPhotoArtifactKey,
   photoIdFromMediaObjectKey,
   photoMediaObjectKey,
+  type PhotoVariantWidth,
 } from "../../src/lib/photo-artifact";
 import {
   PHOTO_MONTH_CATALOG_SCHEMA_VERSION,
   monthFromCapturedAt,
+  photoMediaObjectKeys,
   type PhotoAlbum,
   type PhotoCatalogIndex,
   type PhotoMonthCatalog,
@@ -189,17 +190,51 @@ export class PhotoCatalogState {
     return true;
   }
 
+  assertArtifactsNotRetired(objectKeys: Iterable<string>): void {
+    const retiredKeys = this.allRetiredObjectKeys();
+    for (const key of objectKeys) {
+      if (retiredKeys.has(key)) {
+        throw new Error(`对象 ${key} 已进入回收队列，请等待回收完成后重试`);
+      }
+    }
+  }
+
   assertPhotosPublishable(photos: PhotoRecord[]): void {
     const retiredKeys = this.allRetiredObjectKeys();
     for (const photo of photos) {
-      if (
-        PHOTO_VARIANT_WIDTHS.some((width) =>
-          retiredKeys.has(photoMediaObjectKey(photo.id, width, photo.mediaRevision)),
-        )
-      ) {
+      if (photoMediaObjectKeys(photo).some((key) => retiredKeys.has(key))) {
         throw new Error(`照片 ${photo.id} 的产物已进入回收队列，请重新发布`);
       }
     }
+  }
+
+  setPhotoAvifWidths(
+    photoId: string,
+    avifWidths: readonly PhotoVariantWidth[],
+    expectedMediaRevision?: string,
+  ): boolean {
+    const month = this.#photoMonths.get(photoId);
+    if (!month) {
+      throw new Error(`Catalog 中不存在照片 ${photoId}`);
+    }
+    const photo = this.#months.get(month)?.photos.find((candidate) => candidate.id === photoId);
+    if (!photo) {
+      throw new Error(`照片 ${photoId} 所属月份 ${month} 尚未加载或内容不完整`);
+    }
+    if (expectedMediaRevision !== photo.mediaRevision) {
+      return false;
+    }
+    const existing = new Set(photo.avifWidths ?? []);
+    const addedWidths = avifWidths.filter((width) => !existing.has(width));
+    if (addedWidths.length === 0) {
+      return false;
+    }
+    this.assertArtifactsNotRetired(
+      addedWidths.map((width) => photoMediaObjectKey(photo.id, width, photo.mediaRevision, "avif")),
+    );
+    photo.avifWidths = [...existing, ...addedWidths].toSorted((left, right) => left - right);
+    this.markMonthDirty(month);
+    return true;
   }
 
   addPhoto(photo: PhotoRecord): void {
@@ -236,10 +271,7 @@ export class PhotoCatalogState {
       this.#photoMonths.delete(photo.id);
       this.markMonthDirty(month);
 
-      const photoObjectKeys = PHOTO_VARIANT_WIDTHS.map((width) =>
-        photoMediaObjectKey(photo.id, width, photo.mediaRevision),
-      );
-      for (const key of photoObjectKeys) {
+      for (const key of photoMediaObjectKeys(photo)) {
         objectKeys.add(key);
       }
     }
@@ -450,8 +482,8 @@ export class PhotoCatalogState {
         throw new Error(`月份 ${month} 尚未加载，无法确认图片引用`);
       }
       for (const photo of catalog.photos) {
-        for (const width of PHOTO_VARIANT_WIDTHS) {
-          keys.add(photoMediaObjectKey(photo.id, width, photo.mediaRevision));
+        for (const key of photoMediaObjectKeys(photo)) {
+          keys.add(key);
         }
       }
     }
@@ -468,7 +500,11 @@ function periodPaths(periods: Map<string, PhotoPeriod>): Set<string> {
 }
 
 function copyPhoto(photo: PhotoRecord): PhotoRecord {
-  return { ...photo, albumIds: [...photo.albumIds] };
+  return {
+    ...photo,
+    albumIds: [...photo.albumIds],
+    ...(photo.avifWidths ? { avifWidths: [...photo.avifWidths] } : {}),
+  };
 }
 
 function copyPeriod(period: PhotoPeriod): PhotoPeriod {

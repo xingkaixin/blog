@@ -1,6 +1,6 @@
 # 照片墙
 
-照片墙页面位于 `/photos/`。浏览器只读取公开的 WebP 和 JSON Catalog，原始照片不会进入代码库或前端。
+照片墙页面位于 `/photos/`。浏览器只读取公开的 AVIF、WebP 和 JSON Catalog，原始照片不会进入代码库或前端。
 
 ## 存储结构
 
@@ -12,6 +12,9 @@ catalog/months/2026-04.<revision>.json
 media/<photo-id>/<media-revision>/480.webp
 media/<photo-id>/<media-revision>/960.webp
 media/<photo-id>/<media-revision>/2048.webp
+media/<photo-id>/<media-revision>/480.avif
+media/<photo-id>/<media-revision>/960.avif
+media/<photo-id>/<media-revision>/2048.avif
 ```
 
 同一公开 bucket 的 `audio/` 路径用于首页唱片机的音乐，见 [首页唱片机与音乐](music.md)。照片发布和回收只处理照片路径，不管理音乐。
@@ -24,7 +27,7 @@ media/<photo-id>/<media-revision>/2048.webp
 - 新上传的图片在月份记录中保存 `mediaRevision`，每次重新发布使用新版本路径，同一次发布的提交重试复用已上传版本。
   月份分片每次写入也使用新路径，即使内容相同也不复用，以免已过期的回收任务删除新产物。
 - 相册是 Catalog 中的逻辑关系，不依赖 R2 目录。把同一照片再次发布到另一个相册，只会更新索引。
-- 当前发布器只生成公开展示版本，不上传原始文件。
+- 当前发布器只生成公开展示版本，不上传原始文件。新发布的照片同时生成 `480 / 960 / 2048` 的 WebP 与 AVIF，并在月份记录的 `avifWidths` 中标记可用宽度；前端按 `avifWidths` 用 `<picture>` 优先下发 AVIF，旧照片无此字段时继续使用 WebP。
 
 ## 配置 R2
 
@@ -118,6 +121,16 @@ Cloudflare 控制台处理；不要只删除 WebP，否则 Catalog 会留下坏�
 在 macOS 上 HEIC 优先使用系统 `sips`，再回退到保留安全限制的 `heif-convert`；其他
 系统需要能从 `PATH` 调用 `heif-convert`。每次外部解码最长运行 60 秒，解码中间文件在
 单张照片处理完成后删除；源快照在该照片上传完成后立即清理，同时最多处理两张。
+
+### 为存量照片补齐 AVIF
+
+已有照片的原始文件如果不再保留，可以按月份从 R2 现有的 `2048.webp` 下采样补齐 `480.avif` 和 `960.avif`（`2048` 继续使用 WebP，避免同尺寸二次有损压缩）：
+
+```bash
+bun run photos:backfill-avif -- --confirm
+```
+
+该命令幂等且按月份逐月提交；已有 `480 / 960` AVIF 的照片会被跳过。列表、总览与灯箱底片条会使用补齐后的 `480.avif` / `960.avif`，灯箱大图仅在 `2048` 也具备 AVIF 时才切换为 AVIF。
 
 ### 发布器升级
 
