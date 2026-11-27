@@ -5,6 +5,7 @@ import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatCaptureMonth } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
+  photoHasAvifWidth,
   photoVariantUrl,
   type PhotoPeriod,
   type PhotoRecord,
@@ -541,20 +542,26 @@ function FilmFrame({
       />
     );
   }
+  const avifSrc = photoHasAvifWidth(photo, PHOTO_THUMBNAIL_WIDTH)
+    ? photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH, "avif")
+    : undefined;
   return (
-    <img
-      ref={thumbnailRef}
-      src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
-      alt=""
-      width={photo.width}
-      height={photo.height}
-      loading={eager ? "eager" : "lazy"}
-      fetchPriority={eager ? "high" : "auto"}
-      decoding="async"
-      data-photo-id={registerThumbnail ? photo.id : undefined}
-      className="block h-full w-full object-cover"
-      style={{ backgroundColor: photo.placeholderColor }}
-    />
+    <picture className="block h-full w-full">
+      {avifSrc && <source srcSet={avifSrc} type="image/avif" />}
+      <img
+        ref={thumbnailRef}
+        src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
+        alt=""
+        width={photo.width}
+        height={photo.height}
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "auto"}
+        decoding="async"
+        data-photo-id={registerThumbnail ? photo.id : undefined}
+        className="block h-full w-full object-cover"
+        style={{ backgroundColor: photo.placeholderColor }}
+      />
+    </picture>
   );
 }
 

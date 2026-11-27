@@ -4,6 +4,7 @@ import { usePhotoLocale, usePhotoMessages } from "@/hooks/use-photo-messages";
 import { formatPhotoCapturedAt } from "@/lib/photo-captured-at";
 import {
   PHOTO_THUMBNAIL_WIDTH,
+  photoAvifSrcSet,
   photoVariantSrcSet,
   photoVariantUrl,
   type PhotoMonthCatalog,
@@ -246,6 +247,8 @@ function PhotoTile({
   onOpenPhoto: (photo: PhotoRecord, trigger?: HTMLElement | null) => void;
 }) {
   const thumbnailRef = useRegisterPhotoThumbnail(photo.id);
+  const sizes = `(max-width: 767px) 33vw, ${displayWidth}px`;
+  const avifSrcSet = photoAvifSrcSet(baseUrl, photo);
 
   return (
     <figure className="photo-frame" style={style}>
@@ -258,20 +261,23 @@ function PhotoTile({
         aria-label={label}
         onClick={(event) => onOpenPhoto(photo, event.currentTarget)}
       >
-        <img
-          src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
-          srcSet={photoVariantSrcSet(baseUrl, photo)}
-          sizes={`(max-width: 767px) 33vw, ${displayWidth}px`}
-          alt=""
-          width={photo.width}
-          height={photo.height}
-          loading={eager ? "eager" : "lazy"}
-          fetchPriority={eager ? "high" : "auto"}
-          decoding="async"
-          draggable={false}
-          onLoad={(event) => event.currentTarget.setAttribute("data-loaded", "")}
-          className="h-full w-full select-none object-cover"
-        />
+        <picture className="block h-full w-full">
+          {avifSrcSet && <source srcSet={avifSrcSet} sizes={sizes} type="image/avif" />}
+          <img
+            src={photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
+            srcSet={photoVariantSrcSet(baseUrl, photo)}
+            sizes={sizes}
+            alt=""
+            width={photo.width}
+            height={photo.height}
+            loading={eager ? "eager" : "lazy"}
+            fetchPriority={eager ? "high" : "auto"}
+            decoding="async"
+            draggable={false}
+            onLoad={(event) => event.currentTarget.setAttribute("data-loaded", "")}
+            className="h-full w-full select-none object-cover"
+          />
+        </picture>
       </button>
       <figcaption
         aria-hidden="true"

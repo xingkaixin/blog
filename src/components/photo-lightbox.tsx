@@ -26,6 +26,8 @@ import {
   PHOTO_DISPLAY_WIDTH,
   PHOTO_FULL_WIDTH,
   PHOTO_THUMBNAIL_WIDTH,
+  photoAvifSrcSet,
+  photoHasAvifWidth,
   photoVariantSrcSet,
   photoVariantUrl,
   type PhotoAlbum,
@@ -189,12 +191,13 @@ function LightboxImage({
   frameRef: Ref<HTMLDivElement>;
 }) {
   const registry = useContext(PhotoThumbnailRegistryContext);
-  const [previewSrc] = useState(
-    () =>
-      loadedTileSource(photo.id, registry) ??
-      photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH),
-  );
+  const [loadedPreviewSrc] = useState(() => loadedTileSource(photo.id, registry));
   const [loaded, setLoaded] = useState(false);
+  const previewAvifSrc =
+    !loadedPreviewSrc && photoHasAvifWidth(photo, PHOTO_THUMBNAIL_WIDTH)
+      ? photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH, "avif")
+      : undefined;
+  const fullAvifSrcSet = photoAvifSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS, true);
 
   return (
     <div
@@ -206,26 +209,34 @@ function LightboxImage({
         width: `min(100cqw, 100cqh * ${photo.width / photo.height})`,
       }}
     >
-      <img
-        src={previewSrc}
-        alt=""
-        decoding="async"
-        draggable={false}
-        className="absolute inset-0 h-full w-full select-none object-cover blur-sm"
-      />
-      <img
-        src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
-        srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
-        sizes={LIGHTBOX_IMAGE_SIZES}
-        alt=""
-        decoding="async"
-        draggable={false}
-        onLoad={() => setLoaded(true)}
-        className={cn(
-          "absolute inset-0 h-full w-full select-none object-cover transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out)",
-          !loaded && "opacity-0",
+      <picture className="absolute inset-0 block h-full w-full">
+        {previewAvifSrc && <source srcSet={previewAvifSrc} type="image/avif" />}
+        <img
+          src={loadedPreviewSrc ?? photoVariantUrl(baseUrl, photo, PHOTO_THUMBNAIL_WIDTH)}
+          alt=""
+          decoding="async"
+          draggable={false}
+          className="h-full w-full select-none object-cover blur-sm"
+        />
+      </picture>
+      <picture className="absolute inset-0 block h-full w-full">
+        {fullAvifSrcSet && (
+          <source srcSet={fullAvifSrcSet} sizes={LIGHTBOX_IMAGE_SIZES} type="image/avif" />
         )}
-      />
+        <img
+          src={photoVariantUrl(baseUrl, photo, PHOTO_FULL_WIDTH)}
+          srcSet={photoVariantSrcSet(baseUrl, photo, LIGHTBOX_VARIANT_WIDTHS)}
+          sizes={LIGHTBOX_IMAGE_SIZES}
+          alt=""
+          decoding="async"
+          draggable={false}
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            "h-full w-full select-none object-cover transition-opacity duration-(--duration-fast) ease-(--ease-smooth-out)",
+            !loaded && "opacity-0",
+          )}
+        />
+      </picture>
     </div>
   );
 }
@@ -713,9 +724,24 @@ export function PhotoLightbox({
       return undefined;
     }
     const preload = () => {
+      const webpSrcSet = photoVariantSrcSet(baseUrl, target, LIGHTBOX_VARIANT_WIDTHS);
+      const avifSrcSet = photoAvifSrcSet(baseUrl, target, LIGHTBOX_VARIANT_WIDTHS, true);
+      if (avifSrcSet) {
+        const picture = document.createElement("picture");
+        const source = document.createElement("source");
+        source.type = "image/avif";
+        source.sizes = LIGHTBOX_IMAGE_SIZES;
+        source.srcset = avifSrcSet;
+        const image = document.createElement("img");
+        // 先挂进 picture 再设 srcset，确保浏览器按 AVIF 源选择而不先发起 WebP 请求。
+        picture.append(source, image);
+        image.sizes = LIGHTBOX_IMAGE_SIZES;
+        image.srcset = webpSrcSet;
+        return;
+      }
       const image = new Image();
       image.sizes = LIGHTBOX_IMAGE_SIZES;
-      image.srcset = photoVariantSrcSet(baseUrl, target, LIGHTBOX_VARIANT_WIDTHS);
+      image.srcset = webpSrcSet;
     };
     if ("requestIdleCallback" in window) {
       const idleId = window.requestIdleCallback(preload, { timeout: 1_500 });
@@ -989,14 +1015,22 @@ export function PhotoLightbox({
                   }}
                   className="relative h-12 w-12 opacity-50 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-current:opacity-100"
                 >
-                  <img
-                    src={photoVariantUrl(baseUrl, frame, PHOTO_THUMBNAIL_WIDTH)}
-                    alt=""
-                    decoding="async"
-                    draggable={false}
-                    className="h-full w-full select-none object-cover"
-                    style={{ backgroundColor: frame.placeholderColor }}
-                  />
+                  <picture className="block h-full w-full">
+                    {photoHasAvifWidth(frame, PHOTO_THUMBNAIL_WIDTH) && (
+                      <source
+                        srcSet={photoVariantUrl(baseUrl, frame, PHOTO_THUMBNAIL_WIDTH, "avif")}
+                        type="image/avif"
+                      />
+                    )}
+                    <img
+                      src={photoVariantUrl(baseUrl, frame, PHOTO_THUMBNAIL_WIDTH)}
+                      alt=""
+                      decoding="async"
+                      draggable={false}
+                      className="h-full w-full select-none object-cover"
+                      style={{ backgroundColor: frame.placeholderColor }}
+                    />
+                  </picture>
                   {frame.id === photo.id && (
                     <span
                       aria-hidden="true"
