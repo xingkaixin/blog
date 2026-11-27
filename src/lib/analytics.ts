@@ -1,4 +1,5 @@
 import { observeArticleEngagement } from "./article-engagement";
+import { projectIdForUrl } from "./projects";
 import { siteConfig } from "./site";
 
 export function installAnalytics() {
@@ -18,6 +19,30 @@ export function installAnalytics() {
       });
     }
   }
+
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || !window.umami) {
+      return;
+    }
+    const anchor = event.target.closest<HTMLAnchorElement>("a[href]");
+    if (!anchor) {
+      return;
+    }
+    const taggedProject = anchor.dataset.productLink;
+    if (taggedProject) {
+      void window.umami.track("project-visit", {
+        project: taggedProject,
+        source: anchor.dataset.productSource ?? "site",
+      });
+      return;
+    }
+    if (anchor.closest(".article-prose")) {
+      const project = projectIdForUrl(anchor.href);
+      if (project) {
+        void window.umami.track("project-visit", { project, source: "post" });
+      }
+    }
+  });
 
   document.addEventListener("astro:page-load", setupReading);
   document.addEventListener("astro:before-swap", () => {

@@ -48,4 +48,18 @@ describe("rehype blog content", () => {
       "/posts/images/missing/source.jpg",
     );
   });
+
+  it("preserves Referer on owned product links while keeping noreferrer on third-party links", async () => {
+    const renderer = await createMarkdownProcessor({
+      syntaxHighlight: false,
+      rehypePlugins: [rehypeBlogContent],
+    });
+    const { code } = await renderer.render(
+      "[Skills](https://skills.xingkaixin.me) [Yomitomo](https://yomitomo.app) [Example](https://example.com)",
+    );
+
+    expect(code).toContain('href="https://skills.xingkaixin.me" target="_blank" rel="noopener"');
+    expect(code).toContain('href="https://yomitomo.app" target="_blank" rel="noopener"');
+    expect(code).toContain('href="https://example.com" target="_blank" rel="noreferrer"');
+  });
 });

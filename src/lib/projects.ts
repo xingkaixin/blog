@@ -315,6 +315,37 @@ export function primaryProjectUrl(project: Project): string {
   return project.url ?? project.links[0].url;
 }
 
+const featuredHomeProjectIds = ["yomitomo", "codesesh", "agent-dump"] as const;
+
+export function featuredHomeProjects(locale: Locale): Project[] {
+  return featuredHomeProjectIds.flatMap((id) => {
+    const project = projects.find((item) => item.id === id);
+    return project ? [localizeProject(project, locale)] : [];
+  });
+}
+
+const ownedProjectHostToId = new Map(
+  projects.map((project) => [new URL(primaryProjectUrl(project)).hostname, project.id]),
+);
+
+export function projectIdForUrl(href: string): string | undefined {
+  try {
+    const { hostname } = new URL(href);
+    return ownedProjectHostToId.get(hostname);
+  } catch {
+    return undefined;
+  }
+}
+
+export function isOwnedProductUrl(href: string): boolean {
+  try {
+    const { hostname } = new URL(href);
+    return hostname.endsWith(".xingkaixin.me") || ownedProjectHostToId.has(hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function rankProjects(items: Project[], query: string): Project[] {
   const terms = searchTerms(query);
   if (terms.length === 0) {

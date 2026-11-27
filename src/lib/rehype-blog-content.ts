@@ -1,5 +1,6 @@
 import { resolvePostImage } from "./post-images";
 import { createHeadingIdAllocator } from "./post-toc";
+import { isOwnedProductUrl } from "./projects";
 import { siteConfig } from "./site";
 
 const siteOrigin = new URL(siteConfig.url).origin;
@@ -99,7 +100,8 @@ export function rehypeBlogContent() {
           node.properties = {
             ...node.properties,
             target: "_blank",
-            rel: "noreferrer",
+            // Preserve Referer for owned product landing pages so Umami attributes blog referrals.
+            rel: isOwnedProductUrl(href) ? "noopener" : "noreferrer",
             dataPrintRef: reference.index,
           };
         }
